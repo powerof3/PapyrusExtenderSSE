@@ -1,0 +1,4 @@
+LIBRARY	"po3_papyrusextender64"
+EXPORTS
+SKSEPlugin_Query
+SKSEPlugin_Load

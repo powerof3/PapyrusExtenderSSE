@@ -9,7 +9,7 @@ void SetShaderPropertyRGBTint(RE::BSGeometry* geometry)
 {
 	if (geometry)
 	{
-		auto shaderProperty  = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+		auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
 		if (!shaderProperty)
 		{
 			return;
@@ -18,14 +18,14 @@ void SetShaderPropertyRGBTint(RE::BSGeometry* geometry)
 		auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
 		if (lightingShader)
 		{
-			RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+			auto material = lightingShader->material;
 
 			if (material)
 			{
 				// Convert the shaderType to support tints
 				if (material->GetType() == RE::BSShaderMaterial::Type::kFaceGen)
 				{
-					RE::BSLightingShaderMaterialFacegenTint* tintedMaterial = (RE::BSLightingShaderMaterialFacegenTint*)RE::BSLightingShaderMaterialBase::CreateMaterial(RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+					auto tintedMaterial = skyrim_cast<RE::BSLightingShaderMaterialFacegenTint*>(RE::BSLightingShaderMaterialBase::CreateMaterial(RE::BSShaderMaterial::Type::kFaceGenRGBTint));
 					tintedMaterial->CopyFrom(material);
 					lightingShader->SetFlags(0x0A, false);
 					lightingShader->SetFlags(0x15, true);
@@ -35,8 +35,6 @@ void SetShaderPropertyRGBTint(RE::BSGeometry* geometry)
 			}
 		}
 	}
-
-	return;
 }
 
 //------------------------------------------------SET ALPHA------------------------------------------------
@@ -49,7 +47,7 @@ void SetShaderPropertyAlpha(RE::BSGeometry* geometry, float alpha, bool onlySkin
 		return;
 	}
 
-	auto shaderProperty  = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+	auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
 	if (!shaderProperty)
 	{
 		return;
@@ -58,13 +56,13 @@ void SetShaderPropertyAlpha(RE::BSGeometry* geometry, float alpha, bool onlySkin
 	auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
 	if (lightingShader)
 	{
-		RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+		auto material = lightingShader->material;
 
 		if (material)
 		{
 			if (onlySkin)
 			{
-				if ((material->GetType() == RE::BSShaderMaterial::Type::kFaceGenRGBTint) || (material->GetType() == RE::BSShaderMaterial::Type::kFaceGen))
+				if (material->GetType() == RE::BSShaderMaterial::Type::kFaceGenRGBTint || material->GetType() == RE::BSShaderMaterial::Type::kFaceGen)
 				{
 					material->alpha = alpha;
 				}
@@ -94,13 +92,13 @@ void SetArmorSkinAlpha(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPerson
 
 		if (armorNode)
 		{
-			RE::NiNode* node = armorNode->GetAsNiNode();
+			auto node = armorNode->GetAsNiNode();
 
 			if (node)
 			{
 				for (size_t i = 0; i < node->children.GetSize(); i++)
 				{
-					RE::NiAVObject* object = node->children.GetAt(i).get();
+					auto object = node->children.GetAt(i).get();
 
 					if (object)
 					{
@@ -123,7 +121,7 @@ void ReplaceTextureSet(RE::BSGeometry* geometry, RE::BGSTextureSet* sourceTXST, 
 		return;
 	}
 
-	auto shaderProperty = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+	auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
 	if (!shaderProperty)
 	{
 		return;
@@ -132,11 +130,11 @@ void ReplaceTextureSet(RE::BSGeometry* geometry, RE::BGSTextureSet* sourceTXST, 
 	auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
 	if (lightingShader)
 	{
-		RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+		auto material = lightingShader->material;
 
 		if (material)
 		{
-			std::string sourcePath = (material->textureSet)->GetTexturePath(RE::BSTextureSet::Textures::kDiffuse);
+			std::string sourcePath = material->textureSet->GetTexturePath(RE::BSTextureSet::Textures::kDiffuse);
 			std::string targetPath = sourceTXST->GetTexturePath(RE::BSTextureSet::Textures::kDiffuse);
 
 			//making everything lowercase
@@ -144,8 +142,8 @@ void ReplaceTextureSet(RE::BSGeometry* geometry, RE::BGSTextureSet* sourceTXST, 
 			std::transform(targetPath.begin(), targetPath.end(), targetPath.begin(), ::tolower);
 
 			//CK texturesets start without "textures\" path while vanilla nifs always start with it.	
-			size_t data_pos = sourcePath.find("data\\textures\\", 0, 14);
-			size_t txt_pos = sourcePath.find("textures\\", 0, 9);
+			size_t data_pos = sourcePath.find(R"(data\textures\)", 0, 14);
+			size_t txt_pos = sourcePath.find(R"(textures\)", 0, 9);
 
 			if (data_pos != std::string::npos)
 			{
@@ -168,17 +166,19 @@ void ReplaceTextureSet(RE::BSGeometry* geometry, RE::BGSTextureSet* sourceTXST, 
 			}
 			else
 			{
-				if ((UInt32)textureType < RE::BSTextureSet::Textures::kTotal)
+				auto BSTextureType = static_cast<RE::BSTextureSet::Texture>(textureType);
+
+				if (BSTextureType < RE::BSTextureSet::Textures::kTotal)
 				{
 					RE::BSShaderTextureSet* newTextureSet = RE::BSShaderTextureSet::Create();
 
-					for (UInt32 i = 0; i < RE::BSTextureSet::Textures::kTotal; i++)
+					for (RE::BSTextureSet::Texture i = RE::BSTextureSet::Texture::kDiffuse; i < RE::BSTextureSet::Textures::kTotal; ++i)
 					{
-						const char* texturePath = material->textureSet->GetTexturePath((RE::BSTextureSet::Texture)i);
-						newTextureSet->SetTexturePath((RE::BSTextureSet::Texture)i, texturePath);
+						const char* texturePath = material->textureSet->GetTexturePath(i);
+						newTextureSet->SetTexturePath(i, texturePath);
 					}
 
-					newTextureSet->SetTexturePath((RE::BSTextureSet::Texture)textureType, targetTXST->GetTexturePath((RE::BSTextureSet::Texture)textureType));
+					newTextureSet->SetTexturePath(BSTextureType, targetTXST->GetTexturePath(BSTextureType));
 					material->ReleaseTextures();
 					material->SetTextureSet(newTextureSet);
 				}
@@ -197,7 +197,7 @@ void ReplaceSkinTXST(RE::BSGeometry* geometry, RE::BGSTextureSet* TXST, SInt32 t
 		return;
 	}
 
-	auto shaderProperty  = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+	auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
 	if (!shaderProperty)
 	{
 		return;
@@ -206,7 +206,7 @@ void ReplaceSkinTXST(RE::BSGeometry* geometry, RE::BGSTextureSet* TXST, SInt32 t
 	auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
 	if (lightingShader)
 	{
-		RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+		auto material = lightingShader->material;
 
 		if (material && (material->GetType() == RE::BSShaderMaterial::Type::kFaceGenRGBTint || material->GetType() == RE::BSShaderMaterial::Type::kFaceGen))
 		{
@@ -217,17 +217,19 @@ void ReplaceSkinTXST(RE::BSGeometry* geometry, RE::BGSTextureSet* TXST, SInt32 t
 			}
 			else
 			{
-				if ((UInt32)textureType < RE::BSTextureSet::Textures::kTotal)
+				auto BSTextureType = static_cast<RE::BSTextureSet::Texture>(textureType);
+
+				if (BSTextureType < RE::BSTextureSet::Textures::kTotal)
 				{
 					RE::BSShaderTextureSet* newTextureSet = RE::BSShaderTextureSet::Create();
 
-					for (UInt32 i = 0; i < RE::BSTextureSet::Textures::kTotal; i++)
+					for (RE::BSTextureSet::Texture i = RE::BSTextureSet::Texture::kDiffuse; i < RE::BSTextureSet::Textures::kTotal; ++i)
 					{
-						const char* texturePath = material->textureSet->GetTexturePath((RE::BSTextureSet::Texture)i);
-						newTextureSet->SetTexturePath((RE::BSTextureSet::Texture)i, texturePath);
+						const char* texturePath = material->textureSet->GetTexturePath(i);
+						newTextureSet->SetTexturePath(i, texturePath);
 					}
 
-					newTextureSet->SetTexturePath((RE::BSTextureSet::Texture)textureType, TXST->GetTexturePath((RE::BSTextureSet::Texture)textureType));
+					newTextureSet->SetTexturePath(BSTextureType, TXST->GetTexturePath(BSTextureType));
 					material->ReleaseTextures();
 					material->SetTextureSet(newTextureSet);
 				}
@@ -258,13 +260,13 @@ void SetArmorSkinTXST(RE::Actor* thisActor, RE::BGSTextureSet* TXST, RE::BGSBipe
 
 			if (armorNode)
 			{
-				RE::NiNode* node = armorNode->GetAsNiNode();
+				auto node = armorNode->GetAsNiNode();
 
 				if (node)
 				{
 					for (UInt32 i = 0; i < node->children.GetSize(); i++)
 					{
-						RE::NiAVObject* object = node->children.GetAt(i).get();
+						auto object = node->children.GetAt(i).get();
 
 						if (object)
 						{
@@ -290,8 +292,8 @@ void SetShaderPropertyMLP(RE::BSGeometry* geometry, RE::BSGeometry* templateGeom
 		return;
 	}
 
-	auto shaderProperty = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
-	auto templateShaderProperty = netimmersePtr_cast<RE::BSShaderProperty>(templateGeometry->states[RE::BSGeometry::States::kEffect]);
+	auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+	auto templateShaderProperty = RE::niptr_cast<RE::BSShaderProperty>(templateGeometry->states[RE::BSGeometry::States::kEffect]);
 
 	if (!shaderProperty || !templateShaderProperty)
 	{
@@ -303,12 +305,12 @@ void SetShaderPropertyMLP(RE::BSGeometry* geometry, RE::BSGeometry* templateGeom
 
 	if (lightingShader && templateLightingShader)
 	{
-		RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
-		RE::BSLightingShaderMaterialMultiLayerParallax* templateMaterial = (RE::BSLightingShaderMaterialMultiLayerParallax*)templateLightingShader->material;
+		auto material = lightingShader->material;
+		auto templateMaterial = skyrim_cast<RE::BSLightingShaderMaterialMultiLayerParallax*>(templateLightingShader->material);
 
 		if (material && templateMaterial && (material->GetType() == RE::BSShaderMaterial::Type::kFaceGen || material->GetType() == RE::BSShaderMaterial::Type::kFaceGenRGBTint))
 		{
-			RE::BSLightingShaderMaterialMultiLayerParallax* newMaterial = (RE::BSLightingShaderMaterialMultiLayerParallax*)RE::BSLightingShaderMaterialBase::CreateMaterial(RE::BSShaderMaterial::Type::kMultilayerParallax);
+			auto newMaterial = skyrim_cast<RE::BSLightingShaderMaterialMultiLayerParallax*>(RE::BSLightingShaderMaterialBase::CreateMaterial(RE::BSShaderMaterial::Type::kMultilayerParallax));
 
 			newMaterial->CopyFrom(templateMaterial);
 
@@ -335,10 +337,10 @@ void SetShaderPropertyMLP(RE::BSGeometry* geometry, RE::BSGeometry* templateGeom
 			lightingShader->SetFlags(0x3B, true); //back lighting
 
 			RE::BSShaderTextureSet* newTextureSet = RE::BSShaderTextureSet::Create();
-			for (UInt32 i = 0; i < RE::BSTextureSet::Textures::kTotal; i++)
+			for (RE::BSTextureSet::Texture i = RE::BSTextureSet::Textures::kDiffuse; i < RE::BSTextureSet::Textures::kTotal; ++i)
 			{
-				const char* texturePath = material->textureSet->GetTexturePath((RE::BSTextureSet::Texture)i);
-				newTextureSet->SetTexturePath((RE::BSTextureSet::Texture)i, texturePath);
+				const char* texturePath = material->textureSet->GetTexturePath(i);
+				newTextureSet->SetTexturePath(i, texturePath);
 			}
 
 			newTextureSet->SetTexturePath(RE::BSTextureSet::Texture::kNormal, material->textureSet->GetTexturePath(RE::BSTextureSet::Texture::kNormal));
@@ -353,7 +355,7 @@ void SetShaderPropertyMLP(RE::BSGeometry* geometry, RE::BSGeometry* templateGeom
 	}
 }
 
-RE::BSGeometry* GetArmorGeometry(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, SInt32 shaderType)
+RE::BSGeometry* GetArmorGeometry(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, RE::BSShaderMaterial::Type shaderType)
 {
 	RE::TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
 
@@ -400,14 +402,14 @@ RE::BSGeometry* GetArmorGeometry(RE::Actor* thisActor, RE::BGSBipedObjectForm::F
 //---------------------MISC FUNCTIONS--------------------------------------
 
 // Gets face node - adapted from RaceMenu
-RE::BSGeometry* GetHeadPartGeometry(RE::Actor* actor, UInt32 partType)
+RE::BSGeometry* GetHeadPartGeometry(RE::Actor* actor, RE::BGSHeadPart::Type partType)
 {
 	RE::BSFaceGenNiNode* faceNode = actor->GetFaceGenNiNode();
 	auto actorBase = actor->GetActorBase();
 
 	if (faceNode && actorBase)
 	{
-		RE::BGSHeadPart* facePart = actorBase->GetCurrentHeadPartByType((RE::BGSHeadPart::Type)partType);
+		RE::BGSHeadPart* facePart = actorBase->GetCurrentHeadPartByType(partType);
 		if (facePart)
 		{
 			RE::NiAVObject* headNode = faceNode->GetObjectByName(facePart->editorID);
@@ -469,42 +471,40 @@ RE::NiAVObject* VisitArmorAddon(RE::Actor* thisActor, RE::TESObjectARMO* thisArm
 	return nullptr;
 }
 
-SInt32 GetShaderPropertyType(RE::BSGeometry* geometry)
+RE::BSShaderMaterial::Type GetShaderPropertyType(RE::BSGeometry* geometry)
 {
-	if (!geometry)
+	if (geometry)
 	{
-		return -1;
-	}
+		auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
 
-	auto shaderProperty  = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
-	if (!shaderProperty)
-	{
-		return -1;
-	}
-
-	auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
-	if (lightingShader)
-	{
-		RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
-
-		if (material)
+		if (shaderProperty)
 		{
-			return (UInt32)material->GetType();
+			auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
+
+			if (lightingShader)
+			{
+				auto material = lightingShader->material;
+
+				if (material)
+				{
+					return material->GetType();
+				}
+			}
 		}
 	}
 
-	return -1;
+	return RE::BSShaderMaterial::Type::kDefault;
 }
 
 //checks whether geometry is modified
-UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry)
+UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry, bool isBodyGeometry)
 {
 	if (!geometry)
 	{
 		return 0;
 	}
 
-	auto shaderProperty  = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+	auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
 	if (!shaderProperty)
 	{
 		return 0;
@@ -513,15 +513,35 @@ UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry)
 	auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
 	if (lightingShader)
 	{
-		RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+		auto material = lightingShader->material;
 
 		if (material)
 		{
-			if (material->alpha != 1.0)
+			auto alpha = material->alpha;
+
+			if (isBodyGeometry)
 			{
+				if (alpha != 1.0)
+				{
+					return 1;
+				}
+
+				return 0;
+			}
+
+			auto shaderType = material->GetType();
+
+			if (alpha != 1.0)
+			{
+				if (shaderType == RE::BSShaderMaterial::Type::kFaceGenRGBTint)
+				{
+					return 3;
+				}
+
 				return 1;
 			}
-			else if (material->GetType() == RE::BSShaderMaterial::Type::kFaceGenRGBTint)
+			
+			if (shaderType == RE::BSShaderMaterial::Type::kFaceGenRGBTint)
 			{
 				return 2;
 			}
@@ -534,19 +554,19 @@ UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry)
 //color mixing algorithm
 UInt8 colorMix(UInt8 a, UInt8 b, float t) //t is percentage blend
 {
-	return sqrt((1 - t) * pow(b, 2) + t * pow(a, 2));
+	return round(sqrt((1 - t) * (b * b) + t * (a * a)));
 }
 
 //luminance detection algorithm
 float calculateLuminance(UInt8 R, UInt8 G, UInt8 B) //returns luminance between 0-1.0
 {
-	return (0.2126 * R + 0.7152 * G + 0.0722 * B) / 255;
+	return (0.2126 * R + 0.7152 * G + 0.0722 * B) / 255.0;
 }
 
 //get worn form
 RE::TESObjectARMO* GetWornForm(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag mask)
 {
-	RE::ExtraContainerChanges* exChanges = static_cast<RE::ExtraContainerChanges*>(thisActor->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
+	auto exChanges = static_cast<RE::ExtraContainerChanges*>(thisActor->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
 	RE::InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
 	RE::ExtraWorn* worn = nullptr;
 	RE::ExtraWornLeft* wornLeft = nullptr;
@@ -613,13 +633,13 @@ RE::TESObjectARMO* GetSkinForm(RE::Actor* thisActor, RE::BGSBipedObjectForm::Fir
 			if (actorBase)
 			{
 				equipped = actorBase->skin; // Check ActorBase
-			}
 
-			RE::TESRace* race = actorBase->race;
+				RE::TESRace* race = actorBase->race;
 
-			if (!equipped && race)
-			{
-				equipped = race->skin; // Check Race
+				if (!equipped && race)
+				{
+					equipped = race->skin; // Check Race
+				}
 			}
 		}
 	}
@@ -632,7 +652,7 @@ RE::TESObjectARMA* GetArmorAddonByMask(RE::TESRace* race, RE::TESObjectARMO* arm
 {
 	for (auto& currentAddon : armor->armature)
 	{
-		if (currentAddon && currentAddon->IsValidRace(race) && ((currentAddon->GetSlotMask() & mask) == mask))
+		if (currentAddon && currentAddon->IsValidRace(race) && (currentAddon->GetSlotMask() & mask) == mask)
 		{
 			return currentAddon;
 		}

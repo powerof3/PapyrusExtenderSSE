@@ -4,6 +4,7 @@
 
 #include "po3_functions.h"
 #include "po3_graphicfunctions.h"
+#include "po3_offsets.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -20,18 +21,16 @@ RE::SoulLevel GetSoulLevel(RE::TESSoulGem* a_soulGem, RE::InventoryEntryData* en
 	{
 		return a_soulGem->containedSoul;
 	}
-	else
-	{
-		if (entry->extraList)
-		{
-			for (auto& list : *entry->extraList)
-			{
-				auto xSoul = static_cast<RE::ExtraSoul*>(list->GetByType(RE::ExtraDataType::kSoul));
 
-				if (xSoul)
-				{
-					return static_cast<RE::SoulLevel>(xSoul->level);
-				}
+	if (entry->extraList)
+	{
+		for (auto& list : *entry->extraList)
+		{
+			auto xSoul = static_cast<RE::ExtraSoul*>(list->GetByType(RE::ExtraDataType::kSoul));
+
+			if (xSoul)
+			{
+				return static_cast<RE::SoulLevel>(xSoul->level);
 			}
 		}
 	}
@@ -41,7 +40,9 @@ RE::SoulLevel GetSoulLevel(RE::TESSoulGem* a_soulGem, RE::InventoryEntryData* en
 
 bool VerifyKeywords(RE::TESForm* form, RE::BSScript::VMArray<RE::BGSKeyword*>* keywords)
 {
-	if (form && !keywords->empty())
+	auto size = keywords->size();
+
+	if (size > 0)
 	{
 		auto pKeywords = skyrim_cast<RE::BGSKeywordForm*>(form);
 
@@ -49,7 +50,7 @@ bool VerifyKeywords(RE::TESForm* form, RE::BSScript::VMArray<RE::BGSKeyword*>* k
 		{
 			RE::BGSKeyword* keyword = nullptr;
 
-			for (size_t i = 0; i < keywords->size(); i++)
+			for (UInt32 i = 0; i < size; i++)
 			{
 				keyword = keywords->at(i);
 
@@ -67,7 +68,7 @@ bool VerifyKeywords(RE::TESForm* form, RE::BSScript::VMArray<RE::BGSKeyword*>* k
 // navmesh related functions
 float CalcLinearDistance(const RE::NiPoint3& a_lhs, const RE::NiPoint3& a_rhs)
 {
-	return (((a_rhs.x - a_lhs.x) * (a_rhs.x - a_lhs.x)) + ((a_rhs.y - a_lhs.y) * (a_rhs.y - a_lhs.y)) + ((a_rhs.z - a_lhs.z) * (a_rhs.z - a_lhs.z)));
+	return ((a_rhs.x - a_lhs.x) * (a_rhs.x - a_lhs.x)) + ((a_rhs.y - a_lhs.y) * (a_rhs.y - a_lhs.y)) + ((a_rhs.z - a_lhs.z) * (a_rhs.z - a_lhs.z));
 }
 
 std::optional<RE::NiPoint3> FindNearestVertex(const RE::TESObjectREFR* a_ref)
@@ -99,7 +100,7 @@ std::optional<RE::NiPoint3> FindNearestVertex(const RE::TESObjectREFR* a_ref)
 }
 
 // time
-std::vector<SInt32> GetGameStartDate()
+/*std::vector<SInt32> GetGameStartDate()
 {
 	std::vector<SInt32> vec;
 	vec.reserve(3);
@@ -118,10 +119,10 @@ std::vector<SInt32> GetGameStartDate()
 		SInt32 currentYear = g_gameYear->value;
 		float  daysElapsed = g_daysElapsed->value;
 
-		SInt32 firstYear = currentYear - (SInt32)(daysElapsed / 365);
-		SInt32 firstMonth = currentMonth - (SInt32)((fmodf(daysElapsed, 365) / singleton->DAYS_IN_MONTH[currentMonth]));
+		auto firstYear = currentYear - static_cast<SInt32>(daysElapsed / 365);
+		auto firstMonth = currentMonth - static_cast<SInt32>((fmodf(daysElapsed, 365) / singleton->DAYS_IN_MONTH[currentMonth]));
+		auto dayOffset = static_cast<SInt32>(fmodf(fmodf(daysElapsed, 365), 30) / 1);
 
-		SInt32 dayOffset = fmodf(fmodf(daysElapsed, 365), 30) / 1;
 		SInt32 firstDay = currentDay - dayOffset;
 		if (firstDay < 0)
 		{
@@ -140,6 +141,82 @@ std::vector<SInt32> GetGameStartDate()
 	}
 
 	return vec;
+}*/
+
+void StopAllShaders_Internal(RE::TESObjectREFR* thisRef)
+{
+	auto singleton = RE::Unk141EBEAD0::GetSingleton();
+
+	singleton->activeEffectShadersLock.Lock();
+	for (auto& shaderReferenceEffect : singleton->activeEffectShaders)
+	{
+		if (!shaderReferenceEffect)
+		{
+			continue;
+		}
+
+		auto refHandle = thisRef->CreateRefHandle();
+
+		if (shaderReferenceEffect->refHandle != refHandle)
+		{
+			continue;
+		}
+
+		shaderReferenceEffect->unk40 = 1;
+	}
+	singleton->activeEffectShadersLock.Unlock();
+}
+
+void ResetAlphaAndHead(RE::Actor* thisActor, RE::BSGeometry* geometry)
+{
+	g_task->AddTask([thisActor, geometry]()
+	{
+		auto faceNode = thisActor->GetFaceGenNiNode();
+
+		if (faceNode)
+		{
+			for (UInt32 i = 0; i < faceNode->children.GetSize(); i++)
+			{
+				auto object = faceNode->children.GetAt(i).get();
+
+				if (object)
+				{
+					object->flags &= ~0x01;
+				}
+			}
+
+			faceNode->flags &= ~0x01;
+		}
+
+		SetShaderPropertyAlpha(geometry, 1.0, true);
+
+		SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kBody, 1.0);
+		SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kHands, 1.0);
+		SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kFeet, 1.0);
+		SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kTail, 1.0); //tail
+		SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kDecapitate, 1.0); //decap
+	});
+}
+
+void ResetTint(RE::Actor* thisActor)
+{
+	auto thisNPC = thisActor->GetActorBase();
+
+	if (thisNPC)
+	{
+		RE::NiColorA val;
+		val.red = thisNPC->textureLighting.red / 255.0;
+		val.green = thisNPC->textureLighting.green / 255.0;
+		val.blue = thisNPC->textureLighting.blue / 255.0;
+		RE::NiColorA* skinColor = &val;
+
+		RE::NiNode* model = thisActor->GetNiRootNode(0);
+
+		if (model)
+		{
+			model->UpdateModelSkin(&skinColor);
+		}
+	}
 }
 
 template <typename V, typename A>
@@ -171,14 +248,14 @@ void PO3_SKSEFunctions::GetHairColor(RE::StaticFunctionTag*, RE::Actor* thisActo
 
 	g_task->AddTask([thisActor, color]()
 	{
-		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, (UInt32)RE::BGSHeadPart::Type::kHair);
-
+		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, RE::BGSHeadPart::Type::kHair);
 		if (!geometry)
 		{
 			return;
 		}
 
-		auto shaderProperty = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+		auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+
 		if (!shaderProperty)
 		{
 			return;
@@ -188,11 +265,11 @@ void PO3_SKSEFunctions::GetHairColor(RE::StaticFunctionTag*, RE::Actor* thisActo
 
 		if (lightingShader)
 		{
-			RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+			auto material = lightingShader->material;
 
 			if (material && material->GetType() == RE::BSShaderMaterial::Type::kHairTint)
 			{
-				RE::BSLightingShaderMaterialHairTint* tintedMaterial = (RE::BSLightingShaderMaterialHairTint*)material;
+				auto tintedMaterial = skyrim_cast<RE::BSLightingShaderMaterialHairTint*>(material);
 				RE::NiColor tintColor = tintedMaterial->tintColor;
 
 				color->color.red = tintColor.red * 255;
@@ -233,39 +310,41 @@ void PO3_SKSEFunctions::GetSkinColor(RE::StaticFunctionTag*, RE::Actor* thisActo
 
 	g_task->AddTask([thisActor, color]()
 	{
-		RE::BSGeometry* geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kBody, (UInt32)RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+		RE::BSGeometry* geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kBody, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
 
 		if (!geometry)
 		{
-			geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kHands, (UInt32)RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+			geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kHands, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
 		}
 
 		if (!geometry)
 		{
-			geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kFeet, (UInt32)RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+			geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kFeet, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
 		}
 
 		if (!geometry)
 		{
-			geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kTail, (UInt32)RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+			geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kTail, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
 		}
 
 		if (geometry)
 		{
-			auto shaderProperty = netimmersePtr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+			auto shaderProperty = RE::niptr_cast<RE::BSShaderProperty>(geometry->states[RE::BSGeometry::States::kEffect]);
+
 			if (!shaderProperty)
 			{
 				return;
 			}
 
 			auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(shaderProperty);
+
 			if (lightingShader)
 			{
-				RE::BSLightingShaderMaterial* material = (RE::BSLightingShaderMaterial*)lightingShader->material;
+				auto material = lightingShader->material;
 
 				if (material && material->GetType() == RE::BSShaderMaterial::Type::kFaceGenRGBTint)
 				{
-					RE::BSLightingShaderMaterialFacegenTint* tintedMaterial = (RE::BSLightingShaderMaterialFacegenTint*)material;
+					auto tintedMaterial = skyrim_cast<RE::BSLightingShaderMaterialFacegenTint*>(material);
 					RE::NiColor tintColor = tintedMaterial->tintColor;
 
 					color->color.red = tintColor.red * 255;
@@ -297,7 +376,7 @@ void PO3_SKSEFunctions::SetSkinColor(RE::StaticFunctionTag*, RE::Actor* thisActo
 
 	g_task->AddTask([thisActor, color]()
 	{
-		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, (UInt32)RE::BGSHeadPart::Type::kFace);
+		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, RE::BGSHeadPart::Type::kFace);
 		SetShaderPropertyRGBTint(geometry);
 
 		RE::NiColorA val;
@@ -331,10 +410,10 @@ void PO3_SKSEFunctions::MixColorWithSkinTone(RE::StaticFunctionTag*, RE::Actor* 
 			return;
 		}
 
-		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, (UInt32)RE::BGSHeadPart::Type::kFace);
+		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, RE::BGSHeadPart::Type::kFace);
 		SetShaderPropertyRGBTint(geometry); //makes face tintable
 
-		float skinLuminance = 0.0;
+		float skinLuminance;
 
 		if (manualMode)
 		{
@@ -373,7 +452,7 @@ void PO3_SKSEFunctions::SetSkinAlpha(RE::StaticFunctionTag*, RE::Actor* thisActo
 
 	g_task->AddTask([thisActor, alpha]()
 	{
-		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, (UInt32)RE::BGSHeadPart::Type::kFace);
+		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, RE::BGSHeadPart::Type::kFace);
 		SetShaderPropertyAlpha(geometry, alpha, true);
 
 		SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kBody, alpha);
@@ -407,17 +486,17 @@ void PO3_SKSEFunctions::EquipArmorIfSkinVisible(RE::StaticFunctionTag*, RE::Acto
 				continue;
 			}
 
-			RE::NiNode* node = armorNode->GetAsNiNode();
+			auto node = armorNode->GetAsNiNode();
 
 			if (node)
 			{
 				for (UInt32 i = 0; i < node->children.GetSize(); i++)
 				{
-					RE::NiAVObject* object = node->children.GetAt(i).get();
+					auto object = node->children.GetAt(i).get();
 
 					if (object)
 					{
-						if (object && GetShaderPropertyType(object->GetAsBSGeometry()) == (UInt32)RE::BSShaderMaterial::Type::kFaceGenRGBTint)
+						if (object && GetShaderPropertyType(object->GetAsBSGeometry()) == RE::BSShaderMaterial::Type::kFaceGenRGBTint)
 						{
 							thisActor->EquipItem(armorToEquip, 1, false, 0, 0);
 							return;
@@ -427,7 +506,7 @@ void PO3_SKSEFunctions::EquipArmorIfSkinVisible(RE::StaticFunctionTag*, RE::Acto
 			}
 			else
 			{
-				if (GetShaderPropertyType(armorNode->GetAsBSGeometry()) == (UInt32)RE::BSShaderMaterial::Type::kFaceGenRGBTint)
+				if (GetShaderPropertyType(armorNode->GetAsBSGeometry()) == RE::BSShaderMaterial::Type::kFaceGenRGBTint)
 				{
 					thisActor->EquipItem(armorToEquip, 1, false, 0, 0);
 					return;
@@ -454,13 +533,13 @@ void PO3_SKSEFunctions::ReplaceArmorTextureSet(RE::StaticFunctionTag*, RE::Actor
 
 				if (armorNode)
 				{
-					RE::NiNode* node = armorNode->GetAsNiNode();
+					auto node = armorNode->GetAsNiNode();
 
 					if (node)
 					{
 						for (UInt32 i = 0; i < node->children.GetSize(); i++)
 						{
-							RE::NiAVObject* object = node->children.GetAt(i).get();
+							auto object = node->children.GetAt(i).get();
 
 							if (object)
 							{
@@ -500,11 +579,11 @@ void PO3_SKSEFunctions::ReplaceSkinTextureSet(RE::StaticFunctionTag*, RE::Actor*
 
 	if (isFemale)
 	{
-		SetArmorSkinTXST(thisActor, femaleTXST, (RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag)slotMask, textureType);
+		SetArmorSkinTXST(thisActor, femaleTXST, static_cast<RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag>(slotMask), textureType);
 	}
 	else
 	{
-		SetArmorSkinTXST(thisActor, maleTXST, (RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag)slotMask, textureType);
+		SetArmorSkinTXST(thisActor, maleTXST, static_cast<RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag>(slotMask), textureType);
 	}
 }
 
@@ -530,7 +609,7 @@ void PO3_SKSEFunctions::ReplaceFaceTextureSet(RE::StaticFunctionTag*, RE::Actor*
 
 	g_task->AddTask([thisActor, maleTXST, femaleTXST, textureType, isFemale]()
 	{
-		RE::BSGeometry* faceGeometry = GetHeadPartGeometry(thisActor, (UInt32)RE::BGSHeadPart::Type::kFace);
+		RE::BSGeometry* faceGeometry = GetHeadPartGeometry(thisActor, RE::BGSHeadPart::Type::kFace);
 
 		if (isFemale)
 		{
@@ -554,7 +633,7 @@ RE::BGSTextureSet* PO3_SKSEFunctions::GetHeadPartTextureSet(RE::StaticFunctionTa
 
 	if (actorBase)
 	{
-		RE::BGSHeadPart* headpart = actorBase->GetCurrentHeadPartByType((RE::BGSHeadPart::Type)type);
+		RE::BGSHeadPart* headpart = actorBase->GetCurrentHeadPartByType(static_cast<RE::BGSHeadPart::Type>(type));
 
 		if (headpart)
 		{
@@ -576,7 +655,7 @@ void PO3_SKSEFunctions::SetHeadPartTextureSet(RE::StaticFunctionTag*, RE::Actor*
 
 	if (actorBase)
 	{
-		RE::BGSHeadPart* headpart = actorBase->GetCurrentHeadPartByType((RE::BGSHeadPart::Type)type);
+		RE::BGSHeadPart* headpart = actorBase->GetCurrentHeadPartByType(static_cast<RE::BGSHeadPart::Type>(type));
 
 		if (headpart)
 		{
@@ -594,12 +673,12 @@ void PO3_SKSEFunctions::SetHeadPartAlpha(RE::StaticFunctionTag*, RE::Actor* this
 
 	g_task->AddTask([thisActor, partType, alpha]()
 	{
-		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, partType);
+		RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, static_cast<RE::BGSHeadPart::Type>(partType));
 		SetShaderPropertyAlpha(geometry, alpha, false);
 	});
 }
 
-void PO3_SKSEFunctions::ToggleSkinnedDecalNode(RE::StaticFunctionTag*, RE::Actor* thisActor, bool disable)
+void PO3_SKSEFunctions::ToggleChildNode(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString nodeName, bool disable)
 {
 	if (!thisActor)
 	{
@@ -613,25 +692,66 @@ void PO3_SKSEFunctions::ToggleSkinnedDecalNode(RE::StaticFunctionTag*, RE::Actor
 		return;
 	}
 
-	g_task->AddTask([parent, disable]()
+	RE::NiAVObject* child = nullptr;
+	if (nodeName == "faceGenNiNodeSkinned")
 	{
-		RE::NiAVObject* object = parent->GetObjectByName("Skinned Decal Node");
+		child = thisActor->GetFaceGenNiNode();
+	}
+	else
+	{
+		child = parent->GetObjectByName(nodeName);
+	}
 
-		if (object)
+	if (child)
+	{
+		g_task->AddTask([child, disable]()
 		{
-			if (!disable)
+			auto node = child->GetAsNiNode();
+
+			if (node)
 			{
-				object->flags &= ~0x01;
+				for (UInt32 i = 0; i < node->children.GetSize(); i++)
+				{
+					auto object = node->children.GetAt(i).get();
+
+					if (object)
+					{
+						if (!disable)
+						{
+							object->flags &= ~0x01;
+						}
+						else
+						{
+							object->flags |= 0x01;
+						}
+					}
+				}
+
+				if (!disable)
+				{
+					child->flags &= ~0x01;
+				}
+				else
+				{
+					child->flags |= 0x01;
+				}
 			}
 			else
 			{
-				object->flags |= 0x01;
+				if (!disable)
+				{
+					child->flags &= ~0x01;
+				}
+				else
+				{
+					child->flags |= 0x01;
+				}
 			}
-		}
-	});
+		});
+	}
 }
 
-void PO3_SKSEFunctions::RemoveFaceGenNode(RE::StaticFunctionTag*, RE::Actor* thisActor)
+void PO3_SKSEFunctions::RemoveChildNode(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString nodeName)
 {
 	if (!thisActor)
 	{
@@ -645,15 +765,23 @@ void PO3_SKSEFunctions::RemoveFaceGenNode(RE::StaticFunctionTag*, RE::Actor* thi
 		return;
 	}
 
-	g_task->AddTask([parent, thisActor]()
+	RE::NiAVObject* child = nullptr;
+	if (nodeName == "faceGenNiNodeSkinned")
 	{
-		auto object = thisActor->GetFaceGenNiNode();
+		child = thisActor->GetFaceGenNiNode();
+	}
+	else
+	{
+		child = parent->GetObjectByName(nodeName);
+	}
 
-		if (object)
+	if (child)
+	{
+		g_task->AddTask([parent, child]()
 		{
-			parent->RemoveChild(object);
-		}
-	});
+			parent->RemoveChild(child);
+		});
+	}
 }
 
 bool PO3_SKSEFunctions::IsActorSoulTrapped(RE::StaticFunctionTag*, RE::Actor* thisActor)
@@ -710,14 +838,14 @@ bool PO3_SKSEFunctions::IsActorSoulTrapped(RE::StaticFunctionTag*, RE::Actor* th
 			isNPC = true;
 		}
 
-		RE::ExtraContainerChanges* exChanges = static_cast<RE::ExtraContainerChanges*>(thisCaster->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
+		auto exChanges = static_cast<RE::ExtraContainerChanges*>(thisCaster->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
 		RE::InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
 
 		if (changes && changes->entryList)
 		{
 			for (RE::InventoryEntryData* data : *changes->entryList)
 			{
-				RE::TESForm* item = data->GetOwner();
+				RE::TESForm* item = data->type;
 
 				if (!item->IsSoulGem())
 				{
@@ -780,7 +908,7 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::AddAllEquippedItemsToArra
 
 						if (worn || wornLeft)
 						{
-							vec.push_back(data->GetOwner());
+							vec.push_back(data->type);
 						}
 					}
 				}
@@ -793,67 +921,93 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::AddAllEquippedItemsToArra
 	return result;
 }
 
-void PO3_SKSEFunctions::ResetActor3D(RE::StaticFunctionTag*, RE::Actor* thisActor)
+bool PO3_SKSEFunctions::ResetActor3D(RE::StaticFunctionTag*, RE::Actor* thisActor)
 {
-	if (!thisActor || !thisActor->Is3DLoaded())
+	if (thisActor && thisActor->Is3DLoaded())
 	{
-		return;
-	}
+		RE::BSGeometry* headGeometry = GetHeadPartGeometry(thisActor, RE::BGSHeadPart::Type::kFace);
+		auto type = GetShaderPropertyModdedSkin(headGeometry, false);
 
-	 RE::BSGeometry* geometry = GetHeadPartGeometry(thisActor, (UInt32)RE::BGSHeadPart::Type::kFace);
-
-	if (!geometry)
-	{
-		if (!thisActor->IsOnMount())
+		if (type == 0)
 		{
-			thisActor->QueueNiNodeUpdate(false);
+			auto geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kBody, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+
+			type = GetShaderPropertyModdedSkin(geometry, true);
 		}
-		return;
-	}
-
-	UInt32 type = GetShaderPropertyModdedSkin(geometry);
-
-	if (type == 1)
-	{
-		g_task->AddTask([thisActor, geometry]()
+		if (type == 0)
 		{
-			SetShaderPropertyAlpha(geometry, 1.0, true);
-			SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kBody, 1.0);
-			SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kHands, 1.0);
-			SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kFeet, 1.0);
-			SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kTail, 1.0); //tail
-			SetArmorSkinAlpha(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kDecapitateHead, 1.0); //decap
-		});
-	}
-	else if (type == 2)
-	{
+			auto geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kHands, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+
+			type = GetShaderPropertyModdedSkin(geometry, true);
+		}
+		if (type == 0)
+		{
+			auto geometry = GetArmorGeometry(thisActor, RE::BGSBipedObjectForm::FirstPersonFlag::kFeet, RE::BSShaderMaterial::Type::kFaceGenRGBTint);
+
+			type = GetShaderPropertyModdedSkin(geometry, true);
+		}
+
+		if (type == 0)
+		{
+			return false;
+		}
+
 		auto player = RE::PlayerCharacter::GetSingleton();
 
-		if (thisActor == player && !thisActor->IsOnMount())
+		if (thisActor != player)
 		{
-			thisActor->QueueNiNodeUpdate(false);
+			StopAllShaders_Internal(thisActor);
 		}
-		else
+
+		if (type == 1)
 		{
-			auto thisNPC = thisActor->GetActorBase();
-
-			if (thisNPC)
+			if (thisActor != player)
 			{
-				RE::NiColorA val;
-				val.red = thisNPC->textureLighting.red / 255.0;
-				val.green = thisNPC->textureLighting.green / 255.0;
-				val.blue = thisNPC->textureLighting.blue / 255.0;
-				RE::NiColorA* skinColor = &val;
+				thisActor->ResetInventory(false);
+			}
+			
+			ResetAlphaAndHead(thisActor, headGeometry);
 
-				RE::NiNode* model = thisActor->GetNiRootNode(0);
-
-				if (model)
+			return true;
+		}
+		else if (type == 2)
+		{
+			if (thisActor == player)
+			{
+				if (!thisActor->IsOnMount())
 				{
-					model->UpdateModelSkin(&skinColor);
+					thisActor->QueueNiNodeUpdate(false);
 				}
 			}
+			else
+			{
+				ResetTint(thisActor);
+			}
+
+			return true;
+		}
+		else if (type == 3)
+		{
+			if (thisActor == player)
+			{
+				if (!thisActor->IsOnMount())
+				{
+					thisActor->QueueNiNodeUpdate(false);
+				}
+			}
+			else
+			{
+				thisActor->ResetInventory(false);
+				
+				ResetTint(thisActor);
+				ResetAlphaAndHead(thisActor, headGeometry);
+			}
+
+			return true;
 		}
 	}
+
+	return false;
 }
 
 void PO3_SKSEFunctions::DecapitateActor(RE::StaticFunctionTag*, RE::Actor* thisActor)
@@ -873,13 +1027,13 @@ float PO3_SKSEFunctions::GetTimeDead(RE::StaticFunctionTag*, RE::Actor* thisActo
 	{
 		float timeOfDeath = thisActor->processManager->timeOfDeath;
 
-		if (timeOfDeath > 0.0f)
+		if (timeOfDeath > 0.0)
 		{
 			auto g_gameDaysPassed = RE::BSTimeManager::GetSingleton()->daysPassed;
 
 			if (g_gameDaysPassed)
 			{
-				return (floorf(g_gameDaysPassed->value * 24.0f)) - timeOfDeath;
+				return floorf(g_gameDaysPassed->value * 24.0) - timeOfDeath;
 			}
 		}
 	}
@@ -896,7 +1050,7 @@ float PO3_SKSEFunctions::GetTimeOfDeath(RE::StaticFunctionTag*, RE::Actor* thisA
 
 		if (timeOfDeath > 0.0)
 		{
-			return (timeOfDeath / 24.0);
+			return timeOfDeath / 24.0;
 		}
 	}
 
@@ -972,8 +1126,6 @@ void PO3_SKSEFunctions::SetActorRefraction(RE::StaticFunctionTag*, RE::Actor* th
 
 		if (processManager)
 		{
-			refraction = std::clamp(refraction, 0.0f, 1.0f);
-
 			processManager->SetActorRefraction(refraction);
 
 			float invisibility = thisActor->GetActorValueCurrent(RE::ActorValue::kInvisibility); //invisibility
@@ -995,7 +1147,7 @@ void PO3_SKSEFunctions::SetActorRefraction(RE::StaticFunctionTag*, RE::Actor* th
 				thisActor->UpdateRefraction(1.0);
 
 				refraction = 1.0 - refraction / 100.0;
-				refraction = (1.0 + (0.01 - 1.0) * ((refraction - 0.0) / (1.0 - 0.0)));
+				refraction = 1.0 + (0.01 - 1.0) * ((refraction - 0.0) / (1.0 - 0.0));
 
 				thisActor->UpdateRefractionProperty(1, refraction);
 			}
@@ -1003,7 +1155,7 @@ void PO3_SKSEFunctions::SetActorRefraction(RE::StaticFunctionTag*, RE::Actor* th
 	}
 }
 
-SInt32 PO3_SKSEFunctions::GetDeadState(RE::StaticFunctionTag*, RE::Actor* thisActor)
+SInt32 PO3_SKSEFunctions::GetActorState(RE::StaticFunctionTag*, RE::Actor* thisActor)
 {
 	if (thisActor)
 	{
@@ -1015,9 +1167,14 @@ SInt32 PO3_SKSEFunctions::GetDeadState(RE::StaticFunctionTag*, RE::Actor* thisAc
 	return -1;
 }
 
-void PO3_SKSEFunctions::SetShaderType(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* templateArmor)
+bool PO3_SKSEFunctions::InstantKill(RE::StaticFunctionTag*, RE::Actor* thisActor)
 {
-	/*if (!thisActor || !thisActor->Is3DLoaded() || !templateArmor)
+	return thisActor ? thisActor->InstantKill() : false;
+}
+
+/*void PO3_SKSEFunctions::SetShaderType(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* templateArmor)
+{
+	if (!thisActor || !thisActor->Is3DLoaded() || !templateArmor)
 	{
 		return;
 	}
@@ -1040,8 +1197,8 @@ void PO3_SKSEFunctions::SetShaderType(RE::StaticFunctionTag*, RE::Actor* thisAct
 		SetArmorSkinShaderType(thisActor, templateGeometry, RE::BGSBipedObjectForm::FirstPersonFlag::kFeet);
 		SetArmorSkinShaderType(thisActor, templateGeometry, RE::BGSBipedObjectForm::FirstPersonFlag::kUnnamed21); //decap
 		SetArmorSkinShaderType(thisActor, templateGeometry, RE::BGSBipedObjectForm::FirstPersonFlag::kTail); //tail
-	})*/
-}
+	})
+}*/
 
 //--------------------------------------------------------------------------------------------
 // ARRAY
@@ -1053,9 +1210,11 @@ bool PO3_SKSEFunctions::AddStringToArray(RE::StaticFunctionTag*, RE::BSFixedStri
 
 	if (length > 0)
 	{
-		for (size_t i = 0; i < length; i++)
+		RE::BSFixedString string = nullptr;
+
+		for (UInt32 i = 0; i < length; i++)
 		{
-			RE::BSFixedString string = stringArray.at(i);
+			string = stringArray[i];
 
 			if (string.empty())
 			{
@@ -1076,9 +1235,9 @@ bool PO3_SKSEFunctions::AddActorToArray(RE::StaticFunctionTag*, RE::Actor* thisA
 	{
 		RE::Actor* actor = nullptr;
 
-		for (size_t i = 0; i < length; i++)
+		for (UInt32 i = 0; i < length; i++)
 		{
-			actor = actorArray.at(i);
+			actor = actorArray[i];
 
 			if (actor == nullptr)
 			{
@@ -1095,15 +1254,16 @@ bool PO3_SKSEFunctions::AddActorToArray(RE::StaticFunctionTag*, RE::Actor* thisA
 UInt32 PO3_SKSEFunctions::ArrayStringCount(RE::StaticFunctionTag*, RE::BSFixedString thisString, RE::BSScript::VMArray<RE::BSFixedString> stringArray)
 {
 	UInt32 count = 0;
+
 	auto length = stringArray.size();
 
 	if (length > 0)
 	{
 		RE::BSFixedString string = nullptr;
 
-		for (size_t i = 0; i < length; i++)
+		for (UInt32 i = 0; i < length; i++)
 		{
-			string = stringArray.at(i);
+			string = stringArray[i];
 
 			if (string == thisString)
 			{
@@ -1119,36 +1279,41 @@ UInt32 PO3_SKSEFunctions::ArrayStringCount(RE::StaticFunctionTag*, RE::BSFixedSt
 RE::BSScript::VMArray<RE::BSFixedString> PO3_SKSEFunctions::SortArrayString(RE::StaticFunctionTag*, RE::BSScript::VMArray<RE::BSFixedString> stringArray)
 {
 	RE::BSScript::VMArray<RE::BSFixedString> result;
-	std::string str;
-	std::vector<std::string> vec;
 
-	auto count = stringArray.size();
+	auto length = stringArray.size();
 
-	if (!count)
+	if (length > 0)
 	{
-		return result;
-	}
+		std::string str;
+		std::vector<std::string> vec;
 
-	vec.reserve(count);
+		vec.reserve(length);
 
-	for (size_t i = 0; i < count; i++)
-	{
-		RE::BSFixedString string = stringArray.at(i);
+		RE::BSFixedString string = nullptr;
 
-		if (!string.empty())
+		for (UInt32 i = 0; i < length; i++)
 		{
-			vec.emplace_back(string.c_str());
+			string = stringArray[i];
+
+			if (!string.empty())
+			{
+				vec.emplace_back(string.c_str());
+			}
 		}
-	}
 
-	std::sort(vec.begin(), vec.end());
+		std::sort(vec.begin(), vec.end());
 
-	result.resize(vec.size());
+		auto size = vec.size();
 
-	for (size_t i = 0; i < vec.size(); i++)
-	{
-		RE::BSFixedString tempString = vec[i].c_str();
-		result[i] = tempString;
+		if (size > 0)
+		{
+			result.resize(size);
+
+			for (size_t i = 0; i < size; i++)
+			{
+				result[i] = vec[i].c_str();
+			}
+		}
 	}
 
 	return result;
@@ -1161,7 +1326,7 @@ RE::BSScript::VMArray<RE::BSFixedString> PO3_SKSEFunctions::SortArrayString(RE::
 //returns effect shader particle count
 float PO3_SKSEFunctions::GetEffectShaderFullParticleCount(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader)
 {
-	return (thisEffectShader) ? (thisEffectShader->data.particleShaderFullParticleBirthRatio) : 0.0;
+	return thisEffectShader ? thisEffectShader->data.particleShaderFullParticleBirthRatio : 0.0;
 }
 
 //sets effect shader particle count
@@ -1176,7 +1341,7 @@ void PO3_SKSEFunctions::SetEffectShaderFullParticleCount(RE::StaticFunctionTag*,
 //get effect shader persistant particle count
 float PO3_SKSEFunctions::GetEffectShaderPersistentParticleCount(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader)
 {
-	return (thisEffectShader) ? (thisEffectShader->data.particleShaderPersistantParticleCount) : 0.0;
+	return thisEffectShader ? thisEffectShader->data.particleShaderPersistantParticleCount : 0.0;
 }
 
 //set effect shader persistant particle count
@@ -1190,14 +1355,14 @@ void PO3_SKSEFunctions::SetEffectShaderPersistentParticleCount(RE::StaticFunctio
 
 bool PO3_SKSEFunctions::IsEffectShaderFlagSet(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, UInt32 flag)
 {
-	return (thisEffectShader) ? (UInt32(thisEffectShader->data.flags) & flag) == flag : false;
+	return thisEffectShader ? (static_cast<UInt32>(thisEffectShader->data.flags)& flag) == flag : false;
 }
 
 void PO3_SKSEFunctions::SetEffectShaderFlag(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, UInt32 flag)
 {
 	if (thisEffectShader)
 	{
-		thisEffectShader->data.flags |= (RE::TESEffectShader::Data::Flag)flag;
+		thisEffectShader->data.flags |= static_cast<RE::TESEffectShader::Data::Flag>(flag);
 	}
 }
 
@@ -1205,7 +1370,7 @@ void PO3_SKSEFunctions::ClearEffectShaderFlag(RE::StaticFunctionTag*, RE::TESEff
 {
 	if (thisEffectShader)
 	{
-		thisEffectShader->data.flags &= ~(RE::TESEffectShader::Data::Flag)flag;
+		thisEffectShader->data.flags &= ~static_cast<RE::TESEffectShader::Data::Flag>(flag);
 	}
 }
 
@@ -1291,9 +1456,8 @@ void PO3_SKSEFunctions::AddKeywordToForm(RE::StaticFunctionTag*, RE::TESForm* th
 
 bool PO3_SKSEFunctions::IsPluginFound(RE::StaticFunctionTag*, RE::BSFixedString name)
 {
-	RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
-
-	const RE::TESFile* modInfo = dataHandler->LookupModByName(name.c_str());
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
+	const RE::TESFile* modInfo = dataHandler->LookupModByName(name);
 
 	if (modInfo)
 	{
@@ -1307,7 +1471,7 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::GetAllSpellsInMod(RE::Sta
 {
 	RE::BSScript::VMArray<RE::TESForm*> result;
 
-	RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
 	const RE::TESFile* modInfo = dataHandler->LookupModByName(modName.c_str());
 
 	if (!modInfo || !modInfo->IsLoaded())
@@ -1319,34 +1483,18 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::GetAllSpellsInMod(RE::Sta
 
 	if (isPlayable)
 	{
+		RE::SpellItem* spell = nullptr;
+
 		for (auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>())
 		{
-			if (!book)
-			{
-				continue;
-			}
-
 			if (!modInfo->IsFormInMod(book->formID))
 			{
 				continue;
 			}
 
-			bool isSpellBook = book->data.GetSanitizedType() == RE::TESObjectBOOK::Data::Flag::kTeachesSpell;
-			bool accept = false;
+			spell = book->data.teaches.spell;
 
-			RE::SpellItem* spell = nullptr;
-
-			if (isSpellBook)
-			{
-				spell = book->data.teaches.spell;
-			}
-
-			if (VerifyKeywords(spell, &keywords))
-			{
-				accept = true;
-			}
-
-			if (!accept)
+			if (!spell || spell && VerifyKeywords(spell, &keywords))
 			{
 				continue;
 			}
@@ -1358,11 +1506,6 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::GetAllSpellsInMod(RE::Sta
 	{
 		for (auto& spell : dataHandler->GetFormArray<RE::SpellItem>())
 		{
-			if (!spell)
-			{
-				continue;
-			}
-
 			if (!modInfo->IsFormInMod(spell->formID))
 			{
 				continue;
@@ -1386,7 +1529,7 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::GetAllRacesInMod(RE::Stat
 {
 	RE::BSScript::VMArray<RE::TESForm*> result;
 
-	RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
 	const RE::TESFile* modInfo = dataHandler->LookupModByName(modName.c_str());
 
 	if (!modInfo || !modInfo->IsLoaded())
@@ -1398,24 +1541,12 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::GetAllRacesInMod(RE::Stat
 
 	for (auto& race : dataHandler->GetFormArray<RE::TESRace>())
 	{
-		if (!race)
-		{
-			continue;
-		}
-
 		if (!modInfo->IsFormInMod(race->formID))
 		{
 			continue;
 		}
 
-		bool accept = false;
-
-		if (VerifyKeywords(race, &keywords))
-		{
-			accept = true;
-		}
-
-		if (!accept)
+		if (!VerifyKeywords(race, &keywords))
 		{
 			continue;
 		}
@@ -1435,7 +1566,7 @@ void PO3_SKSEFunctions::AddAllGameSpellsToList(RE::StaticFunctionTag*, RE::BGSLi
 		return;
 	}
 
-	RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
 
 	if (isPlayable)
 	{
@@ -1443,25 +1574,9 @@ void PO3_SKSEFunctions::AddAllGameSpellsToList(RE::StaticFunctionTag*, RE::BGSLi
 
 		for (auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>())
 		{
-			if (!book)
-			{
-				continue;
-			}
+			spell = book->data.teaches.spell;
 
-			bool isSpellBook = book->data.GetSanitizedType() == RE::TESObjectBOOK::Data::Flag::kTeachesSpell;
-			bool accept = false;
-
-			if (isSpellBook)
-			{
-				spell = book->data.teaches.spell;
-			}
-
-			if (VerifyKeywords(spell, &keywords))
-			{
-				accept = true;
-			}
-
-			if (!accept)
+			if (!spell || spell && VerifyKeywords(spell, &keywords))
 			{
 				continue;
 			}
@@ -1473,11 +1588,6 @@ void PO3_SKSEFunctions::AddAllGameSpellsToList(RE::StaticFunctionTag*, RE::BGSLi
 	{
 		for (auto& spell : dataHandler->GetFormArray<RE::SpellItem>())
 		{
-			if (!spell)
-			{
-				continue;
-			}
-
 			if (!VerifyKeywords(spell, &keywords))
 			{
 				continue;
@@ -1495,15 +1605,10 @@ void PO3_SKSEFunctions::AddAllGameRacesToList(RE::StaticFunctionTag*, RE::BGSLis
 		return;
 	}
 
-	RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
 
 	for (auto& race : dataHandler->GetFormArray<RE::TESRace>())
 	{
-		if (!race)
-		{
-			continue;
-		}
-
 		if (VerifyKeywords(race, &keywords))
 		{
 			continue;
@@ -1543,14 +1648,14 @@ RE::BSScript::VMArray<RE::Actor*> PO3_SKSEFunctions::GetActorsByProcessingLevel(
 
 	if (arr)
 	{
-		RE::TESObjectREFRPtr refPtr;;
+		RE::TESObjectREFRPtr refPtr;
 		RE::Actor* actor = nullptr;
 
 		for (auto& refHandle : *arr)
 		{
 			RE::TESObjectREFR::LookupByHandle(refHandle, refPtr);
 
-			actor = static_cast<RE::Actor*>(refPtr.get());
+			actor = RE::niptr_cast<RE::Actor>(refPtr);
 
 			if (!actor)
 			{
@@ -1566,26 +1671,33 @@ RE::BSScript::VMArray<RE::Actor*> PO3_SKSEFunctions::GetActorsByProcessingLevel(
 	return result;
 }
 
+//gets amount of actors in high process
+SInt32 PO3_SKSEFunctions::GetNumActorsInHigh(RE::StaticFunctionTag*)
+{
+	return RE::Unk141EBEAD0::GetSingleton()->numActorsInHighProcess;
+}
+
+
 //--------------------------------------------------------------------------------------------
 // LIGHT
 //--------------------------------------------------------------------------------------------
 
 float PO3_SKSEFunctions::GetLightRadius(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight)
 {
-	return (thisLight) ? float(thisLight->data.radius) : 0.0;
+	return thisLight ? static_cast<float>(thisLight->data.radius) : 0.0;
 }
 
 void PO3_SKSEFunctions::SetLightRadius(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, float radius)
 {
 	if (thisLight)
 	{
-		thisLight->data.radius = (UInt32)radius;
+		thisLight->data.radius = static_cast<UInt32>(radius);
 	}
 }
 
 float PO3_SKSEFunctions::GetLightFade(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight)
 {
-	return (thisLight) ? (thisLight->fadeValue) : 0.0;
+	return thisLight ? thisLight->fadeValue : 0.0;
 }
 
 void PO3_SKSEFunctions::SetLightFade(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, float fadeValue)
@@ -1605,7 +1717,7 @@ RE::BGSColorForm* PO3_SKSEFunctions::GetLightColor(RE::StaticFunctionTag*, RE::T
 
 		if (colorForm)
 		{
-			colorForm->flags &= ~(RE::BGSColorForm::Flag::kPlayable);
+			colorForm->flags &= ~RE::BGSColorForm::Flag::kPlayable;
 
 			colorForm->color.red = thisLight->data.color.red;
 			colorForm->color.green = thisLight->data.color.green;
@@ -1675,23 +1787,23 @@ void PO3_SKSEFunctions::SetLightType(RE::StaticFunctionTag*, RE::TESObjectLIGH* 
 
 	switch (lightType)
 	{
-		case 1:
-			flags = flags & ~RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeHemiShadow;
-			break;
-		case 2:
-			flags = flags & ~RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeOmni;
-			break;
-		case 3:
-			flags = flags & ~RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeOmniShadow;
-			break;
-		case 4:
-			flags = flags & ~RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeSpot;
-			break;
-		case 5:
-			flags = flags & ~RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeSpotShadow;
-			break;
-		default:
-			return;
+	case 1:
+		flags = flags & ~(RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeHemiShadow);
+		break;
+	case 2:
+		flags = flags & ~(RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeOmni);
+		break;
+	case 3:
+		flags = flags & ~(RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeOmniShadow);
+		break;
+	case 4:
+		flags = flags & ~(RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeSpot);
+		break;
+	case 5:
+		flags = flags & ~(RE::TESObjectLIGH::Data::Flag::kFlags_Type | RE::TESObjectLIGH::Data::Flag::kFlag_TypeSpotShadow);
+		break;
+	default:
+		return;
 	}
 
 	thisLight->data.flags = flags;
@@ -1699,7 +1811,7 @@ void PO3_SKSEFunctions::SetLightType(RE::StaticFunctionTag*, RE::TESObjectLIGH* 
 
 float PO3_SKSEFunctions::GetLightFOV(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight)
 {
-	return (thisLight) ? (thisLight->data.fov) : 0.0;
+	return thisLight ? thisLight->data.fov : 0.0;
 }
 
 void PO3_SKSEFunctions::SetLightFOV(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, float FOV)
@@ -1721,7 +1833,7 @@ float PO3_SKSEFunctions::GetLightShadowDepthBias(RE::StaticFunctionTag*, RE::TES
 
 	if (thisLight)
 	{
-		RE::ExtraLightData* xLightData = static_cast<RE::ExtraLightData*>(thisLightObject->extraData.GetByType(RE::ExtraDataType::kLightData));
+		auto xLightData = static_cast<RE::ExtraLightData*>(thisLightObject->extraData.GetByType(RE::ExtraDataType::kLightData));
 
 		if (xLightData)
 		{
@@ -1750,7 +1862,7 @@ void PO3_SKSEFunctions::SetLightShadowDepthBias(RE::StaticFunctionTag*, RE::TESO
 		}
 		else
 		{
-			auto && newLightData = RE::ExtraLightData::ExtraLightData();
+			auto&& newLightData = RE::ExtraLightData::ExtraLightData();
 			newLightData.depthBias = depthBias;
 			(&thisLightObject->extraData)->Add(&newLightData);
 		}
@@ -1763,7 +1875,7 @@ void PO3_SKSEFunctions::SetLightShadowDepthBias(RE::StaticFunctionTag*, RE::TESO
 
 RE::BGSLocation* PO3_SKSEFunctions::GetParentLocation(RE::StaticFunctionTag*, RE::BGSLocation* thisLocation)
 {
-	return (thisLocation) ? thisLocation->parentLocation : nullptr;
+	return thisLocation ? thisLocation->parentLocation : nullptr;
 }
 
 void PO3_SKSEFunctions::SetParentLocation(RE::StaticFunctionTag*, RE::BGSLocation* thisLocation, RE::BGSLocation* newLocation)
@@ -1814,30 +1926,28 @@ RE::BSScript::VMArray<RE::EffectSetting*> PO3_SKSEFunctions::GetAllActiveEffects
 	{
 		auto effects = thisActor->GetActiveEffects();
 
-		if (!effects)
+		if (effects)
 		{
-			return result;
-		}
+			RE::EffectSetting* mgef = nullptr;
 
-		RE::EffectSetting* mgef = nullptr;
-
-		for (auto& effect : *effects)
-		{
-			if (!effect)
+			for (auto& effect : *effects)
 			{
-				continue;
-			}
-
-			mgef = effect->GetBaseObject();
-
-			if (mgef)
-			{
-				if (!showInactive && (UInt32(effect->flags & RE::ActiveEffect::Flag::kInactive) || UInt32(mgef->data.flags & RE::EffectSetting::Data::Flag::kHideInUI)))
+				if (!effect)
 				{
 					continue;
 				}
 
-				vec.push_back(mgef);
+				mgef = effect->GetBaseObject();
+
+				if (mgef)
+				{
+					if (!showInactive && (static_cast<UInt32>(effect->flags & RE::ActiveEffect::Flag::kInactive) || static_cast<UInt32>(mgef->data.flags & RE::EffectSetting::Data::Flag::kHideInUI)))
+					{
+						continue;
+					}
+
+					vec.push_back(mgef);
+				}
 			}
 		}
 	}
@@ -1857,140 +1967,142 @@ RE::BSFixedString PO3_SKSEFunctions::GetEffectArchetypeInternal(RE::EffectSettin
 		return archetype;
 	}
 
-	switch ((UInt32)mgef->data.archetype)
+	switch (static_cast<UInt32>(mgef->data.archetype))
 	{
-		case 0:
-			archetype = "ValueMod";
-			break;
-		case 1:
-			archetype = "Script";
-			break;
-		case 2:
-			archetype = "Dispel";
-			break;
-		case 3:
-			archetype = "CureDisease";
-			break;
-		case 4:
-			archetype = "Absorb";
-			break;
-		case 5:
-			archetype = "DualValueMod";
-			break;
-		case 6:
-			archetype = "Calm";
-			break;
-		case 7:
-			archetype = "Demoralize";
-			break;
-		case 8:
-			archetype = "Frenzy";
-			break;
-		case 9:
-			archetype = "Disarm";
-			break;
-		case 10:
-			archetype = "CommandSummoned";
-			break;
-		case 11:
-			archetype = "Invisibility";
-			break;
-		case 12:
-			archetype = "Light";
-			break;
-		case 15:
-			archetype = "Lock";
-			break;
-		case 16:
-			archetype = "Open";
-			break;
-		case 17:
-			archetype = "BoundWeapon";
-			break;
-		case 18:
-			archetype = "SummonCreature";
-			break;
-		case 19:
-			archetype = "DetectLife";
-			break;
-		case 20:
-			archetype = "Telekinesis";
-			break;
-		case 21:
-			archetype = "Paralysis";
-			break;
-		case 22:
-			archetype = "Reanimate";
-			break;
-		case 23:
-			archetype = "SoulTrap";
-			break;
-		case 24:
-			archetype = "TurnUndead";
-			break;
-		case 25:
-			archetype = "Guide";
-			break;
-		case 26:
-			archetype = "WerewolfFeed";
-			break;
-		case 27:
-			archetype = "CureParalysis";
-			break;
-		case 28:
-			archetype = "CureAddiction";
-			break;
-		case 29:
-			archetype = "CurePoison";
-			break;
-		case 30:
-			archetype = "Concussion";
-			break;
-		case 31:
-			archetype = "ValueAndParts";
-			break;
-		case 32:
-			archetype = "AccumulateMagnitude";
-			break;
-		case 33:
-			archetype = "Stagger";
-			break;
-		case 34:
-			archetype = "PeakValueMod";
-			break;
-		case 35:
-			archetype = "Cloak";
-			break;
-		case 36:
-			archetype = "Werewolf";
-			break;
-		case 37:
-			archetype = "SlowTime";
-			break;
-		case 38:
-			archetype = "Rally";
-			break;
-		case 39:
-			archetype = "EnhanceWeapon";
-			break;
-		case 40:
-			archetype = "SpawnHazard";
-			break;
-		case 41:
-			archetype = "Etherealize";
-			break;
-		case 42:
-			archetype = "Banish";
-			break;
-		case 44:
-			archetype = "Disguise";
-			break;
-		case 45:
-			archetype = "GrabActor";
-			break;
-		case 46:
-			archetype = "VampireLord";
-			break;
+	case 0:
+		archetype = "ValueMod";
+		break;
+	case 1:
+		archetype = "Script";
+		break;
+	case 2:
+		archetype = "Dispel";
+		break;
+	case 3:
+		archetype = "CureDisease";
+		break;
+	case 4:
+		archetype = "Absorb";
+		break;
+	case 5:
+		archetype = "DualValueMod";
+		break;
+	case 6:
+		archetype = "Calm";
+		break;
+	case 7:
+		archetype = "Demoralize";
+		break;
+	case 8:
+		archetype = "Frenzy";
+		break;
+	case 9:
+		archetype = "Disarm";
+		break;
+	case 10:
+		archetype = "CommandSummoned";
+		break;
+	case 11:
+		archetype = "Invisibility";
+		break;
+	case 12:
+		archetype = "Light";
+		break;
+	case 15:
+		archetype = "Lock";
+		break;
+	case 16:
+		archetype = "Open";
+		break;
+	case 17:
+		archetype = "BoundWeapon";
+		break;
+	case 18:
+		archetype = "SummonCreature";
+		break;
+	case 19:
+		archetype = "DetectLife";
+		break;
+	case 20:
+		archetype = "Telekinesis";
+		break;
+	case 21:
+		archetype = "Paralysis";
+		break;
+	case 22:
+		archetype = "Reanimate";
+		break;
+	case 23:
+		archetype = "SoulTrap";
+		break;
+	case 24:
+		archetype = "TurnUndead";
+		break;
+	case 25:
+		archetype = "Guide";
+		break;
+	case 26:
+		archetype = "WerewolfFeed";
+		break;
+	case 27:
+		archetype = "CureParalysis";
+		break;
+	case 28:
+		archetype = "CureAddiction";
+		break;
+	case 29:
+		archetype = "CurePoison";
+		break;
+	case 30:
+		archetype = "Concussion";
+		break;
+	case 31:
+		archetype = "ValueAndParts";
+		break;
+	case 32:
+		archetype = "AccumulateMagnitude";
+		break;
+	case 33:
+		archetype = "Stagger";
+		break;
+	case 34:
+		archetype = "PeakValueMod";
+		break;
+	case 35:
+		archetype = "Cloak";
+		break;
+	case 36:
+		archetype = "Werewolf";
+		break;
+	case 37:
+		archetype = "SlowTime";
+		break;
+	case 38:
+		archetype = "Rally";
+		break;
+	case 39:
+		archetype = "EnhanceWeapon";
+		break;
+	case 40:
+		archetype = "SpawnHazard";
+		break;
+	case 41:
+		archetype = "Etherealize";
+		break;
+	case 42:
+		archetype = "Banish";
+		break;
+	case 44:
+		archetype = "Disguise";
+		break;
+	case 45:
+		archetype = "GrabActor";
+		break;
+	case 46:
+		archetype = "VampireLord";
+		break;
+	default:
+		break;
 	}
 
 	return archetype;
@@ -2030,7 +2142,7 @@ bool PO3_SKSEFunctions::HasMagicEffectWithArchetype(RE::StaticFunctionTag*, RE::
 
 UInt32 PO3_SKSEFunctions::GetEffectArchetypeAsInt(RE::StaticFunctionTag*, RE::EffectSetting* mgef)
 {
-	return (mgef) ? (UInt32)(mgef->data.archetype) : 0;
+	return mgef ? static_cast<UInt32>(mgef->data.archetype) : 0;
 }
 
 RE::BSFixedString PO3_SKSEFunctions::GetEffectArchetypeAsString(RE::StaticFunctionTag*, RE::EffectSetting* mgef)
@@ -2044,7 +2156,7 @@ RE::BGSSoundDescriptorForm* PO3_SKSEFunctions::GetMagicEffectSound(RE::StaticFun
 	{
 		for (auto& effectSound : mgef->sounds)
 		{
-			if ((UInt32)effectSound.type == type)
+			if (effectSound.type == static_cast<RE::EffectSetting::SoundInfo::Type>(type))
 			{
 				return effectSound.sound;
 			}
@@ -2060,15 +2172,13 @@ void PO3_SKSEFunctions::SetMagicEffectSound(RE::StaticFunctionTag*, RE::EffectSe
 	{
 		for (auto& effectSound : mgef->sounds)
 		{
-			if ((UInt32)effectSound.type == type)
+			if (effectSound.type == static_cast<RE::EffectSetting::SoundInfo::Type>(type))
 			{
 				effectSound.sound = mgefSound;
 				break;
 			}
 		}
 	}
-
-	return;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2179,7 +2289,7 @@ void PO3_SKSEFunctions::AddAllInventoryItemsToList(RE::StaticFunctionTag*, RE::T
 {
 	if (thisRef && thisList)
 	{
-		RE::ExtraContainerChanges* exChanges = static_cast<RE::ExtraContainerChanges*>(thisRef->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
+		auto exChanges = static_cast<RE::ExtraContainerChanges*>(thisRef->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
 		RE::InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
 
 		if (changes && changes->entryList)
@@ -2188,7 +2298,7 @@ void PO3_SKSEFunctions::AddAllInventoryItemsToList(RE::StaticFunctionTag*, RE::T
 			{
 				if (CanItemBeTaken(data, noEquipped, noFavourited, noQuestItem))
 				{
-					thisList->AddFormToList(data->GetOwner());
+					thisList->AddFormToList(data->type);
 				}
 			}
 		}
@@ -2202,7 +2312,7 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::AddAllInventoryItemsToArr
 
 	if (thisRef)
 	{
-		RE::ExtraContainerChanges* exChanges = static_cast<RE::ExtraContainerChanges*>(thisRef->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
+		auto exChanges = static_cast<RE::ExtraContainerChanges*>(thisRef->extraData.GetByType(RE::ExtraDataType::kContainerChanges)); //loop through caster inventory
 		RE::InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
 
 		if (changes && changes->entryList)
@@ -2211,7 +2321,7 @@ RE::BSScript::VMArray<RE::TESForm*> PO3_SKSEFunctions::AddAllInventoryItemsToArr
 			{
 				if (CanItemBeTaken(data, noEquipped, noFavourited, noQuestItem))
 				{
-					vec.push_back(data->GetOwner());
+					vec.push_back(data->type);
 				}
 			}
 		}
@@ -2277,20 +2387,20 @@ void PO3_SKSEFunctions::AddKeywordToRef(RE::StaticFunctionTag*, RE::TESObjectREF
 	if (pKeywords)
 	{
 		auto oldData = pKeywords->keywords;
-		
+
 		pKeywords->keywords = RE::calloc<RE::BGSKeyword*>(++pKeywords->keywordCount);
-		if (oldData) 
+		if (oldData)
 		{
-			for (UInt32 i = 0; i < pKeywords->keywordCount - 1; ++i) 
+			for (UInt32 i = 0; i < pKeywords->keywordCount - 1; ++i)
 			{
 				pKeywords->keywords[i] = oldData[i];
 			}
-			
-			pKeywords->keywords[pKeywords->keywordCount - 1] = KYWDtoAdd;			
+
+			pKeywords->keywords[pKeywords->keywordCount - 1] = KYWDtoAdd;
 
 			RE::free(oldData);
 			oldData = nullptr;
-		}		
+		}
 	}
 }
 
@@ -2306,8 +2416,8 @@ void PO3_SKSEFunctions::Apply2DHavokImpulse(RE::StaticFunctionTag*, RE::TESObjec
 	{
 		auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 
-		float sourceZ = (source->rot.z * (180.0 / MATH_PI));
-		float angleZ = (sourceZ + GetHeadingAngle(vm, 0, source, target)); //source.getanglez() + source.getheadingangle(target)
+		float sourceZ = source->rot.z * static_cast<float>(180.0 / MATH_PI);
+		float angleZ = sourceZ + GetHeadingAngle(vm, 0, source, target); //source.getanglez() + source.getheadingangle(target)
 
 		ApplyHavokImpulse(vm, 0, target, asinf(angleZ), acosf(angleZ), afZ, magnitude);
 	});
@@ -2369,7 +2479,6 @@ RE::BSScript::VMArray<RE::TESEffectShader*> PO3_SKSEFunctions::GetAllEffectShade
 	if (thisRef)
 	{
 		auto singleton = RE::Unk141EBEAD0::GetSingleton();
-		RE::TESObjectREFRPtr ref;
 
 		singleton->activeEffectShadersLock.Lock();
 		for (auto& shaderReferenceEffect : singleton->activeEffectShaders)
@@ -2379,16 +2488,18 @@ RE::BSScript::VMArray<RE::TESEffectShader*> PO3_SKSEFunctions::GetAllEffectShade
 				continue;
 			}
 
-			RE::TESObjectREFR::LookupByHandle(shaderReferenceEffect->refHandle, ref);
+			auto handle = thisRef->CreateRefHandle();
 
-			if (!ref || thisRef != ref.get())
+			if (shaderReferenceEffect->refHandle != handle)
 			{
 				continue;
 			}
 
-			if (shaderReferenceEffect->effectShader)
+			auto shader = shaderReferenceEffect->effectShader;
+
+			if (shader)
 			{
-				vec.push_back(shaderReferenceEffect->effectShader);
+				vec.push_back(shader);
 			}
 		}
 		singleton->activeEffectShadersLock.Unlock();
@@ -2406,7 +2517,6 @@ UInt32 PO3_SKSEFunctions::HasEffectShader(RE::StaticFunctionTag*, RE::TESObjectR
 	if (thisRef && effectShader)
 	{
 		auto singleton = RE::Unk141EBEAD0::GetSingleton();
-		RE::TESObjectREFRPtr ref;
 
 		singleton->activeEffectShadersLock.Lock();
 		for (auto& shaderReferenceEffect : singleton->activeEffectShaders)
@@ -2416,9 +2526,9 @@ UInt32 PO3_SKSEFunctions::HasEffectShader(RE::StaticFunctionTag*, RE::TESObjectR
 				continue;
 			}
 
-			RE::TESObjectREFR::LookupByHandle(shaderReferenceEffect->refHandle, ref);
+			auto handle = thisRef->CreateRefHandle();
 
-			if (!ref || thisRef != ref.get())
+			if (shaderReferenceEffect->refHandle != handle)
 			{
 				continue;
 			}
@@ -2444,7 +2554,6 @@ RE::BSScript::VMArray<RE::BGSArtObject*> PO3_SKSEFunctions::GetAllArtObjects(RE:
 	if (thisRef)
 	{
 		auto singleton = RE::Unk141EBEAD0::GetSingleton();
-		RE::TESObjectREFRPtr ref;
 
 		singleton->activeEffectShadersLock.Lock();
 		for (auto& shaderReferenceEffect : singleton->activeEffectShaders)
@@ -2454,16 +2563,18 @@ RE::BSScript::VMArray<RE::BGSArtObject*> PO3_SKSEFunctions::GetAllArtObjects(RE:
 				continue;
 			}
 
-			RE::TESObjectREFR::LookupByHandle(shaderReferenceEffect->refHandle, ref);
+			auto handle = thisRef->CreateRefHandle();
 
-			if (!ref || thisRef != ref.get())
+			if (shaderReferenceEffect->refHandle != handle)
 			{
 				continue;
 			}
 
-			if (shaderReferenceEffect->artObject)
+			auto art = shaderReferenceEffect->artObject;
+
+			if (art)
 			{
-				vec.push_back(shaderReferenceEffect->artObject);
+				vec.push_back(art);
 			}
 		}
 		singleton->activeEffectShadersLock.Unlock();
@@ -2481,7 +2592,6 @@ UInt32 PO3_SKSEFunctions::HasArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR
 	if (thisRef && artObject)
 	{
 		auto singleton = RE::Unk141EBEAD0::GetSingleton();
-		RE::TESObjectREFRPtr ref;
 
 		singleton->activeEffectShadersLock.Lock();
 		for (auto& shaderReferenceEffect : singleton->activeEffectShaders)
@@ -2491,9 +2601,9 @@ UInt32 PO3_SKSEFunctions::HasArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR
 				continue;
 			}
 
-			RE::TESObjectREFR::LookupByHandle(shaderReferenceEffect->refHandle, ref);
+			auto handle = thisRef->CreateRefHandle();
 
-			if (!ref || thisRef != ref.get())
+			if (shaderReferenceEffect->refHandle != handle)
 			{
 				continue;
 			}
@@ -2519,17 +2629,25 @@ void PO3_SKSEFunctions::StopArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR*
 	}
 }
 
+void PO3_SKSEFunctions::StopAllShaders(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef)
+{
+	if (thisRef)
+	{
+		StopAllShaders_Internal(thisRef);
+	}
+}
+
 RE::Actor* PO3_SKSEFunctions::GetActorCause(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef)
 {
 	RE::Actor* actor = nullptr;
 
 	if (thisRef)
 	{
-		RE::TESObjectREFRPtr ref;
-		
-		RE::TESObjectREFR::LookupByHandle(*thisRef->GetActorCause(), ref);
+		RE::TESObjectREFRPtr refPtr;
 
-		actor = static_cast<RE::Actor*>(ref.get());
+		RE::TESObjectREFR::LookupByHandle(*thisRef->GetActorCause(), refPtr);
+
+		actor = RE::niptr_cast<RE::Actor>(refPtr);
 
 		if (actor)
 		{
@@ -2543,45 +2661,45 @@ RE::Actor* PO3_SKSEFunctions::GetActorCause(RE::StaticFunctionTag*, RE::TESObjec
 RE::Actor* PO3_SKSEFunctions::GetClosestActorFromRef(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, float radius)
 {
 	if (thisRef)
-	{		
+	{
 		auto squaredRadius = radius * radius;
-		auto closestDistance = FLT_MAX;
+		auto shortestDistance = std::numeric_limits<float>::max();
 
 		auto originPos = thisRef->pos;
-		
-		std::map<float, RE::Actor*> map;		
-		RE::TESObjectREFRPtr ref;
-	
+
+		std::map<float, RE::Actor*> map;
+		RE::TESObjectREFRPtr refPtr;
+
 		auto singleton = RE::Unk141EBEAD0::GetSingleton();
 
 		for (auto& refHandle : singleton->actorsHigh)
 		{
-			RE::TESObjectREFR::LookupByHandle(refHandle, ref);
+			RE::TESObjectREFR::LookupByHandle(refHandle, refPtr);
 
-			auto actor = static_cast<RE::Actor*>(ref.get());
+			auto actor = RE::niptr_cast<RE::Actor>(refPtr);
 
 			if (!actor || actor == thisRef)
 			{
 				continue;
 			}
-			
+
 			auto distance = CalcLinearDistance(originPos, actor->pos);
 
 			if (distance > squaredRadius)
 			{
 				continue;
 			}
-			
+
 			map.try_emplace(distance, actor);
 
-			if (distance < closestDistance)
+			if (distance < shortestDistance)
 			{
-				closestDistance = distance;
+				shortestDistance = distance;
 			}
 		}
 
 		auto player = RE::PlayerCharacter::GetSingleton();
-		
+
 		if (thisRef != player)
 		{
 			auto distance = CalcLinearDistance(originPos, player->pos);
@@ -2590,14 +2708,14 @@ RE::Actor* PO3_SKSEFunctions::GetClosestActorFromRef(RE::StaticFunctionTag*, RE:
 			{
 				map.try_emplace(distance, player);
 
-				if (distance < closestDistance)
+				if (distance < shortestDistance)
 				{
-					closestDistance = distance;
+					shortestDistance = distance;
 				}
 			}
 		}
 
-		return map.find(closestDistance)->second;
+		return map.find(shortestDistance)->second;
 	}
 
 	return nullptr;
@@ -2612,7 +2730,7 @@ RE::Actor* PO3_SKSEFunctions::GetRandomActorFromRef(RE::StaticFunctionTag*, RE::
 		auto originPos = thisRef->pos;
 
 		std::vector<RE::Actor*> vec;
-		RE::TESObjectREFRPtr ref;
+		RE::TESObjectREFRPtr refPtr;
 
 		auto singleton = RE::Unk141EBEAD0::GetSingleton();
 
@@ -2620,9 +2738,9 @@ RE::Actor* PO3_SKSEFunctions::GetRandomActorFromRef(RE::StaticFunctionTag*, RE::
 
 		for (auto& refHandle : singleton->actorsHigh)
 		{
-			RE::TESObjectREFR::LookupByHandle(refHandle, ref);
+			RE::TESObjectREFR::LookupByHandle(refHandle, refPtr);
 
-			auto actor = static_cast<RE::Actor*>(ref.get());
+			auto actor = RE::niptr_cast<RE::Actor>(refPtr);
 
 			if (!actor || actor == thisRef)
 			{
@@ -2670,7 +2788,7 @@ SInt32 PO3_SKSEFunctions::GetPackageType(RE::StaticFunctionTag*, RE::TESPackage*
 {
 	if (package)
 	{
-		return (SInt32)package->packData.type;
+		return static_cast<UInt32>(package->packData.type);
 	}
 
 	return -1;
@@ -2682,7 +2800,7 @@ SInt32 PO3_SKSEFunctions::GetPackageType(RE::StaticFunctionTag*, RE::TESPackage*
 
 float PO3_SKSEFunctions::GetProjectileSpeed(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile)
 {
-	return (thisProjectile) ? (thisProjectile->data.speed) : 0.0;
+	return thisProjectile ? thisProjectile->data.speed : 0.0;
 }
 
 void PO3_SKSEFunctions::SetProjectileSpeed(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float speed)
@@ -2695,7 +2813,7 @@ void PO3_SKSEFunctions::SetProjectileSpeed(RE::StaticFunctionTag*, RE::BGSProjec
 
 float PO3_SKSEFunctions::GetProjectileRange(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile)
 {
-	return (thisProjectile) ? (thisProjectile->data.range) : 0.0;
+	return thisProjectile ? thisProjectile->data.range : 0.0;
 }
 
 void PO3_SKSEFunctions::SetProjectileRange(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float range)
@@ -2708,7 +2826,7 @@ void PO3_SKSEFunctions::SetProjectileRange(RE::StaticFunctionTag*, RE::BGSProjec
 
 float PO3_SKSEFunctions::GetProjectileGravity(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile)
 {
-	return (thisProjectile) ? (thisProjectile->data.gravity) : 0.0;
+	return thisProjectile ? thisProjectile->data.gravity : 0.0;
 }
 
 void PO3_SKSEFunctions::SetProjectileGravity(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float gravity)
@@ -2721,7 +2839,7 @@ void PO3_SKSEFunctions::SetProjectileGravity(RE::StaticFunctionTag*, RE::BGSProj
 
 float PO3_SKSEFunctions::GetProjectileImpactForce(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile)
 {
-	return (thisProjectile) ? (thisProjectile->data.impactForce) : 0.0;
+	return thisProjectile ? thisProjectile->data.impactForce : 0.0;
 }
 
 void PO3_SKSEFunctions::SetProjectileImpactForce(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float impactForce)
@@ -2742,27 +2860,27 @@ UInt32 PO3_SKSEFunctions::GetProjectileType(RE::StaticFunctionTag*, RE::BGSProje
 		{
 			return 1;
 		}
-		else if ((types & RE::BGSProjectile::Data::Type::kLobber) == RE::BGSProjectile::Data::Type::kLobber) //Lobber (runes)
+		if ((types & RE::BGSProjectile::Data::Type::kLobber) == RE::BGSProjectile::Data::Type::kLobber) //Lobber (runes)
 		{
 			return 2;
 		}
-		else if ((types & RE::BGSProjectile::Data::Type::kBeam) == RE::BGSProjectile::Data::Type::kBeam) //Beam
+		if ((types & RE::BGSProjectile::Data::Type::kBeam) == RE::BGSProjectile::Data::Type::kBeam) //Beam
 		{
 			return 3;
 		}
-		else if ((types & RE::BGSProjectile::Data::Type::kFlame) == RE::BGSProjectile::Data::Type::kFlame) //Flame
+		if ((types & RE::BGSProjectile::Data::Type::kFlame) == RE::BGSProjectile::Data::Type::kFlame) //Flame
 		{
 			return 4;
 		}
-		else if ((types & RE::BGSProjectile::Data::Type::kCone) == RE::BGSProjectile::Data::Type::kCone) //Cone
+		if ((types & RE::BGSProjectile::Data::Type::kCone) == RE::BGSProjectile::Data::Type::kCone) //Cone
 		{
 			return 5;
 		}
-		else if ((types & RE::BGSProjectile::Data::Type::kBarrier) == RE::BGSProjectile::Data::Type::kBarrier) //Barrier
+		if ((types & RE::BGSProjectile::Data::Type::kBarrier) == RE::BGSProjectile::Data::Type::kBarrier) //Barrier
 		{
 			return 6;
 		}
-		else if ((types & RE::BGSProjectile::Data::Type::kArrow) == RE::BGSProjectile::Data::Type::kArrow) //Arrow
+		if ((types & RE::BGSProjectile::Data::Type::kArrow) == RE::BGSProjectile::Data::Type::kArrow) //Arrow
 		{
 			return 7;
 		}
@@ -2789,7 +2907,7 @@ void PO3_SKSEFunctions::SetSoundDescriptor(RE::StaticFunctionTag*, RE::TESSound*
 
 UInt32 PO3_SKSEFunctions::GetSpellType(RE::StaticFunctionTag*, RE::SpellItem* thisSpell)
 {
-	return (thisSpell) ? (UInt32)thisSpell->data.type : 0;
+	return thisSpell ? static_cast<UInt32>(thisSpell->data.type) : 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2798,7 +2916,7 @@ UInt32 PO3_SKSEFunctions::GetSpellType(RE::StaticFunctionTag*, RE::SpellItem* th
 
 RE::BGSArtObject* PO3_SKSEFunctions::GetArtObject(RE::StaticFunctionTag*, RE::BGSReferenceEffect* visualEffect)
 {
-	return (visualEffect) ? visualEffect->data.effectArt : nullptr;
+	return visualEffect ? visualEffect->data.effectArt : nullptr;
 }
 
 void PO3_SKSEFunctions::SetArtObject(RE::StaticFunctionTag*, RE::BGSReferenceEffect* visualEffect, RE::BGSArtObject* art)
@@ -2816,13 +2934,13 @@ void PO3_SKSEFunctions::SetArtObject(RE::StaticFunctionTag*, RE::BGSReferenceEff
 //returns wind speed from 0-255 (how it's set up in the weather form)
 UInt32 PO3_SKSEFunctions::GetWindSpeedAsInt(RE::StaticFunctionTag*, RE::TESWeather* thisWeather)
 {
-	return (thisWeather) ? (thisWeather->data.windSpeed) : 0;
+	return thisWeather ? thisWeather->data.windSpeed : 0;
 }
 
 //returns wind speed from 0.0-1.0 (how it's set up in the CK)
 float PO3_SKSEFunctions::GetWindSpeedAsFloat(RE::StaticFunctionTag*, RE::TESWeather* thisWeather)
 {
-	return (thisWeather) ? ((thisWeather->data.windSpeed) / 255.0) : 0.0;
+	return thisWeather ? static_cast<float>(thisWeather->data.windSpeed / 255.0) : 0.0;
 }
 
 SInt32 PO3_SKSEFunctions::GetWeatherType(RE::StaticFunctionTag*, RE::TESWeather* thisWeather)
@@ -2890,8 +3008,8 @@ bool PO3_SKSEFunctions::Register(RE::BSScript::Internal::VirtualMachine* a_vm)
 	a_vm->RegisterFunction("GetHeadPartTextureSet", "PO3_SKSEFunctions", GetHeadPartTextureSet);
 	a_vm->RegisterFunction("SetHeadPartTextureSet", "PO3_SKSEFunctions", SetHeadPartTextureSet);
 	a_vm->RegisterFunction("SetHeadPartAlpha", "PO3_SKSEFunctions", SetHeadPartAlpha);
-	a_vm->RegisterFunction("ToggleSkinnedDecalNode", "PO3_SKSEFunctions", ToggleSkinnedDecalNode);
-	a_vm->RegisterFunction("RemoveFaceGenNode", "PO3_SKSEFunctions", RemoveFaceGenNode);
+	a_vm->RegisterFunction("ToggleChildNode", "PO3_SKSEFunctions", ToggleChildNode);
+	a_vm->RegisterFunction("RemoveChildNode", "PO3_SKSEFunctions", RemoveChildNode);
 	a_vm->RegisterFunction("IsActorSoulTrapped", "PO3_SKSEFunctions", IsActorSoulTrapped);
 	a_vm->RegisterFunction("ResetActor3D", "PO3_SKSEFunctions", ResetActor3D);
 	a_vm->RegisterFunction("DecapitateActor", "PO3_SKSEFunctions", DecapitateActor);
@@ -2902,7 +3020,8 @@ bool PO3_SKSEFunctions::Register(RE::BSScript::Internal::VirtualMachine* a_vm)
 	a_vm->RegisterFunction("GetActorAlpha", "PO3_SKSEFunctions", GetActorAlpha);
 	a_vm->RegisterFunction("GetActorRefraction", "PO3_SKSEFunctions", GetActorRefraction);
 	a_vm->RegisterFunction("SetActorRefraction", "PO3_SKSEFunctions", SetActorRefraction);
-	a_vm->RegisterFunction("GetDeadState", "PO3_SKSEFunctions", GetDeadState);
+	a_vm->RegisterFunction("GetActorState", "PO3_SKSEFunctions", GetActorState);
+	a_vm->RegisterFunction("InstantKill", "PO3_SKSEFunctions", InstantKill);
 	//a_vm->RegisterFunction("SetShaderType", "PO3_SKSEFunctions", SetShaderType);
 
 	a_vm->RegisterFunction("AddStringToArray", "PO3_SKSEFunctions", AddStringToArray);
@@ -2927,6 +3046,7 @@ bool PO3_SKSEFunctions::Register(RE::BSScript::Internal::VirtualMachine* a_vm)
 	a_vm->RegisterFunction("AddAllGameSpellsToList", "PO3_SKSEFunctions", AddAllGameSpellsToList);
 	a_vm->RegisterFunction("AddAllGameRacesToList", "PO3_SKSEFunctions", AddAllGameRacesToList);
 	a_vm->RegisterFunction("GetActorsByProcessingLevel", "PO3_SKSEFunctions", GetActorsByProcessingLevel);
+	a_vm->RegisterFunction("GetNumActorsInHigh", "PO3_SKSEFunctions", GetNumActorsInHigh);
 
 	a_vm->RegisterFunction("GetLightRadius", "PO3_SKSEFunctions", GetLightRadius);
 	a_vm->RegisterFunction("SetLightRadius", "PO3_SKSEFunctions", SetLightRadius);
@@ -2970,6 +3090,7 @@ bool PO3_SKSEFunctions::Register(RE::BSScript::Internal::VirtualMachine* a_vm)
 	a_vm->RegisterFunction("GetAllArtObjects", "PO3_SKSEFunctions", GetAllArtObjects);
 	a_vm->RegisterFunction("HasArtObject", "PO3_SKSEFunctions", HasArtObject);
 	a_vm->RegisterFunction("StopArtObject", "PO3_SKSEFunctions", StopArtObject);
+	a_vm->RegisterFunction("StopAllShaders", "PO3_SKSEFunctions", StopAllShaders);
 	a_vm->RegisterFunction("GetActorCause", "PO3_SKSEFunctions", GetActorCause);
 	a_vm->RegisterFunction("GetClosestActorFromRef", "PO3_SKSEFunctions", GetClosestActorFromRef);
 	a_vm->RegisterFunction("GetRandomActorFromRef", "PO3_SKSEFunctions", GetRandomActorFromRef);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "po3_functions.h"
-#include "po3_offsets.h"
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -12,13 +11,13 @@ void ReplaceSkinTXST(RE::BSGeometry* geometry, RE::BGSTextureSet* TXST, SInt32 t
 
 void SetShaderPropertyMLP(RE::BSGeometry* geometry, RE::BSGeometry* templateGeometry);
 
-RE::BSGeometry* GetArmorGeometry(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, SInt32 shaderType);
+RE::BSGeometry* GetArmorGeometry(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, RE::BSShaderMaterial::Type shaderType);
 
 RE::NiAVObject* VisitArmorAddon(RE::Actor* thisActor, RE::TESObjectARMO* thisArmor, RE::TESObjectARMA* thisArma);
-RE::BSGeometry* GetHeadPartGeometry(RE::Actor* thisActor, UInt32 partType);
+RE::BSGeometry* GetHeadPartGeometry(RE::Actor* thisActor, RE::BGSHeadPart::Type partType);
 
-SInt32 GetShaderPropertyType(RE::BSGeometry* geometry);
-UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry);
+RE::BSShaderMaterial::Type GetShaderPropertyType(RE::BSGeometry* geometry);
+UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry, bool isBodyGeometry);
 
 void SetArmorSkinAlpha(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, float alpha);
 void SetArmorSkinTXST(RE::Actor* thisActor, RE::BGSTextureSet* TXST, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, SInt32 textureType);

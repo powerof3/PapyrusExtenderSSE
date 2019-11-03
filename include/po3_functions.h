@@ -55,13 +55,13 @@ public:
 
 	static void SetHeadPartAlpha(RE::StaticFunctionTag*, RE::Actor* thisActor, UInt32 partType, float alpha);
 
-	static void ToggleSkinnedDecalNode(RE::StaticFunctionTag*, RE::Actor* thisActor, bool disable);
+	static void ToggleChildNode(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString nodeName, bool disable);
 
-	static void RemoveFaceGenNode(RE::StaticFunctionTag*, RE::Actor* thisActor);
+	static void RemoveChildNode(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString nodeName);
 
 	static bool IsActorSoulTrapped(RE::StaticFunctionTag*, RE::Actor* thisActor);
 
-	static void ResetActor3D(RE::StaticFunctionTag*, RE::Actor* thisActor);
+	static bool ResetActor3D(RE::StaticFunctionTag*, RE::Actor* thisActor);
 
 	static void DecapitateActor(RE::StaticFunctionTag*, RE::Actor* thisActor);
 
@@ -79,9 +79,11 @@ public:
 
 	static void SetActorRefraction(RE::StaticFunctionTag*, RE::Actor* thisActor, float refraction);
 
-	static SInt32 GetDeadState(RE::StaticFunctionTag*, RE::Actor* thisActor);
+	static SInt32 GetActorState(RE::StaticFunctionTag*, RE::Actor* thisActor);
 
-	static void SetShaderType(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* templateArmor);
+	static bool InstantKill(RE::StaticFunctionTag*, RE::Actor* thisActor);
+
+	//static void SetShaderType(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* templateArmor);
 
 	//--------------------------------------------------------------------------------------------
 	// ARRAY
@@ -136,6 +138,8 @@ public:
 	static void AddAllGameRacesToList(RE::StaticFunctionTag*, RE::BGSListForm* thisList, RE::BSScript::VMArray<RE::BGSKeyword*> keywords);
 
 	static RE::BSScript::VMArray<RE::Actor*> GetActorsByProcessingLevel(RE::StaticFunctionTag*, UInt32 level);
+
+	static SInt32 GetNumActorsInHigh(RE::StaticFunctionTag*);
 
 	//--------------------------------------------------------------------------------------------
 	// LIGHT
@@ -238,6 +242,8 @@ public:
 	static UInt32 HasArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::BGSArtObject* artObject);
 
 	static void StopArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::BGSArtObject* artObject);
+
+	static void PO3_SKSEFunctions::StopAllShaders(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef);
 
 	static RE::Actor* GetActorCause(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef);
 

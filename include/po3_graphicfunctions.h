@@ -4,26 +4,34 @@
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-void SetShaderPropertyRGBTint(RE::BSGeometry* geometry);
-void SetShaderPropertyAlpha(RE::BSGeometry* geometry, float alpha, bool onlySkin);
-void ReplaceTextureSet(RE::BSGeometry* geometry, RE::BGSTextureSet* sourceTXST, RE::BGSTextureSet* targetTXST, SInt32 textureType);
-void ReplaceSkinTXST(RE::BSGeometry* geometry, RE::BGSTextureSet* TXST, SInt32 textureType);
+namespace RE
+{
+	void SetShaderPropertyRGBTint(BSGeometry* geometry);
 
-void SetShaderPropertyMLP(RE::BSGeometry* geometry, RE::BSGeometry* templateGeometry);
+	void SetShaderPropertyAlpha(BSGeometry* geometry, float alpha, bool onlySkin);
+	void SetArmorSkinAlpha(Actor* thisActor, BGSBipedObjectForm::FirstPersonFlag slotMask, float alpha);
 
-RE::BSGeometry* GetArmorGeometry(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, RE::BSShaderMaterial::Type shaderType);
+	bool ReplaceTextureSet(BSGeometry* geometry, BGSTextureSet& sourceTXST, BGSTextureSet& targetTXST, SInt32 textureType, const std::string& path);
 
-RE::NiAVObject* VisitArmorAddon(RE::Actor* thisActor, RE::TESObjectARMO* thisArmor, RE::TESObjectARMA* thisArma);
-RE::BSGeometry* GetHeadPartGeometry(RE::Actor* thisActor, RE::BGSHeadPart::Type partType);
+	bool ReplaceSkinTXST(BSGeometry* geometry, BGSTextureSet& TXST, std::vector<std::string>& vec, SInt32 textureType);
+	void SetArmorSkinTXST(Actor* thisActor, BGSTextureSet* TXST, BGSBipedObjectForm::FirstPersonFlag slotMask, SInt32 textureType);
 
-RE::BSShaderMaterial::Type GetShaderPropertyType(RE::BSGeometry* geometry);
-UInt32 GetShaderPropertyModdedSkin(RE::BSGeometry* geometry, bool isBodyGeometry);
+	void SetShaderPropertyType(BSGeometry* geometry, BSGeometry* templateGeometry);
+	BSGeometry* GetArmorGeometry(Actor* thisActor, BGSBipedObjectForm::FirstPersonFlag slotMask);
 
-void SetArmorSkinAlpha(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, float alpha);
-void SetArmorSkinTXST(RE::Actor* thisActor, RE::BGSTextureSet* TXST, RE::BGSBipedObjectForm::FirstPersonFlag slotMask, SInt32 textureType);
+	NiAVObject* VisitArmorAddon(Actor* actor, TESObjectARMO* armor, TESObjectARMA* arma);
+	BSGeometry* GetHeadPartGeometry(Actor* thisActor, BGSHeadPart::Type partType);
 
-float calculateLuminance(UInt8 R, UInt8 G, UInt8 B);
-UInt8 colorMix(UInt8 a, UInt8 b, float t);
+	TESObjectARMO* GetWornFormByID(Actor* thisActor, FormID id);
+	void ResetTextureSet(BSGeometry* geometry, BSShaderTextureSet* textureset, bool isSkin);
+	void ResetNiNodeTextureSet(NiAVObject* object, BSShaderTextureSet& TXST, bool onlySkin);
 
-RE::TESObjectARMO* GetSkinForm(RE::Actor* thisActor, RE::BGSBipedObjectForm::FirstPersonFlag mask);
-RE::TESObjectARMA* GetArmorAddonByMask(RE::TESRace* race, RE::TESObjectARMO* armor, RE::BGSBipedObjectForm::FirstPersonFlag mask);
+	bool HasShaderType(NiAVObject* object, BSShaderMaterial::Type shaderType);
+	BSGeometry* GetFirstShaderType(NiAVObject* object, BSShaderMaterial::Type shaderType);
+
+	float calculateLuminance(UInt8 R, UInt8 G, UInt8 B);
+	UInt8 colorMix(UInt8 a, UInt8 b, float t);
+
+	TESObjectARMO* GetSkinForm(Actor* thisActor, BGSBipedObjectForm::FirstPersonFlag mask);
+	TESObjectARMA* GetArmorAddonByMask(TESRace* race, TESObjectARMO* armor, BGSBipedObjectForm::FirstPersonFlag mask);
+}

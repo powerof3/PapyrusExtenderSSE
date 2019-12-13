@@ -75,7 +75,6 @@ public:
 
 		Release();
 	}
-
 };
 
 template <typename D = NullParameters>

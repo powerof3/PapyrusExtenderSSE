@@ -1,8 +1,10 @@
 #include "po3_functions.h"
 
-const SKSE::TaskInterface	* g_task = nullptr;
+const SKSE::TaskInterface* g_task = nullptr;
 RE::BGSKeyword* keyword = nullptr;
 RE::BGSArtObject* art = nullptr;
+
+float version;
 
 //----------------------------------------------------------------------------------------
 
@@ -28,8 +30,8 @@ extern "C" {
 		_MESSAGE("Loading po3_PapyrusExtender");
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
-		a_info->name = "powerofthree's PapyrusExtender for SSE - 1.5.80/73";
-		a_info->version = 2;
+		a_info->name = "powerofthree's PapyrusExtender for SSE - 1.5.97";
+		version = a_info->version = 2.20;
 
 		if (a_skse->IsEditor())
 		{
@@ -39,14 +41,13 @@ extern "C" {
 
 		switch (a_skse->RuntimeVersion())
 		{
-			case RUNTIME_VERSION_1_5_73:
-			case RUNTIME_VERSION_1_5_80:
-				break;
-			default:
-			{
-				_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
-				return false;
-			}
+		case RUNTIME_VERSION_1_5_97:
+			break;
+		default:
+		{
+			_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
+			return false;
+		}
 		}
 
 		return true;
@@ -54,7 +55,7 @@ extern "C" {
 
 	bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	{
-		_MESSAGE("po3_PapyrusExtender SSE 1.5.80/73 loaded");
+		_MESSAGE("po3_PapyrusExtender SSE 1.5.97 loaded");
 
 		if (!SKSE::Init(a_skse))
 		{
@@ -62,7 +63,7 @@ extern "C" {
 		}
 
 		const auto papyrus = SKSE::GetPapyrusInterface();
-		if (!papyrus->Register(PO3_SKSEFunctions::Register)) 
+		if (!papyrus->Register(RE::PO3_SKSEFunctions::Register))
 		{
 			_FATALERROR("Failed to register papyrus callback!\n");
 			return false;
@@ -83,5 +84,10 @@ extern "C" {
 		}
 
 		return true;
+	}
+
+	__declspec(dllexport) float GetPluginVersion()
+	{
+		return version;
 	}
 };

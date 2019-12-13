@@ -7,12 +7,20 @@
 
 #include <algorithm>
 #include <random>
-#include <set>  
-#include <vector>  
+#include <set>
+#include <vector>
 #include <cmath>
 #include <ShlObj.h>
+#include <tuple>
 
 #include "po3_events.h"
+
+//--------------------------------------------------------------------------------------------------------------------
+
+extern "C"
+{
+	__declspec(dllexport) float GetPluginVersion();
+};
 
 //---------------------------------------------------------------------------------------------------------------------
 
@@ -21,296 +29,298 @@ static const UInt32 ArtSoulTrapTargetEffectsID = 0x000506D6;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-class PO3_SKSEFunctions
+namespace RE
 {
-public:
+	class PO3_SKSEFunctions
+	{
+	public:
 
-	//--------------------------------------------------------------------------------------------
-	// ACTOR
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// ACTOR
+		//--------------------------------------------------------------------------------------------
 
-	static void GetHairColor(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSColorForm* color);
+		static void GetHairColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color);
 
-	static void SetHairColor(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSColorForm* color);
+		static void SetHairColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color);
 
-	static void GetSkinColor(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSColorForm* color);
+		static void GetSkinColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color);
 
-	static void SetSkinColor(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSColorForm* color);
+		static void SetSkinColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color);
 
-	static void MixColorWithSkinTone(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSColorForm* color, bool manualMode, float percentage);
+		static void MixColorWithSkinTone(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color, bool manualMode, float percentage);
 
-	static void SetSkinAlpha(RE::StaticFunctionTag*, RE::Actor* thisActor, float alpha);
+		static void SetSkinAlpha(StaticFunctionTag*, Actor* thisActor, float alpha);
 
-	static void EquipArmorIfSkinVisible(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* armorToCheck, RE::TESObjectARMO* armorToEquip);
+		static void EquipArmorIfSkinVisible(StaticFunctionTag*, Actor* thisActor, TESObjectARMO* armorToCheck, TESObjectARMO* armorToEquip);
 
-	static void ReplaceArmorTextureSet(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* thisArmor, RE::BGSTextureSet* sourceTXST, RE::BGSTextureSet* targetTXST, SInt32 textureType);
+		static void ReplaceArmorTextureSet(StaticFunctionTag*, Actor* thisActor, TESObjectARMO* thisArmor, BGSTextureSet* sourceTXST, BGSTextureSet* targetTXST, SInt32 textureType);
 
-	static void ReplaceSkinTextureSet(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSTextureSet* maleTXST, RE::BGSTextureSet* femaleTXST, UInt32 slotMask, SInt32 textureType);
+		static void ReplaceSkinTextureSet(StaticFunctionTag*, Actor* thisActor, BGSTextureSet* maleTXST, BGSTextureSet* femaleTXST, UInt32 slotMask, SInt32 textureType);
 
-	static void ReplaceFaceTextureSet(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSTextureSet* maleTXST, RE::BGSTextureSet* femaleTXST, SInt32 textureType);
+		static void ReplaceFaceTextureSet(StaticFunctionTag*, Actor* thisActor, BGSTextureSet* maleTXST, BGSTextureSet* femaleTXST, SInt32 textureType);
 
-	static RE::BGSTextureSet* GetHeadPartTextureSet(RE::StaticFunctionTag*, RE::Actor* thisActor, UInt32 type);
+		static BGSTextureSet* GetHeadPartTextureSet(StaticFunctionTag*, Actor* thisActor, UInt32 type);
 
-	static void SetHeadPartTextureSet(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BGSTextureSet* headpartTXST, UInt32 type);
+		static void SetHeadPartTextureSet(StaticFunctionTag*, Actor* thisActor, BGSTextureSet* headpartTXST, UInt32 type);
 
-	static void SetHeadPartAlpha(RE::StaticFunctionTag*, RE::Actor* thisActor, UInt32 partType, float alpha);
+		static void SetHeadPartAlpha(StaticFunctionTag*, Actor* thisActor, UInt32 partType, float alpha);
 
-	static void ToggleChildNode(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString nodeName, bool disable);
+		static void ToggleChildNode(StaticFunctionTag*, Actor* thisActor, BSFixedString nodeName, bool disable);
 
-	static void RemoveChildNode(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString nodeName);
+		static void RemoveChildNode(StaticFunctionTag*, Actor* thisActor, BSFixedString nodeName);
 
-	static bool IsActorSoulTrapped(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static bool IsActorSoulTrapped(StaticFunctionTag*, Actor* thisActor);
 
-	static bool ResetActor3D(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static bool ResetActor3D(StaticFunctionTag*, Actor* thisActor);
 
-	static void DecapitateActor(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static void DecapitateActor(StaticFunctionTag*, Actor* thisActor);
 
-	static float GetTimeDead(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static float GetTimeDead(StaticFunctionTag*, Actor* thisActor);
 
-	static float GetTimeOfDeath(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static float GetTimeOfDeath(StaticFunctionTag*, Actor* thisActor);
 
-	static RE::TESPackage* GetRunningPackage(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static TESPackage* GetRunningPackage(StaticFunctionTag*, Actor* thisActor);
 
-	static bool IsActorInWater(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static bool IsActorInWater(StaticFunctionTag*, Actor* thisActor);
 
-	static float GetActorAlpha(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static float GetActorAlpha(StaticFunctionTag*, Actor* thisActor);
 
-	static float GetActorRefraction(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static float GetActorRefraction(StaticFunctionTag*, Actor* thisActor);
 
-	static void SetActorRefraction(RE::StaticFunctionTag*, RE::Actor* thisActor, float refraction);
+		static void SetActorRefraction(StaticFunctionTag*, Actor* thisActor, float refraction);
 
-	static SInt32 GetActorState(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static SInt32 GetActorState(StaticFunctionTag*, Actor* thisActor);
 
-	static bool InstantKill(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static bool InstantKill(StaticFunctionTag*, Actor* thisActor);
 
-	//static void SetShaderType(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::TESObjectARMO* templateArmor);
+		//static void SetShaderType(StaticFunctionTag*, Actor* thisActor, TESObjectARMO* templateArmor);
 
-	//--------------------------------------------------------------------------------------------
-	// ARRAY
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// ARRAY
+		//--------------------------------------------------------------------------------------------
 
-	static bool AddStringToArray(RE::StaticFunctionTag*, RE::BSFixedString thisString, RE::BSScript::VMArray<RE::BSFixedString> stringArray);
+		static bool AddStringToArray(StaticFunctionTag*, BSFixedString thisString, BSScript::VMArray<BSFixedString> stringArray);
 
-	static bool AddActorToArray(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSScript::VMArray<RE::Actor*> actorArray);
+		static bool AddActorToArray(StaticFunctionTag*, Actor* thisActor, BSScript::VMArray<Actor*> actorArray);
 
-	static UInt32 ArrayStringCount(RE::StaticFunctionTag*, RE::BSFixedString thisString, RE::BSScript::VMArray<RE::BSFixedString> stringArray);
+		static UInt32 ArrayStringCount(StaticFunctionTag*, BSFixedString thisString, BSScript::VMArray<BSFixedString> stringArray);
 
-	static RE::BSScript::VMArray<RE::BSFixedString> SortArrayString(RE::StaticFunctionTag*, RE::BSScript::VMArray<RE::BSFixedString> stringArray);
+		static BSScript::VMArray<BSFixedString> SortArrayString(StaticFunctionTag*, BSScript::VMArray<BSFixedString> stringArray);
 
-	//--------------------------------------------------------------------------------------------
-	// EFFECTSHADER
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// EFFECTSHADER
+		//--------------------------------------------------------------------------------------------
 
-	static float GetEffectShaderFullParticleCount(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader);
+		static float GetEffectShaderFullParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader);
 
-	static void SetEffectShaderFullParticleCount(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, float particleCount);
+		static void SetEffectShaderFullParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader, float particleCount);
 
-	static float GetEffectShaderPersistentParticleCount(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader);
+		static float GetEffectShaderPersistentParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader);
 
-	static void SetEffectShaderPersistentParticleCount(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, float particleCount);
+		static void SetEffectShaderPersistentParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader, float particleCount);
 
-	static bool IsEffectShaderFlagSet(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, UInt32 flag);
+		static bool IsEffectShaderFlagSet(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag);
 
-	static void SetEffectShaderFlag(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, UInt32 flag);
+		static void SetEffectShaderFlag(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag);
 
-	static void ClearEffectShaderFlag(RE::StaticFunctionTag*, RE::TESEffectShader* thisEffectShader, UInt32 flag);
+		static void ClearEffectShaderFlag(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag);
 
-	//--------------------------------------------------------------------------------------------
-	// FORM
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// FORM
+		//--------------------------------------------------------------------------------------------
 
-	static void ReplaceKeywordOnForm(RE::StaticFunctionTag*, RE::TESForm* thisForm, RE::BGSKeyword* KYWDtoRemove, RE::BGSKeyword* KYWDtoAdd);
+		static void ReplaceKeywordOnForm(StaticFunctionTag*, TESForm* thisForm, BGSKeyword* KYWDtoRemove, BGSKeyword* KYWDtoAdd);
 
-	static void AddKeywordToForm(RE::StaticFunctionTag*, RE::TESForm* thisForm, RE::BGSKeyword* KYWDtoAdd);
+		static void AddKeywordToForm(StaticFunctionTag*, TESForm* thisForm, BGSKeyword* KYWDtoAdd);
 
-	//--------------------------------------------------------------------------------------------
-	// GAME
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// GAME
+		//--------------------------------------------------------------------------------------------
 
-	static bool IsPluginFound(RE::StaticFunctionTag*, RE::BSFixedString name);
+		static bool IsPluginFound(StaticFunctionTag*, BSFixedString name);
 
-	static RE::BSScript::VMArray<RE::TESForm*> GetAllSpellsInMod(RE::StaticFunctionTag*, RE::BSFixedString modName, RE::BSScript::VMArray<RE::BGSKeyword*> keywords, bool isPlayable);
+		static BSScript::VMArray<TESForm*> GetAllSpellsInMod(StaticFunctionTag*, BSFixedString modName, BSScript::VMArray<BGSKeyword*> keywords, bool isPlayable);
 
-	static RE::BSScript::VMArray<RE::TESForm*> GetAllRacesInMod(RE::StaticFunctionTag*, RE::BSFixedString modName, RE::BSScript::VMArray<RE::BGSKeyword*> keywords);
+		static BSScript::VMArray<TESForm*> GetAllRacesInMod(StaticFunctionTag*, BSFixedString modName, BSScript::VMArray<BGSKeyword*> keywords);
 
-	static void AddAllGameSpellsToList(RE::StaticFunctionTag*, RE::BGSListForm* thisList, RE::BSScript::VMArray<RE::BGSKeyword*> keywords, bool isPlayable);
+		static void AddAllGameSpellsToList(StaticFunctionTag*, BGSListForm* thisList, BSScript::VMArray<BGSKeyword*> keywords, bool isPlayable);
 
-	static void AddAllGameRacesToList(RE::StaticFunctionTag*, RE::BGSListForm* thisList, RE::BSScript::VMArray<RE::BGSKeyword*> keywords);
+		static void AddAllGameRacesToList(StaticFunctionTag*, BGSListForm* thisList, BSScript::VMArray<BGSKeyword*> keywords);
 
-	static RE::BSScript::VMArray<RE::Actor*> GetActorsByProcessingLevel(RE::StaticFunctionTag*, UInt32 level);
+		static BSScript::VMArray<Actor*> GetActorsByProcessingLevel(StaticFunctionTag*, UInt32 level);
 
-	static SInt32 GetNumActorsInHigh(RE::StaticFunctionTag*);
+		static SInt32 GetNumActorsInHigh(StaticFunctionTag*);
 
-	//--------------------------------------------------------------------------------------------
-	// LIGHT
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// LIGHT
+		//--------------------------------------------------------------------------------------------
 
-	static float GetLightRadius(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight);
+		static float GetLightRadius(StaticFunctionTag*, TESObjectLIGH* thisLight);
 
-	static void SetLightRadius(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, float radius);
+		static void SetLightRadius(StaticFunctionTag*, TESObjectLIGH* thisLight, float radius);
 
-	static float GetLightFade(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight);
+		static float GetLightFade(StaticFunctionTag*, TESObjectLIGH* thisLight);
 
-	static void SetLightFade(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, float fadeValue);
+		static void SetLightFade(StaticFunctionTag*, TESObjectLIGH* thisLight, float fadeValue);
 
-	static RE::BGSColorForm* GetLightColor(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight);
+		static BGSColorForm* GetLightColor(StaticFunctionTag*, TESObjectLIGH* thisLight);
 
-	static void SetLightColor(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, RE::BGSColorForm* colorform);
+		static void SetLightColor(StaticFunctionTag*, TESObjectLIGH* thisLight, BGSColorForm* colorform);
 
-	static UInt32 GetLightTypeInternal(RE::TESObjectLIGH* thisLight);
+		static UInt32 GetLightTypeInternal(TESObjectLIGH* thisLight);
 
-	static UInt32 GetLightType(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight);
+		static UInt32 GetLightType(StaticFunctionTag*, TESObjectLIGH* thisLight);
 
-	static void SetLightType(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, UInt32 lightType);
+		static void SetLightType(StaticFunctionTag*, TESObjectLIGH* thisLight, UInt32 lightType);
 
-	static float GetLightFOV(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight);
+		static float GetLightFOV(StaticFunctionTag*, TESObjectLIGH* thisLight);
 
-	static void SetLightFOV(RE::StaticFunctionTag*, RE::TESObjectLIGH* thisLight, float FOV);
+		static void SetLightFOV(StaticFunctionTag*, TESObjectLIGH* thisLight, float FOV);
 
-	static float GetLightShadowDepthBias(RE::StaticFunctionTag*, RE::TESObjectREFR* thisLightObject);
+		static float GetLightShadowDepthBias(StaticFunctionTag*, TESObjectREFR* thisLightObject);
 
-	static void SetLightShadowDepthBias(RE::StaticFunctionTag*, RE::TESObjectREFR* thisLightObject, float depthBias);
+		static void SetLightShadowDepthBias(StaticFunctionTag*, TESObjectREFR* thisLightObject, float depthBias);
 
-	//--------------------------------------------------------------------------------------------
-	// LOCATION
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// LOCATION
+		//--------------------------------------------------------------------------------------------
 
-	static RE::BGSLocation* GetParentLocation(RE::StaticFunctionTag*, RE::BGSLocation* thisLocation);
+		static BGSLocation* GetParentLocation(StaticFunctionTag*, BGSLocation* thisLocation);
 
-	static void SetParentLocation(RE::StaticFunctionTag*, RE::BGSLocation* thisLocation, RE::BGSLocation* newLocation);
+		static void SetParentLocation(StaticFunctionTag*, BGSLocation* thisLocation, BGSLocation* newLocation);
 
-	//--------------------------------------------------------------------------------------------
-	// MATHS
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// MATHS
+		//--------------------------------------------------------------------------------------------
 
-	static float GenerateRandomFloat(RE::StaticFunctionTag*, float afMin, float afMax);
+		static float GenerateRandomFloat(StaticFunctionTag*, float afMin, float afMax);
 
-	static UInt32 GenerateRandomInt(RE::StaticFunctionTag*, UInt32 afMin, UInt32 afMax);
+		static UInt32 GenerateRandomInt(StaticFunctionTag*, UInt32 afMin, UInt32 afMax);
 
-	//--------------------------------------------------------------------------------------------
-	// MAGICEFFECT
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// MAGICEFFECT
+		//--------------------------------------------------------------------------------------------
 
-	static RE::BSScript::VMArray<RE::EffectSetting*> GetAllActiveEffectsOnActor(RE::StaticFunctionTag*, RE::Actor* thisActor, bool showInactive);
+		static BSScript::VMArray<EffectSetting*> GetAllActiveEffectsOnActor(StaticFunctionTag*, Actor* thisActor, bool showInactive);
 
-	static RE::BSFixedString GetEffectArchetypeInternal(RE::EffectSetting* mgef);
+		static BSFixedString GetEffectArchetypeInternal(EffectSetting* mgef);
 
-	static bool HasMagicEffectWithArchetype(RE::StaticFunctionTag*, RE::Actor* thisActor, RE::BSFixedString archetype);
+		static bool HasMagicEffectWithArchetype(StaticFunctionTag*, Actor* thisActor, BSFixedString archetype);
 
-	static UInt32 GetEffectArchetypeAsInt(RE::StaticFunctionTag*, RE::EffectSetting* mgef);
+		static UInt32 GetEffectArchetypeAsInt(StaticFunctionTag*, EffectSetting* mgef);
 
-	static RE::BSFixedString GetEffectArchetypeAsString(RE::StaticFunctionTag*, RE::EffectSetting* mgef);
+		static BSFixedString GetEffectArchetypeAsString(StaticFunctionTag*, EffectSetting* mgef);
 
-	static RE::BGSSoundDescriptorForm* GetMagicEffectSound(RE::StaticFunctionTag*, RE::EffectSetting* mgef, UInt32 type);
+		static BGSSoundDescriptorForm* GetMagicEffectSound(StaticFunctionTag*, EffectSetting* mgef, UInt32 type);
 
-	static void SetMagicEffectSound(RE::StaticFunctionTag*, RE::EffectSetting* mgef, RE::BGSSoundDescriptorForm* mgefSound, UInt32 type);
+		static void SetMagicEffectSound(StaticFunctionTag*, EffectSetting* mgef, BGSSoundDescriptorForm* mgefSound, UInt32 type);
 
-	//--------------------------------------------------------------------------------------------
-	// OBJECTREFERENCE
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// OBJECTREFERENCE
+		//--------------------------------------------------------------------------------------------
 
-	static RE::BSScript::VMArray<float> GetPositionAsArray(RE::StaticFunctionTag*, RE::TESObjectREFR* ref);
+		static BSScript::VMArray<float> GetPositionAsArray(StaticFunctionTag*, TESObjectREFR* ref);
 
-	static RE::BSScript::VMArray<float> GetRotationAsArray(RE::StaticFunctionTag*, RE::TESObjectREFR* ref);
+		static BSScript::VMArray<float> GetRotationAsArray(StaticFunctionTag*, TESObjectREFR* ref);
 
-	static bool IsLoadDoor(RE::StaticFunctionTag*, RE::TESObjectREFR* thisDoor);
+		static bool IsLoadDoor(StaticFunctionTag*, TESObjectREFR* thisDoor);
 
-	static bool CanItemBeTaken(RE::InventoryEntryData* data, bool noEquipped, bool noFavourited, bool noQuestItem);
+		static bool CanItemBeTaken(InventoryEntryData* data, bool noEquipped, bool noFavourited, bool noQuestItem);
 
-	static void AddAllInventoryItemsToList(RE::StaticFunctionTag*, RE::TESObjectREFR * thisRef, RE::BGSListForm* thisList, bool noEquipped, bool noFavourited, bool noQuestItem);
+		static void AddAllInventoryItemsToList(StaticFunctionTag*, TESObjectREFR* thisRef, BGSListForm* thisList, bool noEquipped, bool noFavourited, bool noQuestItem);
 
-	static RE::BSScript::VMArray<RE::TESForm*> AddAllInventoryItemsToArray(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, bool noEquipped, bool noFavourited, bool noQuestItem);
+		static BSScript::VMArray<TESForm*> AddAllInventoryItemsToArray(StaticFunctionTag*, TESObjectREFR* thisRef, bool noEquipped, bool noFavourited, bool noQuestItem);
 
-	static RE::BSScript::VMArray<RE::TESForm*> AddAllEquippedItemsToArray(RE::StaticFunctionTag*, RE::Actor* thisActor);
+		static BSScript::VMArray<TESForm*> AddAllEquippedItemsToArray(StaticFunctionTag*, Actor* thisActor);
 
-	static void ReplaceKeywordOnRef(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::BGSKeyword* KYWDtoRemove, RE::BGSKeyword* KYWDtoAdd);
+		static void ReplaceKeywordOnRef(StaticFunctionTag*, TESObjectREFR* thisRef, BGSKeyword* KYWDtoRemove, BGSKeyword* KYWDtoAdd);
 
-	static void AddKeywordToRef(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::BGSKeyword* KYWDtoAdd);
+		static void AddKeywordToRef(StaticFunctionTag*, TESObjectREFR* thisRef, BGSKeyword* KYWDtoAdd);
 
-	static void Apply2DHavokImpulse(RE::StaticFunctionTag*, RE::TESObjectREFR* source, RE::TESObjectREFR* target, float afZ, float magnitude);
+		static void Apply2DHavokImpulse(StaticFunctionTag*, TESObjectREFR* source, TESObjectREFR* target, float afZ, float magnitude);
 
-	static void Apply3DHavokImpulse(RE::StaticFunctionTag*, RE::TESObjectREFR* source, RE::TESObjectREFR* target, float magnitude);
+		static void Apply3DHavokImpulse(StaticFunctionTag*, TESObjectREFR* source, TESObjectREFR* target, float magnitude);
 
-	static void MoveToNearestNavmeshLocation(RE::StaticFunctionTag*, RE::TESObjectREFR* target);
+		static void MoveToNearestNavmeshLocation(StaticFunctionTag*, TESObjectREFR* target);
 
-	static RE::BSScript::VMArray<RE::TESEffectShader*>GetAllEffectShaders(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef);
+		static BSScript::VMArray<TESEffectShader*>GetAllEffectShaders(StaticFunctionTag*, TESObjectREFR* thisRef);
 
-	static UInt32 HasEffectShader(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::TESEffectShader* effectShader);
+		static UInt32 HasEffectShader(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader);
 
-	static RE::BSScript::VMArray<RE::BGSArtObject*> GetAllArtObjects(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef);
+		static BSScript::VMArray<BGSArtObject*> GetAllArtObjects(StaticFunctionTag*, TESObjectREFR* thisRef);
 
-	static UInt32 HasArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::BGSArtObject* artObject);
+		static UInt32 HasArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject);
 
-	static void StopArtObject(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, RE::BGSArtObject* artObject);
+		static void StopArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject);
 
-	static void PO3_SKSEFunctions::StopAllShaders(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef);
+		static void PO3_SKSEFunctions::StopAllShaders(StaticFunctionTag*, TESObjectREFR* thisRef);
 
-	static RE::Actor* GetActorCause(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef);
+		static Actor* GetActorCause(StaticFunctionTag*, TESObjectREFR* thisRef);
 
-	static RE::Actor* GetClosestActorFromRef(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, float radius);
+		static Actor* GetClosestActorFromRef(StaticFunctionTag*, TESObjectREFR* thisRef, bool ignorePlayer);
 
-	static RE::Actor* GetRandomActorFromRef(RE::StaticFunctionTag*, RE::TESObjectREFR* thisRef, float radius);
+		static Actor* GetRandomActorFromRef(StaticFunctionTag*, TESObjectREFR* thisRef, float radius, bool ignorePlayer);
 
-	//--------------------------------------------------------------------------------------------
-	// PACKAGE
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// PACKAGE
+		//--------------------------------------------------------------------------------------------
 
-	static SInt32 GetPackageType(RE::StaticFunctionTag*, RE::TESPackage* package);
+		static SInt32 GetPackageType(StaticFunctionTag*, TESPackage* package);
 
-	//--------------------------------------------------------------------------------------------
-	// PROJECTILE
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// PROJECTILE
+		//--------------------------------------------------------------------------------------------
 
-	static float GetProjectileSpeed(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile);
+		static float GetProjectileSpeed(StaticFunctionTag*, BGSProjectile* thisProjectile);
 
-	static void SetProjectileSpeed(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float speed);
+		static void SetProjectileSpeed(StaticFunctionTag*, BGSProjectile* thisProjectile, float speed);
 
-	static float GetProjectileRange(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile);
+		static float GetProjectileRange(StaticFunctionTag*, BGSProjectile* thisProjectile);
 
-	static void SetProjectileRange(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float range);
+		static void SetProjectileRange(StaticFunctionTag*, BGSProjectile* thisProjectile, float range);
 
-	static float GetProjectileGravity(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile);
+		static float GetProjectileGravity(StaticFunctionTag*, BGSProjectile* thisProjectile);
 
-	static void SetProjectileGravity(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float gravity);
+		static void SetProjectileGravity(StaticFunctionTag*, BGSProjectile* thisProjectile, float gravity);
 
-	static float GetProjectileImpactForce(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile);
+		static float GetProjectileImpactForce(StaticFunctionTag*, BGSProjectile* thisProjectile);
 
-	static void SetProjectileImpactForce(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile, float impactForce);
+		static void SetProjectileImpactForce(StaticFunctionTag*, BGSProjectile* thisProjectile, float impactForce);
 
-	static UInt32 GetProjectileType(RE::StaticFunctionTag*, RE::BGSProjectile* thisProjectile);
+		static UInt32 GetProjectileType(StaticFunctionTag*, BGSProjectile* thisProjectile);
 
-	//--------------------------------------------------------------------------------------------
-	// SOUND
-	//--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
+		// SOUND
+		//--------------------------------------------------------------------------------------------
 
-	static void SetSoundDescriptor(RE::StaticFunctionTag*, RE::TESSound* thisSound, RE::BGSSoundDescriptorForm* thisSoundDescriptor);
+		static void SetSoundDescriptor(StaticFunctionTag*, TESSound* thisSound, BGSSoundDescriptorForm* thisSoundDescriptor);
 
-	//--------------------------------------------------------------------------------------------
-	// SPELL
-	//--------------------------------------------------------------------------------------------
-	
-	static UInt32 GetSpellType(RE::StaticFunctionTag*, RE::SpellItem* thisSpell);
+		//--------------------------------------------------------------------------------------------
+		// SPELL
+		//--------------------------------------------------------------------------------------------
 
-	//--------------------------------------------------------------------------------------------
-	// VISUALEFFECT
-	//--------------------------------------------------------------------------------------------
+		static UInt32 GetSpellType(StaticFunctionTag*, SpellItem* thisSpell);
 
-	static RE::BGSArtObject* GetArtObject(RE::StaticFunctionTag*, RE::BGSReferenceEffect* visualEffect);
+		//--------------------------------------------------------------------------------------------
+		// VISUALEFFECT
+		//--------------------------------------------------------------------------------------------
 
-	static void SetArtObject(RE::StaticFunctionTag*, RE::BGSReferenceEffect* visualEffect, RE::BGSArtObject* art);
+		static BGSArtObject* GetArtObject(StaticFunctionTag*, BGSReferenceEffect* visualEffect);
 
-	//--------------------------------------------------------------------------------------------
-	// WIND
-	//--------------------------------------------------------------------------------------------
+		static void SetArtObject(StaticFunctionTag*, BGSReferenceEffect* visualEffect, BGSArtObject* art);
 
-	static UInt32 GetWindSpeedAsInt(RE::StaticFunctionTag*, RE::TESWeather* thisWeather);
+		//--------------------------------------------------------------------------------------------
+		// WIND
+		//--------------------------------------------------------------------------------------------
 
-	static float GetWindSpeedAsFloat(RE::StaticFunctionTag*, RE::TESWeather* thisWeather);
+		static UInt32 GetWindSpeedAsInt(StaticFunctionTag*, TESWeather* thisWeather);
 
-	static SInt32 GetWeatherType(RE::StaticFunctionTag*, RE::TESWeather* thisWeather);
+		static float GetWindSpeedAsFloat(StaticFunctionTag*, TESWeather* thisWeather);
 
-	//---------------------------------------------------------------------------------------------
+		static SInt32 GetWeatherType(StaticFunctionTag*, TESWeather* thisWeather);
 
-	static bool Register(RE::BSScript::Internal::VirtualMachine* a_vm);
+		//---------------------------------------------------------------------------------------------
+
+		static bool Register(BSScript::Internal::VirtualMachine* a_vm);
+	};
 };
-

@@ -148,7 +148,7 @@ EventResult cellFullyLoadedEventHandler::ReceiveEvent(TESCellFullyLoadedEvent * 
 {
 	if (evn->cell == nullptr)
 		return kEvent_Continue;
-	
+
 	po3_cellFullyLoadedEventRegs.ForEach(
 		EventQueueFunctor1<TESObjectCELL*>(BSFixedString("OnCellFullyLoaded"), evn->cell)
 	);
@@ -162,12 +162,12 @@ EventResult activeEffectRemoveEventHandler::ReceiveEvent(TESActiveEffectApplyRem
 		return kEvent_Continue;
 
 	EffectSetting* mgef = nullptr;
-	
+
 	mgef = (evn->unk1C == 1) ? evn->effect2->effect->mgef : evn->effect1->effect->mgef;
 
 	if (mgef == nullptr)
 		return kEvent_Continue;
-	
+
 	po3_activeEffectRemoveEventRegs.ForEach(evn->target,
 			EventQueueFunctor3<TESObjectREFR*, TESObjectREFR*, EffectSetting*>(BSFixedString("OnMagicEffectRemove"), evn->caster, evn->target, mgef)
 		);
@@ -192,7 +192,7 @@ EventResult grabReleaseEventHandler::ReceiveEvent(TESGrabReleaseEvent * evn, Eve
 EventResult objectLoadedEventHandler::ReceiveEvent(TESObjectLoadedEvent * evn, EventDispatcher<TESObjectLoadedEvent> * dispatcher)
 {
 	TESForm * thisForm = LookupFormByID(evn->formID);
-	
+
 	if (thisForm == nullptr)
 		return kEvent_Continue;
 

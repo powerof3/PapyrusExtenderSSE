@@ -44,5 +44,11 @@
     <ClInclude Include="include\po3_offsets.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\NetImmerseLib\kd_matcher.h">
+      <Filter>include\NetImmerseLib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shape.h">
+      <Filter>include\NetImmerseLib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

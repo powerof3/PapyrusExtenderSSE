@@ -57,6 +57,10 @@
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <IncludePath>D:\Mods\SKSE64\skse64;D:\Mods\SKSE64\CommonLibSSE\include;$(IncludePath)</IncludePath>
     <OutDir>..\..\..\Games\The Elder Scrolls Skyrim Special Edition\Data\skse\Plugins</OutDir>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>MixedRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -81,7 +85,7 @@
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -123,6 +127,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <UseFullPaths>false</UseFullPaths>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
@@ -158,9 +163,6 @@
     <ProjectReference Include="..\skse64\skse64\skse64.vcxproj">
       <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\skse64\skse64_common\skse64_common.vcxproj">
-      <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -170,10 +172,12 @@
     <ClCompile Include="src\po3_offsets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\NetImmerseLib\kd_matcher.h" />
     <ClInclude Include="include\po3_events.h" />
     <ClInclude Include="include\po3_functions.h" />
     <ClInclude Include="include\po3_graphicfunctions.h" />
     <ClInclude Include="include\po3_offsets.h" />
+    <ClInclude Include="include\shape.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

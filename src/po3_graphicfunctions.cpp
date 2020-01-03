@@ -20,21 +20,22 @@ namespace RE
 			if (lightingShader)
 			{
 				auto material = lightingShader->material;
-
 				if (material)
 				{
-					if (material->GetType() == BSShaderMaterial::Type::kFaceGen)
+					if (material->GetFeature() == BSShaderMaterial::Feature::kFaceGen)
 					{
-						auto tintedMaterial = BSLightingShaderMaterialBase::CreateMaterial(BSShaderMaterial::Type::kFaceGenRGBTint);
+						auto tintedMaterial = BSLightingShaderMaterialFacegenTint::CreateFacegenTintMaterial();
+
 						tintedMaterial->CopyBaseMaterial(material);
+
 						lightingShader->SetFlags(0x0A, false);
 						lightingShader->SetFlags(0x15, true);
+
 						lightingShader->SetMaterial(tintedMaterial, true);
 						lightingShader->InitializeShader(geometry);
-						tintedMaterial->~BSLightingShaderMaterialBase();
 
-						auto scrapHeap = TESMemoryManager::GetSingleton()->scrapHeap;
-						scrapHeap->Free(tintedMaterial);
+						tintedMaterial->~BSLightingShaderMaterialFacegenTint();
+						free(tintedMaterial);
 					}
 				}
 			}
@@ -72,21 +73,20 @@ namespace RE
 		if (lightingShader)
 		{
 			auto material = lightingShader->material;
-
 			if (material)
 			{
 				if (onlySkin)
 				{
-					auto type = material->GetType();
-					
-					if (type == BSShaderMaterial::Type::kFaceGenRGBTint || type == BSShaderMaterial::Type::kFaceGen)
+					auto type = material->GetFeature();
+
+					if (type == BSShaderMaterial::Feature::kFaceGenRGBTint || type == BSShaderMaterial::Feature::kFaceGen)
 					{
-						material->alpha = alpha;
+						material->materialAlpha = alpha;
 					}
 				}
 				else
 				{
-					material->alpha = alpha;
+					material->materialAlpha = alpha;
 				}
 			}
 		}
@@ -102,20 +102,17 @@ namespace RE
 		}
 
 		TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-
 		if (foundAddon)
 		{
 			NiAVObject* armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-
 			if (armorObject)
 			{
 				auto node = armorObject->GetAsNiNode();
-
 				if (node)
 				{
-					for (size_t i = 0; i < node->children.GetSize(); i++)
+					for (size_t i = 0; i < node->children.size(); i++)
 					{
-						auto object = node->children.GetAt(i).get();
+						auto object = node->children[i];
 
 						if (object)
 						{
@@ -133,7 +130,7 @@ namespace RE
 
 	//----------------------------SET TEXTURESET--------------------------------------------
 
-	bool ReplaceTextureSet(BSGeometry* geometry, BGSTextureSet& sourceTXST, BGSTextureSet& targetTXST, SInt32 textureType, const std::string& path)
+	bool ReplaceTextureSet(BSGeometry* geometry, BGSTextureSet& sourceTXST, BGSTextureSet& targetTXST, SInt32 textureType, const std::string& targetPath)
 	{
 		if (!geometry)
 		{
@@ -150,69 +147,45 @@ namespace RE
 		if (lightingShader)
 		{
 			auto material = lightingShader->material;
-
 			if (material)
 			{
-				auto BSTextureType = static_cast<BSTextureSet::Texture>(textureType);
 				std::string sourcePath = material->textureSet->GetTexturePath(BSTextureSet::Texture::kDiffuse);
+				SanitizePath(sourcePath);
 
-				//making everything lowercase
-				std::transform(sourcePath.begin(), sourcePath.end(), sourcePath.begin(), ::tolower);
-
-				//CK texturesets start without "textures\" path while vanilla nifs always start with it.
-				size_t data_pos = sourcePath.find(R"(data\textures\)", 0, 14);
-
-				if (data_pos != std::string::npos)
-				{
-					sourcePath.erase(data_pos, 14); //removing "data\textures\"
-				}
-				else
-				{
-					size_t txt_pos = sourcePath.find(R"(textures\)", 0, 9);
-
-					if (txt_pos != std::string::npos)
-					{
-						sourcePath.erase(txt_pos, 9); //removing "textures\"
-					}
-				}
-
-				if (sourcePath != path)
+				if (sourcePath != targetPath)
 				{
 					return false;
 				}
 
-				auto newMaterial = BSLightingShaderMaterialBase::CreateMaterial(material->GetType());
-				newMaterial->Copy(material);
+				auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(material->Create());
+				newMaterial->CopyMembers(material);
 
 				if (textureType == -1)
 				{
-					newMaterial->ReleaseTextures();
+					newMaterial->ClearTextures();
 					newMaterial->SetTextureSet(&targetTXST);
 				}
 				else
 				{
 					auto newTextureSet = BSShaderTextureSet::Create();
-
 					for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
 					{
 						newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
 					}
 
+					auto BSTextureType = static_cast<BSTextureSet::Texture>(textureType);
 					newTextureSet->SetTexturePath(BSTextureType, targetTXST.GetTexturePath(BSTextureType));
 
-					newMaterial->ReleaseTextures();
+					newMaterial->ClearTextures();
 					newMaterial->SetTextureSet(newTextureSet);
 				}
 
 				lightingShader->SetMaterial(newMaterial, 1);
-
 				lightingShader->InvalidateTextures(0);
 				lightingShader->InitializeShader(geometry);
 
 				newMaterial->~BSLightingShaderMaterialBase();
-
-				auto scrapHeap = TESMemoryManager::GetSingleton()->scrapHeap;
-				scrapHeap->Free(newMaterial);
+				free(newMaterial);
 
 				return true;
 			}
@@ -223,7 +196,7 @@ namespace RE
 
 	//----------------------------SET SKIN TEXTURESET--------------------------------------------
 
-	bool ReplaceSkinTXST(BSGeometry* geometry, BGSTextureSet& TXST, std::vector<std::string>& vec, SInt32 textureType)
+	bool ReplaceSkinTXST(BSGeometry* geometry, BGSTextureSet& TXST, std::vector<BSFixedString>& vec, SInt32 textureType)
 	{
 		if (!geometry)
 		{
@@ -240,51 +213,36 @@ namespace RE
 		if (lightingShader)
 		{
 			auto material = lightingShader->material;
-
 			if (material)
 			{
-				auto type = material->GetType();
+				auto type = material->GetFeature();
 
-				if (type == BSShaderMaterial::Type::kFaceGenRGBTint || type == BSShaderMaterial::Type::kFaceGen)
+				if (type == BSShaderMaterial::Feature::kFaceGenRGBTint || type == BSShaderMaterial::Feature::kFaceGen)
 				{
-					auto BSTextureType = static_cast<BSTextureSet::Texture>(textureType);
-					std::string sourcePath = material->textureSet->GetTexturePath(BSTextureSet::Texture::kDiffuse);
-
 					if (vec.empty())
 					{
 						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
 						{
-							auto path = material->textureSet->GetTexturePath(i);
-
-							if (path && path[0] != '\0')
-							{
-								vec.push_back(path);
-							}
-							else
-							{
-								vec.push_back("NULL");
-							}
+							vec.emplace_back(material->textureSet->GetTexturePath(i));
 						}
 					}
 
-					auto newMaterial = BSLightingShaderMaterialBase::CreateMaterial(type);
-					newMaterial->Copy(material);
+					auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(material->Create());
+					newMaterial->CopyMembers(material);
 
 					if (textureType == -1)
 					{
-						newMaterial->ReleaseTextures();
+						newMaterial->ClearTextures();
 
-						if (type == BSShaderMaterial::Type::kFaceGen)
+						if (type == BSShaderMaterial::Feature::kFaceGen)
 						{
 							auto newTextureSet = BSShaderTextureSet::Create();
-
 							for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
 							{
 								newTextureSet->SetTexturePath(i, TXST.GetTexturePath(i));
 							}
 
 							newTextureSet->SetTexturePath(BSTextureSet::Texture::kMultilayer, material->textureSet->GetTexturePath(BSTextureSet::Texture::kMultilayer));
-
 							newMaterial->SetTextureSet(newTextureSet);
 						}
 						else
@@ -295,27 +253,24 @@ namespace RE
 					else
 					{
 						auto newTextureSet = BSShaderTextureSet::Create();
-
 						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
 						{
 							newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
 						}
 
+						auto BSTextureType = static_cast<BSTextureSet::Texture>(textureType);
 						newTextureSet->SetTexturePath(BSTextureType, TXST.GetTexturePath(BSTextureType));
 
-						newMaterial->ReleaseTextures();
+						newMaterial->ClearTextures();
 						newMaterial->SetTextureSet(newTextureSet);
 					}
 
 					lightingShader->SetMaterial(newMaterial, 1);
-
 					lightingShader->InvalidateTextures(0);
 					lightingShader->InitializeShader(geometry);
 
 					newMaterial->~BSLightingShaderMaterialBase();
-
-					auto scrapHeap = TESMemoryManager::GetSingleton()->scrapHeap;
-					scrapHeap->Free(newMaterial);
+					free(newMaterial);
 
 					return true;
 				}
@@ -325,10 +280,9 @@ namespace RE
 		return false;
 	}
 
-	void SetArmorSkinTXST(Actor* thisActor, BGSTextureSet* TXST, BGSBipedObjectForm::FirstPersonFlag slotMask, SInt32 textureType)
+	void SetArmorSkinTXST(Actor* thisActor, BGSTextureSet* TXST, BGSBipedObjectForm::BipedObjectSlot slotMask, SInt32 textureType)
 	{
 		TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
-
 		if (!skinarmor)
 		{
 			return;
@@ -337,23 +291,22 @@ namespace RE
 		g_task->AddTask([thisActor, skinarmor, TXST, slotMask, textureType]()
 		{
 			TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-
 			if (foundAddon)
 			{
 				NiAVObject* armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-
 				if (armorObject)
 				{
 					bool replaced = false;
-					std::vector<std::string> vec;
+
+					std::vector<BSFixedString> vec;
+					vec.reserve(10);
 
 					auto node = armorObject->GetAsNiNode();
-
 					if (node)
 					{
-						for (UInt32 i = 0; i < node->children.GetSize(); i++)
+						for (UInt32 i = 0; i < node->children.size(); i++)
 						{
-							auto object = node->children.GetAt(i).get();
+							auto object = node->children[i];
 
 							if (object && ReplaceSkinTXST(object->GetAsBSGeometry(), *TXST, vec, textureType))
 							{
@@ -361,45 +314,26 @@ namespace RE
 							}
 						}
 					}
-					else if (ReplaceSkinTXST(armorObject->GetAsBSGeometry(), *TXST, vec, textureType))
+					else
 					{
-						replaced = true;
+						replaced = ReplaceSkinTXST(armorObject->GetAsBSGeometry(), *TXST, vec, textureType);
 					}
 
-					if (replaced)
+					auto root = thisActor->Get3D(0);
+					if (replaced && root)
 					{
-						std::string slotMaskString = std::to_string(static_cast<UInt32>(slotMask));
-						std::string name = "PO3_SKINTXST - " + slotMaskString;
+						std::string slotMaskStr = std::to_string(static_cast<UInt32>(slotMask));
+						std::string name = "PO3_SKINTXST - " + slotMaskStr;
 
-						auto data = NiStringsExtraData::Create(BSFixedString(name.c_str()), 10);
+						vec.emplace_back(slotMaskStr.c_str());
 
-						if (data)
+						auto data = static_cast<NiStringsExtraData*>(root->GetExtraData(BSFixedString(name.c_str())));
+						if (!data)
 						{
-							data->value = NiAlloc<char*>(data->size);
-
-							if (data->value && !vec.empty())
+							auto newData = NiStringsExtraData::Create(BSFixedString(name.c_str()), vec.data(), vec.size());
+							if (data)
 							{
-								for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-								{
-									std::string path = vec.at(i);
-
-									if (!path.empty() && path != "NULL")
-									{
-										UInt32 strLength = strlen(path.c_str()) + 1;
-										data->value[i] = NiAlloc<char>(strLength);
-										memcpy(data->value[i], path.c_str(), sizeof(char) * strLength);
-									}
-								}
-
-								UInt32 strLength = strlen(slotMaskString.c_str()) + 1;
-								data->value[data->size - 1] = NiAlloc<char>(strLength);
-								memcpy(data->value[data->size - 1], slotMaskString.c_str(), sizeof(char) * strLength);
-
-								auto node = thisActor->GetNiRootNode(0);
-								if (node)
-								{
-									node->AddExtraData(data);
-								}
+								root->AddExtraData(newData);
 							}
 						}
 					}
@@ -435,18 +369,18 @@ namespace RE
 
 			if (material && templateMaterial)
 			{
-				auto type = material->GetType();
+				auto type = material->GetFeature();
 
-				if (type == BSShaderMaterial::Type::kFaceGen || type == BSShaderMaterial::Type::kFaceGenRGBTint)
+				if (type == BSShaderMaterial::Feature::kFaceGen || type == BSShaderMaterial::Feature::kFaceGenRGBTint)
 				{
-					auto newMaterial = BSLightingShaderMaterialBase::CreateMaterial(templateMaterial->GetType());
+					auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(templateMaterial->Create());
 
-					newMaterial->Copy(templateMaterial);
+					newMaterial->CopyMembers(templateMaterial);
 
 					lightingShader->shaderFlags1 = templateLightingShader->shaderFlags1;
 					lightingShader->shaderFlags2 = templateLightingShader->shaderFlags2;
 
-					newMaterial->ReleaseTextures();
+					newMaterial->ClearTextures();
 					newMaterial->SetTextureSet(templateMaterial->textureSet.get());
 
 					lightingShader->SetMaterial(newMaterial, 1);
@@ -455,9 +389,7 @@ namespace RE
 					lightingShader->InitializeShader(geometry);
 
 					newMaterial->~BSLightingShaderMaterialBase();
-
-					auto scrapHeap = TESMemoryManager::GetSingleton()->scrapHeap;
-					scrapHeap->Free(newMaterial);
+					free(newMaterial);
 				}
 			}
 		}
@@ -466,21 +398,18 @@ namespace RE
 	BSGeometry* GetArmorGeometry(Actor* thisActor, BGSBipedObjectForm::FirstPersonFlag slotMask)
 	{
 		TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
-
 		if (!skinarmor)
 		{
 			return nullptr;
 		}
 
 		TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-
 		if (foundAddon)
 		{
 			NiAVObject* armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-
 			if (armorObject)
 			{
-				GetFirstShaderType(armorObject, BSShaderMaterial::Type::kFaceGenRGBTint);
+				GetFirstShaderType(armorObject, BSShaderMaterial::Feature::kFaceGenRGBTint);
 			}
 		}
 
@@ -500,22 +429,29 @@ namespace RE
 		{
 			for (auto& data : *changes->entryList)
 			{
-				if (!data || !data->type || !data->type->IsArmor() || data->type->formID != id)
+				if (!data)
 				{
 					continue;
 				}
 
-				armor = skyrim_cast<TESObjectARMO*>(data->type);
+				auto object = data->object;
+
+				if (!object || !object->IsArmor() || object->formID != id)
+				{
+					continue;
+				}
+
+				armor = static_cast<TESObjectARMO*>(object);
+				break;
 			}
 		}
 
 		if (!armor)
 		{
 			auto actorBase = thisActor->GetActorBase();
-
 			if (actorBase)
 			{
-				armor = thisActor->GetActorBase()->skin;
+				armor = actorBase->skin;
 			}
 		}
 
@@ -539,14 +475,11 @@ namespace RE
 		if (lightingShader)
 		{
 			auto material = lightingShader->material;
-
 			if (material)
 			{
 				if (!isSkin)
 				{
 					std::string sourcePath = material->textureSet->GetTexturePath(BSTextureSet::Texture::kDiffuse);
-
-					//making everything lowercase
 					std::transform(sourcePath.begin(), sourcePath.end(), sourcePath.begin(), ::tolower);
 
 					std::size_t found = sourcePath.find("po3fireburns");
@@ -558,29 +491,26 @@ namespace RE
 				}
 				else
 				{
-					auto type = material->GetType();
+					auto type = material->GetFeature();
 
-					if (type != BSShaderMaterial::Type::kFaceGenRGBTint && type != BSShaderMaterial::Type::kFaceGen)
+					if (type != BSShaderMaterial::Feature::kFaceGenRGBTint && type != BSShaderMaterial::Feature::kFaceGen)
 					{
 						return;
 					}
 				}
 
-				auto newMaterial = BSLightingShaderMaterialBase::CreateMaterial(material->GetType());
-				newMaterial->Copy(material);
+				auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(material->Create());
+				newMaterial->CopyMembers(material);
 
-				newMaterial->ReleaseTextures();
+				newMaterial->ClearTextures();
 				newMaterial->SetTextureSet(textureset);
 
 				lightingShader->SetMaterial(newMaterial, 1);
-
 				lightingShader->InvalidateTextures(0);
 				lightingShader->InitializeShader(geometry);
 
 				newMaterial->~BSLightingShaderMaterialBase();
-
-				auto scrapHeap = TESMemoryManager::GetSingleton()->scrapHeap;
-				scrapHeap->Free(newMaterial);
+				free(newMaterial);
 			}
 		}
 	}
@@ -588,9 +518,9 @@ namespace RE
 	//---------------------MISC FUNCTIONS---------------------------------------------------
 
 	// Gets face node - adapted from RaceMenu
-	BSGeometry* GetHeadPartGeometry(Actor* actor, BGSHeadPart::Type partType)
+	BSGeometry* GetHeadPartGeometry(Actor* actor, BGSHeadPart::HeadPartType partType)
 	{
-		BSFaceGenNiNode* faceNode = actor->GetFaceGenNiNode();
+		BSFaceGenNiNode* faceNode = actor->GetFaceNodeSkinned();
 		auto actorBase = actor->GetActorBase();
 
 		if (faceNode && actorBase)
@@ -598,7 +528,7 @@ namespace RE
 			BGSHeadPart* facePart = actorBase->GetCurrentHeadPartByType(partType);
 			if (facePart)
 			{
-				NiAVObject* headNode = faceNode->GetObjectByName(facePart->editorID);
+				NiAVObject* headNode = faceNode->GetObjectByName(facePart->formEditorID);
 				if (headNode)
 				{
 					BSGeometry* geometry = headNode->GetAsBSGeometry();
@@ -623,8 +553,8 @@ namespace RE
 		BSFixedString rootName("NPC Root [Root]");
 
 		NiNode* skeletonRoot[2];
-		skeletonRoot[0] = actor->GetNiRootNode(0);
-		skeletonRoot[1] = actor->GetNiRootNode(1);
+		skeletonRoot[0] = actor->Get3D(0)->GetAsNiNode();
+		skeletonRoot[1] = actor->Get3D(1)->GetAsNiNode();
 
 		// Skip second skeleton, it's the same as the first
 		if (skeletonRoot[1] == skeletonRoot[0])
@@ -657,18 +587,17 @@ namespace RE
 		return nullptr;
 	}
 
-	BSGeometry* GetFirstShaderType(NiAVObject* object, BSShaderMaterial::Type shaderType)
+	BSGeometry* GetFirstShaderType(NiAVObject* object, BSShaderMaterial::Feature shaderType)
 	{
 		NiNode* node = object->GetAsNiNode();
 		if (node)
 		{
-			for (UInt32 i = 0; i < node->children.GetSize(); i++)
+			for (UInt32 i = 0; i < node->children.size(); i++)
 			{
-				NiAVObject* object = node->children.GetAt(i).get();
-
-				if (object)
+				auto child = node->children[i];
+				if (child)
 				{
-					BSGeometry* skin = GetFirstShaderType(object, shaderType);
+					BSGeometry* skin = GetFirstShaderType(child.get(), shaderType);
 
 					if (skin)
 					{
@@ -679,22 +608,27 @@ namespace RE
 		}
 		else
 		{
-			BSGeometry* geometry = object->GetAsBSGeometry();
+			auto geometry = object->GetAsBSGeometry();
 			if (geometry)
 			{
-				BSShaderProperty* shaderProperty = niptr_cast<BSShaderProperty>(geometry->states[BSGeometry::States::kEffect]);
-				if (shaderProperty && shaderProperty->GetRTTI() == reinterpret_cast<const NiRTTI*>(NiRTTI_BSLightingShaderProperty))
+				auto shaderProperty = niptr_cast<BSShaderProperty>(geometry->states[BSGeometry::States::kEffect]);
+				if (shaderProperty)
 				{
-					// Find first geometry if the type is any
-					if (shaderType == BSShaderMaterial::Type::kNull)
+					auto lightingShader = netimmerse_cast<BSLightingShaderProperty*>(shaderProperty);
+					if (lightingShader)
 					{
-						return geometry;
-					}
+						// Find first geometry if the type is any
+						if (shaderType == BSShaderMaterial::Feature::kNone)
+						{
+							return geometry;
+						}
 
-					auto material = shaderProperty->material;
-					if (material && material->GetType() == shaderType)
-					{
-						return geometry;
+						auto material = lightingShader->material;
+
+						if (material && material->GetFeature() == shaderType)
+						{
+							return geometry;
+						}
 					}
 				}
 			}
@@ -703,18 +637,17 @@ namespace RE
 		return nullptr;
 	}
 
-	bool HasShaderType(NiAVObject* object, BSShaderMaterial::Type shaderType)
+	bool HasShaderType(NiAVObject* object, BSShaderMaterial::Feature shaderType)
 	{
 		NiNode* node = object->GetAsNiNode();
 		if (node)
 		{
-			for (UInt32 i = 0; i < node->children.GetSize(); i++)
+			for (UInt32 i = 0; i < node->children.size(); i++)
 			{
-				NiAVObject* object = node->children.GetAt(i).get();
-
-				if (object)
+				auto child = node->children[i];
+				if (child)
 				{
-					if (HasShaderType(object, shaderType))
+					if (HasShaderType(child.get(), shaderType))
 					{
 						return true;
 					}
@@ -723,16 +656,21 @@ namespace RE
 		}
 		else
 		{
-			BSGeometry* geometry = object->GetAsBSGeometry();
+			auto geometry = object->GetAsBSGeometry();
 			if (geometry)
 			{
-				BSShaderProperty* shaderProperty = niptr_cast<BSShaderProperty>(geometry->states[BSGeometry::States::kEffect]);
-				if (shaderProperty && shaderProperty->GetRTTI() == reinterpret_cast<const NiRTTI*>(NiRTTI_BSLightingShaderProperty))
+				auto shaderProperty = niptr_cast<BSShaderProperty>(geometry->states[BSGeometry::States::kEffect]);
+				if (shaderProperty)
 				{
-					auto material = shaderProperty->material;
-					if (material && material->GetType() == shaderType)
+					auto lightingShader = netimmerse_cast<BSLightingShaderProperty*>(shaderProperty);
+					if (lightingShader)
 					{
-						return true;
+						auto material = lightingShader->material;
+
+						if (material && material->GetFeature() == shaderType)
+						{
+							return true;
+						}
 					}
 				}
 			}
@@ -742,7 +680,7 @@ namespace RE
 	}
 
 	//get worn form
-	TESObjectARMO* GetWornForm(Actor* thisActor, BGSBipedObjectForm::FirstPersonFlag mask)
+	TESObjectARMO* GetWornForm(Actor* thisActor, BGSBipedObjectForm::BipedObjectSlot mask)
 	{
 		auto exChanges = static_cast<ExtraContainerChanges*>(thisActor->extraData.GetByType(ExtraDataType::kContainerChanges)); //loop through caster inventory
 		InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
@@ -751,17 +689,23 @@ namespace RE
 		{
 			for (auto& data : *changes->entryList)
 			{
-				if (!data || !data->type || !data->type->IsArmor() || !data->extraList)
+				if (!data || !data->extraLists)
 				{
 					continue;
 				}
 
-				for (auto& extraList : *data->extraList)
+				auto object = data->object;
+
+				if (!object || !object->IsArmor())
+				{
+					continue;
+				}
+
+				for (auto& extraList : *data->extraLists)
 				{
 					if (extraList->HasType(ExtraDataType::kWorn) || extraList->HasType(ExtraDataType::kWornLeft))
 					{
-						auto armor = skyrim_cast<TESObjectARMO*>(data->type);
-
+						auto armor = static_cast<TESObjectARMO*>(data->object);
 						if (armor)
 						{
 							for (auto& armorAddon : armor->armature)
@@ -781,24 +725,20 @@ namespace RE
 	}
 
 	//get skin form
-	TESObjectARMO* GetSkinForm(Actor* thisActor, BGSBipedObjectForm::FirstPersonFlag mask)
+	TESObjectARMO* GetSkinForm(Actor* thisActor, BGSBipedObjectForm::BipedObjectSlot mask)
 	{
 		TESObjectARMO* equipped = nullptr;
-
 		if (thisActor)
 		{
 			equipped = GetWornForm(thisActor, mask);
-
 			if (!equipped)
 			{
 				auto actorBase = thisActor->GetActorBase();
-
 				if (actorBase)
 				{
 					equipped = actorBase->skin; // Check ActorBase
 
 					TESRace* race = actorBase->race;
-
 					if (!equipped && race)
 					{
 						equipped = race->skin; // Check Race
@@ -811,7 +751,7 @@ namespace RE
 	}
 
 	//get armor addon with mask
-	TESObjectARMA* GetArmorAddonByMask(TESRace* race, TESObjectARMO* armor, BGSBipedObjectForm::FirstPersonFlag mask)
+	TESObjectARMA* GetArmorAddonByMask(TESRace* race, TESObjectARMO* armor, BGSBipedObjectForm::BipedObjectSlot mask)
 	{
 		for (auto& currentAddon : armor->armature)
 		{
@@ -822,5 +762,14 @@ namespace RE
 		}
 
 		return nullptr;
+	}
+
+	void SanitizePath(std::string& path)
+	{
+		std::transform(path.begin(), path.end(), path.begin(), ::tolower);
+
+		path = std::regex_replace(path, std::regex("/+|\\\\+"), "\\"); // Replace multiple slashes or forward slashes with one backslash
+		path = std::regex_replace(path, std::regex("^\\\\+"), ""); // Remove all backslashes from the front
+		path = std::regex_replace(path, std::regex(R"(.*?[^\s]textures\\|^textures\\)", std::regex_constants::icase), ""); // Remove everything before and including the textures path root
 	}
 }

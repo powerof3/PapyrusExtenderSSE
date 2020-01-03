@@ -328,3 +328,6 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/include/NetImmerseLib
+/src/po3_normals.cpp
+/include/po3_normals.h

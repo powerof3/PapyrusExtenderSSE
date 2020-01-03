@@ -1,8 +1,8 @@
 #include "po3_functions.h"
 
 const SKSE::TaskInterface* g_task = nullptr;
-RE::BGSKeyword* keyword = nullptr;
-RE::BGSArtObject* art = nullptr;
+RE::BGSKeyword* npcKeyword = nullptr;
+RE::BGSArtObject* soulTrapArt = nullptr;
 
 float version;
 
@@ -12,8 +12,8 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
 	if (a_msg->type == SKSEMessagingInterface::kMessage_DataLoaded)
 	{
-		keyword = skyrim_cast<RE::BGSKeyword*>(RE::TESForm::LookupByID(KeywordActorTypeNPCID));
-		art = skyrim_cast<RE::BGSArtObject*>(RE::TESForm::LookupByID(ArtSoulTrapTargetEffectsID));
+		npcKeyword = RE::TESForm::LookupByID<RE::BGSKeyword>(KeywordActorTypeNPCID);
+		soulTrapArt = RE::TESForm::LookupByID<RE::BGSArtObject>(ArtSoulTrapTargetEffectsID);
 	}
 }
 
@@ -31,7 +31,7 @@ extern "C" {
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "powerofthree's PapyrusExtender for SSE - 1.5.97";
-		version = a_info->version = 2.20;
+		version = a_info->version = 2.32;
 
 		if (a_skse->IsEditor())
 		{
@@ -41,13 +41,13 @@ extern "C" {
 
 		switch (a_skse->RuntimeVersion())
 		{
-		case RUNTIME_VERSION_1_5_97:
-			break;
-		default:
-		{
-			_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
-			return false;
-		}
+			case RUNTIME_VERSION_1_5_97:
+				break;
+			default:
+			{
+				_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
+				return false;
+			}
 		}
 
 		return true;
@@ -62,13 +62,6 @@ extern "C" {
 			return false;
 		}
 
-		const auto papyrus = SKSE::GetPapyrusInterface();
-		if (!papyrus->Register(RE::PO3_SKSEFunctions::Register))
-		{
-			_FATALERROR("Failed to register papyrus callback!\n");
-			return false;
-		}
-
 		g_task = SKSE::GetTaskInterface();
 		if (!g_task)
 		{
@@ -80,6 +73,13 @@ extern "C" {
 		if (!messaging->RegisterListener("SKSE", OnInit))
 		{
 			_FATALERROR("Messaging interface registration failed!\n");
+			return false;
+		}
+
+		const auto papyrus = SKSE::GetPapyrusInterface();
+		if (!papyrus->Register(RE::PO3_SKSEFunctions::Register))
+		{
+			_FATALERROR("Failed to register papyrus callback!\n");
 			return false;
 		}
 

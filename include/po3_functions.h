@@ -73,6 +73,8 @@ namespace RE
 
 		static bool ResetActor3D(StaticFunctionTag*, Actor* thisActor);
 
+		static void RemoveEffectsNotOfType(StaticFunctionTag*, Actor* thisActor, UInt32 effectType);
+
 		static void DecapitateActor(StaticFunctionTag*, Actor* thisActor);
 
 		static float GetTimeDead(StaticFunctionTag*, Actor* thisActor);
@@ -124,6 +126,8 @@ namespace RE
 		static void SetEffectShaderFlag(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag);
 
 		static void ClearEffectShaderFlag(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag);
+
+		static UInt32 GetEffectShaderTotalCount(StaticFunctionTag*, TESEffectShader* effectShader, bool active);
 
 		//--------------------------------------------------------------------------------------------
 		// FORM
@@ -245,21 +249,29 @@ namespace RE
 
 		static BSScript::VMArray<TESEffectShader*>GetAllEffectShaders(StaticFunctionTag*, TESObjectREFR* thisRef);
 
-		static UInt32 HasEffectShader(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader);
+		static UInt32 HasEffectShader(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader, bool active);
 
 		static BSScript::VMArray<BGSArtObject*> GetAllArtObjects(StaticFunctionTag*, TESObjectREFR* thisRef);
 
-		static UInt32 HasArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject);
+		static UInt32 HasArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject, bool active);
 
 		static void StopArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject);
 
-		static void PO3_SKSEFunctions::StopAllShaders(StaticFunctionTag*, TESObjectREFR* thisRef);
+		static void StopAllShaders(StaticFunctionTag*, TESObjectREFR* thisRef);
 
 		static Actor* GetActorCause(StaticFunctionTag*, TESObjectREFR* thisRef);
 
 		static Actor* GetClosestActorFromRef(StaticFunctionTag*, TESObjectREFR* thisRef, bool ignorePlayer);
 
 		static Actor* GetRandomActorFromRef(StaticFunctionTag*, TESObjectREFR* thisRef, float radius, bool ignorePlayer);
+
+		static BSScript::VMArray<TESObjectREFR*> FindAllReferencesOfType(StaticFunctionTag*, TESObjectREFR* ref, TESForm* type, float afRadius);
+
+		static BSScript::VMArray<TESObjectREFR*> FindAllReferencesWithKeyword(StaticFunctionTag*, TESObjectREFR* ref, BSScript::VMArray<BGSKeyword*> keywords, float radius, bool matchAll);
+
+		static float GetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader);
+
+		static void SetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader, float time, bool absolute);
 
 		//--------------------------------------------------------------------------------------------
 		// PACKAGE
@@ -308,6 +320,8 @@ namespace RE
 		static BGSArtObject* GetArtObject(StaticFunctionTag*, BGSReferenceEffect* visualEffect);
 
 		static void SetArtObject(StaticFunctionTag*, BGSReferenceEffect* visualEffect, BGSArtObject* art);
+
+		static UInt32 GetArtObjectTotalCount(StaticFunctionTag*, BGSReferenceEffect* visualEffect, bool active);
 
 		//--------------------------------------------------------------------------------------------
 		// WIND

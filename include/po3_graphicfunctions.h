@@ -2,37 +2,20 @@
 
 #include "po3_functions.h"
 
-//-----------------------------------------------------------------------------------------------------------------------
 
 namespace RE
 {
-	void SetShaderPropertyRGBTint(BSGeometry* geometry);
+	void MakeFaceTintable(Actor* a_actor, const NiColor& a_color);
+	void AddOrUpdateColorData(NiAVObject* a_root, const BSFixedString& a_name, const Color& a_color);
 
-	void SetShaderPropertyAlpha(BSGeometry* geometry, float alpha, bool onlySkin);
-	void SetArmorSkinAlpha(Actor* thisActor, BGSBipedObjectForm::BipedObjectSlot slotMask, float alpha);
+	void SetArmorSkinAlpha(Actor* a_actor, BGSBipedObjectForm::FirstPersonFlag a_slot, float a_alpha);
 
-	bool ReplaceTextureSet(BSGeometry* geometry, BGSTextureSet& sourceTXST, BGSTextureSet& targetTXST, SInt32 textureType, const std::string& texturePath);
+	void SetTextureSet(NiAVObject* a_object, BGSTextureSet* a_srcTXST, BGSTextureSet* a_tgtTXST, SInt32 a_type, const std::string& a_tgtPath, bool& replaced);
+	
+	void SetSkinTextureSet(NiAVObject* a_object, BGSTextureSet* a_txst, std::vector<BSFixedString>& a_vec, SInt32 a_type);
+	void SetArmorSkinTXST(Actor* a_actor, BGSTextureSet* a_txst, BGSBipedObjectForm::BipedObjectSlot a_slot, SInt32 a_type);
 
-	bool ReplaceSkinTXST(BSGeometry* geometry, BGSTextureSet& TXST, std::vector<BSFixedString>& vec, SInt32 textureType);
-	void SetArmorSkinTXST(Actor* thisActor, BGSTextureSet* TXST, BGSBipedObjectForm::BipedObjectSlot slotMask, SInt32 textureType);
+	BSGeometry* GetSkinGeometry(Actor* a_actor, BGSBipedObjectForm::FirstPersonFlag a_slot);
 
-	void SetShaderPropertyType(BSGeometry* geometry, BSGeometry* templateGeometry);
-	BSGeometry* GetArmorGeometry(Actor* thisActor, BGSBipedObjectForm::BipedObjectSlot slotMask);
-
-	NiAVObject* VisitArmorAddon(Actor* actor, TESObjectARMO* armor, TESObjectARMA* arma);
-	BSGeometry* GetHeadPartGeometry(Actor* thisActor, BGSHeadPart::HeadPartType partType);
-
-	TESObjectARMO* GetWornFormByID(Actor* thisActor, FormID id);
-	void ResetTextureSet(BSGeometry* geometry, BSShaderTextureSet* textureset, bool isSkin);
-
-	bool HasShaderType(NiAVObject* object, BSShaderMaterial::Feature shaderType);
-	BSGeometry* GetFirstShaderType(NiAVObject* object, BSShaderMaterial::Feature shaderType);
-
-	float calculateLuminance(UInt8 R, UInt8 G, UInt8 B);
-	UInt8 colorMix(UInt8 a, UInt8 b, float t);
-
-	TESObjectARMO* GetSkinForm(Actor* thisActor, BGSBipedObjectForm::BipedObjectSlot mask);
-	TESObjectARMA* GetArmorAddonByMask(TESRace* race, TESObjectARMO* armor, BGSBipedObjectForm::BipedObjectSlot mask);
-
-	void SanitizePath(std::string& path);
+	void ResetTextureSet(NiAVObject* a_object, BSShaderTextureSet* a_txst, bool a_skin, const std::string& a_folder = std::string());
 }

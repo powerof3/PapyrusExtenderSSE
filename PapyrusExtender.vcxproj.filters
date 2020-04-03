@@ -18,37 +18,40 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\po3_events.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\po3_functions.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\po3_graphicfunctions.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\po3_offsets.cpp">
+    <ClCompile Include="src\po3_serializedclasses.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\po3_resetfunctions.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\po3_events.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\po3_functions.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\po3_graphicfunctions.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\po3_offsets.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\NetImmerseLib\kd_matcher.h">
       <Filter>include\NetImmerseLib</Filter>
     </ClInclude>
-    <ClInclude Include="include\shape.h">
+    <ClInclude Include="include\po3_serializedclasses.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\NetImmerseLib\shape.h">
       <Filter>include\NetImmerseLib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\NetImmerseLib\half.hpp">
+      <Filter>include\NetImmerseLib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\po3_resetfunctions.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

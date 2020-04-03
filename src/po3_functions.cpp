@@ -4,55 +4,64 @@
 
 #include "po3_functions.h"
 #include "po3_graphicfunctions.h"
-#include "po3_offsets.h"
-#include <skse64\GameReferences.h>
+#include "po3_resetfunctions.h"
+#include "po3_serializedclasses.h"
 
-//--------------------------------------------------------------------------------------------
 
 extern const SKSE::TaskInterface* g_task;
+extern RE::BGSKeyword* g_npcKeyword;
+extern RE::BGSArtObject* g_soulTrapArt;
 
-extern RE::BGSKeyword* npcKeyword;
-extern RE::BGSArtObject* soulTrapArt;
-
-//--------------------------------------------------------------------------------------------
 
 namespace RE
 {
-	SoulLevel GetSoulLevel(TESSoulGem* a_soulGem, InventoryEntryData* entry)
+	//--------------------------------------------------------------------------------------------
+	// HELPERS
+	//--------------------------------------------------------------------------------------------
+
+	float CalcLinearDistance(const NiPoint3& a_lhs, const NiPoint3& a_rhs)
 	{
-		if (a_soulGem->containedSoul != SoulLevel::kNone)
-		{
-			return a_soulGem->containedSoul;
-		}
-
-		if (entry->extraLists)
-		{
-			for (auto& list : *entry->extraLists)
-			{
-				auto xSoul = static_cast<ExtraSoul*>(list->GetByType(ExtraDataType::kSoul));
-				if (xSoul)
-				{
-					return xSoul->containedSoul;
-				}
-			}
-		}
-
-		return SoulLevel::kNone;
+		return ((a_rhs.x - a_lhs.x) * (a_rhs.x - a_lhs.x)) + ((a_rhs.y - a_lhs.y) * (a_rhs.y - a_lhs.y)) + ((a_rhs.z - a_lhs.z) * (a_rhs.z - a_lhs.z));
 	}
 
-	bool VerifyKeywords(TESForm* form, BSScript::VMArray<BGSKeyword*>* keywords)
+
+	//luminance detection algorithm
+	float CalcLuminance(UInt8 R, UInt8 G, UInt8 B) //returns luminance between 0-1.0
 	{
-		auto size = keywords->size();
-		if (size > 0)
-		{
-			auto pKeywords = skyrim_cast<BGSKeywordForm*>(form);
-			if (pKeywords)
-			{
-				for (UInt32 i = 0; i < size; i++)
-				{
-					auto keyword = keywords->at(i);
-					if (keyword && pKeywords->HasKeyword(keyword))
-					{
+		return static_cast <float>(0.2126 * R + 0.7152 * G + 0.0722 * B) / static_cast <float>(255.0);
+	}
+
+
+	//color mixing algorithm
+	UInt8 ColorMix(UInt8 a, UInt8 b, float t) //t is percentage blend
+	{
+		return static_cast<UInt8>(sqrt((1.0 - t) * (a * a) + (t * (b * b))));
+	}
+
+
+	template <typename V, typename A>
+	void FillVMArray(std::vector<V> const& a_vec, BSScript::VMArray<A>& a_array)
+	{
+		auto size = static_cast<UInt32>(a_vec.size());
+		if (size > 0) {
+			a_array.resize(size);
+
+			for (UInt32 i = 0; i < size; i++) {
+				a_array[i] = a_vec[i];
+			}
+		}
+	}
+
+
+	bool VerifyKeywords(TESForm* a_form, BSScript::VMArray<BGSKeyword*>* a_keywordArray)
+	{
+		auto size = a_keywordArray->size();
+		if (size > 0) {
+			auto keywordForm = skyrim_cast<BGSKeywordForm*>(a_form);
+			if (keywordForm) {
+				for (UInt32 i = 0; i < size; i++) {
+					auto keyword = a_keywordArray->at(i);
+					if (keyword && keywordForm->HasKeyword(keyword)) {
 						return true;
 					}
 				}
@@ -62,27 +71,22 @@ namespace RE
 		return false;
 	}
 
-	bool VerifyAllKeywords(TESForm* form, BSScript::VMArray<BGSKeyword*>* keywords)
+
+	bool VerifyAllKeywords(TESForm* a_form, BSScript::VMArray<BGSKeyword*>* a_keywordArray)
 	{
-		auto size = keywords->size();
-		if (size > 0)
-		{
-			auto pKeywords = skyrim_cast<BGSKeywordForm*>(form);
-			if (pKeywords)
-			{
+		auto size = a_keywordArray->size();
+		if (size > 0) {
+			auto keywordForm = skyrim_cast<BGSKeywordForm*>(a_form);
+			if (keywordForm) {
 				bool failed = false;
-				for (UInt32 i = 0; i < size; i++)
-				{
-					auto keyword = keywords->at(i);
-					if (keyword && !pKeywords->HasKeyword(keyword))
-					{
+				for (UInt32 i = 0; i < size; i++) {
+					auto keyword = a_keywordArray->at(i);
+					if (keyword && !keywordForm->HasKeyword(keyword)) {
 						failed = true;
 						break;
 					}
 				}
-
-				if (failed)
-				{
+				if (failed) {
 					return false;
 				}
 			}
@@ -91,473 +95,203 @@ namespace RE
 		return true;
 	}
 
-	// navmesh related functions
-	float CalcLinearDistance(const NiPoint3& a_lhs, const NiPoint3& a_rhs)
-	{
-		return ((a_rhs.x - a_lhs.x) * (a_rhs.x - a_lhs.x)) + ((a_rhs.y - a_lhs.y) * (a_rhs.y - a_lhs.y)) + ((a_rhs.z - a_lhs.z) * (a_rhs.z - a_lhs.z));
-	}
-
-	std::optional<NiPoint3> FindNearestVertex(TESObjectREFR* a_ref)
-	{
-		auto cell = a_ref->GetParentCell();
-
-		if (!cell || !cell->navMeshes)
-		{
-			return std::nullopt;
-		}
-
-		auto& navMeshes = *cell->navMeshes;
-		auto shortestDistance = std::numeric_limits<float>::max();
-		std::optional<NiPoint3> pos = std::nullopt;
-
-		for (auto& navMesh : navMeshes)
-		{
-			for (auto& vertex : navMesh->vertices)
-			{
-				auto linearDistance = CalcLinearDistance(a_ref->GetPosition(), vertex.location);
-				if (linearDistance < shortestDistance)
-				{
-					shortestDistance = linearDistance;
-					pos.emplace(vertex.location);
-				}
-			}
-		}
-
-		return pos;
-	}
-
-	void StopAllShaders_Internal(TESObjectREFR* thisRef)
-	{
-		auto singleton = ProcessLists::GetSingleton();
-
-		singleton->referenceEffectsLock.Lock();
-		for (auto& referenceEffect : singleton->referenceEffects)
-		{
-			if (!referenceEffect)
-			{
-				continue;
-			}
-
-			auto refHandle = thisRef->CreateRefHandle();
-			if (referenceEffect->refHandle != refHandle)
-			{
-				continue;
-			}
-
-			referenceEffect->unk40 = 1;
-		}
-		singleton->referenceEffectsLock.Unlock();
-	}
-
-	void StopAllSkinAlphaShaders(TESObjectREFR* thisRef)
-	{
-		auto singleton = ProcessLists::GetSingleton();
-
-		singleton->referenceEffectsLock.Lock();
-		for (auto& referenceEffect : singleton->referenceEffects)
-		{
-			if (!referenceEffect)
-			{
-				continue;
-			}
-
-			auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(referenceEffect);
-			if (shaderEffect)
-			{
-				auto handle = thisRef->CreateRefHandle();
-				if (shaderEffect->refHandle == handle)
-				{
-					auto shader = shaderEffect->effectShader;
-
-					if (shader && ((shader->data.flags & EffectShaderData::Flags::kSkinOnly) != EffectShaderData::Flags::kSkinOnly) && !shader->holesTexture.textureName.empty())
-					{
-						shaderEffect->unk40 = 1;
-					}
-				}
-			}
-		}
-		singleton->referenceEffectsLock.Unlock();
-	}
-
-	void ResetAlpha(Actor* thisActor)
-	{
-		auto geometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-		SetShaderPropertyAlpha(geometry, 1.0, true);
-
-		SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kBody, 1.0);
-		SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kHands, 1.0);
-		SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kFeet, 1.0);
-		SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kTail, 1.0);
-		SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kDecapitate, 1.0);
-	}
-
-	void ResetSkinTint(Actor* thisActor, NiAVObject* root)
-	{
-		auto actorBase = thisActor->GetActorBase();
-		if (actorBase)
-		{
-			auto player = PlayerCharacter::GetSingleton();
-			if (thisActor == player)
-			{
-				auto faceNode = thisActor->GetFaceNodeSkinned();
-				auto facePart = actorBase->GetCurrentHeadPartByType(BGSHeadPart::HeadPartType::kFace);
-
-				if (faceNode && facePart)
-				{
-					auto singleton = FaceGen::GetSingleton();
-					singleton->RegenerateHead(faceNode, facePart, actorBase);
-				}
-			}
-
-			NiColorA val;
-			val.red = actorBase->textureLighting.red / 255.0;
-			val.green = actorBase->textureLighting.green / 255.0;
-			val.blue = actorBase->textureLighting.blue / 255.0;
-			NiColorA* skinColor = &val;
-
-			if (root)
-			{
-				root->UpdateModelSkin(&skinColor);
-			}
-		}
-	}
-
-	void ResetHairTint(Actor* thisActor, NiAVObject* root)
-	{
-		auto actorBase = thisActor->GetActorBase();
-		if (actorBase)
-		{
-			auto colorForm = actorBase->headData->hairColor;
-			if (colorForm)
-			{
-				NiColorA val;
-				val.red = colorForm->color.red / 255.0;
-				val.green = colorForm->color.green / 255.0;
-				val.blue = colorForm->color.blue / 255.0;
-				NiColorA* hairColor = &val;
-
-				if (root)
-				{
-					root->UpdateModelHair(&hairColor);
-				}
-			}
-		}
-	}
-
-	template <typename V, typename A>
-	void FillVMArray(std::vector<V> const& vec, BSScript::VMArray<A>& array)
-	{
-		auto size = vec.size();
-		if (size > 0)
-		{
-			array.resize(size);
-
-			for (size_t i = 0; i < size; i++)
-			{
-				array[i] = vec[i];
-			}
-		}
-	}
-
-	template <typename V, typename A>
-	void NiPtr_FillVMArray(std::vector<V> const& vec, BSScript::VMArray<A>& array)
-	{
-		auto size = vec.size();
-		if (size > 0)
-		{
-			array.resize(size);
-
-			for (size_t i = 0; i < size; i++)
-			{
-				array[i] = vec[i].get();
-			}
-		}
-	}
-
 	//--------------------------------------------------------------------------------------------
 	// ACTOR
 	//--------------------------------------------------------------------------------------------
 
-	void PO3_SKSEFunctions::GetHairColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color)
+	BGSColorForm* PO3_SKSEFunctions::GetHairColor(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (!thisActor || !color || !thisActor->Is3DLoaded())
-		{
-			return;
-		}
+		if (a_actor) {
+			auto actorbase = a_actor->GetActorBase();
+			if (actorbase) {
+				auto root = a_actor->Get3D(0);
+				if (root) {
+					auto data = static_cast<NiIntegersExtraData*>(root->GetExtraData(BSFixedString("PO3_HAIRTINT")));
+					if (data) {
+						auto factory = IFormFactory::GetFormFactoryByType(FormType::ColorForm);
+						auto color = static_cast<BGSColorForm*>(factory->Create());
 
-		g_task->AddTask([thisActor, color]()
-		{
-			auto geometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kHair);
-			if (!geometry)
-			{
-				return;
-			}
+						color->flags &= ~BGSColorForm::Flag::kPlayable;
+						color->color.red = static_cast <UInt8>(data->value[0] / 255.0);
+						color->color.green = static_cast <UInt8>(data->value[1] / 255.0);
+						color->color.blue = static_cast <UInt8>(data->value[2] / 255.0);
 
-			auto shaderProperty = niptr_cast<BSShaderProperty>(geometry->states[BSGeometry::States::kEffect]);
-			if (!shaderProperty)
-			{
-				return;
-			}
-
-			auto lightingShader = netimmerse_cast<BSLightingShaderProperty*>(shaderProperty);
-			if (lightingShader)
-			{
-				auto material = lightingShader->material;
-
-				if (material && material->GetFeature() == BSShaderMaterial::Feature::kHairTint)
-				{
-					auto tintedMaterial = static_cast<BSLightingShaderMaterialHairTint*>(material);
-					NiColor tintColor = tintedMaterial->tintColor;
-
-					color->color.red = tintColor.red * 255;
-					color->color.green = tintColor.green * 255;
-					color->color.blue = tintColor.blue * 255;
-				}
-			}
-		});
-	}
-
-	void PO3_SKSEFunctions::SetHairColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color)
-	{
-		if (!thisActor || !color)
-		{
-			return;
-		}
-
-		auto root = thisActor->Get3D(0);
-		if (root)
-		{
-			NiColorA val;
-			val.red = color->color.red / 255.0;
-			val.green = color->color.green / 255.0;
-			val.blue = color->color.blue / 255.0;
-			NiColorA* hairColor = &val;
-
-			root->UpdateModelHair(&hairColor);
-
-			auto data = root->GetExtraData(BSFixedString("PO3_HAIRTINT"));
-			if (!data)
-			{
-				auto newData = NiBooleanExtraData::Create(BSFixedString("PO3_HAIRTINT"), true);
-				if (newData)
-				{
-					root->AddExtraData(newData);
-				}
-			}
-		}
-	}
-
-	void PO3_SKSEFunctions::GetSkinColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color)
-	{
-		if (!thisActor || !color || !thisActor->Is3DLoaded())
-		{
-			return;
-		}
-
-		g_task->AddTask([thisActor, color]()
-		{
-			auto geometry = GetArmorGeometry(thisActor, BGSBipedObjectForm::FirstPersonFlag::kBody);
-
-			if (!geometry)
-			{
-				geometry = GetArmorGeometry(thisActor, BGSBipedObjectForm::FirstPersonFlag::kHands);
-			}
-
-			if (!geometry)
-			{
-				geometry = GetArmorGeometry(thisActor, BGSBipedObjectForm::FirstPersonFlag::kFeet);
-			}
-
-			if (!geometry)
-			{
-				geometry = GetArmorGeometry(thisActor, BGSBipedObjectForm::FirstPersonFlag::kTail);
-			}
-
-			if (geometry)
-			{
-				auto shaderProperty = niptr_cast<BSShaderProperty>(geometry->states[BSGeometry::States::kEffect]);
-				if (!shaderProperty)
-				{
-					return;
-				}
-
-				auto lightingShader = netimmerse_cast<BSLightingShaderProperty*>(shaderProperty);
-				if (lightingShader)
-				{
-					auto material = lightingShader->material;
-
-					if (material && material->GetFeature() == BSShaderMaterial::Feature::kFaceGenRGBTint)
-					{
-						auto tintedMaterial = static_cast<BSLightingShaderMaterialFacegenTint*>(material);
-						NiColor tintColor = tintedMaterial->tintColor;
-
-						color->color.red = tintColor.red * 255;
-						color->color.green = tintColor.green * 255;
-						color->color.blue = tintColor.blue * 255;
+						return color;
 					}
 				}
-			}
-			else
-			{
-				auto actorBase = thisActor->GetActorBase();
-				if (actorBase)
-				{
-					color->color.red = actorBase->textureLighting.red;
-					color->color.green = actorBase->textureLighting.green;
-					color->color.blue = actorBase->textureLighting.blue;
+				auto headData = actorbase->headRelatedData;
+				if (headData) {
+					return headData->hairColor;
 				}
 			}
-		});
+		}
+		return nullptr;
 	}
 
-	void PO3_SKSEFunctions::SetSkinColor(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color)
+	void PO3_SKSEFunctions::SetHairColor(StaticFunctionTag*, Actor* a_actor, BGSColorForm* a_color)
 	{
-		if (!thisActor || !color)
-		{
+		if (!a_actor || !a_color) {
 			return;
 		}
+		auto root = a_actor->Get3D(0);
+		if (root) {
+			NiColor hairColor;
+			hairColor.red = a_color->color.red / static_cast <float>(255.0);
+			hairColor.green = a_color->color.green / static_cast <float>(255.0);
+			hairColor.blue = a_color->color.blue / static_cast <float>(255.0);
 
-		auto root = thisActor->Get3D(0);
-		if (root)
-		{
-			g_task->AddTask([thisActor, color, root]()
-			{
-				auto geometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-				SetShaderPropertyRGBTint(geometry);
+			root->UpdateHairColor(hairColor);
 
-				NiColorA val;
-				val.red = color->color.red / 255.0;
-				val.green = color->color.green / 255.0;
-				val.blue = color->color.blue / 255.0;
-				NiColorA* skinColor = &val;
-
-				if (root)
-				{
-					root->UpdateModelSkin(&skinColor);
-				}
-			});
-
-			auto data = root->GetExtraData(BSFixedString("PO3_SKINTINT"));
-			if (!data)
-			{
-				auto newData = NiBooleanExtraData::Create(BSFixedString("PO3_SKINTINT"), true);
-				if (newData)
-				{
-					root->AddExtraData(newData);
-				}
-			}
+			AddOrUpdateColorData(root, BSFixedString("PO3_HAIRTINT"), a_color->color);
 		}
 	}
 
-	void PO3_SKSEFunctions::MixColorWithSkinTone(StaticFunctionTag*, Actor* thisActor, BGSColorForm* color, bool manualMode, float percentage)
+
+	BGSColorForm* PO3_SKSEFunctions::GetSkinColor(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (!thisActor || !color)
-		{
-			return;
-		}
+		if (a_actor) {
+			auto actorBase = a_actor->GetActorBase();
+			if (actorBase) {
 
-		auto root = thisActor->Get3D(0);
-		if (root)
-		{
-			g_task->AddTask([thisActor, color, percentage, manualMode, root]()
-			{
-				auto actorBase = thisActor->GetActorBase();
-				if (actorBase)
-				{
-					float skinLuminance = manualMode ? percentage : calculateLuminance(actorBase->textureLighting.red, actorBase->textureLighting.green, actorBase->textureLighting.blue);
+				auto factory = IFormFactory::GetFormFactoryByType(FormType::ColorForm);
+				auto color = static_cast<BGSColorForm*>(factory->Create());
 
-					UInt8 colorRed = colorMix(color->color.red, actorBase->textureLighting.red, skinLuminance);
-					UInt8 colorGreen = colorMix(color->color.green, actorBase->textureLighting.green, skinLuminance);
-					UInt8 colorBlue = colorMix(color->color.blue, actorBase->textureLighting.blue, skinLuminance);
+				color->flags &= ~BGSColorForm::Flag::kPlayable;
+				color->color.red = actorBase->bodyTintColor.red;
+				color->color.green = actorBase->bodyTintColor.green;
+				color->color.blue = actorBase->bodyTintColor.blue;
+				color->color.alpha = actorBase->bodyTintColor.alpha;
 
-					NiColorA val;
-					val.red = colorRed / 255.0;
-					val.green = colorGreen / 255.0;
-					val.blue = colorBlue / 255.0;
-					NiColorA* multipliedColor = &val;
-
-					auto geometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-					SetShaderPropertyRGBTint(geometry); //makes face tintable
-
-					if (root)
-					{
-						root->UpdateModelSkin(&multipliedColor);
+				auto root = a_actor->Get3D(0);
+				if (root) {
+					auto data = static_cast<NiIntegersExtraData*>(root->GetExtraData(BSFixedString("PO3_SKINTINT")));
+					if (data) {
+						color->color.red = static_cast <UInt8>(data->value[0] / 255.0);
+						color->color.green = static_cast <UInt8>(data->value[1] / 255.0);
+						color->color.blue = static_cast <UInt8>(data->value[2] / 255.0);
 					}
 				}
-			});
 
-			auto data = root->GetExtraData(BSFixedString("PO3_SKINTINT"));
-			if (!data)
-			{
-				auto newData = NiBooleanExtraData::Create(BSFixedString("PO3_SKINTINT"), true);
-				if (newData)
+				return color;
+			}
+		}
+		return nullptr;
+	}
+
+
+	void PO3_SKSEFunctions::SetSkinColor(StaticFunctionTag*, Actor* a_actor, BGSColorForm* a_color)
+	{
+		if (!a_actor || !a_color) {
+			return;
+		}
+
+		auto actorbase = a_actor->GetActorBase();
+		if (actorbase) {
+			auto root = a_actor->Get3D(0);
+			if (root) {
+				NiColor skinColor;
+				skinColor.red = a_color->color.red / static_cast <float>(255.0);
+				skinColor.green = a_color->color.green / static_cast <float>(255.0);
+				skinColor.blue = a_color->color.blue / static_cast <float>(255.0);
+
+				g_task->AddTask([a_actor, skinColor, root]()
 				{
-					root->AddExtraData(newData);
-				}
+					MakeFaceTintable(a_actor, skinColor);
+					root->UpdateBodyTint(skinColor);
+				});
+				AddOrUpdateColorData(root, BSFixedString("PO3_SKINTINT"), a_color->color);
 			}
 		}
 	}
 
-	void PO3_SKSEFunctions::SetSkinAlpha(StaticFunctionTag*, Actor* thisActor, float alpha)
+
+	void PO3_SKSEFunctions::MixColorWithSkinTone(StaticFunctionTag*, Actor* a_actor, BGSColorForm* a_color, bool a_manual, float a_percent)
 	{
-		if (!thisActor || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_color) {
 			return;
 		}
 
-		g_task->AddTask([thisActor, alpha]()
-		{
-			auto geometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-			SetShaderPropertyAlpha(geometry, alpha, true);
+		auto actorbase = a_actor->GetActorBase();
+		if (actorbase) {
 
-			SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kBody, alpha);
-			SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kHands, alpha);
-			SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kFeet, alpha);
-			SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kTail, alpha); //tail
-			SetArmorSkinAlpha(thisActor, BGSBipedObjectForm::FirstPersonFlag::kDecapitateHead, alpha); //decap
+			float skinLuminance = a_manual ? a_percent : CalcLuminance(actorbase->bodyTintColor.red, actorbase->bodyTintColor.green, actorbase->bodyTintColor.blue);
+
+			Color newColor;
+			newColor.red = ColorMix(a_color->color.red, actorbase->bodyTintColor.red, skinLuminance);
+			newColor.green = ColorMix(a_color->color.green, actorbase->bodyTintColor.green, skinLuminance);
+			newColor.blue = ColorMix(a_color->color.blue, actorbase->bodyTintColor.blue, skinLuminance);
+
+			auto root = a_actor->Get3D(0);
+			if (root) {
+
+				NiColor skinColor;
+				skinColor.red = newColor.red / static_cast <float>(255.0);
+				skinColor.green = newColor.green / static_cast <float>(255.0);
+				skinColor.blue = newColor.blue / static_cast <float>(255.0);
+
+				g_task->AddTask([a_actor, skinColor, root]()
+				{
+					MakeFaceTintable(a_actor, skinColor);
+					root->UpdateBodyTint(skinColor);
+				});
+				AddOrUpdateColorData(root, BSFixedString("PO3_SKINTINT"), newColor);
+			}
+		}
+	}
+
+
+	void PO3_SKSEFunctions::SetSkinAlpha(StaticFunctionTag*, Actor* a_actor, float a_alpha)
+	{
+		if (!a_actor || !a_actor->Is3DLoaded()) {
+			return;
+		}
+
+		g_task->AddTask([a_actor, a_alpha]()
+		{
+			auto faceGeometry = a_actor->GetHeadPartGeometry(BGSHeadPart::HeadPartType::kFace);
+			if (faceGeometry) {
+				faceGeometry->UpdateMaterialAlpha(a_alpha, true);
+			}
+			SetArmorSkinAlpha(a_actor, BGSBipedObjectForm::FirstPersonFlag::kBody, a_alpha);
+			SetArmorSkinAlpha(a_actor, BGSBipedObjectForm::FirstPersonFlag::kHands, a_alpha);
+			SetArmorSkinAlpha(a_actor, BGSBipedObjectForm::FirstPersonFlag::kFeet, a_alpha);
+			SetArmorSkinAlpha(a_actor, BGSBipedObjectForm::FirstPersonFlag::kTail, a_alpha);
+			SetArmorSkinAlpha(a_actor, BGSBipedObjectForm::FirstPersonFlag::kDecapitateHead, a_alpha);
+			SetArmorSkinAlpha(a_actor, BGSBipedObjectForm::FirstPersonFlag::kDecapitate, a_alpha);
 		});
 
-		auto root = thisActor->Get3D(0);
-		if (root)
-		{
+		auto root = a_actor->Get3D(0);
+		if (root) {
 			auto data = static_cast<NiFloatExtraData*>(root->GetExtraData(BSFixedString("PO3_ALPHA")));
-			if (data)
-			{
-				if (alpha == 1.0)
-				{
+			if (data) {
+				if (a_alpha == 1.0) {
 					root->RemoveExtraData(data);
 				}
 			}
-			else
-			{
-				auto newData = NiFloatExtraData::Create(BSFixedString("PO3_ALPHA"), alpha);
-				if (newData)
-				{
+			else {
+				auto newData = NiFloatExtraData::Create(BSFixedString("PO3_ALPHA"), a_alpha);
+				if (newData) {
 					root->AddExtraData(newData);
 				}
 			}
 		}
 	}
 
-	void PO3_SKSEFunctions::EquipArmorIfSkinVisible(StaticFunctionTag*, Actor* thisActor, TESObjectARMO* armorToCheck, TESObjectARMO* armorToEquip)
+
+	void PO3_SKSEFunctions::EquipArmorIfSkinVisible(StaticFunctionTag*, Actor* a_actor, TESObjectARMO* a_check, TESObjectARMO* a_equip)
 	{
-		if (!thisActor || !armorToCheck || !armorToEquip || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_check || !a_equip || !a_actor->Is3DLoaded()) {
 			return;
 		}
 
-		g_task->AddTask([thisActor, armorToCheck, armorToEquip]()
+		g_task->AddTask([a_actor, a_check, a_equip]()
 		{
-			for (auto& arma : armorToCheck->armature)
-			{
-				if (arma)
-				{
-					NiAVObject* armorObject = VisitArmorAddon(thisActor, armorToCheck, arma);
-					if (armorObject)
-					{
-						if (HasShaderType(armorObject, BSShaderMaterial::Feature::kFaceGenRGBTint))
-						{
-							thisActor->AddWornItem(armorToEquip, 1, false, 0, 0);
+			for (auto& arma : a_check->armorAddons) {
+				if (arma) {
+					NiAVObject* armorObject = a_actor->VisitArmorAddon(a_check, arma);
+					if (armorObject) {
+						if (armorObject->HasShaderType(BSShaderMaterial::Feature::kFaceGenRGBTint)) {
+							a_actor->AddWornItem(a_equip, 1, false, 0, 0);
 							return;
 						}
 					}
@@ -566,65 +300,41 @@ namespace RE
 		});
 	}
 
-	void PO3_SKSEFunctions::ReplaceArmorTextureSet(StaticFunctionTag*, Actor* thisActor, TESObjectARMO* thisArmor, BGSTextureSet* sourceTXST, BGSTextureSet* targetTXST, SInt32 textureType)
+
+	void PO3_SKSEFunctions::ReplaceArmorTextureSet(StaticFunctionTag*, Actor* a_actor, TESObjectARMO* a_armor, BGSTextureSet* a_srcTXST, BGSTextureSet* a_tgtTXST, SInt32 a_type)
 	{
-		if (!thisActor || !thisArmor || !sourceTXST || !targetTXST || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_armor || !a_srcTXST || !a_tgtTXST || !a_actor->Is3DLoaded()) {
 			return;
 		}
 
-		std::string targetPath = sourceTXST->GetTexturePath(BSShaderTextureSet::Texture::kDiffuse);
-		SanitizePath(targetPath);
+		std::string targetPath = a_srcTXST->GetTexturePath(BSShaderTextureSet::Texture::kDiffuse);
+		Util::SanitizeTexturePath(targetPath);
 
-		g_task->AddTask([thisActor, thisArmor, sourceTXST, targetTXST, textureType, targetPath]()
+		g_task->AddTask([a_actor, a_armor, a_srcTXST, a_tgtTXST, a_type, targetPath]()
 		{
-			for (auto& armorAddon : thisArmor->armature)
-			{
-				if (armorAddon)
-				{
-					NiAVObject* armorObject = VisitArmorAddon(thisActor, thisArmor, armorAddon);
-					if (armorObject)
-					{
+			for (auto& armorAddon : a_armor->armorAddons) {
+				if (armorAddon) {
+					NiAVObject* armorObject = a_actor->VisitArmorAddon(a_armor, armorAddon);
+					if (armorObject) {
+
 						bool replaced = false;
+						SetTextureSet(armorObject, a_srcTXST, a_tgtTXST, a_type, targetPath, replaced);
 
-						auto node = armorObject->GetAsNiNode();
-						if (node)
-						{
-							for (UInt32 i = 0; i < node->children.size(); i++)
-							{
-								auto object = node->children[i];
-
-								if (object && ReplaceTextureSet(object->GetAsBSGeometry(), *sourceTXST, *targetTXST, textureType, targetPath))
-								{
-									replaced = true;
-								}
-							}
-						}
-						else
-						{
-							replaced = ReplaceTextureSet(armorObject->GetAsBSGeometry(), *sourceTXST, *targetTXST, textureType, targetPath);
-						}
-
-						auto root = thisActor->Get3D(0);
-						if (replaced && root)
-						{
-							auto armorID = std::to_string(thisArmor->formID);
+						auto root = a_actor->Get3D(0);
+						if (replaced && root) {
+							auto armorID = std::to_string(a_armor->formID);
 							std::string name = "PO3_TXST - " + armorID;
 
 							auto data = static_cast<NiStringsExtraData*>(root->GetExtraData(BSFixedString(name.c_str())));
-							if (!data)
-							{
+							if (!data) {
 								std::vector<BSFixedString> vec;
-								vec.reserve(10);
-								for (auto i = BSShaderTextureSet::Texture::kDiffuse; i < BSShaderTextureSet::Texture::kTotal; i++)
-								{
-									vec.emplace_back(sourceTXST->GetTexturePath(i));
+								vec.reserve(9);
+								for (auto i = BSShaderTextureSet::Texture::kDiffuse; i < BSShaderTextureSet::Texture::kTotal; i++) {
+									vec.emplace_back(a_srcTXST->GetTexturePath(i));
 								}
 								vec.emplace_back(armorID.c_str());
-
-								auto newData = NiStringsExtraData::Create(BSFixedString(name.c_str()), vec.data(), vec.size());
-								if (newData)
-								{
+								auto newData = NiStringsExtraData::Create(BSFixedString(name.c_str()), vec.data(), static_cast<UInt32>(vec.size()));
+								if (newData) {
 									root->AddExtraData(newData);
 								}
 							}
@@ -635,94 +345,71 @@ namespace RE
 		});
 	}
 
-	void PO3_SKSEFunctions::ReplaceSkinTextureSet(StaticFunctionTag*, Actor* thisActor, BGSTextureSet* maleTXST, BGSTextureSet* femaleTXST, UInt32 slotMask, SInt32 textureType)
+
+	void PO3_SKSEFunctions::ReplaceSkinTextureSet(StaticFunctionTag*, Actor* a_actor, BGSTextureSet* a_maleTXST, BGSTextureSet* a_femaleTXST, UInt32 a_slot, SInt32 a_txstType)
 	{
-		if (!thisActor || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_actor->Is3DLoaded()) {
 			return;
 		}
 
 		bool isFemale = false;
-
-		auto actorBase = thisActor->GetActorBase();
-		if (actorBase)
-		{
-			isFemale = actorBase->GetSex() == TESNPC::Sex::kFemale ? true : false;
+		auto actorBase = a_actor->GetActorBase();
+		if (actorBase) {
+			isFemale = actorBase->GetSex() == SEX::kFemale ? true : false;
 		}
 
-		if (isFemale)
-		{
-			if (!femaleTXST)
-			{
+		if (isFemale) {
+			if (!a_femaleTXST) {
 				return;
 			}
-
-			SetArmorSkinTXST(thisActor, femaleTXST, static_cast<BGSBipedObjectForm::BipedObjectSlot>(slotMask), textureType);
+			SetArmorSkinTXST(a_actor, a_femaleTXST, static_cast<BGSBipedObjectForm::BipedObjectSlot>(a_slot), a_txstType);
 		}
-		else
-		{
-			if (!maleTXST)
-			{
+		else {
+			if (!a_maleTXST) {
 				return;
 			}
-
-			SetArmorSkinTXST(thisActor, maleTXST, static_cast<BGSBipedObjectForm::BipedObjectSlot>(slotMask), textureType);
+			SetArmorSkinTXST(a_actor, a_maleTXST, static_cast<BGSBipedObjectForm::BipedObjectSlot>(a_slot), a_txstType);
 		}
 	}
 
-	void PO3_SKSEFunctions::ReplaceFaceTextureSet(StaticFunctionTag*, Actor* thisActor, BGSTextureSet* maleTXST, BGSTextureSet* femaleTXST, SInt32 textureType)
+
+	void PO3_SKSEFunctions::ReplaceFaceTextureSet(StaticFunctionTag*, Actor* a_actor, BGSTextureSet* a_maleTXST, BGSTextureSet* a_femaleTXST, SInt32 a_type)
 	{
-		if (!thisActor || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_actor->Is3DLoaded()) {
 			return;
 		}
 
 		bool isFemale = false;
-
-		auto actorBase = thisActor->GetActorBase();
-		if (actorBase)
-		{
-			isFemale = actorBase->GetSex() == TESNPC::Sex::kFemale ? true : false;
+		auto actorBase = a_actor->GetActorBase();
+		if (actorBase) {
+			isFemale = actorBase->GetSex() == SEX::kFemale ? true : false;
 		}
 
-		g_task->AddTask([thisActor, maleTXST, femaleTXST, textureType, isFemale]()
+		g_task->AddTask([a_actor, a_maleTXST, a_femaleTXST, a_type, isFemale]()
 		{
-			auto faceGeometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-			if (faceGeometry)
-			{
-				bool replaced = false;
-
+			auto faceGeometry = a_actor->GetHeadPartGeometry(BGSHeadPart::HeadPartType::kFace);
+			if (faceGeometry) {
 				std::vector<BSFixedString> vec;
-				vec.reserve(9);
-
-				if (isFemale)
-				{
-					if (!femaleTXST)
-					{
+				vec.reserve(BSTextureSet::Texture::kTotal);
+				if (isFemale) {
+					if (!a_femaleTXST) {
 						return;
 					}
-
-					replaced = ReplaceSkinTXST(faceGeometry, *femaleTXST, vec, textureType);
+					SetSkinTextureSet(faceGeometry, a_femaleTXST, vec, a_type);
 				}
-				else
-				{
-					if (!maleTXST)
-					{
+				else {
+					if (!a_maleTXST) {
 						return;
 					}
-
-					replaced = ReplaceSkinTXST(faceGeometry, *maleTXST, vec, textureType);
+					SetSkinTextureSet(faceGeometry, a_maleTXST, vec, a_type);
 				}
 
-				auto root = thisActor->Get3D(0);
-				if (replaced && root)
-				{
+				auto root = a_actor->Get3D(0);
+				if (!vec.empty() && root) {
 					auto data = static_cast<NiStringsExtraData*>(root->GetExtraData(BSFixedString("PO3_FACETXST")));
-					if (!data)
-					{
-						auto newData = NiStringsExtraData::Create(BSFixedString("PO3_FACETXST"), vec.data(), vec.size());
-						if (newData)
-						{
+					if (!data) {
+						auto newData = NiStringsExtraData::Create(BSFixedString("PO3_FACETXST"), vec.data(), static_cast<UInt32>(vec.size()));
+						if (newData) {
 							root->AddExtraData(newData);
 						}
 					}
@@ -731,264 +418,182 @@ namespace RE
 		});
 	}
 
-	BGSTextureSet* PO3_SKSEFunctions::GetHeadPartTextureSet(StaticFunctionTag*, Actor* thisActor, UInt32 type)
-	{
-		if (!thisActor || !thisActor->Is3DLoaded())
-		{
-			return nullptr;
-		}
 
-		auto actorBase = thisActor->GetActorBase();
-		if (actorBase)
-		{
-			BGSHeadPart* headpart = actorBase->GetCurrentHeadPartByType(static_cast<BGSHeadPart::HeadPartType>(type));
-			if (headpart)
-			{
-				return headpart->textureSet;
+	BGSTextureSet* PO3_SKSEFunctions::GetHeadPartTextureSet(StaticFunctionTag*, Actor* a_actor, UInt32 a_type)
+	{
+		if (a_actor && a_actor->Is3DLoaded()) {
+			auto actorBase = a_actor->GetActorBase();
+			if (actorBase) {
+				auto headpart = actorBase->GetCurrentHeadPartByType(static_cast<BGSHeadPart::HeadPartType>(a_type));
+				if (headpart) {
+					return headpart->textureSet;
+				}
 			}
 		}
 
 		return nullptr;
 	}
 
-	void PO3_SKSEFunctions::SetHeadPartTextureSet(StaticFunctionTag*, Actor* thisActor, BGSTextureSet* headpartTXST, UInt32 type)
+
+	void PO3_SKSEFunctions::SetHeadPartTextureSet(StaticFunctionTag*, Actor* a_actor, BGSTextureSet* a_txst, UInt32 a_type)
 	{
-		if (!thisActor || !headpartTXST || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_txst || !a_actor->Is3DLoaded()) {
 			return;
 		}
-
-		auto actorBase = thisActor->GetActorBase();
-		if (actorBase)
-		{
-			BGSHeadPart* headpart = actorBase->GetCurrentHeadPartByType(static_cast<BGSHeadPart::HeadPartType>(type));
-			if (headpart)
-			{
-				headpart->textureSet = headpartTXST;
+		auto actorBase = a_actor->GetActorBase();
+		if (actorBase) {
+			auto headpart = actorBase->GetCurrentHeadPartByType(static_cast<BGSHeadPart::HeadPartType>(a_type));
+			if (headpart) {
+				headpart->textureSet = a_txst;
 			}
 		}
 	}
 
-	void PO3_SKSEFunctions::SetHeadPartAlpha(StaticFunctionTag*, Actor* thisActor, UInt32 partType, float alpha)
+
+	void PO3_SKSEFunctions::SetHeadPartAlpha(StaticFunctionTag*, Actor* a_actor, UInt32 a_type, float a_alpha)
 	{
-		if (!thisActor || !thisActor->Is3DLoaded())
-		{
+		if (!a_actor || !a_actor->Is3DLoaded()) {
 			return;
 		}
 
-		g_task->AddTask([thisActor, partType, alpha]()
+		g_task->AddTask([a_actor, a_type, a_alpha]()
 		{
-			auto geometry = GetHeadPartGeometry(thisActor, static_cast<BGSHeadPart::HeadPartType>(partType));
-			if (geometry)
-			{
-				if (alpha == 0.0)
-				{
-					geometry->flags |= NiAVObject::Flag::kHidden;
-					SetShaderPropertyAlpha(geometry, 0.0, false);
-				}
-				else
-				{
-					SetShaderPropertyAlpha(geometry, alpha, false);
-				}
+			auto geometry = a_actor->GetHeadPartGeometry(static_cast<BGSHeadPart::HeadPartType>(a_type));
+			if (geometry) {
+				geometry->SetMaterialAlpha(a_alpha, false);
 			}
 		});
 
-		auto root = thisActor->Get3D(0);
-		if (root)
-		{
+		auto root = a_actor->Get3D(0);
+		if (root) {
 			auto data = static_cast<NiIntegersExtraData*>(root->GetExtraData(BSFixedString("PO3_HEADPARTALPHA")));
-			if (!data)
-			{
-				if (alpha == 0.0)
-				{
+			if (!data) {
+				if (a_alpha == 0.0) {
 					std::vector<SInt32> vec;
 					vec.reserve(1);
-					vec.emplace_back(partType);
-
-					auto newData = NiIntegersExtraData::Create(BSFixedString("PO3_HEADPARTALPHA"), vec.data(), vec.size());
-					if (newData)
-					{
+					vec.emplace_back(a_type);
+					auto newData = NiIntegersExtraData::Create(BSFixedString("PO3_HEADPARTALPHA"), vec.data(), static_cast<UInt32>(vec.size()));
+					if (newData) {
 						root->AddExtraData(newData);
 					}
 				}
 			}
-			else
-			{
-				alpha == 0.0 ? data->InsertElement(partType) : data->RemoveElement(partType);
+			else {
+				a_alpha == 0.0 ? data->InsertElement(a_type) : data->RemoveElement(a_type);
 			}
 		}
 	}
 
-	void PO3_SKSEFunctions::ToggleChildNode(StaticFunctionTag*, Actor* thisActor, BSFixedString nodeName, bool disable)
+
+	void PO3_SKSEFunctions::ToggleChildNode(StaticFunctionTag*, Actor* a_actor, BSFixedString a_nodeName, bool a_disable)
 	{
-		if (!thisActor)
-		{
-			return;
-		}
-
-		auto root = thisActor->Get3D(0);
-		if (!root)
-		{
-			return;
-		}
-
-		auto child = root->GetObjectByName(nodeName);
-		if (!child)
-		{
-			return;
-		}
-
-		g_task->AddTask([child, disable]()
-		{
-			auto node = child->GetAsNiNode();
-			if (node)
-			{
-				for (UInt32 i = 0; i < node->children.size(); i++)
-				{
-					auto object = node->children[i];
-					if (object)
+		if (a_actor) {
+			auto root = a_actor->Get3D(0);
+			if (root) {
+				auto child = root->GetObjectByName(a_nodeName);
+				if (child) {
+					g_task->AddTask([child, a_disable]()
 					{
-						disable == false ? object->flags &= ~NiAVObject::Flag::kHidden : object->flags |= NiAVObject::Flag::kHidden;
-					}
-				}
+						child->UpdateVisibility(a_disable);
+					});
 
-				disable == false ? node->flags &= ~NiAVObject::Flag::kHidden : node->flags |= NiAVObject::Flag::kHidden;
-			}
-
-			disable == false ? child->flags &= ~NiAVObject::Flag::kHidden : child->flags |= NiAVObject::Flag::kHidden;
-		});
-
-		auto data = static_cast<NiStringsExtraData*>(root->GetExtraData(BSFixedString("PO3_TOGGLE")));
-		if (!data)
-		{
-			if (disable)
-			{
-				std::vector<BSFixedString> vec;
-				vec.reserve(1);
-				vec.emplace_back(nodeName);
-
-				auto newData = NiStringsExtraData::Create("PO3_TOGGLE", vec.data(), 1);
-				if (newData)
-				{
-					root->AddExtraData(newData);
-				}
-			}
-		}
-		else
-		{
-			disable == true ? data->InsertElement(nodeName.c_str()) : data->RemoveElement(nodeName.c_str());
-		}
-	}
-
-	void PO3_SKSEFunctions::RemoveChildNode(StaticFunctionTag*, Actor* thisActor, BSFixedString nodeName)
-	{
-		if (!thisActor)
-		{
-			return;
-		}
-
-		auto root = thisActor->Get3D(0)->GetAsNiNode();
-		if (!root)
-		{
-			return;
-		}
-
-		auto child = root->GetObjectByName(nodeName);
-		if (child)
-		{
-			g_task->AddTask([root, child]()
-			{
-				root->RemoveChild(child);
-			});
-		}
-	}
-
-	bool PO3_SKSEFunctions::IsActorSoulTrapped(StaticFunctionTag*, Actor* thisActor)
-	{
-		if (!thisActor || !soulTrapArt)
-		{
-			return false;
-		}
-
-		bool isNPC = false;
-		if (thisActor->HasKeywordHelper(npcKeyword))
-		{
-			isNPC = true;
-		}
-
-		Actor* thisCaster = nullptr;
-		bool hasSoulTrap = false;
-
-		auto activeEffects = thisActor->GetActiveEffectList();
-		if (activeEffects)
-		{
-			for (auto& ae : *activeEffects)
-			{
-				if (!ae || !ae->effect || !ae->effect->baseEffect)
-				{
-					continue;
-				}
-
-				auto mgef = ae->effect->baseEffect;
-				if (mgef)
-				{
-					if (mgef->data.hitEffectArt != soulTrapArt && mgef->data.archetype != EffectArchetypes::ArchetypeID::kSoulTrap) //only soultrap
-					{
-						continue;
-					}
-
-					thisCaster = ae->GetCasterActor();
-					if (!thisCaster)
-					{
-						return false;
-					}
-
-					hasSoulTrap = true;
-					break;
-				}
-			}
-		}
-
-		if (hasSoulTrap)
-		{
-			auto exChanges = static_cast<ExtraContainerChanges*>(thisCaster->extraData.GetByType(ExtraDataType::kContainerChanges)); //loop through caster inventory
-			InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
-
-			if (changes && changes->entryList)
-			{
-				for (InventoryEntryData* data : *changes->entryList)
-				{
-					if (!data)
-					{
-						continue;
-					}
-
-					auto object = data->object;
-
-					if (!object || !object->IsSoulGem())
-					{
-						continue;
-					}
-
-					auto thisSoulGem = skyrim_cast<TESSoulGem*>(object); //get soulgem
-					if (thisSoulGem)
-					{
-						SoulLevel soulGemSize = GetSoulLevel(thisSoulGem, data);
-						if (soulGemSize == SoulLevel::kNone)
-						{
-							if (isNPC)
-							{
-								if (thisSoulGem->formFlags & TESSoulGem::RecordFlags::kCanHoldNPCSoul)
-								{
-									return true;
-								}
+					auto data = static_cast<NiStringsExtraData*>(root->GetExtraData(BSFixedString("PO3_TOGGLE")));
+					if (!data) {
+						if (a_disable) {
+							std::vector<BSFixedString> vec;
+							vec.reserve(1);
+							vec.emplace_back(a_nodeName);
+							auto newData = NiStringsExtraData::Create(BSFixedString("PO3_TOGGLE"), vec.data(), static_cast<UInt32>(vec.size()));
+							if (newData) {
+								root->AddExtraData(newData);
 							}
-							else
-							{
-								UInt8 actorSoulSize = thisActor->GetSoulSize();
-								if (thisSoulGem->maximumCapacity >= static_cast<SoulLevel>(actorSoulSize))
-								{
-									return true;
+						}
+					}
+					else {
+						a_disable == true ? data->InsertElement(a_nodeName.c_str()) : data->RemoveElement(a_nodeName.c_str());
+					}
+				}
+			}
+		}
+	}
+
+
+	void PO3_SKSEFunctions::RemoveChildNode(StaticFunctionTag*, Actor* a_actor, BSFixedString a_nodeName)
+	{
+		if (a_actor) {
+			auto root = a_actor->Get3D(0)->AsNode();
+			if (root) {
+				auto child = root->GetObjectByName(a_nodeName);
+				if (child) {
+					g_task->AddTask([root, child]()
+					{
+						root->DetachChild(child);
+					});
+				}
+			}
+		}
+	}
+
+
+	bool PO3_SKSEFunctions::IsActorSoulTrapped(StaticFunctionTag*, Actor* a_actor)
+	{
+		if (a_actor) {
+			bool isNPC = false;
+			if (a_actor->HasKeywordHelper(g_npcKeyword)) {
+				isNPC = true;
+			}
+
+			bool hasSoulTrap = false;
+			Actor* caster = nullptr;
+
+			auto activeEffects = a_actor->GetActiveEffectList();
+			if (activeEffects) {
+				for (auto& ae : *activeEffects) {
+					if (!ae || !ae->effect || !ae->effect->baseEffect) {
+						continue;
+					}
+					auto a_mgef = ae->effect->baseEffect;
+					if (a_mgef) {
+						if (a_mgef->data.hitEffectArt != g_soulTrapArt && a_mgef->data.archetype != EffectArchetypes::ArchetypeID::kSoulTrap) //only soultrap
+						{
+							continue;
+						}
+						auto casterPtr = ae->GetCasterActor();
+						if (!casterPtr.get()) {
+							return false;
+						}
+						caster = casterPtr.get();
+						hasSoulTrap = true;
+						break;
+					}
+				}
+			}
+
+			if (hasSoulTrap) {
+				auto changes = caster->GetInventoryChanges();
+				if (changes && changes->entryList) {
+					for (auto& entry : *changes->entryList) {
+						if (!entry) {
+							continue;
+						}
+						auto object = entry->object;
+						if (!object || !object->IsSoulGem()) {
+							continue;
+						}
+						auto soulGem = static_cast<TESSoulGem*>(object);
+						if (soulGem) {
+							auto soulGemLevel = entry->GetSoulLevel();
+							if (soulGemLevel == SOUL_LEVEL::kNone) {
+								if (isNPC) {
+									if (soulGem->formFlags & TESSoulGem::RecordFlags::kCanHoldNPCSoul) {
+										return true;
+									}
+								}
+								else {
+									auto actorSoulLevel = a_actor->GetSoulLevel();
+									if (soulGem->soulCapacity >= actorSoulLevel) {
+										return true;
+									}
 								}
 							}
 						}
@@ -996,36 +601,26 @@ namespace RE
 				}
 			}
 		}
-
 		return false;
 	}
 
-	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::AddAllEquippedItemsToArray(StaticFunctionTag*, Actor* thisActor)
+
+	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::AddAllEquippedItemsToArray(StaticFunctionTag*, Actor* a_actor)
 	{
 		BSScript::VMArray<TESForm*> result;
 		std::vector<TESForm*> vec;
 
-		if (thisActor)
-		{
-			auto exChanges = static_cast<ExtraContainerChanges*>(thisActor->extraData.GetByType(ExtraDataType::kContainerChanges)); //loop through caster inventory
-			InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
-
-			if (changes && changes->entryList)
-			{
-				for (InventoryEntryData* data : *changes->entryList)
-				{
-					if (data && data->extraLists)
-					{
-						auto object = data->object;
-						if (!object)
-						{
+		if (a_actor) {
+			auto changes = a_actor->GetInventoryChanges();
+			if (changes && changes->entryList) {
+				for (auto& entry : *changes->entryList) {
+					if (entry && entry->extraLists) {
+						auto object = entry->object;
+						if (!object) {
 							continue;
 						}
-
-						for (auto& extraList : *data->extraLists)
-						{
-							if (extraList && (extraList->HasType(ExtraDataType::kWorn) || extraList->HasType(ExtraDataType::kWornLeft)))
-							{
+						for (auto& list : *entry->extraLists) {
+							if (list && (list->HasType(ExtraDataType::kWorn) || list->HasType(ExtraDataType::kWornLeft))) {
 								vec.push_back(object);
 							}
 						}
@@ -1038,268 +633,54 @@ namespace RE
 		return result;
 	}
 
-	bool PO3_SKSEFunctions::ResetActor3D(StaticFunctionTag*, Actor* thisActor)
+
+	bool PO3_SKSEFunctions::ResetActor3D(StaticFunctionTag*, Actor* a_actor, BSFixedString a_folderName)
 	{
-		if (thisActor)
-		{
-			auto root = thisActor->Get3D(0);
-			if (!root)
-			{
+		if (a_actor) {
+			auto root = a_actor->Get3D(0);
+			if (!root) {
 				return false;
 			}
 
-			auto t = root->GetPO3ExtraData<NiStringsExtraData*, NiBooleanExtraData*, NiFloatExtraData*, NiIntegersExtraData*>();
-
+			auto t = GetResetData<NiStringsExtraData*, NiFloatExtraData*, NiIntegersExtraData*>(root);
 			auto toggleData = std::get<0>(t);
 			auto txstFaceData = std::get<1>(t);
-
 			auto skinTintData = std::get<2>(t);
 			auto hairTintData = std::get<3>(t);
-
 			auto alphaData = std::get<4>(t);
 			auto headpartAlphaData = std::get<5>(t);
-
 			auto txstVec = std::get<6>(t);
 			auto txstSkinVec = std::get<7>(t);
 
-			if (!toggleData && !alphaData && !headpartAlphaData && !skinTintData && !hairTintData && !txstFaceData && txstVec.empty() && txstSkinVec.empty())
-			{
+			if (!toggleData && !alphaData && !headpartAlphaData && !skinTintData && !hairTintData && !txstFaceData && txstVec.empty() && txstSkinVec.empty()) {
 				return false;
 			}
-
-			auto player = PlayerCharacter::GetSingleton();
-			if (thisActor != player)
-			{
-				StopAllShaders_Internal(thisActor);
+			if (!a_actor->IsPlayerRef()) {
+				a_actor->StopAllShaders();
 			}
-
-			if (toggleData)
-			{
-				g_task->AddTask([thisActor, root, toggleData]()
-				{
-					for (UInt32 i = 0; i < toggleData->size; i++)
-					{
-						auto object = root->GetObjectByName(BSFixedString(toggleData->value[i]));
-						if (object)
-						{
-							auto node = object->GetAsNiNode();
-							if (node)
-							{
-								for (UInt32 k = 0; k < node->children.size(); k++)
-								{
-									auto child = node->children[k];
-									if (child)
-									{
-										child->flags &= ~NiAVObject::Flag::kHidden;
-									}
-								}
-								node->flags &= ~NiAVObject::Flag::kHidden;
-							}
-							object->flags &= ~NiAVObject::Flag::kHidden;
-						}
-					}
-
-					root->RemoveExtraData(toggleData);
-				});
+			if (toggleData) {
+				ResetToggleData(a_actor, root, toggleData);
 			}
-			if (alphaData)
-			{
-				if (thisActor != player)
-				{
-					thisActor->ResetInventory(false);
-				}
-				g_task->AddTask([thisActor, root, alphaData]()
-				{
-					ResetAlpha(thisActor);
-
-					root->RemoveExtraData(alphaData);
-				});
+			if (alphaData) {
+				ResetAlphaData(a_actor, root, alphaData);
 			}
-			if (headpartAlphaData)
-			{
-				g_task->AddTask([thisActor, root, headpartAlphaData]()
-				{
-					for (UInt32 i = 0; i < headpartAlphaData->size; i++)
-					{
-						auto type = static_cast<BGSHeadPart::HeadPartType>(headpartAlphaData->value[i]);
-
-						auto geometry = GetHeadPartGeometry(thisActor, type);
-						if (geometry)
-						{
-							geometry->flags &= ~(NiAVObject::Flag::kHidden);
-							SetShaderPropertyAlpha(geometry, 1.0, false);
-						}
-					}
-
-					root->RemoveExtraData(headpartAlphaData);
-				});
+			if (headpartAlphaData) {
+				ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
 			}
-			if (skinTintData)
-			{
-				g_task->AddTask([thisActor, root, skinTintData]()
-				{
-					ResetSkinTint(thisActor, root);
-
-					root->RemoveExtraData(skinTintData);
-				});
+			if (skinTintData) {
+				ResetSkinTintData(a_actor, root, skinTintData);
 			}
-			if (hairTintData)
-			{
-				g_task->AddTask([thisActor, root, hairTintData]()
-				{
-					ResetHairTint(thisActor, root);
-
-					root->RemoveExtraData(hairTintData);
-				});
+			if (hairTintData) {
+				ResetHairTintData(a_actor, root, hairTintData);
 			}
-			if (txstFaceData)
-			{
-				g_task->AddTask([thisActor, root, txstFaceData]()
-				{
-					auto textureset = BSShaderTextureSet::Create();
-					for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-					{
-						if (txstFaceData->value[i] && *txstFaceData->value[i] != '\0')
-						{
-							textureset->SetTexturePath(i, txstFaceData->value[i]);
-						}
-					}
-
-					auto headGeometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-					ResetTextureSet(headGeometry, textureset, true);
-
-					root->RemoveExtraData(txstFaceData);
-				});
+			if (txstFaceData) {
+				ResetFaceTXSTData(a_actor, root, txstFaceData);
 			}
-			if (!txstSkinVec.empty())
-			{
-				g_task->AddTask([thisActor, root, txstSkinVec]()
-				{
-					for (auto& txstData : txstSkinVec)
-					{
-						if (!txstData)
-						{
-							continue;
-						}
-
-						std::string slotMaskstr = txstData->value[txstData->size - 1];
-						if (slotMaskstr.empty())
-						{
-							continue;
-						}
-
-						auto slotMask = static_cast<BGSBipedObjectForm::FirstPersonFlag>(std::stoul(slotMaskstr));
-
-						TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
-						if (!skinarmor)
-						{
-							continue;
-						}
-
-						auto textureset = BSShaderTextureSet::Create();
-						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-						{
-							if (txstData->value[i] && *txstData->value[i] != '\0')
-							{
-								textureset->SetTexturePath(i, txstData->value[i]);
-							}
-						}
-
-						TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-						if (foundAddon)
-						{
-							auto armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-							if (armorObject)
-							{
-								auto node = armorObject->GetAsNiNode();
-								if (node)
-								{
-									for (UInt32 i = 0; i < node->children.size(); i++)
-									{
-										auto object = node->children[i];
-										if (object)
-										{
-											ResetTextureSet(object->GetAsBSGeometry(), textureset, true);
-										}
-									}
-								}
-								else
-								{
-									ResetTextureSet(armorObject->GetAsBSGeometry(), textureset, true);
-								}
-							}
-						}
-
-						root->RemoveExtraData(txstData);
-					}
-				});
+			if (!txstSkinVec.empty()) {
+				ResetSkinTXSTData(a_actor, root, txstSkinVec);
 			}
-			if (!txstVec.empty())
-			{
-				g_task->AddTask([thisActor, root, txstVec]()
-				{
-					for (auto& txstData : txstVec)
-					{
-						if (!txstData)
-						{
-							continue;
-						}
-
-						std::string armorID = txstData->value[txstData->size - 1];
-
-						if (armorID.empty())
-						{
-							continue;
-						}
-
-						auto ID = static_cast<FormID>(std::stoul(armorID));
-
-						TESObjectARMO* armor = GetWornFormByID(thisActor, ID);
-						if (!armor)
-						{
-							continue;
-						}
-
-						auto textureset = BSShaderTextureSet::Create();
-						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-						{
-							if (txstData->value[i] && *txstData->value[i] != '\0')
-							{
-								textureset->SetTexturePath(i, txstData->value[i]);
-							}
-						}
-
-						for (auto& armorAddon : armor->armature)
-						{
-							if (armorAddon)
-							{
-								NiAVObject* armorObject = VisitArmorAddon(thisActor, armor, armorAddon);
-
-								if (armorObject)
-								{
-									auto node = armorObject->GetAsNiNode();
-									if (node)
-									{
-										for (UInt32 i = 0; i < node->children.size(); i++)
-										{
-											auto object = node->children[i];
-											if (object)
-											{
-												ResetTextureSet(object->GetAsBSGeometry(), textureset, false);
-											}
-										}
-									}
-									else
-									{
-										ResetTextureSet(armorObject->GetAsBSGeometry(), textureset, false);
-									}
-								}
-							}
-						}
-
-						root->RemoveExtraData(txstData);
-					}
-				});
+			if (!txstVec.empty()) {
+				ResetTXSTData(a_actor, root, a_folderName, txstVec);
 			}
 
 			return true;
@@ -1308,18 +689,16 @@ namespace RE
 		return false;
 	}
 
-	void PO3_SKSEFunctions::RemoveEffectsNotOfType(StaticFunctionTag*, Actor* thisActor, UInt32 effectType)
+
+	void PO3_SKSEFunctions::RemoveEffectsNotOfType(StaticFunctionTag*, Actor* a_actor, UInt32 effectType)
 	{
-		if (thisActor)
-		{
-			auto root = thisActor->Get3D(0);
-			if (!root)
-			{
+		if (a_actor) {
+			auto root = a_actor->Get3D(0);
+			if (!root) {
 				return;
 			}
 
-			auto t = root->GetPO3ExtraData<NiStringsExtraData*, NiBooleanExtraData*, NiFloatExtraData*, NiIntegersExtraData*>();
-
+			auto t = GetResetData<NiStringsExtraData*, NiFloatExtraData*, NiIntegersExtraData*>(root);
 			auto toggleData = std::get<0>(t);
 			auto txstFaceData = std::get<1>(t);
 			auto skinTintData = std::get<2>(t);
@@ -1328,486 +707,95 @@ namespace RE
 			auto headpartAlphaData = std::get<5>(t);
 			auto txstSkinVec = std::get<7>(t);
 
-			auto player = PlayerCharacter::GetSingleton();
-
-			if (effectType == 0)		//Charred/Skeletonized
+			if (effectType == 0)	//Charred/Skeletonized
 			{
-				if (skinTintData)
-				{
-					g_task->AddTask([thisActor, root, skinTintData]()
-					{
-						ResetSkinTint(thisActor, root);
-
-						root->RemoveExtraData(skinTintData);
-					});
+				if (skinTintData) {
+					ResetSkinTintData(a_actor, root, skinTintData);
 				}
-				if (hairTintData)
-				{
-					g_task->AddTask([thisActor, root, hairTintData]()
-					{
-						ResetHairTint(thisActor, root);
-
-						root->RemoveExtraData(hairTintData);
-					});
+				if (hairTintData) {
+					ResetHairTintData(a_actor, root, hairTintData);
 				}
-				if (txstFaceData)
-				{
-					g_task->AddTask([thisActor, root, txstFaceData]()
-					{
-						auto textureset = BSShaderTextureSet::Create();
-						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-						{
-							if (txstFaceData->value[i] && *txstFaceData->value[i] != '\0')
-							{
-								textureset->SetTexturePath(i, txstFaceData->value[i]);
-							}
-						}
-
-						auto headGeometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-						ResetTextureSet(headGeometry, textureset, true);
-
-						root->RemoveExtraData(txstFaceData);
-					});
+				if (txstFaceData) {
+					ResetFaceTXSTData(a_actor, root, txstFaceData);
 				}
-				if (!txstSkinVec.empty())
-				{
-					g_task->AddTask([thisActor, root, txstSkinVec]()
-					{
-						for (auto& txstData : txstSkinVec)
-						{
-							if (!txstData)
-							{
-								continue;
-							}
-
-							std::string slotMaskstr = txstData->value[txstData->size - 1];
-							if (slotMaskstr.empty())
-							{
-								continue;
-							}
-
-							auto slotMask = static_cast<BGSBipedObjectForm::FirstPersonFlag>(std::stoul(slotMaskstr));
-
-							TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
-							if (!skinarmor)
-							{
-								continue;
-							}
-
-							auto textureset = BSShaderTextureSet::Create();
-							for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-							{
-								if (txstData->value[i] && *txstData->value[i] != '\0')
-								{
-									textureset->SetTexturePath(i, txstData->value[i]);
-								}
-							}
-
-							TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-							if (foundAddon)
-							{
-								auto armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-								if (armorObject)
-								{
-									auto node = armorObject->GetAsNiNode();
-									if (node)
-									{
-										for (UInt32 i = 0; i < node->children.size(); i++)
-										{
-											auto object = node->children[i];
-											if (object)
-											{
-												ResetTextureSet(object->GetAsBSGeometry(), textureset, true);
-											}
-										}
-									}
-									else
-									{
-										ResetTextureSet(armorObject->GetAsBSGeometry(), textureset, true);
-									}
-								}
-							}
-
-							root->RemoveExtraData(txstData);
-						}
-					});
+				if (!txstSkinVec.empty()) {
+					ResetSkinTXSTData(a_actor, root, txstSkinVec);
 				}
 			}
 			else if (effectType == 1)	//Drained
 			{
-				if (toggleData)
-				{
-					g_task->AddTask([thisActor, root, toggleData]()
-					{
-						for (UInt32 i = 0; i < toggleData->size; i++)
-						{
-							auto object = root->GetObjectByName(BSFixedString(toggleData->value[i]));
-							if (object)
-							{
-								auto node = object->GetAsNiNode();
-								if (node)
-								{
-									for (UInt32 k = 0; k < node->children.size(); k++)
-									{
-										auto child = node->children[k];
-										if (child)
-										{
-											child->flags &= ~NiAVObject::Flag::kHidden;
-										}
-									}
-									node->flags &= ~NiAVObject::Flag::kHidden;
-								}
-								object->flags &= ~NiAVObject::Flag::kHidden;
-							}
-						}
-
-						root->RemoveExtraData(toggleData);
-					});
+				if (toggleData) {
+					ResetToggleData(a_actor, root, toggleData);
 				}
-				if (skinTintData)
-				{
-					g_task->AddTask([thisActor, root, skinTintData]()
-					{
-						ResetSkinTint(thisActor, root);
-
-						root->RemoveExtraData(skinTintData);
-					});
+				if (skinTintData) {
+					ResetSkinTintData(a_actor, root, skinTintData);
 				}
-				if (hairTintData)
-				{
-					g_task->AddTask([thisActor, root, hairTintData]()
-					{
-						ResetHairTint(thisActor, root);
-
-						root->RemoveExtraData(hairTintData);
-					});
+				if (hairTintData) {
+					ResetHairTintData(a_actor, root, hairTintData);
 				}
-				if (txstFaceData)
-				{
-					g_task->AddTask([thisActor, root, txstFaceData]()
-					{
-						auto textureset = BSShaderTextureSet::Create();
-						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-						{
-							if (txstFaceData->value[i] && *txstFaceData->value[i] != '\0')
-							{
-								textureset->SetTexturePath(i, txstFaceData->value[i]);
-							}
-						}
-
-						auto headGeometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-						ResetTextureSet(headGeometry, textureset, true);
-
-						root->RemoveExtraData(txstFaceData);
-					});
+				if (txstFaceData) {
+					ResetFaceTXSTData(a_actor, root, txstFaceData);
 				}
-				if (!txstSkinVec.empty())
-				{
-					g_task->AddTask([thisActor, root, txstSkinVec]()
-					{
-						for (auto& txstData : txstSkinVec)
-						{
-							if (!txstData)
-							{
-								continue;
-							}
-
-							std::string slotMaskstr = txstData->value[txstData->size - 1];
-							if (slotMaskstr.empty())
-							{
-								continue;
-							}
-
-							auto slotMask = static_cast<BGSBipedObjectForm::FirstPersonFlag>(std::stoul(slotMaskstr));
-
-							TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
-							if (!skinarmor)
-							{
-								continue;
-							}
-
-							auto textureset = BSShaderTextureSet::Create();
-							for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-							{
-								if (txstData->value[i] && *txstData->value[i] != '\0')
-								{
-									textureset->SetTexturePath(i, txstData->value[i]);
-								}
-							}
-
-							TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-							if (foundAddon)
-							{
-								auto armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-								if (armorObject)
-								{
-									auto node = armorObject->GetAsNiNode();
-									if (node)
-									{
-										for (UInt32 i = 0; i < node->children.size(); i++)
-										{
-											auto object = node->children[i];
-											if (object)
-											{
-												ResetTextureSet(object->GetAsBSGeometry(), textureset, true);
-											}
-										}
-									}
-									else
-									{
-										ResetTextureSet(armorObject->GetAsBSGeometry(), textureset, true);
-									}
-								}
-							}
-
-							root->RemoveExtraData(txstData);
-						}
-					});
+				if (!txstSkinVec.empty()) {
+					ResetSkinTXSTData(a_actor, root, txstSkinVec);
 				}
 			}
 			else if (effectType == 2)	//Poisoned/Frightened
 			{
-				if (thisActor != player)
-				{
-					StopAllSkinAlphaShaders(thisActor);
+				if (!a_actor->IsPlayerRef()) {
+					StopAllSkinAlphaShaders(a_actor);
 				}
-
-				if (toggleData)
-				{
-					g_task->AddTask([thisActor, root, toggleData]()
-					{
-						for (UInt32 i = 0; i < toggleData->size; i++)
-						{
-							auto object = root->GetObjectByName(BSFixedString(toggleData->value[i]));
-							if (object)
-							{
-								auto node = object->GetAsNiNode();
-								if (node)
-								{
-									for (UInt32 k = 0; k < node->children.size(); k++)
-									{
-										auto child = node->children[k];
-										if (child)
-										{
-											child->flags &= ~NiAVObject::Flag::kHidden;
-										}
-									}
-									node->flags &= ~NiAVObject::Flag::kHidden;
-								}
-								object->flags &= ~NiAVObject::Flag::kHidden;
-							}
-						}
-
-						root->RemoveExtraData(toggleData);
-					});
+				if (toggleData) {
+					ResetToggleData(a_actor, root, toggleData);
 				}
-				if (alphaData)
-				{
-					if (thisActor != player)
-					{
-						thisActor->ResetInventory(false);
-					}
-					g_task->AddTask([thisActor, root, alphaData]()
-					{
-						ResetAlpha(thisActor);
-
-						root->RemoveExtraData(alphaData);
-					});
+				if (alphaData) {
+					ResetAlphaData(a_actor, root, alphaData);
 				}
-				if (headpartAlphaData)
-				{
-					g_task->AddTask([thisActor, root, headpartAlphaData]()
-					{
-						for (UInt32 i = 0; i < headpartAlphaData->size; i++)
-						{
-							auto type = static_cast<BGSHeadPart::HeadPartType>(headpartAlphaData->value[i]);
-
-							auto geometry = GetHeadPartGeometry(thisActor, type);
-							if (geometry)
-							{
-								geometry->flags &= ~(NiAVObject::Flag::kHidden);
-								SetShaderPropertyAlpha(geometry, 1.0, false);
-							}
-						}
-
-						root->RemoveExtraData(headpartAlphaData);
-					});
+				if (headpartAlphaData) {
+					ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
 				}
-				if (txstFaceData)
-				{
-					g_task->AddTask([thisActor, root, txstFaceData]()
-					{
-						auto textureset = BSShaderTextureSet::Create();
-						for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-						{
-							if (txstFaceData->value[i] && *txstFaceData->value[i] != '\0')
-							{
-								textureset->SetTexturePath(i, txstFaceData->value[i]);
-							}
-						}
-
-						auto headGeometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
-						ResetTextureSet(headGeometry, textureset, true);
-
-						root->RemoveExtraData(txstFaceData);
-					});
+				if (txstFaceData) {
+					ResetFaceTXSTData(a_actor, root, txstFaceData);
 				}
-				if (!txstSkinVec.empty())
-				{
-					g_task->AddTask([thisActor, root, txstSkinVec]()
-					{
-						for (auto& txstData : txstSkinVec)
-						{
-							if (!txstData)
-							{
-								continue;
-							}
-
-							std::string slotMaskstr = txstData->value[txstData->size - 1];
-							if (slotMaskstr.empty())
-							{
-								continue;
-							}
-
-							auto slotMask = static_cast<BGSBipedObjectForm::FirstPersonFlag>(std::stoul(slotMaskstr));
-
-							TESObjectARMO* skinarmor = GetSkinForm(thisActor, slotMask);
-							if (!skinarmor)
-							{
-								continue;
-							}
-
-							auto textureset = BSShaderTextureSet::Create();
-							for (auto i = BSTextureSet::Texture::kDiffuse; i < BSTextureSet::Textures::kTotal; ++i)
-							{
-								if (txstData->value[i] && *txstData->value[i] != '\0')
-								{
-									textureset->SetTexturePath(i, txstData->value[i]);
-								}
-							}
-
-							TESObjectARMA* foundAddon = GetArmorAddonByMask(thisActor->race, skinarmor, slotMask);
-							if (foundAddon)
-							{
-								auto armorObject = VisitArmorAddon(thisActor, skinarmor, foundAddon);
-								if (armorObject)
-								{
-									auto node = armorObject->GetAsNiNode();
-									if (node)
-									{
-										for (UInt32 i = 0; i < node->children.size(); i++)
-										{
-											auto object = node->children[i];
-											if (object)
-											{
-												ResetTextureSet(object->GetAsBSGeometry(), textureset, true);
-											}
-										}
-									}
-									else
-									{
-										ResetTextureSet(armorObject->GetAsBSGeometry(), textureset, true);
-									}
-								}
-							}
-
-							root->RemoveExtraData(txstData);
-						}
-					});
+				if (!txstSkinVec.empty()) {
+					ResetSkinTXSTData(a_actor, root, txstSkinVec);
 				}
 			}
 			else if (effectType == 3)	//Aged
 			{
-				if (thisActor != player)
-				{
-					StopAllSkinAlphaShaders(thisActor);
+				if (!a_actor->IsPlayerRef()) {
+					StopAllSkinAlphaShaders(a_actor);
 				}
-
-				if (toggleData)
-				{
-					g_task->AddTask([thisActor, root, toggleData]()
-					{
-						for (UInt32 i = 0; i < toggleData->size; i++)
-						{
-							auto object = root->GetObjectByName(BSFixedString(toggleData->value[i]));
-							if (object)
-							{
-								auto node = object->GetAsNiNode();
-								if (node)
-								{
-									for (UInt32 k = 0; k < node->children.size(); k++)
-									{
-										auto child = node->children[k];
-										if (child)
-										{
-											child->flags &= ~NiAVObject::Flag::kHidden;
-										}
-									}
-									node->flags &= ~NiAVObject::Flag::kHidden;
-								}
-								object->flags &= ~NiAVObject::Flag::kHidden;
-							}
-						}
-
-						root->RemoveExtraData(toggleData);
-					});
+				if (toggleData) {
+					ResetToggleData(a_actor, root, toggleData);
 				}
-				if (alphaData)
-				{
-					if (thisActor != player)
-					{
-						thisActor->ResetInventory(false);
-					}
-					g_task->AddTask([thisActor, root, alphaData]()
-					{
-						ResetAlpha(thisActor);
-
-						root->RemoveExtraData(alphaData);
-					});
+				if (alphaData) {
+					ResetAlphaData(a_actor, root, alphaData);
 				}
-				if (headpartAlphaData)
-				{
-					g_task->AddTask([thisActor, root, headpartAlphaData]()
-					{
-						for (UInt32 i = 0; i < headpartAlphaData->size; i++)
-						{
-							auto type = static_cast<BGSHeadPart::HeadPartType>(headpartAlphaData->value[i]);
-
-							auto geometry = GetHeadPartGeometry(thisActor, type);
-							if (geometry)
-							{
-								geometry->flags &= ~(NiAVObject::Flag::kHidden);
-								SetShaderPropertyAlpha(geometry, 1.0, false);
-							}
-						}
-
-						root->RemoveExtraData(headpartAlphaData);
-					});
+				if (headpartAlphaData) {
+					ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
 				}
 			}
 		}
 	}
 
-	void PO3_SKSEFunctions::DecapitateActor(StaticFunctionTag*, Actor* thisActor)
+
+	void PO3_SKSEFunctions::DecapitateActor(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (thisActor)
-		{
-			thisActor->Decapitate();
+		if (a_actor) {
+			a_actor->Decapitate();
 		}
 	}
 
-	//gets actor's time of death
-	float PO3_SKSEFunctions::GetTimeDead(StaticFunctionTag*, Actor* thisActor)
+
+	float PO3_SKSEFunctions::GetTimeDead(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (thisActor && thisActor->currentProcess)
-		{
-			float timeOfDeath = thisActor->currentProcess->deathTime;
-			if (timeOfDeath > 0.0)
-			{
-				auto g_gameDaysPassed = Calendar::GetSingleton()->daysPassed;
-				if (g_gameDaysPassed)
-				{
-					return floorf(g_gameDaysPassed->value * 24.0) - timeOfDeath;
+		if (a_actor && a_actor->currentProcess) {
+			float timeOfDeath = a_actor->currentProcess->deathTime;
+			if (timeOfDeath > 0.0) {
+				auto g_gameDaysPassed = Calendar::GetSingleton()->gameDaysPassed;
+				if (g_gameDaysPassed) {
+					return floorf(g_gameDaysPassed->value * static_cast <float>(24.0)) - timeOfDeath;
 				}
 			}
 		}
@@ -1815,42 +803,53 @@ namespace RE
 		return 0.0;
 	}
 
-	//gets actor's time of death
-	float PO3_SKSEFunctions::GetTimeOfDeath(StaticFunctionTag*, Actor* thisActor)
+
+	float PO3_SKSEFunctions::GetTimeOfDeath(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (thisActor && thisActor->currentProcess)
-		{
-			float timeOfDeath = thisActor->currentProcess->deathTime;
-			if (timeOfDeath > 0.0)
-			{
-				return timeOfDeath / 24.0;
+		if (a_actor && a_actor->currentProcess) {
+			float timeOfDeath = a_actor->currentProcess->deathTime;
+			if (timeOfDeath > 0.0) {
+				return timeOfDeath / static_cast <float>(24.0);
 			}
 		}
 
 		return 0.0;
 	}
 
-	//gets actor's current package
-	TESPackage* PO3_SKSEFunctions::GetRunningPackage(StaticFunctionTag*, Actor* thisActor)
+
+	TESPackage* PO3_SKSEFunctions::GetRunningPackage(StaticFunctionTag*, Actor* a_actor)
 	{
-		return thisActor ? thisActor->GetCurrentPackageInternal() : nullptr;
+		TESPackage* package = nullptr;
+
+		if (a_actor) {
+			auto currentProcess = a_actor->currentProcess;
+			if (currentProcess) {
+				if (currentProcess->middleHigh) {
+					package = currentProcess->middleHigh->runOncePackage.package;
+				}
+				if (!package) {
+					package = currentProcess->currentPackage.package;
+				}
+			}
+		}
+
+		return package;
 	}
 
-	bool PO3_SKSEFunctions::IsActorInWater(StaticFunctionTag*, Actor* thisActor)
+
+	bool PO3_SKSEFunctions::IsActorInWater(StaticFunctionTag*, Actor* a_actor)
 	{
-		return thisActor ? (thisActor->boolBits & Actor::BOOL_BITS::kInWater) != Actor::BOOL_BITS::kNone : false;
+		return a_actor ? (a_actor->boolBits & Actor::BOOL_BITS::kInWater) != Actor::BOOL_BITS::kNone : false;
 	}
 
-	float PO3_SKSEFunctions::GetActorAlpha(StaticFunctionTag*, Actor* thisActor)
+
+	float PO3_SKSEFunctions::GetActorAlpha(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (thisActor)
-		{
-			auto currentProcess = thisActor->currentProcess;
-			if (currentProcess)
-			{
+		if (a_actor) {
+			auto currentProcess = a_actor->currentProcess;
+			if (currentProcess) {
 				auto middleProcess = currentProcess->middleHigh;
-				if (middleProcess)
-				{
+				if (middleProcess) {
 					return middleProcess->alphaMult;
 				}
 			}
@@ -1859,16 +858,14 @@ namespace RE
 		return 1.0;
 	}
 
-	float PO3_SKSEFunctions::GetActorRefraction(StaticFunctionTag*, Actor* thisActor)
+
+	float PO3_SKSEFunctions::GetActorRefraction(StaticFunctionTag*, Actor* a_actor)
 	{
-		if (thisActor)
-		{
-			auto currentProcess = thisActor->currentProcess;
-			if (currentProcess)
-			{
+		if (a_actor) {
+			auto currentProcess = a_actor->currentProcess;
+			if (currentProcess) {
 				auto middleProcess = currentProcess->middleHigh;
-				if (middleProcess)
-				{
+				if (middleProcess) {
 					return middleProcess->scriptRefractPower;
 				}
 			}
@@ -1877,105 +874,226 @@ namespace RE
 		return 1.0;
 	}
 
-	void PO3_SKSEFunctions::SetActorRefraction(StaticFunctionTag*, Actor* thisActor, float refraction)
+
+	void PO3_SKSEFunctions::SetActorRefraction(StaticFunctionTag*, Actor* a_actor, float a_refraction)
 	{
-		if (thisActor)
-		{
-			auto currentProcess = thisActor->currentProcess;
-			if (currentProcess)
-			{
-				refraction = std::clamp(refraction, 0.0f, 1.0f);
+		if (a_actor) {
+			auto currentProcess = a_actor->currentProcess;
+			if (currentProcess) {
+				a_refraction = std::clamp(a_refraction, 0.0f, 1.0f);
+				currentProcess->SetActorRefraction(a_refraction);
 
-				currentProcess->SetActorRefraction(refraction);
-
-				float invisibility = thisActor->GetActorValueCurrent(ActorValue::kInvisibility); //invisibility
-
-				if (invisibility < 0.0 || invisibility <= 1.0 && invisibility <= 0.0 || thisActor != PlayerCharacter::GetSingleton())
-				{
-					if (refraction <= 0.0)
-					{
-						thisActor->SetRefraction(0, refraction);
-						thisActor->UpdateAlpha();
+				float invisibility = a_actor->GetActorValue(ActorValue::kInvisibility); //invisibility
+				if (invisibility < 0.0 || invisibility <= 1.0 && invisibility <= 0.0 || a_actor != PlayerCharacter::GetSingleton()) {
+					if (a_refraction <= 0.0) {
+						a_actor->SetRefraction(0, a_refraction);
+						a_actor->UpdateAlpha();
 					}
-					else
-					{
-						thisActor->SetRefraction(1, refraction);
+					else {
+						a_actor->SetRefraction(1, a_refraction);
 					}
 				}
-				else
-				{
-					thisActor->SetAlpha(1.0);
+				else {
+					a_actor->SetAlpha(1.0);
 
-					refraction = 1.0 - refraction / 100.0;
-					refraction = 1.0 + (0.01 - 1.0) * ((refraction - 0.0) / (1.0 - 0.0));
+					a_refraction = 1.0f - a_refraction / 100.0f;
+					a_refraction = 1.0f + (0.01f - 1.0f) * ((a_refraction - 0.0f) / (1.0f - 0.0f));
 
-					thisActor->SetRefraction(1, refraction);
+					a_actor->SetRefraction(1, a_refraction);
 				}
 			}
 		}
 	}
 
-	SInt32 PO3_SKSEFunctions::GetActorState(StaticFunctionTag*, Actor* thisActor)
-	{
-		if (thisActor)
-		{
-			auto flags = thisActor->flags08;
 
-			return static_cast<UInt32>(pun_bits(flags.secondaryAnimState1, flags.secondaryAnimState2, flags.secondaryAnimState3, flags.secondaryAnimState4));
+	SInt32 PO3_SKSEFunctions::GetActorState(StaticFunctionTag*, Actor* a_actor)
+	{
+		if (a_actor) {
+			return static_cast<SInt32>(a_actor->GetLifeState());
 		}
 
 		return -1;
 	}
 
-	bool PO3_SKSEFunctions::InstantKill(StaticFunctionTag*, Actor* thisActor)
+
+	bool PO3_SKSEFunctions::InstantKill(StaticFunctionTag*, Actor* a_actor)
 	{
-		return thisActor ? thisActor->InstantKill() : false;
+		return a_actor ? a_actor->InstantKill() : false;
 	}
 
-	/*void PO3_SKSEFunctions::SetShaderType(StaticFunctionTag*, Actor* thisActor, TESObjectARMO* templateArmor)
+
+	bool PO3_SKSEFunctions::AddBasePerk(StaticFunctionTag*, Actor* a_actor, BGSPerk* a_perk)
 	{
-		if (!thisActor || !thisActor->Is3DLoaded() || !templateArmor)
+		if (!a_actor || !a_perk) {
+			return false;
+		}
+
+		if (a_actor->IsPlayerRef()) {
+			a_actor->AddPerk(a_perk, 0);
+			return true;
+		}
+
+		auto singleton = Perks::GetSingleton();
+		return singleton->PapyrusApplyPerks(a_actor, a_perk, Base::kAdd);
+	}
+
+
+	bool PO3_SKSEFunctions::RemoveBasePerk(StaticFunctionTag*, Actor* a_actor, BGSPerk* a_perk)
+	{
+		if (!a_actor || !a_perk) {
+			return false;
+		}
+
+		if (a_actor->IsPlayerRef()) {
+			a_actor->RemovePerk(a_perk);
+			return true;
+		}
+
+		auto singleton = Perks::GetSingleton();
+		return singleton->PapyrusApplyPerks(a_actor, a_perk, Base::kRemove);
+	}
+
+
+	bool PO3_SKSEFunctions::AddBaseSpell(StaticFunctionTag*, Actor* a_actor, SpellItem* a_spell)
+	{
+		if (!a_actor || !a_spell || a_actor->HasSpell(a_spell)) {
+			return false;
+		}
+
+		auto actorbase = a_actor->GetActorBase();
+		if (actorbase) {
+
+			auto combatController = a_actor->combatController;
+			if (combatController) {
+				combatController->data10->unk1C4 = 1;
+			}
+			auto actorEffects = actorbase->GetOrCreateSpellList();
+			if (actorEffects) {
+				auto oldData = actorEffects->spells;
+				actorEffects->spells = calloc<SpellItem*>(++actorEffects->numSpells);
+				if (oldData) {
+					for (UInt32 i = 0; i < actorEffects->numSpells - 1; i++) {
+						actorEffects->spells[i] = oldData[i];
+					}
+					free(oldData);
+					oldData = nullptr;
+				}
+				actorEffects->spells[actorEffects->numSpells - 1] = a_spell;
+				actorbase->AddChange(TESNPC::ChangeFlags::kSpellList);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	bool PO3_SKSEFunctions::RemoveBaseSpell(StaticFunctionTag*, Actor* a_actor, SpellItem* a_spell)
+	{
+		if (a_actor && a_spell) {
+
+			auto actorbase = a_actor->GetActorBase();
+			if (actorbase) {
+
+				auto actorEffects = actorbase->actorEffects;
+				if (actorEffects) {
+
+					auto index = actorEffects->GetSpellIndex(a_spell);
+					if (index == -1) {
+						return false;
+					}
+					auto activeEffects = a_actor->GetActiveEffectList();
+					if (activeEffects) {
+						for (auto& ae : *activeEffects) {
+							if (ae && ae->spell == a_spell) {
+								ae->Dispell(true);
+							}
+						}
+					}
+					auto combatController = a_actor->combatController;
+					if (combatController) {
+						combatController->data10->unk1C4 = 1;
+					}
+					auto oldData = actorEffects->spells;
+					actorEffects->spells = calloc<SpellItem*>(--actorEffects->numSpells);
+					if (oldData) {
+						for (UInt32 i = 0; i < actorEffects->numSpells + 1; i++) {
+							if (index != i) {
+								actorEffects->spells[i] = oldData[i];
+							}
+						}
+						free(oldData);
+						oldData = nullptr;
+					}
+					actorbase->AddChange(TESNPC::ChangeFlags::kSpellList);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	/*void PO3_SKSEFunctions::SetShaderType(StaticFunctionTag*, Actor* a_actor, TESObjectARMO* templateArmor)
+	{
+		if (!a_actor || !a_actor->Is3DLoaded() || !templateArmor)
 		{
 			return;
 		}
 
-		g_task->AddTask([thisActor, templateArmor]()
+		g_task->AddTask([a_actor, templateArmor]()
 		{
-			BSGeometry * templateGeometry = GetTemplateArmorGeometry(thisActor, templateArmor, 11);
+			BSGeometry * templateGeometry = GetTemplateArmorGeometry(a_actor, templateArmor, 11);
 
 			if (!templateGeometry)
 			{
 				return;
 			}
 
-			auto geometry = GetHeadPartGeometry(thisActor, BGSHeadPart::HeadPartType::kFace);
+			auto geometry = GetHeadPartGeometry(a_actor, BGSHeadPart::HeadPartType::kFace);
 			SetShaderPropertyMLP(geometry, templateGeometry);
 
-			SetArmorSkinShaderType(thisActor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kBody);
-			SetArmorSkinShaderType(thisActor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kHands);
-			SetArmorSkinShaderType(thisActor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kFeet);
-			SetArmorSkinShaderType(thisActor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kDecapitate); //decap
-			SetArmorSkinShaderType(thisActor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kTail); //tail
+			SetArmorSkinShaderType(a_actor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kBody);
+			SetArmorSkinShaderType(a_actor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kHands);
+			SetArmorSkinShaderType(a_actor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kFeet);
+			SetArmorSkinShaderType(a_actor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kDecapitate); //decap
+			SetArmorSkinShaderType(a_actor, templateGeometry, BGSBipedObjectForm::FirstPersonFlag::kTail); //tail
 		});
 	}*/
+
+	//--------------------------------------------------------------------------------------------
+	// ACTORBASE
+	//--------------------------------------------------------------------------------------------
+
+	UInt32 PO3_SKSEFunctions::GetPerkCount(StaticFunctionTag*, TESNPC* a_actorbase)
+	{
+		return a_actorbase ? a_actorbase->perkCount : 0;
+	}
+
+
+	BGSPerk* PO3_SKSEFunctions::GetNthPerk(StaticFunctionTag*, TESNPC* a_actorbase, UInt32 a_index)
+	{
+		if (a_actorbase && a_index < a_actorbase->perkCount) {
+			return a_actorbase->perks[a_index].perk;
+		}
+
+		return nullptr;
+	}
 
 	//--------------------------------------------------------------------------------------------
 	// ARRAY
 	//--------------------------------------------------------------------------------------------
 
-	bool PO3_SKSEFunctions::AddStringToArray(StaticFunctionTag*, BSFixedString thisString, BSScript::VMArray<BSFixedString> stringArray)
+	bool PO3_SKSEFunctions::AddStringToArray(StaticFunctionTag*, BSFixedString a_string, BSScript::VMArray<BSFixedString> a_stringArray)
 	{
-		auto length = stringArray.size();
-		if (length > 0)
-		{
-			BSFixedString string = nullptr;
-
-			for (UInt32 i = 0; i < length; i++)
-			{
-				string = stringArray[i];
-				if (string.empty())
-				{
-					stringArray[i] = thisString;
+		auto length = a_stringArray.size();
+		if (length > 0) {
+			BSFixedString temp = nullptr;
+			for (UInt32 i = 0; i < length; i++) {
+				temp = a_stringArray[i];
+				if (temp.empty()) {
+					a_stringArray[i] = a_string;
 					return true;
 				}
 			}
@@ -1984,17 +1102,16 @@ namespace RE
 		return false;
 	}
 
-	bool PO3_SKSEFunctions::AddActorToArray(StaticFunctionTag*, Actor* thisActor, BSScript::VMArray<Actor*> actorArray)
+
+	bool PO3_SKSEFunctions::AddActorToArray(StaticFunctionTag*, Actor* a_actor, BSScript::VMArray<Actor*> a_actorArray)
 	{
-		auto length = actorArray.size();
-		if (length > 0)
-		{
-			for (UInt32 i = 0; i < length; i++)
-			{
-				auto actor = actorArray.at(i);
-				if (actor == nullptr)
-				{
-					actorArray.at(i) = thisActor;
+		auto length = a_actorArray.size();
+		if (length > 0) {
+			Actor* temp = nullptr;
+			for (UInt32 i = 0; i < length; i++) {
+				temp = a_actorArray[i];
+				if (temp == nullptr) {
+					a_actorArray[i] = a_actor;
 					return true;
 				}
 			}
@@ -2002,22 +1119,19 @@ namespace RE
 
 		return false;
 	}
+
 
 	//count how many instances of string are found in an array
-	UInt32 PO3_SKSEFunctions::ArrayStringCount(StaticFunctionTag*, BSFixedString thisString, BSScript::VMArray<BSFixedString> stringArray)
+	UInt32 PO3_SKSEFunctions::ArrayStringCount(StaticFunctionTag*, BSFixedString a_string, BSScript::VMArray<BSFixedString> a_stringArray)
 	{
 		UInt32 count = 0;
 
-		auto length = stringArray.size();
-		if (length > 0)
-		{
-			BSFixedString string = nullptr;
-
-			for (UInt32 i = 0; i < length; i++)
-			{
-				string = stringArray[i];
-				if (string == thisString)
-				{
+		auto length = a_stringArray.size();
+		if (length > 0) {
+			BSFixedString temp = nullptr;
+			for (UInt32 i = 0; i < length; i++) {
+				temp = a_stringArray[i];
+				if (temp == a_string) {
 					count++;
 				}
 			}
@@ -2026,38 +1140,34 @@ namespace RE
 		return count;
 	}
 
+
 	//alphabetically sorts strings inside array
-	BSScript::VMArray<BSFixedString> PO3_SKSEFunctions::SortArrayString(StaticFunctionTag*, BSScript::VMArray<BSFixedString> stringArray)
+	BSScript::VMArray<BSFixedString> PO3_SKSEFunctions::SortArrayString(StaticFunctionTag*, BSScript::VMArray<BSFixedString> a_stringArray)
 	{
 		BSScript::VMArray<BSFixedString> result;
 
-		auto length = stringArray.size();
-		if (length > 0)
-		{
+		auto length = a_stringArray.size();
+		if (length > 0) {
 			std::string str;
 
 			std::vector<std::string> vec;
 			vec.reserve(length);
 
-			BSFixedString string = nullptr;
+			BSFixedString temp = nullptr;
 
-			for (UInt32 i = 0; i < length; i++)
-			{
-				string = stringArray[i];
-				if (!string.empty())
-				{
-					vec.emplace_back(string.c_str());
+			for (UInt32 i = 0; i < length; i++) {
+				temp = a_stringArray[i];
+				if (!temp.empty()) {
+					vec.emplace_back(temp.c_str());
 				}
 			}
 
 			std::sort(vec.begin(), vec.end());
 
-			auto size = vec.size();
-			if (size > 0)
-			{
+			auto size = static_cast<UInt32>(vec.size());
+			if (size > 0) {
 				result.resize(size);
-				for (size_t i = 0; i < size; i++)
-				{
+				for (UInt32 i = 0; i < size; i++) {
 					result[i] = vec[i].c_str();
 				}
 			}
@@ -2067,91 +1177,83 @@ namespace RE
 	}
 
 	//--------------------------------------------------------------------------------------------
-	// EFFECTSHADER
+	// a_effectShader
 	//--------------------------------------------------------------------------------------------
 
-	//returns effect shader particle count
-	float PO3_SKSEFunctions::GetEffectShaderFullParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader)
+	float PO3_SKSEFunctions::GetEffectShaderFullParticleCount(StaticFunctionTag*, TESEffectShader* a_effectShader)
 	{
-		return thisEffectShader ? thisEffectShader->data.particleShaderFullParticleBirthRatio : 0.0;
+		return a_effectShader ? a_effectShader->data.particleShaderFullParticleBirthRatio : static_cast <float>(0.0);
 	}
 
-	//sets effect shader particle count
-	void PO3_SKSEFunctions::SetEffectShaderFullParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader, float particleCount)
+
+	void PO3_SKSEFunctions::SetEffectShaderFullParticleCount(StaticFunctionTag*, TESEffectShader* a_effectShader, float a_particleCount)
 	{
-		if (thisEffectShader)
-		{
-			thisEffectShader->data.particleShaderFullParticleBirthRatio = particleCount;
+		if (a_effectShader) {
+			a_effectShader->data.particleShaderFullParticleBirthRatio = a_particleCount;
 		}
 	}
 
-	//get effect shader persistant particle count
-	float PO3_SKSEFunctions::GetEffectShaderPersistentParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader)
+
+	float PO3_SKSEFunctions::GetEffectShaderPersistentParticleCount(StaticFunctionTag*, TESEffectShader* a_effectShader)
 	{
-		return thisEffectShader ? thisEffectShader->data.particleShaderPersistantParticleCount : 0.0;
+		return a_effectShader ? a_effectShader->data.particleShaderPersistantParticleCount : static_cast <float>(0.0);
 	}
 
-	//set effect shader persistant particle count
-	void PO3_SKSEFunctions::SetEffectShaderPersistentParticleCount(StaticFunctionTag*, TESEffectShader* thisEffectShader, float particleCount)
+
+	void PO3_SKSEFunctions::SetEffectShaderPersistentParticleCount(StaticFunctionTag*, TESEffectShader* a_effectShader, float a_particleCount)
 	{
-		if (thisEffectShader)
-		{
-			thisEffectShader->data.particleShaderPersistantParticleCount = particleCount;
+		if (a_effectShader) {
+			a_effectShader->data.particleShaderPersistantParticleCount = a_particleCount;
 		}
 	}
 
-	bool PO3_SKSEFunctions::IsEffectShaderFlagSet(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag)
+
+	bool PO3_SKSEFunctions::IsEffectShaderFlagSet(StaticFunctionTag*, TESEffectShader* a_effectShader, UInt32 a_flag)
 	{
-		return thisEffectShader ? (static_cast<UInt32>(thisEffectShader->data.flags)& flag) == flag : false;
+		return a_effectShader ? (static_cast<UInt32>(a_effectShader->data.flags)& a_flag) == a_flag : false;
 	}
 
-	void PO3_SKSEFunctions::SetEffectShaderFlag(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag)
+
+	void PO3_SKSEFunctions::SetEffectShaderFlag(StaticFunctionTag*, TESEffectShader* a_effectShader, UInt32 a_flag)
 	{
-		if (thisEffectShader)
-		{
-			thisEffectShader->data.flags |= static_cast<EffectShaderData::Flags>(flag);
+		if (a_effectShader) {
+			a_effectShader->data.flags |= static_cast<EffectShaderData::Flags>(a_flag);
 		}
 	}
 
-	void PO3_SKSEFunctions::ClearEffectShaderFlag(StaticFunctionTag*, TESEffectShader* thisEffectShader, UInt32 flag)
+
+	void PO3_SKSEFunctions::ClearEffectShaderFlag(StaticFunctionTag*, TESEffectShader* a_effectShader, UInt32 a_flag)
 	{
-		if (thisEffectShader)
-		{
-			thisEffectShader->data.flags &= ~static_cast<EffectShaderData::Flags>(flag);
+		if (a_effectShader) {
+			a_effectShader->data.flags &= ~static_cast<EffectShaderData::Flags>(a_flag);
 		}
 	}
 
-	UInt32 PO3_SKSEFunctions::GetEffectShaderTotalCount(StaticFunctionTag*, TESEffectShader* effectShader, bool active)
+
+	UInt32 PO3_SKSEFunctions::GetEffectShaderTotalCount(StaticFunctionTag*, TESEffectShader* a_effectShader, bool a_active)
 	{
 		UInt32 count = 0;
 
-		if (effectShader)
-		{
+		if (a_effectShader) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect || !tempEffect.get()) {
 					continue;
 				}
-
-				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(referenceEffect);
-				if (shaderEffect)
-				{
-					auto shader = shaderEffect->effectShader;
-					if (shader && shader == effectShader)
-					{
-						if (active && shaderEffect->unk40 == 1)
-						{
+				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(tempEffect.get());
+				if (shaderEffect) {
+					auto effectData = shaderEffect->effectData;
+					if (effectData && effectData == a_effectShader) {
+						if (a_active && shaderEffect->finished == 1) {
 							continue;
 						}
 						count++;
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
 		}
 
 		return count;
@@ -2161,142 +1263,111 @@ namespace RE
 	// FORM
 	//--------------------------------------------------------------------------------------------
 
-	// replaces keyword on form
-	void PO3_SKSEFunctions::ReplaceKeywordOnForm(StaticFunctionTag*, TESForm* thisForm, BGSKeyword* KYWDtoRemove, BGSKeyword* KYWDtoAdd)
+	void PO3_SKSEFunctions::ReplaceKeywordOnForm(StaticFunctionTag*, TESForm* a_form, BGSKeyword* a_remove, BGSKeyword* a_add)
 	{
-		if (!thisForm || !KYWDtoRemove || !KYWDtoAdd)
-		{
+		if (!a_form || !a_remove || !a_add) {
 			return;
 		}
 
-		auto pKeywords = skyrim_cast<BGSKeywordForm*>(thisForm);
-		if (pKeywords)
-		{
+		auto keywordForm = skyrim_cast<BGSKeywordForm*>(a_form);
+		if (keywordForm) {
 			UInt32 removeIndex = 0;
-			BGSKeyword* thisKYWD = nullptr;
+			BGSKeyword* keyword = nullptr;
 			bool found = false;
 
-			for (size_t i = 0; i < pKeywords->numKeywords; i++)
-			{
-				thisKYWD = pKeywords->keywords[i];
-
-				if (thisKYWD)
-				{
-					if (thisKYWD->keyword.c_str() == KYWDtoAdd->keyword.c_str())
-					{
+			for (UInt32 i = 0; i < keywordForm->numKeywords; i++) {
+				keyword = keywordForm->keywords[i];
+				if (keyword) {
+					if (keyword->formEditorID == a_add->formEditorID) {
 						return;
 					}
-
-					if (thisKYWD->keyword.c_str() == KYWDtoRemove->keyword.c_str())
-					{
+					if (keyword->formEditorID == a_remove->formEditorID) {
 						removeIndex = i;
 						found = true;
 					}
 				}
 			}
 
-			if (found)
-			{
-				pKeywords->keywords[removeIndex] = KYWDtoAdd;
+			if (found) {
+				keywordForm->keywords[removeIndex] = a_add;
 			}
 		}
 	}
 
-	// adds keyword to form
-	void PO3_SKSEFunctions::AddKeywordToForm(StaticFunctionTag*, TESForm* thisForm, BGSKeyword* KYWDtoAdd)
+
+	void PO3_SKSEFunctions::AddKeywordToForm(StaticFunctionTag*, TESForm* a_form, BGSKeyword* a_add)
 	{
-		if (!thisForm || !KYWDtoAdd)
-		{
+		if (!a_form || !a_add) {
 			return;
 		}
 
-		auto pKeywords = skyrim_cast<BGSKeywordForm*>(thisForm);
-		if (pKeywords)
-		{
-			auto oldData = pKeywords->keywords;
+		auto singleton = Keywords::GetSingleton();
+		singleton->PapyrusApplyKeywords(a_form, a_add, Base::kAdd);
+	}
 
-			pKeywords->keywords = calloc<BGSKeyword*>(++pKeywords->numKeywords);
-			if (oldData)
-			{
-				for (UInt32 i = 0; i < pKeywords->numKeywords - 1; ++i)
-				{
-					pKeywords->keywords[i] = oldData[i];
-				}
 
-				pKeywords->keywords[pKeywords->numKeywords - 1] = KYWDtoAdd;
-
-				free(oldData);
-				oldData = nullptr;
-			}
+	bool PO3_SKSEFunctions::RemoveKeywordOnForm(StaticFunctionTag*, TESForm* a_form, BGSKeyword* a_remove)
+	{
+		if (!a_form || !a_remove) {
+			return false;
 		}
+
+		auto singleton = Keywords::GetSingleton();
+		return singleton->PapyrusApplyKeywords(a_form, a_remove, Base::kRemove);
 	}
 
 	//--------------------------------------------------------------------------------------------
 	// GAME
 	//--------------------------------------------------------------------------------------------
 
-	bool PO3_SKSEFunctions::IsPluginFound(StaticFunctionTag*, BSFixedString name)
+	bool PO3_SKSEFunctions::IsPluginFound(StaticFunctionTag*, BSFixedString a_name)
 	{
 		auto dataHandler = TESDataHandler::GetSingleton();
-		const TESFile* modInfo = dataHandler->LookupModByName(name);
+		const TESFile* modInfo = dataHandler->LookupModByName(a_name);
 
-		if (modInfo)
-		{
+		if (modInfo) {
 			return modInfo->IsLoaded();
 		}
 
 		return false;
 	}
 
-	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::GetAllSpellsInMod(StaticFunctionTag*, BSFixedString modName, BSScript::VMArray<BGSKeyword*> keywords, bool isPlayable)
+
+	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::GetAllSpellsInMod(StaticFunctionTag*, BSFixedString a_modName, BSScript::VMArray<BGSKeyword*> a_keywordArray, bool a_playable)
 	{
 		BSScript::VMArray<TESForm*> result;
 
 		auto dataHandler = TESDataHandler::GetSingleton();
-		const TESFile* modInfo = dataHandler->LookupModByName(modName.c_str());
+		const TESFile* modInfo = dataHandler->LookupModByName(a_modName.c_str());
 
-		if (!modInfo || !modInfo->IsLoaded())
-		{
+		if (!modInfo || !modInfo->IsLoaded()) {
 			return result;
 		}
 
 		std::vector<TESForm*> vec;
 
-		if (isPlayable)
-		{
+		if (a_playable) {
 			SpellItem* spell = nullptr;
 
-			for (auto& book : dataHandler->GetFormArray<TESObjectBOOK>())
-			{
-				if (!book || !modInfo->IsFormInMod(book->formID))
-				{
+			for (auto& book : dataHandler->GetFormArray<TESObjectBOOK>()) {
+				if (!book || !modInfo->IsFormInMod(book->formID)) {
 					continue;
 				}
-
 				spell = book->data.teaches.spell;
-
-				if (!spell || spell && VerifyKeywords(spell, &keywords))
-				{
+				if (!spell || spell && VerifyKeywords(spell, &a_keywordArray)) {
 					continue;
 				}
-
 				vec.push_back(spell);
 			}
 		}
-		else
-		{
-			for (auto& spell : dataHandler->GetFormArray<SpellItem>())
-			{
-				if (!spell || !modInfo->IsFormInMod(spell->formID))
-				{
+		else {
+			for (auto& spell : dataHandler->GetFormArray<SpellItem>()) {
+				if (!spell || !modInfo->IsFormInMod(spell->formID)) {
 					continue;
 				}
-
-				if (!VerifyKeywords(spell, &keywords))
-				{
+				if (!VerifyKeywords(spell, &a_keywordArray)) {
 					continue;
 				}
-
 				vec.push_back(spell);
 			}
 		}
@@ -2305,32 +1376,27 @@ namespace RE
 		return result;
 	}
 
-	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::GetAllRacesInMod(StaticFunctionTag*, BSFixedString modName, BSScript::VMArray<BGSKeyword*> keywords)
+
+	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::GetAllRacesInMod(StaticFunctionTag*, BSFixedString a_modName, BSScript::VMArray<BGSKeyword*> a_keywordArray)
 	{
 		BSScript::VMArray<TESForm*> result;
 
 		auto dataHandler = TESDataHandler::GetSingleton();
-		const TESFile* modInfo = dataHandler->LookupModByName(modName.c_str());
+		const TESFile* modInfo = dataHandler->LookupModByName(a_modName.c_str());
 
-		if (!modInfo || !modInfo->IsLoaded())
-		{
+		if (!modInfo || !modInfo->IsLoaded()) {
 			return result;
 		}
 
 		std::vector<TESForm*> vec;
 
-		for (auto& race : dataHandler->GetFormArray<TESRace>())
-		{
-			if (!race || !modInfo->IsFormInMod(race->formID))
-			{
+		for (auto& race : dataHandler->GetFormArray<TESRace>()) {
+			if (!race || !modInfo->IsFormInMod(race->formID)) {
 				continue;
 			}
-
-			if (!VerifyKeywords(race, &keywords))
-			{
+			if (!VerifyKeywords(race, &a_keywordArray)) {
 				continue;
 			}
-
 			vec.push_back(race);
 		}
 
@@ -2338,89 +1404,76 @@ namespace RE
 		return result;
 	}
 
-	void PO3_SKSEFunctions::AddAllGameSpellsToList(StaticFunctionTag*, BGSListForm* thisList, BSScript::VMArray<BGSKeyword*> keywords, bool isPlayable)
+
+	void PO3_SKSEFunctions::AddAllGameSpellsToList(StaticFunctionTag*, BGSListForm* a_list, BSScript::VMArray<BGSKeyword*> a_keywordArray, bool a_playable)
 	{
-		if (!thisList)
-		{
+		if (!a_list) {
 			return;
 		}
-
 		auto dataHandler = TESDataHandler::GetSingleton();
 
-		if (isPlayable)
-		{
+		if (a_playable) {
 			SpellItem* spell = nullptr;
-
-			for (auto& book : dataHandler->GetFormArray<TESObjectBOOK>())
-			{
-				if (book)
-				{
+			for (auto& book : dataHandler->GetFormArray<TESObjectBOOK>()) {
+				if (book) {
 					spell = book->data.teaches.spell;
-
-					if (!spell || spell && VerifyKeywords(spell, &keywords))
-					{
+					if (!spell || spell && VerifyKeywords(spell, &a_keywordArray)) {
 						continue;
 					}
-
-					thisList->AddForm(spell);
+					a_list->AddForm(spell);
 				}
 			}
 		}
-		else
-		{
-			for (auto& spell : dataHandler->GetFormArray<SpellItem>())
-			{
-				if (!spell || !VerifyKeywords(spell, &keywords))
-				{
+		else {
+			for (auto& spell : dataHandler->GetFormArray<SpellItem>()) {
+				if (!spell || !VerifyKeywords(spell, &a_keywordArray)) {
 					continue;
 				}
 
-				thisList->AddForm(spell);
+				a_list->AddForm(spell);
 			}
 		}
 	}
 
-	void PO3_SKSEFunctions::AddAllGameRacesToList(StaticFunctionTag*, BGSListForm* thisList, BSScript::VMArray<BGSKeyword*> keywords)
+
+	void PO3_SKSEFunctions::AddAllGameRacesToList(StaticFunctionTag*, BGSListForm* a_list, BSScript::VMArray<BGSKeyword*> a_keywordArray)
 	{
-		if (!thisList)
-		{
+		if (!a_list) {
 			return;
 		}
 
 		auto dataHandler = TESDataHandler::GetSingleton();
-		for (auto& race : dataHandler->GetFormArray<TESRace>())
-		{
-			if (!race || !VerifyKeywords(race, &keywords))
-			{
+		for (auto& race : dataHandler->GetFormArray<TESRace>()) {
+			if (!race || !VerifyKeywords(race, &a_keywordArray)) {
 				continue;
 			}
-
-			thisList->AddForm(race);
+			a_list->AddForm(race);
 		}
 	}
 
+
 	//gets actors by AI processing level - see https://geck.bethsoft.com/index.php?title=GetActorsByProcessingLevel
-	BSScript::VMArray<Actor*> PO3_SKSEFunctions::GetActorsByProcessingLevel(StaticFunctionTag*, UInt32 level)
+	BSScript::VMArray<Actor*> PO3_SKSEFunctions::GetActorsByProcessingLevel(StaticFunctionTag*, UInt32 a_level)
 	{
 		BSScript::VMArray<Actor*> result;
-		std::vector<Actor*> vec;
 
-		auto singleton = ProcessLists::GetSingleton();
+		std::vector<Actor*> vec;
 		BSTArray<ActorHandle>* arr = nullptr;
 
-		switch (level)
-		{
+		auto singleton = ProcessLists::GetSingleton();
+
+		switch (a_level) {
 			case 0:
-				arr = &singleton->highProcesses;
+				arr = &singleton->highActorHandles;
 				break;
 			case 1:
-				arr = &singleton->middleHighProcesses;
+				arr = &singleton->middleHighActorHandles;
 				break;
 			case 2:
-				arr = &singleton->middleLowProcesses;
+				arr = &singleton->middleLowActorHandles;
 				break;
 			case 3:
-				arr = &singleton->lowProcesses;
+				arr = &singleton->lowActorHandles;
 				break;
 			default:
 				arr = nullptr;
@@ -2428,13 +1481,10 @@ namespace RE
 		}
 
 		NiPointer<Actor> actorPtr;
-		if (arr)
-		{
-			for (auto& actorHandle : *arr)
-			{
+		if (arr) {
+			for (auto& actorHandle : *arr) {
 				actorPtr = actorHandle.get();
-				if (actorPtr && actorPtr.get())
-				{
+				if (actorPtr.get()) {
 					vec.push_back(actorPtr.get());
 				}
 			}
@@ -2444,98 +1494,95 @@ namespace RE
 		return result;
 	}
 
+
 	//gets amount of actors in high process
 	SInt32 PO3_SKSEFunctions::GetNumActorsInHigh(StaticFunctionTag*)
 	{
-		return ProcessLists::GetSingleton()->numActorsInHighProcess;
+		return ProcessLists::GetSingleton()->numberHighActors;
 	}
 
 	//--------------------------------------------------------------------------------------------
 	// LIGHT
 	//--------------------------------------------------------------------------------------------
 
-	float PO3_SKSEFunctions::GetLightRadius(StaticFunctionTag*, TESObjectLIGH* thisLight)
+	float PO3_SKSEFunctions::GetLightRadius(StaticFunctionTag*, TESObjectLIGH* a_light)
 	{
-		return thisLight ? static_cast<float>(thisLight->data.radius) : 0.0;
+		return a_light ? static_cast<float>(a_light->data.radius) : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetLightRadius(StaticFunctionTag*, TESObjectLIGH* thisLight, float radius)
+
+	void PO3_SKSEFunctions::SetLightRadius(StaticFunctionTag*, TESObjectLIGH* a_light, float a_radius)
 	{
-		if (thisLight)
-		{
-			thisLight->data.radius = static_cast<UInt32>(radius);
+		if (a_light) {
+			a_light->data.radius = static_cast<UInt32>(a_radius);
 		}
 	}
 
-	float PO3_SKSEFunctions::GetLightFade(StaticFunctionTag*, TESObjectLIGH* thisLight)
+
+	float PO3_SKSEFunctions::GetLightFade(StaticFunctionTag*, TESObjectLIGH* a_light)
 	{
-		return thisLight ? thisLight->fadeValue : 0.0;
+		return a_light ? a_light->fade : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetLightFade(StaticFunctionTag*, TESObjectLIGH* thisLight, float fadeValue)
+
+	void PO3_SKSEFunctions::SetLightFade(StaticFunctionTag*, TESObjectLIGH* a_light, float a_fade)
 	{
-		if (thisLight)
-		{
-			thisLight->fadeValue = fadeValue;
+		if (a_light) {
+			a_light->fade = a_fade;
 		}
 	}
 
-	BGSColorForm* PO3_SKSEFunctions::GetLightColor(StaticFunctionTag*, TESObjectLIGH* thisLight)
+
+	BGSColorForm* PO3_SKSEFunctions::GetLightColor(StaticFunctionTag*, TESObjectLIGH* a_light)
 	{
-		if (thisLight)
-		{
-			auto factory = IFormFactory::GetConcreteFormFactoryByType<BGSColorForm>();
-			auto colorForm = factory->Create();
+		if (a_light) {
+			auto factory = IFormFactory::GetFormFactoryByType(FormType::ColorForm);
+			auto color = static_cast<BGSColorForm*>(factory->Create());
 
-			if (colorForm)
-			{
-				colorForm->flags &= ~BGSColorForm::Flag::kPlayable;
+			if (color) {
+				color->flags &= ~BGSColorForm::Flag::kPlayable;
 
-				colorForm->color.red = thisLight->data.color.red;
-				colorForm->color.green = thisLight->data.color.green;
-				colorForm->color.blue = thisLight->data.color.blue;
+				color->color.red = a_light->data.color.red;
+				color->color.green = a_light->data.color.green;
+				color->color.blue = a_light->data.color.blue;
+				color->color.alpha = a_light->data.color.alpha;
 
-				return colorForm;
+				return color;
 			}
 		}
 
 		return nullptr;
 	}
 
-	void PO3_SKSEFunctions::SetLightColor(StaticFunctionTag*, TESObjectLIGH* thisLight, BGSColorForm* colorForm)
+
+	void PO3_SKSEFunctions::SetLightColor(StaticFunctionTag*, TESObjectLIGH* a_light, BGSColorForm* a_color)
 	{
-		if (thisLight && colorForm)
-		{
-			thisLight->data.color.red = colorForm->color.red;
-			thisLight->data.color.green = colorForm->color.green;
-			thisLight->data.color.blue = colorForm->color.blue;
+		if (a_light && a_color) {
+			a_light->data.color.red = a_color->color.red;
+			a_light->data.color.green = a_color->color.green;
+			a_light->data.color.blue = a_color->color.blue;
 		}
 	}
 
-	UInt32 PO3_SKSEFunctions::GetLightTypeInternal(TESObjectLIGH* thisLight)
-	{
-		if (thisLight)
-		{
-			const auto flags = thisLight->data.flags;
 
-			if ((flags & TESObjectLIGH::Data::Flag::kFlag_TypeHemiShadow) == TESObjectLIGH::Data::Flag::kFlag_TypeHemiShadow)
-			{
+	UInt32 PO3_SKSEFunctions::GetLightType(StaticFunctionTag*, TESObjectLIGH* a_light)
+	{
+		if (a_light) {
+			const auto flags = a_light->data.flags;
+
+			if ((flags & TES_LIGHT_FLAGS::kHemiShadow) == TES_LIGHT_FLAGS::kHemiShadow) {
 				return 1;
 			}
-			if ((flags & TESObjectLIGH::Data::Flag::kFlag_TypeOmni) == TESObjectLIGH::Data::Flag::kFlag_TypeOmni)
-			{
+			if ((flags & TES_LIGHT_FLAGS::kNone) == TES_LIGHT_FLAGS::kNone) {
 				return 2;
 			}
-			if ((flags & TESObjectLIGH::Data::Flag::kFlag_TypeOmniShadow) == TESObjectLIGH::Data::Flag::kFlag_TypeOmniShadow)
-			{
+			if ((flags & TES_LIGHT_FLAGS::kOmniShadow) == TES_LIGHT_FLAGS::kOmniShadow) {
 				return 3;
 			}
-			if ((flags & TESObjectLIGH::Data::Flag::kFlag_TypeSpot) == TESObjectLIGH::Data::Flag::kFlag_TypeSpot)
-			{
+			if ((flags & TES_LIGHT_FLAGS::kSpotlight) == TES_LIGHT_FLAGS::kSpotlight) {
 				return 4;
 			}
-			if ((flags & TESObjectLIGH::Data::Flag::kFlag_TypeSpotShadow) == TESObjectLIGH::Data::Flag::kFlag_TypeSpotShadow)
-			{
+			if ((flags & TES_LIGHT_FLAGS::kSpotShadow) == TES_LIGHT_FLAGS::kSpotShadow) {
 				return 5;
 			}
 		}
@@ -2543,98 +1590,83 @@ namespace RE
 		return 0;
 	}
 
-	UInt32 PO3_SKSEFunctions::GetLightType(StaticFunctionTag*, TESObjectLIGH* thisLight)
-	{
-		return GetLightTypeInternal(thisLight);
-	}
 
-	void PO3_SKSEFunctions::SetLightType(StaticFunctionTag*, TESObjectLIGH* thisLight, UInt32 lightType)
+	void PO3_SKSEFunctions::SetLightType(StaticFunctionTag*, TESObjectLIGH* a_light, UInt32 a_type)
 	{
-		if (!thisLight)
-		{
+		if (!a_light) {
 			return;
 		}
 
-		auto flags = thisLight->data.flags;
-
-		switch (lightType)
-		{
+		auto flags = a_light->data.flags;
+		switch (a_type) {
 			case 1:
-				flags = flags & ~(TESObjectLIGH::Data::Flag::kFlags_Type | TESObjectLIGH::Data::Flag::kFlag_TypeHemiShadow);
+				flags = flags & ~(TES_LIGHT_FLAGS::kType | TES_LIGHT_FLAGS::kHemiShadow);
 				break;
 			case 2:
-				flags = flags & ~(TESObjectLIGH::Data::Flag::kFlags_Type | TESObjectLIGH::Data::Flag::kFlag_TypeOmni);
+				flags = flags & ~(TES_LIGHT_FLAGS::kType | TES_LIGHT_FLAGS::kNone);
 				break;
 			case 3:
-				flags = flags & ~(TESObjectLIGH::Data::Flag::kFlags_Type | TESObjectLIGH::Data::Flag::kFlag_TypeOmniShadow);
+				flags = flags & ~(TES_LIGHT_FLAGS::kType | TES_LIGHT_FLAGS::kOmniShadow);
 				break;
 			case 4:
-				flags = flags & ~(TESObjectLIGH::Data::Flag::kFlags_Type | TESObjectLIGH::Data::Flag::kFlag_TypeSpot);
+				flags = flags & ~(TES_LIGHT_FLAGS::kType | TES_LIGHT_FLAGS::kSpotlight);
 				break;
 			case 5:
-				flags = flags & ~(TESObjectLIGH::Data::Flag::kFlags_Type | TESObjectLIGH::Data::Flag::kFlag_TypeSpotShadow);
+				flags = flags & ~(TES_LIGHT_FLAGS::kType | TES_LIGHT_FLAGS::kSpotShadow);
 				break;
 			default:
 				return;
 		}
-
-		thisLight->data.flags = flags;
+		a_light->data.flags = flags;
 	}
 
-	float PO3_SKSEFunctions::GetLightFOV(StaticFunctionTag*, TESObjectLIGH* thisLight)
+
+	float PO3_SKSEFunctions::GetLightFOV(StaticFunctionTag*, TESObjectLIGH* a_light)
 	{
-		return thisLight ? thisLight->data.fov : 0.0;
+		return a_light ? a_light->data.fov : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetLightFOV(StaticFunctionTag*, TESObjectLIGH* thisLight, float FOV)
+
+	void PO3_SKSEFunctions::SetLightFOV(StaticFunctionTag*, TESObjectLIGH* a_light, float a_fov)
 	{
-		if (thisLight)
-		{
-			thisLight->data.fov = FOV;
+		if (a_light) {
+			a_light->data.fov = a_fov;
 		}
 	}
 
-	float PO3_SKSEFunctions::GetLightShadowDepthBias(StaticFunctionTag*, TESObjectREFR* thisLightObject)
-	{
-		if (!thisLightObject)
-		{
-			return 1.0;
-		}
 
-		auto thisLight = skyrim_cast<TESObjectLIGH*>(thisLightObject->GetBaseObject());
-		if (thisLight)
-		{
-			auto xLightData = static_cast<ExtraLightData*>(thisLightObject->extraData.GetByType(ExtraDataType::kLightData));
-			if (xLightData)
-			{
-				return xLightData->data.shadowDepthBias;
+	float PO3_SKSEFunctions::GetLightShadowDepthBias(StaticFunctionTag*, TESObjectREFR* a_lightObject)
+	{
+		if (a_lightObject) {
+			auto a_light = skyrim_cast<TESObjectLIGH*>(a_lightObject->GetBaseObject());
+			if (a_light) {
+				auto xLightData = static_cast<ExtraLightData*>(a_lightObject->extraList.GetByType(ExtraDataType::kLightData));
+				if (xLightData) {
+					return xLightData->data.shadowDepthBias;
+				}
 			}
 		}
 
 		return 1.0;
 	}
 
-	//creates extralightdata if none exists
-	void PO3_SKSEFunctions::SetLightShadowDepthBias(StaticFunctionTag*, TESObjectREFR* thisLightObject, float depthBias)
+
+	void PO3_SKSEFunctions::SetLightShadowDepthBias(StaticFunctionTag*, TESObjectREFR* a_lightObject, float a_depthBias)
 	{
-		if (!thisLightObject)
-		{
+		if (!a_lightObject) {
 			return;
 		}
 
-		auto thisLight = skyrim_cast<TESObjectLIGH*>(thisLightObject->GetBaseObject());
-		if (thisLight)
-		{
-			auto xLightData = static_cast<ExtraLightData*>(thisLightObject->extraData.GetByType(ExtraDataType::kLightData));
-			if (xLightData)
-			{
-				xLightData->data.shadowDepthBias = depthBias;
+		auto a_light = skyrim_cast<TESObjectLIGH*>(a_lightObject->GetBaseObject());
+		if (a_light) {
+			auto xLightData = static_cast<ExtraLightData*>(a_lightObject->extraList.GetByType(ExtraDataType::kLightData));
+			if (xLightData) {
+				xLightData->data.shadowDepthBias = a_depthBias;
 			}
-			else
-			{
+			else {
 				auto&& newLightData = ExtraLightData::ExtraLightData();
-				newLightData.data.shadowDepthBias = depthBias;
-				(&thisLightObject->extraData)->Add(&newLightData);
+				newLightData.data.shadowDepthBias = a_depthBias;
+				(&a_lightObject->extraList)->Add(&newLightData);
 			}
 		}
 	}
@@ -2643,16 +1675,16 @@ namespace RE
 	// LOCATION
 	//--------------------------------------------------------------------------------------------
 
-	BGSLocation* PO3_SKSEFunctions::GetParentLocation(StaticFunctionTag*, BGSLocation* thisLocation)
+	BGSLocation* PO3_SKSEFunctions::GetParentLocation(StaticFunctionTag*, BGSLocation* a_location)
 	{
-		return thisLocation ? thisLocation->parentLoc : nullptr;
+		return a_location ? a_location->parentLoc : nullptr;
 	}
 
-	void PO3_SKSEFunctions::SetParentLocation(StaticFunctionTag*, BGSLocation* thisLocation, BGSLocation* newLocation)
+
+	void PO3_SKSEFunctions::SetParentLocation(StaticFunctionTag*, BGSLocation* a_location, BGSLocation* a_newLocation)
 	{
-		if (thisLocation)
-		{
-			thisLocation->parentLoc = newLocation;
+		if (a_location) {
+			a_location->parentLoc = a_newLocation;
 		}
 	}
 
@@ -2661,20 +1693,21 @@ namespace RE
 	//--------------------------------------------------------------------------------------------
 
 	// based on mersenne twister
-	float PO3_SKSEFunctions::GenerateRandomFloat(StaticFunctionTag*, float afMin, float afMax)
+	float PO3_SKSEFunctions::GenerateRandomFloat(StaticFunctionTag*, float a_min, float a_max)
 	{
 		std::random_device rd;
 		std::mt19937 engine{ rd() };
-		std::uniform_real_distribution<float> dist(afMin, afMax);
+		std::uniform_real_distribution<float> dist(a_min, a_max);
 
 		return dist(engine);
 	}
 
-	UInt32 PO3_SKSEFunctions::GenerateRandomInt(StaticFunctionTag*, UInt32 afMin, UInt32 afMax)
+
+	UInt32 PO3_SKSEFunctions::GenerateRandomInt(StaticFunctionTag*, UInt32 a_min, UInt32 a_max)
 	{
 		std::random_device rd;
 		std::mt19937 engine{ rd() };
-		std::uniform_int_distribution<UInt32>dist(afMin, afMax);
+		std::uniform_int_distribution<UInt32>dist(a_min, a_max);
 
 		return dist(engine);
 	}
@@ -2683,32 +1716,27 @@ namespace RE
 	// MAGICEFFECT
 	//--------------------------------------------------------------------------------------------
 
-	BSScript::VMArray<EffectSetting*> PO3_SKSEFunctions::GetAllActiveEffectsOnActor(StaticFunctionTag*, Actor* thisActor, bool showInactive)
+	BSScript::VMArray<EffectSetting*> PO3_SKSEFunctions::GetAllActiveEffectsOnActor(StaticFunctionTag*, Actor* a_actor, bool a_inactive)
 	{
+		using MGEF = EffectSetting::EffectSettingData::Flag;
+		using AE = ActiveEffect::Flag;
+
 		BSScript::VMArray<EffectSetting*> result;
 		std::vector<EffectSetting*> vec;
 
-		if (thisActor)
-		{
-			auto activeEffects = thisActor->GetActiveEffectList();
-			if (activeEffects)
-			{
-				for (auto& ae : *activeEffects)
-				{
-					if (!ae || !ae->effect || !ae->effect->baseEffect)
-					{
-						continue;
-					}
-
-					auto mgef = ae->effect->baseEffect;
-					if (mgef)
-					{
-						if (!showInactive && ((ae->flags & ActiveEffect::Flag::kInactive) == ActiveEffect::Flag::kInactive || (mgef->data.flags & EffectSetting::EffectSettingData::Flag::kHideInUI) == EffectSetting::EffectSettingData::Flag::kHideInUI))
-						{
-							continue;
+		if (a_actor) {
+			auto activeEffects = a_actor->GetActiveEffectList();
+			if (activeEffects) {
+				for (auto& ae : *activeEffects) {
+					if (ae) {
+						auto mgef = ae->GetBaseObject();
+						if (mgef) {
+							if (!a_inactive && ((ae->flags & AE::kInactive) == AE::kInactive || (ae->flags & AE::kDispelled) == AE::kDispelled ||
+								(mgef->data.flags & MGEF::kHideInUI) == MGEF::kHideInUI)) {
+								continue;
+							}
+							vec.push_back(mgef);
 						}
-
-						vec.push_back(mgef);
 					}
 				}
 			}
@@ -2718,201 +1746,43 @@ namespace RE
 		return result;
 	}
 
-	// for internal use
-	BSFixedString PO3_SKSEFunctions::GetEffectArchetypeInternal(EffectSetting* mgef)
+
+	bool PO3_SKSEFunctions::HasMagicEffectWithArchetype(StaticFunctionTag*, Actor* a_actor, BSFixedString a_archetype)
 	{
-		BSFixedString archetype("");
-
-		if (!mgef)
-		{
-			return archetype;
-		}
-
-		switch (mgef->data.archetype)
-		{
-			case Archetype::kValueModifier:
-				archetype = "ValueMod";
-				break;
-			case Archetype::kScript:
-				archetype = "Script";
-				break;
-			case Archetype::kDispel:
-				archetype = "Dispel";
-				break;
-			case Archetype::kCureDisease:
-				archetype = "CureDisease";
-				break;
-			case Archetype::kAbsorb:
-				archetype = "Absorb";
-				break;
-			case Archetype::kDualValueModifier:
-				archetype = "DualValueMod";
-				break;
-			case Archetype::kCalm:
-				archetype = "Calm";
-				break;
-			case Archetype::kDemoralize:
-				archetype = "Demoralize";
-				break;
-			case Archetype::kFrenzy:
-				archetype = "Frenzy";
-				break;
-			case Archetype::kDisarm:
-				archetype = "Disarm";
-				break;
-			case Archetype::kCommandSummoned:
-				archetype = "CommandSummoned";
-				break;
-			case Archetype::kInvisibility:
-				archetype = "Invisibility";
-				break;
-			case Archetype::kLight:
-				archetype = "Light";
-				break;
-			case Archetype::kLock:
-				archetype = "Lock";
-				break;
-			case Archetype::kOpen:
-				archetype = "Open";
-				break;
-			case Archetype::kBoundWeapon:
-				archetype = "BoundWeapon";
-				break;
-			case Archetype::kSummonCreature:
-				archetype = "SummonCreature";
-				break;
-			case Archetype::kDetectLife:
-				archetype = "DetectLife";
-				break;
-			case Archetype::kTelekinesis:
-				archetype = "Telekinesis";
-				break;
-			case Archetype::kParalysis:
-				archetype = "Paralysis";
-				break;
-			case Archetype::kReanimate:
-				archetype = "Reanimate";
-				break;
-			case Archetype::kSoulTrap:
-				archetype = "SoulTrap";
-				break;
-			case Archetype::kTurnUndead:
-				archetype = "TurnUndead";
-				break;
-			case Archetype::kGuide:
-				archetype = "Guide";
-				break;
-			case Archetype::kWerewolfFeed:
-				archetype = "WerewolfFeed";
-				break;
-			case Archetype::kCureParalysis:
-				archetype = "CureParalysis";
-				break;
-			case Archetype::kCureAddiction:
-				archetype = "CureAddiction";
-				break;
-			case Archetype::kCurePoison:
-				archetype = "CurePoison";
-				break;
-			case Archetype::kConcussion:
-				archetype = "Concussion";
-				break;
-			case Archetype::kValueAndParts:
-				archetype = "ValueAndParts";
-				break;
-			case Archetype::kAccumulateMagnitude:
-				archetype = "AccumulateMagnitude";
-				break;
-			case Archetype::kStagger:
-				archetype = "Stagger";
-				break;
-			case Archetype::kPeakValueModifier:
-				archetype = "PeakValueMod";
-				break;
-			case Archetype::kCloak:
-				archetype = "Cloak";
-				break;
-			case Archetype::kWerewolf:
-				archetype = "Werewolf";
-				break;
-			case Archetype::kSlowTime:
-				archetype = "SlowTime";
-				break;
-			case Archetype::kRally:
-				archetype = "Rally";
-				break;
-			case Archetype::kEnhanceWeapon:
-				archetype = "EnhanceWeapon";
-				break;
-			case Archetype::kSpawnHazard:
-				archetype = "SpawnHazard";
-				break;
-			case Archetype::kEtherealize:
-				archetype = "Etherealize";
-				break;
-			case Archetype::kBanish:
-				archetype = "Banish";
-				break;
-			case Archetype::kDisguise:
-				archetype = "Disguise";
-				break;
-			case Archetype::kGrabActor:
-				archetype = "GrabActor";
-				break;
-			case Archetype::kVampireLord:
-				archetype = "VampireLord";
-				break;
-			default:
-				break;
-		}
-
-		return archetype;
-	}
-
-	bool PO3_SKSEFunctions::HasMagicEffectWithArchetype(StaticFunctionTag*, Actor* thisActor, BSFixedString archetype)
-	{
-		if (thisActor)
-		{
-			auto activeEffects = thisActor->GetActiveEffectList();
-			if (activeEffects)
-			{
-				for (auto& ae : *activeEffects)
-				{
-					if (!ae || !ae->effect || !ae->effect->baseEffect)
-					{
-						continue;
-					}
-
-					auto mgef = ae->effect->baseEffect;
-					if (GetEffectArchetypeInternal(mgef) == archetype)
-					{
-						return true;
+		if (a_actor) {
+			auto activeEffects = a_actor->GetActiveEffectList();
+			if (activeEffects) {
+				for (auto& ae : *activeEffects) {
+					if (ae) {
+						auto mgef = ae->GetBaseObject();
+						if (mgef && mgef->GetArchetypeAsString() == a_archetype) {
+							return true;
+						}
 					}
 				}
 			}
 		}
-
 		return false;
 	}
 
-	UInt32 PO3_SKSEFunctions::GetEffectArchetypeAsInt(StaticFunctionTag*, EffectSetting* mgef)
+
+	UInt32 PO3_SKSEFunctions::GetEffectArchetypeAsInt(StaticFunctionTag*, EffectSetting* a_mgef)
 	{
-		return mgef ? static_cast<UInt32>(mgef->data.archetype) : 0;
+		return a_mgef ? static_cast<UInt32>(a_mgef->data.archetype) : 0;
 	}
 
-	BSFixedString PO3_SKSEFunctions::GetEffectArchetypeAsString(StaticFunctionTag*, EffectSetting* mgef)
+
+	BSFixedString PO3_SKSEFunctions::GetEffectArchetypeAsString(StaticFunctionTag*, EffectSetting* a_mgef)
 	{
-		return GetEffectArchetypeInternal(mgef);
+		return a_mgef ? a_mgef->GetArchetypeAsString() : BSFixedString("");
 	}
 
-	BGSSoundDescriptorForm* PO3_SKSEFunctions::GetMagicEffectSound(StaticFunctionTag*, EffectSetting* mgef, UInt32 type)
+
+	BGSSoundDescriptorForm* PO3_SKSEFunctions::GetMagicEffectSound(StaticFunctionTag*, EffectSetting* a_mgef, UInt32 a_type)
 	{
-		if (mgef)
-		{
-			for (auto& effectSound : mgef->effectSounds)
-			{
-				if (effectSound.id == static_cast<MagicSystem::SoundID>(type))
-				{
+		if (a_mgef) {
+			for (auto& effectSound : a_mgef->effectSounds) {
+				if (effectSound.id == static_cast<MagicSystem::SoundID>(a_type)) {
 					return effectSound.sound;
 				}
 			}
@@ -2921,15 +1791,13 @@ namespace RE
 		return nullptr;
 	}
 
-	void PO3_SKSEFunctions::SetMagicEffectSound(StaticFunctionTag*, EffectSetting* mgef, BGSSoundDescriptorForm* mgefSound, UInt32 type)
+
+	void PO3_SKSEFunctions::SetMagicEffectSound(StaticFunctionTag*, EffectSetting* a_mgef, BGSSoundDescriptorForm* a_sound, UInt32 a_type)
 	{
-		if (mgef && mgefSound)
-		{
-			for (auto& effectSound : mgef->effectSounds)
-			{
-				if (effectSound.id == static_cast<MagicSystem::SoundID>(type))
-				{
-					effectSound.sound = mgefSound;
+		if (a_mgef && a_sound) {
+			for (auto& effectSound : a_mgef->effectSounds) {
+				if (effectSound.id == static_cast<MagicSystem::SoundID>(a_type)) {
+					effectSound.sound = a_sound;
 					break;
 				}
 			}
@@ -2941,44 +1809,41 @@ namespace RE
 	//--------------------------------------------------------------------------------------------
 
 	// [x, y, z]
-	BSScript::VMArray<float> PO3_SKSEFunctions::GetPositionAsArray(StaticFunctionTag*, TESObjectREFR* ref)
+	BSScript::VMArray<float> PO3_SKSEFunctions::GetPositionAsArray(StaticFunctionTag*, TESObjectREFR* a_ref)
 	{
 		BSScript::VMArray<float> pos;
 		pos.resize(3);
 
-		if (ref)
-		{
-			pos[0] = ref->GetPosition().x;
-			pos[1] = ref->GetPosition().y;
-			pos[2] = ref->GetPosition().z;
+		if (a_ref) {
+			pos[0] = a_ref->GetPositionX();
+			pos[1] = a_ref->GetPositionY();
+			pos[2] = a_ref->GetPositionZ();
 		}
 
 		return pos;
 	}
 
+
 	// [angleX, angleY, angleZ]
-	BSScript::VMArray<float> PO3_SKSEFunctions::GetRotationAsArray(StaticFunctionTag*, TESObjectREFR* ref)
+	BSScript::VMArray<float> PO3_SKSEFunctions::GetRotationAsArray(StaticFunctionTag*, TESObjectREFR* a_ref)
 	{
 		BSScript::VMArray<float> angles;
 		angles.resize(3);
 
-		if (ref)
-		{
-			angles[0] = ref->GetRotation().x * (180.0 / MATH_PI);
-			angles[1] = ref->GetRotation().y * (180.0 / MATH_PI);
-			angles[2] = ref->GetRotation().z * (180.0 / MATH_PI);
+		if (a_ref) {
+			angles[0] = a_ref->GetRotationX() * static_cast<float>(180.0 / M_PI);
+			angles[1] = a_ref->GetRotationY() * static_cast<float>(180.0 / M_PI);
+			angles[2] = a_ref->GetRotationZ() * static_cast<float>(180.0 / M_PI);
 		}
 
 		return angles;
 	}
 
-	bool PO3_SKSEFunctions::IsLoadDoor(StaticFunctionTag*, TESObjectREFR* thisDoor)
+
+	bool PO3_SKSEFunctions::IsLoadDoor(StaticFunctionTag*, TESObjectREFR* a_door)
 	{
-		if (thisDoor)
-		{
-			auto teleport = static_cast<ExtraTeleport*>(thisDoor->extraData.GetByType(ExtraDataType::kTeleport));
-			if (teleport)
-			{
+		if (a_door) {
+			if (a_door->extraList.HasType(ExtraDataType::kTeleport)) {
 				return true;
 			}
 		}
@@ -2986,70 +1851,18 @@ namespace RE
 		return false;
 	}
 
-	// internal checker
-	bool PO3_SKSEFunctions::CanItemBeTaken(InventoryEntryData* data, bool noEquipped, bool noFavourited, bool noQuestItem)
+
+	void PO3_SKSEFunctions::AddAllInventoryItemsToList(StaticFunctionTag*, TESObjectREFR* a_ref, BGSListForm* list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
-		if (data->extraLists)
-		{
-			for (auto& extraList : *data->extraLists)
-			{
-				if (noEquipped)
-				{
-					if (extraList->HasType(ExtraDataType::kWorn) || extraList->HasType(ExtraDataType::kWornLeft))
-					{
-						return false;
-					}
-				}
+		if (a_ref && list) {
+			auto changes = a_ref->GetInventoryChanges();
 
-				if (noFavourited)
-				{
-					if (extraList->HasType(ExtraDataType::kHotkey))
-					{
-						return false;
-					}
-				}
-
-				if (noQuestItem)
-				{
-					auto aliases = static_cast<ExtraAliasInstanceArray*>(extraList->GetByType(ExtraDataType::kAliasInstanceArray));
-
-					if (aliases)
-					{
-						for (auto& alias : aliases->aliasInfoArr)
-						{
-							TESQuest* quest = alias->quest;
-							BGSBaseAlias* refAlias = alias->alias;
-
-							if (quest && refAlias && refAlias->IsQuestObject())
-							{
-								return false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-
-	void PO3_SKSEFunctions::AddAllInventoryItemsToList(StaticFunctionTag*, TESObjectREFR* thisRef, BGSListForm* thisList, bool noEquipped, bool noFavourited, bool noQuestItem)
-	{
-		if (thisRef && thisList)
-		{
-			auto exChanges = static_cast<ExtraContainerChanges*>(thisRef->extraData.GetByType(ExtraDataType::kContainerChanges)); //loop through caster inventory
-			InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
-
-			if (changes && changes->entryList)
-			{
-				for (InventoryEntryData* data : *changes->entryList)
-				{
-					if (data && CanItemBeTaken(data, noEquipped, noFavourited, noQuestItem))
-					{
-						auto object = data->object;
-						if (object)
-						{
-							thisList->AddForm(object);
+			if (changes && changes->entryList) {
+				for (auto& entry : *changes->entryList) {
+					if (entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
+						auto object = entry->object;
+						if (object) {
+							list->AddForm(object);
 						}
 					}
 				}
@@ -3057,25 +1870,18 @@ namespace RE
 		}
 	}
 
-	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::AddAllInventoryItemsToArray(StaticFunctionTag*, TESObjectREFR* thisRef, bool noEquipped, bool noFavourited, bool noQuestItem)
+	BSScript::VMArray<TESForm*> PO3_SKSEFunctions::AddAllInventoryItemsToArray(StaticFunctionTag*, TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		BSScript::VMArray<TESForm*> result;
 		std::vector<TESForm*> vec;
 
-		if (thisRef)
-		{
-			auto exChanges = static_cast<ExtraContainerChanges*>(thisRef->extraData.GetByType(ExtraDataType::kContainerChanges)); //loop through caster inventory
-			InventoryChanges* changes = exChanges ? exChanges->changes : nullptr;
-
-			if (changes && changes->entryList)
-			{
-				for (InventoryEntryData* data : *changes->entryList)
-				{
-					if (data && CanItemBeTaken(data, noEquipped, noFavourited, noQuestItem))
-					{
-						auto object = data->object;
-						if (object)
-						{
+		if (a_ref) {
+			auto changes = a_ref->GetInventoryChanges();
+			if (changes && changes->entryList) {
+				for (auto& entry : *changes->entryList) {
+					if (entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
+						auto object = entry->object;
+						if (object) {
 							vec.push_back(object);
 						}
 					}
@@ -3088,210 +1894,193 @@ namespace RE
 	}
 
 	// replaces keyword on ref
-	void PO3_SKSEFunctions::ReplaceKeywordOnRef(StaticFunctionTag*, TESObjectREFR* thisRef, BGSKeyword* KYWDtoRemove, BGSKeyword* KYWDtoAdd)
+	void PO3_SKSEFunctions::ReplaceKeywordOnRef(StaticFunctionTag*, TESObjectREFR* a_ref, BGSKeyword* a_remove, BGSKeyword* a_add)
 	{
-		if (!thisRef || !KYWDtoRemove || !KYWDtoAdd)
-		{
+		if (!a_ref || !a_remove || !a_add) {
 			return;
 		}
 
-		auto pKeywords = skyrim_cast<BGSKeywordForm*>(thisRef->GetBaseObject());
-		if (pKeywords)
-		{
+		auto keywordForm = skyrim_cast<BGSKeywordForm*>(a_ref->GetBaseObject());
+		if (keywordForm) {
 			UInt32 removeIndex = 0;
-			BGSKeyword* thisKYWD = nullptr;
+			BGSKeyword* keyword = nullptr;
 			bool found = false;
 
-			for (size_t i = 0; i < pKeywords->numKeywords; i++)
-			{
-				thisKYWD = pKeywords->keywords[i];
-
-				if (thisKYWD)
-				{
-					if (thisKYWD->keyword.c_str() == KYWDtoAdd->keyword.c_str())
-					{
+			for (UInt32 i = 0; i < keywordForm->numKeywords; i++) {
+				keyword = keywordForm->keywords[i];
+				if (keyword) {
+					if (keyword->formEditorID == a_add->formEditorID) {
 						return;
 					}
-
-					if (thisKYWD->keyword.c_str() == KYWDtoRemove->keyword.c_str())
-					{
+					if (keyword->formEditorID == a_remove->formEditorID) {
 						removeIndex = i;
 						found = true;
 					}
 				}
 			}
-
-			if (found)
-			{
-				pKeywords->keywords[removeIndex] = KYWDtoAdd;
+			if (found) {
+				keywordForm->keywords[removeIndex] = a_add;
 			}
 		}
 	}
 
-	// adds keyword to form
-	void PO3_SKSEFunctions::AddKeywordToRef(StaticFunctionTag*, TESObjectREFR* thisRef, BGSKeyword* KYWDtoAdd)
+	void PO3_SKSEFunctions::AddKeywordToRef(StaticFunctionTag*, TESObjectREFR* a_ref, BGSKeyword* a_add)
 	{
-		if (!thisRef || !KYWDtoAdd || thisRef->HasKeywordHelper(KYWDtoAdd))
-		{
+		if (!a_ref || !a_ref->GetBaseObject() || !a_add) {
 			return;
 		}
+		auto singleton = Keywords::GetSingleton();
+		singleton->PapyrusApplyKeywords(a_ref->GetBaseObject(), a_add, Base::kAdd);
+	}
 
-		auto pKeywords = skyrim_cast<BGSKeywordForm*>(thisRef->GetBaseObject());
-		if (pKeywords)
-		{
-			auto oldData = pKeywords->keywords;
-
-			pKeywords->keywords = calloc<BGSKeyword*>(++pKeywords->numKeywords);
-			if (oldData)
-			{
-				for (UInt32 i = 0; i < pKeywords->numKeywords - 1; ++i)
-				{
-					pKeywords->keywords[i] = oldData[i];
-				}
-
-				pKeywords->keywords[pKeywords->numKeywords - 1] = KYWDtoAdd;
-
-				free(oldData);
-				oldData = nullptr;
-			}
+	bool PO3_SKSEFunctions::RemoveKeywordFromRef(StaticFunctionTag*, TESObjectREFR* a_ref, BGSKeyword* a_remove)
+	{
+		if (!a_ref || !a_remove) {
+			return false;
 		}
+		auto singleton = Keywords::GetSingleton();
+		return singleton->PapyrusApplyKeywords(a_ref->GetBaseObject(), a_remove, Base::kRemove);
 	}
 
 	//calculates a 2D vector
-	void PO3_SKSEFunctions::Apply2DHavokImpulse(StaticFunctionTag*, TESObjectREFR* source, TESObjectREFR* target, float afZ, float magnitude)
+	void PO3_SKSEFunctions::Apply2DHavokImpulse(StaticFunctionTag*, TESObjectREFR* a_src, TESObjectREFR* a_tgt, float a_Z, float a_magnitude)
 	{
-		if (!source || !target || !source->Is3DLoaded() || !target->Is3DLoaded())
-		{
+		if (!a_src || !a_tgt || !a_src->Is3DLoaded() || !a_tgt->Is3DLoaded()) {
 			return;
 		}
 
-		g_task->AddTask([source, target, afZ, magnitude]()
+		g_task->AddTask([a_src, a_tgt, a_Z, a_magnitude]()
 		{
+			float sourceZ = a_src->GetRotationZ() * static_cast <float>(180 / M_PI);
+			float angleZ = sourceZ + a_src->GetHeadingAngle(a_tgt);
+
 			auto vm = BSScript::Internal::VirtualMachine::GetSingleton();
-
-			float sourceZ = source->GetRotation().z * static_cast<float>(180.0 / MATH_PI);
-			float angleZ = sourceZ + GetHeadingAngle(vm, 0, source, target); //source.getanglez() + source.getheadingangle(target)
-
-			ApplyHavokImpulse(vm, 0, target, asinf(angleZ), acosf(angleZ), afZ, magnitude);
+			Papyrus::ApplyHavokImpulse(vm, 0, a_tgt, asinf(angleZ), acosf(angleZ), a_Z, a_magnitude);
 		});
 	}
 
-	//calculates a 3D vector and takes into account the elevation between source and target.
-	void PO3_SKSEFunctions::Apply3DHavokImpulse(StaticFunctionTag*, TESObjectREFR* source, TESObjectREFR* target, float magnitude)
+	//calculates a 3D vector and takes into account the elevation between a_src and a_tgt.
+	void PO3_SKSEFunctions::Apply3DHavokImpulse(StaticFunctionTag*, TESObjectREFR* a_src, TESObjectREFR* a_tgt, float a_magnitude)
 	{
-		if (!source || !target || !source->Is3DLoaded() || !target->Is3DLoaded())
-		{
+		if (!a_src || !a_tgt || !a_src->Is3DLoaded() || !a_tgt->Is3DLoaded()) {
 			return;
 		}
 
-		float dx = target->GetPosition().x - source->GetPosition().x;
-		float dy = target->GetPosition().y - source->GetPosition().y;
-		float dz = target->GetPosition().z - source->GetPosition().z;
+		float dx = a_tgt->GetPositionX() - a_src->GetPositionX();
+		float dy = a_tgt->GetPositionY() - a_src->GetPositionY();
+		float dz = a_tgt->GetPositionZ() - a_src->GetPositionZ();
 
-		float dist = CalcLinearDistance(target->GetPosition(), source->GetPosition());
+		float dist = CalcLinearDistance(a_tgt->GetPosition(), a_src->GetPosition());
 
 		float x = dx / dist; //x
 		float y = dy / dist; //y
 		float z = dz / dist; //z
 
-		g_task->AddTask([target, x, y, z, magnitude]()
+		g_task->AddTask([a_tgt, x, y, z, a_magnitude]()
 		{
-			ApplyHavokImpulse(BSScript::Internal::VirtualMachine::GetSingleton(), 0, target, x, y, z, magnitude);
+			auto vm = BSScript::Internal::VirtualMachine::GetSingleton();
+			Papyrus::ApplyHavokImpulse(vm, 0, a_tgt, x, y, z, a_magnitude);
 		});
 	}
 
-	//moves object to nearest navemesh location
-	void PO3_SKSEFunctions::MoveToNearestNavmeshLocation(StaticFunctionTag*, TESObjectREFR* target)
+
+	std::optional<NiPoint3> FindNearestVertex(TESObjectREFR* a_ref)
 	{
-		if (!target)
-		{
-			return;
+		auto cell = a_ref->GetParentCell();
+
+		if (!cell || !cell->navMeshes) {
+			return std::nullopt;
 		}
 
-		auto nearestVertex = FindNearestVertex(target);
-		if (!nearestVertex)
-		{
-			return;
+		auto& navMeshes = *cell->navMeshes;
+		auto shortestDistance = std::numeric_limits<float>::max();
+		std::optional<NiPoint3> pos = std::nullopt;
+
+		for (auto& navMesh : navMeshes.navMeshes) {
+			for (auto& vertex : navMesh->vertices) {
+				auto linearDistance = CalcLinearDistance(a_ref->GetPosition(), vertex.location);
+				if (linearDistance < shortestDistance) {
+					shortestDistance = linearDistance;
+					pos.emplace(vertex.location);
+				}
+			}
 		}
 
-		auto handle = target->CreateRefHandle();
+		return pos;
+	}
+
+
+	void PO3_SKSEFunctions::MoveToNearestNavmeshLocation(StaticFunctionTag*, TESObjectREFR* a_ref)
+	{
+		if (!a_ref) {
+			return;
+		}
+		auto nearestVertex = FindNearestVertex(a_ref);
+		if (!nearestVertex) {
+			return;
+		}
+		auto handle = a_ref->CreateRefHandle();
 		g_task->AddTask([handle, nearestVertex]()
 		{
 			auto ref = handle.get();
-			if (!ref || !ref.get())
-			{
+			if (!ref.get()) {
 				return;
 			}
-
 			ref->SetPosition(std::move(*nearestVertex));
 		});
 	}
 
-	BSScript::VMArray<TESEffectShader*> PO3_SKSEFunctions::GetAllEffectShaders(StaticFunctionTag*, TESObjectREFR* thisRef)
+
+	BSScript::VMArray<TESEffectShader*> PO3_SKSEFunctions::GetAllEffectShaders(StaticFunctionTag*, TESObjectREFR* a_ref)
 	{
 		BSScript::VMArray<TESEffectShader*> result;
 		std::vector<TESEffectShader*> vec;
 
-		if (thisRef)
-		{
+		if (a_ref) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
 					continue;
 				}
-
-				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(referenceEffect);
-				if (shaderEffect)
-				{
-					auto handle = thisRef->CreateRefHandle();
-					if (referenceEffect->refHandle == handle)
-					{
-						if (shaderEffect->effectShader)
-						{
-							vec.push_back(shaderEffect->effectShader);
+				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(tempEffect.get());
+				if (shaderEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (shaderEffect->target == handle) {
+						if (shaderEffect->effectData) {
+							vec.push_back(shaderEffect->effectData);
 						}
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
 		}
 
 		FillVMArray(vec, result);
 		return result;
 	}
 
-	UInt32 PO3_SKSEFunctions::HasEffectShader(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader, bool active)
+
+	UInt32 PO3_SKSEFunctions::HasEffectShader(StaticFunctionTag*, TESObjectREFR* a_ref, TESEffectShader* a_effectShader, bool a_active)
 	{
 		UInt32 effectShaderCount = 0;
 
-		if (thisRef && effectShader)
-		{
+		if (a_ref && a_effectShader) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
 					continue;
 				}
-
-				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(referenceEffect);
-				if (shaderEffect)
-				{
-					auto handle = thisRef->CreateRefHandle();
-					if (shaderEffect->refHandle == handle)
-					{
-						auto shader = shaderEffect->effectShader;
-
-						if (shader && shader == effectShader)
-						{
-							if (active && shaderEffect->unk40 == 1)
-							{
+				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(tempEffect.get());
+				if (shaderEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (shaderEffect->target == handle) {
+						auto effectData = shaderEffect->effectData;
+						if (effectData && effectData == a_effectShader) {
+							if (a_active && shaderEffect->finished == 1) {
 								continue;
 							}
 							effectShaderCount++;
@@ -3299,77 +2088,63 @@ namespace RE
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
 		}
 
 		return effectShaderCount;
 	}
 
-	BSScript::VMArray<BGSArtObject*> PO3_SKSEFunctions::GetAllArtObjects(StaticFunctionTag*, TESObjectREFR* thisRef)
+
+	BSScript::VMArray<BGSArtObject*> PO3_SKSEFunctions::GetAllArtObjects(StaticFunctionTag*, TESObjectREFR* a_ref)
 	{
 		BSScript::VMArray<BGSArtObject*> result;
 		std::vector<BGSArtObject*> vec;
 
-		if (thisRef)
-		{
+		if (a_ref) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
 					continue;
 				}
-
-				auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(referenceEffect);
-				if (modelEffect)
-				{
-					auto handle = thisRef->CreateRefHandle();
-					if (modelEffect->refHandle == handle)
-					{
-						if (modelEffect->artObject)
-						{
+				auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(tempEffect.get());
+				if (modelEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (modelEffect->target == handle) {
+						if (modelEffect->artObject) {
 							vec.push_back(modelEffect->artObject);
 						}
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
 		}
 
 		FillVMArray(vec, result);
 		return result;
 	}
 
-	UInt32 PO3_SKSEFunctions::HasArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject, bool active)
+
+	UInt32 PO3_SKSEFunctions::HasArtObject(StaticFunctionTag*, TESObjectREFR* a_ref, BGSArtObject* a_artObject, bool a_active)
 	{
 		UInt32 artObjectCount = 0;
 
-		if (thisRef && artObject)
-		{
+		if (a_ref && a_artObject) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
 					continue;
 				}
-
-				auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(referenceEffect);
-				if (modelEffect)
-				{
-					auto handle = thisRef->CreateRefHandle();
-					if (modelEffect->refHandle == handle)
-					{
-						auto art = modelEffect->artObject;
-
-						if (art && art == artObject)
-						{
-							if (active && modelEffect->unk40 == 1)
-							{
+				auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(tempEffect.get());
+				if (modelEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (modelEffect->target == handle) {
+						auto modelArt = modelEffect->artObject;
+						if (modelArt && modelArt == a_artObject) {
+							if (a_active && modelEffect->finished == 1) {
 								continue;
 							}
 							artObjectCount++;
@@ -3377,38 +2152,54 @@ namespace RE
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
 		}
 
 		return artObjectCount;
 	}
 
-	void PO3_SKSEFunctions::StopArtObject(StaticFunctionTag*, TESObjectREFR* thisRef, BGSArtObject* artObject)
+
+	void PO3_SKSEFunctions::StopArtObject(StaticFunctionTag*, TESObjectREFR* a_ref, BGSArtObject* a_artObject)
 	{
-		if (thisRef)
-		{
-			ProcessLists::GetSingleton()->StopArtObject(thisRef, artObject);
+		if (a_ref && a_artObject) {
+			auto singleton = ProcessLists::GetSingleton();
+
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
+					continue;
+				}
+				auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(tempEffect.get());
+				if (modelEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (modelEffect->target == handle) {
+						auto modelArt = modelEffect->artObject;
+						if (modelArt && modelArt == a_artObject) {
+							modelEffect->finished = 1;
+						}
+					}
+				}
+			}
+			singleton->magicEffectsLock.Unlock();
 		}
 	}
 
-	void PO3_SKSEFunctions::StopAllShaders(StaticFunctionTag*, TESObjectREFR* thisRef)
+
+	void PO3_SKSEFunctions::StopAllShaders(StaticFunctionTag*, TESObjectREFR* a_ref)
 	{
-		if (thisRef)
-		{
-			StopAllShaders_Internal(thisRef);
+		if (a_ref) {
+			a_ref->StopAllShaders();
 		}
 	}
 
-	Actor* PO3_SKSEFunctions::GetActorCause(StaticFunctionTag*, TESObjectREFR* thisRef)
+
+	Actor* PO3_SKSEFunctions::GetActorCause(StaticFunctionTag*, TESObjectREFR* a_ref)
 	{
-		if (thisRef)
-		{
-			auto actorCause = thisRef->GetActorCause();
-			if (actorCause)
-			{
-				auto actorPtr = Actor::LookupByHandle(actorCause->handle);
-				if (actorPtr && actorPtr.get())
-				{
+		if (a_ref) {
+			auto actorCause = a_ref->GetActorCause();
+			if (actorCause) {
+				auto actorPtr = actorCause->actor.get();
+				if (actorPtr.get()) {
 					return actorPtr.get();
 				}
 			}
@@ -3417,59 +2208,47 @@ namespace RE
 		return nullptr;
 	}
 
-	Actor* PO3_SKSEFunctions::GetClosestActorFromRef(StaticFunctionTag*, TESObjectREFR* thisRef, bool ignorePlayer)
+
+	Actor* PO3_SKSEFunctions::GetClosestActorFromRef(StaticFunctionTag*, TESObjectREFR* a_ref, bool a_ignorePlayer)
 	{
-		if (thisRef)
-		{
+		if (a_ref) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			if (ignorePlayer && singleton->numActorsInHighProcess == 0)
-			{
+			if (a_ignorePlayer && singleton->numberHighActors == 0) {
 				return nullptr;
 			}
 
-			const auto originPos = thisRef->GetPosition();
+			const auto originPos = a_ref->GetPosition();
 			auto shortestDistance = std::numeric_limits<float>::max();
 
 			std::map<Actor*, float> map;
 			NiPointer<Actor> actorPtr;
 
-			for (auto& actorHandle : singleton->highProcesses)
-			{
+			for (auto& actorHandle : singleton->highActorHandles) {
 				actorPtr = actorHandle.get();
-
-				if (actorPtr && actorPtr.get() && actorPtr.get() != thisRef)
-				{
+				if (actorPtr.get() && actorPtr.get() != a_ref) {
 					auto distance = CalcLinearDistance(originPos, actorPtr->GetPosition());
 					map.emplace(actorPtr.get(), distance);
 
-					if (distance < shortestDistance)
-					{
+					if (distance < shortestDistance) {
 						shortestDistance = distance;
 					}
 				}
 			}
-
 			auto player = PlayerCharacter::GetSingleton();
-
-			if (!ignorePlayer && thisRef != player)
-			{
+			if (!a_ignorePlayer && a_ref != player) {
 				auto distance = CalcLinearDistance(originPos, player->GetPosition());
 				map.emplace(player, distance);
 
-				if (distance < shortestDistance)
-				{
+				if (distance < shortestDistance) {
 					shortestDistance = distance;
 				}
 			}
-
 			auto it = std::find_if(map.begin(), map.end(), [shortestDistance](const auto& mo)
 			{
 				return mo.second == shortestDistance;
 			});
-
-			if (it != map.end())
-			{
+			if (it != map.end()) {
 				return it->first;
 			}
 		}
@@ -3477,48 +2256,38 @@ namespace RE
 		return nullptr;
 	}
 
-	Actor* PO3_SKSEFunctions::GetRandomActorFromRef(StaticFunctionTag*, TESObjectREFR* thisRef, float radius, bool ignorePlayer)
+
+	Actor* PO3_SKSEFunctions::GetRandomActorFromRef(StaticFunctionTag*, TESObjectREFR* a_ref, float a_radius, bool a_ignorePlayer)
 	{
-		if (thisRef)
-		{
+		if (a_ref) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			if (ignorePlayer && singleton->numActorsInHighProcess == 0)
-			{
+			if (a_ignorePlayer && singleton->numberHighActors == 0) {
 				return nullptr;
 			}
 
 			std::vector<Actor*> vec;
-			vec.reserve(singleton->numActorsInHighProcess);
+			vec.reserve(singleton->numberHighActors);
 
-			auto squaredRadius = radius * radius;
-			auto originPos = thisRef->GetPosition();
+			auto squaredRadius = a_radius * a_radius;
+			auto originPos = a_ref->GetPosition();
 
 			NiPointer<Actor> actorPtr;
-			for (auto& actorHandle : singleton->highProcesses)
-			{
+			for (auto& actorHandle : singleton->highActorHandles) {
 				actorPtr = actorHandle.get();
-
-				if (!actorPtr || !actorPtr.get() || actorPtr.get() == thisRef)
-				{
+				if (!actorPtr.get() || actorPtr.get() == a_ref) {
 					continue;
 				}
-
 				auto distance = CalcLinearDistance(originPos, actorPtr->GetPosition());
-				if (distance > squaredRadius)
-				{
+				if (distance > squaredRadius) {
 					continue;
 				}
-
 				vec.emplace_back(actorPtr.get());
 			}
-
 			auto player = PlayerCharacter::GetSingleton();
-			if (thisRef != player)
-			{
+			if (!a_ignorePlayer && a_ref != player) {
 				auto distance = CalcLinearDistance(originPos, player->GetPosition());
-				if (distance <= squaredRadius)
-				{
+				if (distance <= squaredRadius) {
 					vec.emplace_back(player);
 				}
 			}
@@ -3526,7 +2295,7 @@ namespace RE
 			std::random_device rd;
 			std::mt19937 engine{ rd() };
 
-			std::uniform_int_distribution<UInt32>dist(0, vec.size() - 1);
+			std::uniform_int_distribution<UInt32>dist(0, static_cast<UInt32>(vec.size()) - 1);
 
 			return vec.at(dist(engine));
 		}
@@ -3534,388 +2303,341 @@ namespace RE
 		return nullptr;
 	}
 
-	BSScript::VMArray<TESObjectREFR*> PO3_SKSEFunctions::FindAllReferencesOfType(StaticFunctionTag*, TESObjectREFR* ref, TESForm* formOrList, float radius)
+
+	BSScript::VMArray<TESObjectREFR*> PO3_SKSEFunctions::FindAllReferencesOfType(StaticFunctionTag*, TESObjectREFR* a_ref, TESForm* a_formOrList, float a_radius)
 	{
 		BSScript::VMArray<TESObjectREFR*> result;
 
-		if (!ref || !formOrList)
-		{
+		if (!a_ref || !a_formOrList) {
 			return result;
 		}
 
-		std::vector<NiPointer<TESObjectREFR>> vec;
+		std::vector<TESObjectREFR*> vec;
+		BGSListForm* formList = a_formOrList->formType == FormType::FormList ? static_cast<BGSListForm*>(a_formOrList) : nullptr;
 
-		BGSListForm* formList = nullptr;
-		if (formOrList->formType == FormType::FormList)
-		{
-			formList = static_cast<BGSListForm*>(formOrList);
-		}
+		auto refPos = a_ref->GetPosition();
+		auto squaredRadius = a_radius * a_radius;
 
-		auto refPos = ref->GetPosition();
-		auto squaredRadius = radius * radius;
 		auto singleton = TES::GetSingleton();
-
 		auto cell = singleton->currentInteriorCell;
-		if (cell)
-		{
-			cell->cellRefLock.Lock();
-			vec.reserve(cell->objectList.size());
-			for (auto& object : cell->objectMap)
-			{
-				if (object && object->GetBaseObject())
-				{
+
+		if (cell) {
+			cell->spinLock.Lock();
+			vec.reserve(cell->references.size());
+			for (auto& object : cell->references) {
+				if (object.get()) {
 					auto distance = CalcLinearDistance(refPos, object->GetPosition());
-					if (distance <= squaredRadius)
-					{
-						auto objectBaseForm = object->GetBaseObject();
-
-						if (formList)
-						{
-							for (auto& form : formList->forms)
-							{
-								if (form && form == objectBaseForm)
-								{
-									vec.emplace_back(object);
+					if (distance <= squaredRadius) {
+						auto base = object->GetBaseObject();
+						if (base) {
+							if (formList) {
+								for (auto& form : formList->forms) {
+									if (form && form == base) {
+										vec.emplace_back(object.get());
+									}
+								}
+								for (auto& formID : *formList->scriptAddedTempForms) {
+									auto form = TESForm::LookupByID(formID);
+									if (form && form == base) {
+										vec.emplace_back(object.get());
+									}
 								}
 							}
-							for (auto& formID : *formList->scriptAddedTempForms)
-							{
-								auto form = TESForm::LookupByID(formID);
-
-								if (form && form == objectBaseForm)
-								{
-									vec.emplace_back(object);
-								}
+							else if (a_formOrList == base) {
+								vec.emplace_back(object.get());
 							}
-						}
-						else if (formOrList == objectBaseForm)
-						{
-							vec.emplace_back(object);
 						}
 					}
 				}
 			}
-			cell->cellRefLock.Unlock();
+			cell->spinLock.Unlock();
 		}
-		else
-		{
+		else {
 			auto gridCellArray = singleton->gridCellArray;
 			auto gridLength = gridCellArray->length;
 
-			if (gridCellArray && gridLength > 0)
-			{
+			if (gridCellArray && gridLength > 0) {
 				UInt32 x = 0;
 				UInt32 y = 0;
 
-				float YplusRadius = refPos.y + radius;
-				float YminusRadius = refPos.y - radius;
-				float XplusRadius = refPos.x + radius;
-				float XminusRadius = refPos.x - radius;
+				float YplusRadius = refPos.y + a_radius;
+				float YminusRadius = refPos.y - a_radius;
+				float XplusRadius = refPos.x + a_radius;
+				float XminusRadius = refPos.x - a_radius;
 
-				for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++)
-				{
-					TESObjectCELL* cell = gridCellArray->GetCell(x, y);
-					if (cell && cell->IsAttached())
-					{
+				for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++) {
+					cell = gridCellArray->GetCell(x, y);
+
+					if (cell && cell->IsAttached()) {
 						auto cellCoords = cell->GetCoordinates();
-						if (cellCoords->worldX < XplusRadius && (cellCoords->worldX + 4096.0) > XminusRadius&& cellCoords->worldY < YplusRadius && (cellCoords->worldY + 4096.0) > YminusRadius)
-						{
-							cell->cellRefLock.Lock();
-							vec.reserve(cell->objectMap.size());
-							for (auto& object : cell->objectMap)
-							{
-								if (object && object->GetBaseObject())
-								{
+
+						if (cellCoords->worldX < XplusRadius && (cellCoords->worldX + 4096.0) > XminusRadius&& cellCoords->worldY < YplusRadius && (cellCoords->worldY + 4096.0) > YminusRadius) {
+							cell->spinLock.Lock();
+							vec.reserve(cell->references.size());
+							for (auto& object : cell->references) {
+								if (object.get()) {
 									auto distance = CalcLinearDistance(refPos, object->GetPosition());
-									if (distance <= squaredRadius)
-									{
-										auto objectBaseForm = object->GetBaseObject();
-
-										if (formList)
-										{
-											for (auto& form : formList->forms)
-											{
-												if (form && form == objectBaseForm)
-												{
-													vec.emplace_back(object);
+									if (distance <= squaredRadius) {
+										auto base = object->GetBaseObject();
+										if (base) {
+											if (formList) {
+												for (auto& form : formList->forms) {
+													if (form && form == base) {
+														vec.emplace_back(object.get());
+													}
+												}
+												for (auto& formID : *formList->scriptAddedTempForms) {
+													auto form = TESForm::LookupByID(formID);
+													if (form && form == base) {
+														vec.emplace_back(object.get());
+													}
 												}
 											}
-
-											for (auto& formID : *formList->scriptAddedTempForms)
-											{
-												auto form = TESForm::LookupByID(formID);
-
-												if (form && form == objectBaseForm)
-												{
-													vec.emplace_back(object);
-												}
+											else if (a_formOrList == base) {
+												vec.emplace_back(object.get());
 											}
-										}
-										else if (formOrList == objectBaseForm)
-										{
-											vec.emplace_back(object);
 										}
 									}
 								}
 							}
-							cell->cellRefLock.Unlock();
+							cell->spinLock.Unlock();
 						}
 					}
 				}
 			}
 		}
-		if (vec.empty())
-		{
+		if (vec.empty()) {
 			auto worldSpace = singleton->worldSpace;
-			if (worldSpace)
-			{
-				auto cell = worldSpace->GetOrCreateUnk0F8Cell();
-				if (cell)
-				{
-					cell->cellRefLock.Lock();
-					vec.reserve(cell->objectList.size());
-					for (auto& object : cell->objectMap)
-					{
-						if (object && object->GetBaseObject())
-						{
+			if (worldSpace) {
+				cell = worldSpace->GetOrCreateSkyCell();
+				if (cell) {
+					cell->spinLock.Lock();
+					vec.reserve(cell->references.size());
+					for (auto& object : cell->references) {
+						if (object.get()) {
 							auto distance = CalcLinearDistance(refPos, object->GetPosition());
-							if (distance <= squaredRadius)
-							{
-								auto objectBaseForm = object->GetBaseObject();
-
-								if (formList)
-								{
-									for (auto& form : formList->forms)
-									{
-										if (form && form == objectBaseForm)
-										{
-											vec.emplace_back(object);
+							if (distance <= squaredRadius) {
+								auto base = object->GetBaseObject();
+								if (base) {
+									if (formList) {
+										for (auto& form : formList->forms) {
+											if (form && form == base) {
+												vec.emplace_back(object.get());
+											}
+										}
+										for (auto& formID : *formList->scriptAddedTempForms) {
+											auto form = TESForm::LookupByID(formID);
+											if (form && form == base) {
+												vec.emplace_back(object.get());
+											}
 										}
 									}
-
-									for (auto& formID : *formList->scriptAddedTempForms)
-									{
-										auto form = TESForm::LookupByID(formID);
-
-										if (form && form == objectBaseForm)
-										{
-											vec.emplace_back(object);
-										}
+									else if (a_formOrList == base) {
+										vec.emplace_back(object.get());
 									}
-								}
-								else if (formOrList == objectBaseForm)
-								{
-									vec.emplace_back(object);
 								}
 							}
 						}
 					}
-					cell->cellRefLock.Unlock();
+					cell->spinLock.Unlock();
 				}
 			}
 		}
 
-		NiPtr_FillVMArray(vec, result);
+		FillVMArray(vec, result);
 		return result;
 	}
 
-	BSScript::VMArray<TESObjectREFR*> PO3_SKSEFunctions::FindAllReferencesWithKeyword(StaticFunctionTag*, TESObjectREFR* ref, BSScript::VMArray<BGSKeyword*> keywords, float radius, bool matchAll)
+
+	BSScript::VMArray<TESObjectREFR*> PO3_SKSEFunctions::FindAllReferencesWithKeyword(StaticFunctionTag*, TESObjectREFR* a_ref, BSScript::VMArray<BGSKeyword*> a_keywordArray, float a_radius, bool a_matchAll)
 	{
 		BSScript::VMArray<TESObjectREFR*> result;
 
-		if (!ref || keywords.empty())
-		{
+		if (!a_ref || a_keywordArray.empty()) {
 			return result;
 		}
 
-		std::vector<NiPointer<TESObjectREFR>> vec;
+		std::vector<TESObjectREFR*> vec;
 
-		NiPoint3 refPos = ref->GetPosition();
-		float squaredRadius = radius * radius;
+		NiPoint3 refPos = a_ref->GetPosition();
+		float squaredRadius = a_radius * a_radius;
+
 		auto singleton = TES::GetSingleton();
-
 		auto cell = singleton->currentInteriorCell;
-		if (cell)
-		{
-			cell->cellRefLock.Lock();
-			vec.reserve(cell->objectList.size());
-			for (auto& object : cell->objectList)
-			{
-				if (object && object->GetBaseObject())
-				{
+
+		if (cell) {
+			cell->spinLock.Lock();
+			vec.reserve(cell->references.size());
+			for (auto& object : cell->references) {
+				if (object.get() && object->GetBaseObject()) {
 					auto distance = CalcLinearDistance(refPos, object->GetPosition());
-					if (distance <= squaredRadius)
-					{
-						bool success = matchAll ? VerifyAllKeywords(object->GetBaseObject(), &keywords) : VerifyKeywords(object->GetBaseObject(), &keywords);
-						if (success)
-						{
-							vec.emplace_back(object);
+					if (distance <= squaredRadius) {
+						bool success = a_matchAll ? VerifyAllKeywords(object->GetBaseObject(), &a_keywordArray) : VerifyKeywords(object->GetBaseObject(), &a_keywordArray);
+						if (success) {
+							vec.emplace_back(object.get());
 						}
 					}
 				}
 			}
-			cell->cellRefLock.Unlock();
+			cell->spinLock.Unlock();
 		}
-		else
-		{
+		else {
 			auto gridCellArray = singleton->gridCellArray;
 			auto gridLength = gridCellArray->length;
 
-			if (gridCellArray && gridLength > 0)
-			{
+			if (gridCellArray && gridLength > 0) {
 				UInt32 x = 0;
 				UInt32 y = 0;
 
-				float YplusRadius = refPos.y + radius;
-				float YminusRadius = refPos.y - radius;
-				float XplusRadius = refPos.x + radius;
-				float XminusRadius = refPos.x - radius;
+				float YplusRadius = refPos.y + a_radius;
+				float YminusRadius = refPos.y - a_radius;
+				float XplusRadius = refPos.x + a_radius;
+				float XminusRadius = refPos.x - a_radius;
 
-				for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++)
-				{
-					TESObjectCELL* cell = gridCellArray->GetCell(x, y);
-					if (cell && cell->IsAttached())
-					{
+				for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++) {
+					cell = gridCellArray->GetCell(x, y);
+
+					if (cell && cell->IsAttached()) {
 						auto cellCoords = cell->GetCoordinates();
-						if (cellCoords->worldX < XplusRadius && (cellCoords->worldX + 4096.0) > XminusRadius&& cellCoords->worldY < YplusRadius && (cellCoords->worldY + 4096.0) > YminusRadius)
-						{
-							cell->cellRefLock.Lock();
-							vec.reserve(cell->objectMap.size());
-							for (auto& object : cell->objectMap)
-							{
-								if (object && object->GetBaseObject())
-								{
+						if (cellCoords->worldX < XplusRadius && (cellCoords->worldX + 4096.0) > XminusRadius&& cellCoords->worldY < YplusRadius && (cellCoords->worldY + 4096.0) > YminusRadius) {
+							cell->spinLock.Lock();
+							vec.reserve(cell->references.size());
+							for (auto& object : cell->references) {
+								if (object.get() && object->GetBaseObject()) {
 									auto distance = CalcLinearDistance(refPos, object->GetPosition());
-									if (distance <= squaredRadius)
-									{
-										bool success = matchAll ? VerifyAllKeywords(object->GetBaseObject(), &keywords) : VerifyKeywords(object->GetBaseObject(), &keywords);
-										if (success)
-										{
-											vec.emplace_back(object);
+									if (distance <= squaredRadius) {
+										bool success = a_matchAll ? VerifyAllKeywords(object->GetBaseObject(), &a_keywordArray) : VerifyKeywords(object->GetBaseObject(), &a_keywordArray);
+										if (success) {
+											vec.emplace_back(object.get());
 										}
 									}
 								}
 							}
-							cell->cellRefLock.Unlock();
+							cell->spinLock.Unlock();
 						}
 					}
 				}
 			}
 		}
-		if (vec.empty())
-		{
+		if (vec.empty()) {
 			auto worldSpace = singleton->worldSpace;
-			if (worldSpace)
-			{
-				auto cell = worldSpace->GetOrCreateUnk0F8Cell();
-				if (cell)
-				{
-					cell->cellRefLock.Lock();
-					vec.reserve(cell->objectList.size());
-					for (auto& object : cell->objectList)
-					{
-						if (object && object->GetBaseObject())
-						{
+			if (worldSpace) {
+				cell = worldSpace->GetOrCreateSkyCell();
+				if (cell) {
+					cell->spinLock.Lock();
+					vec.reserve(cell->references.size());
+					for (auto& object : cell->references) {
+						if (object.get() && object->GetBaseObject()) {
 							auto distance = CalcLinearDistance(refPos, object->GetPosition());
-							if (distance <= squaredRadius)
-							{
-								bool success = matchAll ? VerifyAllKeywords(object->GetBaseObject(), &keywords) : VerifyKeywords(object->GetBaseObject(), &keywords);
-								if (success)
-								{
-									vec.emplace_back(object);
+							if (distance <= squaredRadius) {
+								bool success = a_matchAll ? VerifyAllKeywords(object->GetBaseObject(), &a_keywordArray) : VerifyKeywords(object->GetBaseObject(), &a_keywordArray);
+								if (success) {
+									vec.emplace_back(object.get());
 								}
 							}
 						}
 					}
-					cell->cellRefLock.Unlock();
+					cell->spinLock.Unlock();
 				}
 			}
 		}
 
-		NiPtr_FillVMArray(vec, result);
+		FillVMArray(vec, result);
 		return result;
 	}
 
-	float PO3_SKSEFunctions::GetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader)
+
+	float PO3_SKSEFunctions::GetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* a_ref, TESEffectShader* a_effectShader)
 	{
 		float time = 0.0;
 
-		if (thisRef && effectShader)
-		{
+		if (a_ref && a_effectShader) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
 					continue;
 				}
+				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(tempEffect.get());
+				if (shaderEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (shaderEffect->target == handle) {
+						auto effectData = shaderEffect->effectData;
 
-				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(referenceEffect);
-				if (shaderEffect)
-				{
-					auto handle = thisRef->CreateRefHandle();
-					if (shaderEffect->refHandle == handle)
-					{
-						auto shader = shaderEffect->effectShader;
-
-						if (shader && shader == effectShader)
-						{
-							time = shaderEffect->time;
+						if (effectData && effectData == a_effectShader) {
+							time = shaderEffect->lifetime;
 							break;
 						}
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
 		}
 
 		return time;
 	}
 
-	void PO3_SKSEFunctions::SetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* thisRef, TESEffectShader* effectShader, float time, bool absolute)
+
+	void PO3_SKSEFunctions::SetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* a_ref, TESEffectShader* a_effectShader, float a_time, bool a_absolute)
 	{
-		if (thisRef && effectShader)
-		{
+		if (a_ref && a_effectShader) {
 			auto singleton = ProcessLists::GetSingleton();
 
-			singleton->referenceEffectsLock.Lock();
-			for (auto& referenceEffect : singleton->referenceEffects)
-			{
-				if (!referenceEffect)
-				{
+			singleton->magicEffectsLock.Lock();
+			for (auto& tempEffect : singleton->magicEffects) {
+				if (!tempEffect.get()) {
 					continue;
 				}
-
-				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(referenceEffect);
-				if (shaderEffect)
-				{
-					auto handle = thisRef->CreateRefHandle();
-					if (shaderEffect->refHandle == handle)
-					{
-						auto shader = shaderEffect->effectShader;
-
-						if (shader && shader == effectShader)
-						{
-							if (!absolute)
-							{
-								float value = shaderEffect->time + time;
-								if (value >= -1.0)
-								{
-									shaderEffect->time = time;
+				auto shaderEffect = netimmerse_cast<ShaderReferenceEffect*>(tempEffect.get());
+				if (shaderEffect) {
+					auto handle = a_ref->CreateRefHandle();
+					if (shaderEffect->target == handle) {
+						auto effectData = shaderEffect->effectData;
+						if (effectData && effectData == a_effectShader) {
+							if (!a_absolute) {
+								float value = shaderEffect->lifetime + a_time;
+								if (value >= -1.0) {
+									shaderEffect->lifetime = a_time;
 								}
 							}
-							else
-							{
-								shaderEffect->time = time;
+							else {
+								shaderEffect->lifetime = a_time;
 							}
 							break;
 						}
 					}
 				}
 			}
-			singleton->referenceEffectsLock.Unlock();
+			singleton->magicEffectsLock.Unlock();
+		}
+	}
+
+
+	void PO3_SKSEFunctions::SetupBodyPartGeometry(StaticFunctionTag*, TESObjectREFR* a_miscItem, Actor* a_actor)
+	{
+		if (a_actor && a_miscItem && a_miscItem->Get3D()) {
+			auto actorbase = a_actor->GetActorBase();
+			auto root = a_miscItem->Get3D()->AsFadeNode();
+			if (actorbase && root) {
+				NiIntegersExtraData* data = nullptr;
+				auto actorRoot = a_actor->Get3D(0);
+				if (actorRoot) {
+					data = static_cast<NiIntegersExtraData*>(actorRoot->GetExtraData(BSFixedString("PO3_SKINTINT")));
+				}
+				NiColor color;
+				if (data) {
+					color.red = data->value[0] / static_cast<float>(255.0);
+					color.green = data->value[1] / static_cast<float>(255.0);
+					color.blue = data->value[2] / static_cast<float>(255.0);
+				}
+				else {
+					color.red = actorbase->bodyTintColor.red / static_cast<float>(255.0);
+					color.green = actorbase->bodyTintColor.green / static_cast<float>(255.0);
+					color.blue = actorbase->bodyTintColor.blue / static_cast<float>(255.0);
+				}
+				root->UpdateBodyTint(color);
+			}
 		}
 	}
 
@@ -3923,98 +2645,101 @@ namespace RE
 	// PACKAGE
 	//--------------------------------------------------------------------------------------------
 
-	SInt32 PO3_SKSEFunctions::GetPackageType(StaticFunctionTag*, TESPackage* package)
+	SInt32 PO3_SKSEFunctions::GetPackageType(StaticFunctionTag*, TESPackage* a_package)
 	{
-		return package ? static_cast<UInt32>(package->packData.type) : -1;
+		return a_package ? static_cast<UInt32>(a_package->packData.packType) : -1;
 	}
 
 	//--------------------------------------------------------------------------------------------
 	// PROJECTILE
 	//--------------------------------------------------------------------------------------------
 
-	float PO3_SKSEFunctions::GetProjectileSpeed(StaticFunctionTag*, BGSProjectile* thisProjectile)
+	float PO3_SKSEFunctions::GetProjectileSpeed(StaticFunctionTag*, BGSProjectile* a_projectile)
 	{
-		return thisProjectile ? thisProjectile->data.speed : 0.0;
+		return a_projectile ? a_projectile->data.speed : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetProjectileSpeed(StaticFunctionTag*, BGSProjectile* thisProjectile, float speed)
+
+	void PO3_SKSEFunctions::SetProjectileSpeed(StaticFunctionTag*, BGSProjectile* a_projectile, float a_speed)
 	{
-		if (thisProjectile)
-		{
-			thisProjectile->data.speed = speed;
+		if (a_projectile) {
+			a_projectile->data.speed = a_speed;
 		}
 	}
 
-	float PO3_SKSEFunctions::GetProjectileRange(StaticFunctionTag*, BGSProjectile* thisProjectile)
+
+	float PO3_SKSEFunctions::GetProjectileRange(StaticFunctionTag*, BGSProjectile* a_projectile)
 	{
-		return thisProjectile ? thisProjectile->data.range : 0.0;
+		return a_projectile ? a_projectile->data.range : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetProjectileRange(StaticFunctionTag*, BGSProjectile* thisProjectile, float range)
+
+	void PO3_SKSEFunctions::SetProjectileRange(StaticFunctionTag*, BGSProjectile* a_projectile, float a_range)
 	{
-		if (thisProjectile)
-		{
-			thisProjectile->data.range = range;
+		if (a_projectile) {
+			a_projectile->data.range = a_range;
 		}
 	}
 
-	float PO3_SKSEFunctions::GetProjectileGravity(StaticFunctionTag*, BGSProjectile* thisProjectile)
+
+	float PO3_SKSEFunctions::GetProjectileGravity(StaticFunctionTag*, BGSProjectile* a_projectile)
 	{
-		return thisProjectile ? thisProjectile->data.gravity : 0.0;
+		return a_projectile ? a_projectile->data.gravity : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetProjectileGravity(StaticFunctionTag*, BGSProjectile* thisProjectile, float gravity)
+
+	void PO3_SKSEFunctions::SetProjectileGravity(StaticFunctionTag*, BGSProjectile* a_projectile, float a_gravity)
 	{
-		if (thisProjectile)
-		{
-			thisProjectile->data.gravity = gravity;
+		if (a_projectile) {
+			a_projectile->data.gravity = a_gravity;
 		}
 	}
 
-	float PO3_SKSEFunctions::GetProjectileImpactForce(StaticFunctionTag*, BGSProjectile* thisProjectile)
+
+	float PO3_SKSEFunctions::GetProjectileImpactForce(StaticFunctionTag*, BGSProjectile* a_projectile)
 	{
-		return thisProjectile ? thisProjectile->data.impactForce : 0.0;
+		return a_projectile ? a_projectile->data.force : static_cast <float>(0.0);
 	}
 
-	void PO3_SKSEFunctions::SetProjectileImpactForce(StaticFunctionTag*, BGSProjectile* thisProjectile, float impactForce)
+
+	void PO3_SKSEFunctions::SetProjectileImpactForce(StaticFunctionTag*, BGSProjectile* a_projectile, float a_force)
 	{
-		if (thisProjectile)
-		{
-			thisProjectile->data.impactForce = impactForce;
+		if (a_projectile) {
+			a_projectile->data.force = a_force;
 		}
 	}
 
-	UInt32 PO3_SKSEFunctions::GetProjectileType(StaticFunctionTag*, BGSProjectile* thisProjectile)
-	{
-		if (thisProjectile)
-		{
-			const auto types = thisProjectile->data.types;
 
-			if ((types & BGSProjectile::Data::Type::kMissile) == BGSProjectile::Data::Type::kMissile) //Missile
+	UInt32 PO3_SKSEFunctions::GetProjectileType(StaticFunctionTag*, BGSProjectile* a_projectile)
+	{
+		if (a_projectile) {
+			const auto types = a_projectile->data.types;
+
+			if ((types & BGSProjectileData::Type::kMissile) == BGSProjectileData::Type::kMissile) //Missile
 			{
 				return 1;
 			}
-			if ((types & BGSProjectile::Data::Type::kLobber) == BGSProjectile::Data::Type::kLobber) //Lobber (runes)
+			if ((types & BGSProjectileData::Type::kGrenade) == BGSProjectileData::Type::kGrenade) //Lobber (runes)
 			{
 				return 2;
 			}
-			if ((types & BGSProjectile::Data::Type::kBeam) == BGSProjectile::Data::Type::kBeam) //Beam
+			if ((types & BGSProjectileData::Type::kBeam) == BGSProjectileData::Type::kBeam) //Beam
 			{
 				return 3;
 			}
-			if ((types & BGSProjectile::Data::Type::kFlame) == BGSProjectile::Data::Type::kFlame) //Flame
+			if ((types & BGSProjectileData::Type::kFlamethrower) == BGSProjectileData::Type::kFlamethrower) //Flame
 			{
 				return 4;
 			}
-			if ((types & BGSProjectile::Data::Type::kCone) == BGSProjectile::Data::Type::kCone) //Cone
+			if ((types & BGSProjectileData::Type::kCone) == BGSProjectileData::Type::kCone) //Cone
 			{
 				return 5;
 			}
-			if ((types & BGSProjectile::Data::Type::kBarrier) == BGSProjectile::Data::Type::kBarrier) //Barrier
+			if ((types & BGSProjectileData::Type::kBarrier) == BGSProjectileData::Type::kBarrier) //Barrier
 			{
 				return 6;
 			}
-			if ((types & BGSProjectile::Data::Type::kArrow) == BGSProjectile::Data::Type::kArrow) //Arrow
+			if ((types & BGSProjectileData::Type::kArrow) == BGSProjectileData::Type::kArrow) //Arrow
 			{
 				return 7;
 			}
@@ -4027,11 +2752,10 @@ namespace RE
 	// SOUND
 	//--------------------------------------------------------------------------------------------
 
-	void PO3_SKSEFunctions::SetSoundDescriptor(StaticFunctionTag*, TESSound* thisSound, BGSSoundDescriptorForm* thisSoundDescriptor)
+	void PO3_SKSEFunctions::SetSoundDescriptor(StaticFunctionTag*, TESSound* a_sound, BGSSoundDescriptorForm* a_soundDescriptor)
 	{
-		if (thisSound && thisSoundDescriptor)
-		{
-			thisSound->soundDescriptor = thisSoundDescriptor;
+		if (a_sound && a_soundDescriptor) {
+			a_sound->descriptor = a_soundDescriptor;
 		}
 	}
 
@@ -4039,62 +2763,75 @@ namespace RE
 	// SPELL
 	//--------------------------------------------------------------------------------------------
 
-	UInt32 PO3_SKSEFunctions::GetSpellType(StaticFunctionTag*, SpellItem* thisSpell)
+	UInt32 PO3_SKSEFunctions::GetSpellType(StaticFunctionTag*, SpellItem* a_spell)
 	{
-		return thisSpell ? static_cast<UInt32>(thisSpell->data.type) : 0;
+		return a_spell ? static_cast<UInt32>(a_spell->data.spellType) : 0;
+	}
+
+
+	bool PO3_SKSEFunctions::HasActiveSpell(StaticFunctionTag*, Actor* a_actor, SpellItem* a_spell)
+	{
+		using AE = ActiveEffect::Flag;
+
+		if (a_actor && a_spell) {
+			auto activeEffects = a_actor->GetActiveEffectList();
+			if (activeEffects) {
+				for (auto& ae : *activeEffects) {
+					if (ae && ae->spell == a_spell) {
+						if ((ae->flags & AE::kInactive) != AE::kInactive && (ae->flags & AE::kDispelled) != AE::kDispelled) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	//--------------------------------------------------------------------------------------------
 	// VISUALEFFECT
 	//--------------------------------------------------------------------------------------------
 
-	BGSArtObject* PO3_SKSEFunctions::GetArtObject(StaticFunctionTag*, BGSReferenceEffect* visualEffect)
+	BGSArtObject* PO3_SKSEFunctions::GetArtObject(StaticFunctionTag*, BGSReferenceEffect* a_vfx)
 	{
-		return visualEffect ? visualEffect->data.artObject : nullptr;
+		return a_vfx ? a_vfx->data.artObject : nullptr;
 	}
 
-	void PO3_SKSEFunctions::SetArtObject(StaticFunctionTag*, BGSReferenceEffect* visualEffect, BGSArtObject* art)
+
+	void PO3_SKSEFunctions::SetArtObject(StaticFunctionTag*, BGSReferenceEffect* a_vfx, BGSArtObject* a_art)
 	{
-		if (visualEffect && art)
-		{
-			visualEffect->data.artObject = art;
+		if (a_vfx && a_art) {
+			a_vfx->data.artObject = a_art;
 		}
 	}
 
-	UInt32 PO3_SKSEFunctions::GetArtObjectTotalCount(StaticFunctionTag*, BGSReferenceEffect* visualEffect, bool active)
+
+	UInt32 PO3_SKSEFunctions::GetArtObjectTotalCount(StaticFunctionTag*, BGSReferenceEffect* a_vfx, bool a_active)
 	{
 		UInt32 count = 0;
 
-		if (visualEffect)
-		{
-			auto artObject = visualEffect->data.artObject;
-			if (artObject)
-			{
+		if (a_vfx) {
+			auto visualArt = a_vfx->data.artObject;
+			if (visualArt) {
 				auto singleton = ProcessLists::GetSingleton();
 
-				singleton->referenceEffectsLock.Lock();
-				for (auto& referenceEffect : singleton->referenceEffects)
-				{
-					if (!referenceEffect)
-					{
+				singleton->magicEffectsLock.Lock();
+				for (auto& tempEffect : singleton->magicEffects) {
+					if (!tempEffect || !tempEffect.get()) {
 						continue;
 					}
-
-					auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(referenceEffect);
-					if (modelEffect)
-					{
-						auto art = modelEffect->artObject;
-						if (art && art == artObject)
-						{
-							if (active && modelEffect->unk40 == 1)
-							{
+					auto modelEffect = netimmerse_cast<ModelReferenceEffect*>(tempEffect.get());
+					if (modelEffect) {
+						auto modelArt = modelEffect->artObject;
+						if (modelArt && modelArt == visualArt) {
+							if (a_active && modelEffect->finished == 1) {
 								continue;
 							}
 							count++;
 						}
 					}
 				}
-				singleton->referenceEffectsLock.Unlock();
+				singleton->magicEffectsLock.Unlock();
 			}
 		}
 
@@ -4106,49 +2843,42 @@ namespace RE
 	//--------------------------------------------------------------------------------------------
 
 	//returns wind speed from 0-255 (how it's set up in the weather form)
-	UInt32 PO3_SKSEFunctions::GetWindSpeedAsInt(StaticFunctionTag*, TESWeather* thisWeather)
+	UInt32 PO3_SKSEFunctions::GetWindSpeedAsInt(StaticFunctionTag*, TESWeather* a_weather)
 	{
-		return thisWeather ? thisWeather->data.windSpeed : 0;
+		return a_weather ? a_weather->data.windSpeed : 0;
 	}
+
 
 	//returns wind speed from 0.0-1.0 (how it's set up in the CK)
-	float PO3_SKSEFunctions::GetWindSpeedAsFloat(StaticFunctionTag*, TESWeather* thisWeather)
+	float PO3_SKSEFunctions::GetWindSpeedAsFloat(StaticFunctionTag*, TESWeather* a_weather)
 	{
-		return thisWeather ? static_cast<float>(thisWeather->data.windSpeed / 255.0) : 0.0;
+		return a_weather ? a_weather->data.windSpeed / static_cast <float>(255.0) : static_cast <float>(0.0);
 	}
 
-	SInt32 PO3_SKSEFunctions::GetWeatherType(StaticFunctionTag*, TESWeather* thisWeather)
+
+	SInt32 PO3_SKSEFunctions::GetWeatherType(StaticFunctionTag*, TESWeather* a_weather)
 	{
 		TESWeather* currentWeather = nullptr;
 
-		if (thisWeather)
-		{
-			currentWeather = thisWeather;
+		if (a_weather) {
+			currentWeather = a_weather;
 		}
-
-		if (!currentWeather)
-		{
+		if (!currentWeather) {
 			currentWeather = Sky::GetSingleton()->currentWeather;
 		}
-
-		if (currentWeather)
-		{
+		if (currentWeather) {
 			const auto flags = currentWeather->data.flags;
 
-			if ((flags & TESWeather::Data::Flag::kWeather_Pleasant) != TESWeather::Data::Flag::kNone)
-			{
+			if ((flags & TESWeather::WeatherDataFlag::kPleasant) != TESWeather::WeatherDataFlag::kNone) {
 				return 0;
 			}
-			if ((flags & TESWeather::Data::Flag::kWeather_Cloudy) != TESWeather::Data::Flag::kNone)
-			{
+			if ((flags & TESWeather::WeatherDataFlag::kCloudy) != TESWeather::WeatherDataFlag::kNone) {
 				return 1;
 			}
-			if ((flags & TESWeather::Data::Flag::kWeather_Rainy) != TESWeather::Data::Flag::kNone)
-			{
+			if ((flags & TESWeather::WeatherDataFlag::kRainy) != TESWeather::WeatherDataFlag::kNone) {
 				return 2;
 			}
-			if ((flags & TESWeather::Data::Flag::kWeather_Snowy) != TESWeather::Data::Flag::kNone)
-			{
+			if ((flags & TESWeather::WeatherDataFlag::kSnow) != TESWeather::WeatherDataFlag::kNone) {
 				return 3;
 			}
 		}
@@ -4163,8 +2893,7 @@ namespace RE
 	// Tell the game about the new functions.
 	bool PO3_SKSEFunctions::Register(BSScript::Internal::VirtualMachine* a_vm)
 	{
-		if (!a_vm)
-		{
+		if (!a_vm) {
 			_MESSAGE("couldn't get VMState");
 			return false;
 		}
@@ -4197,7 +2926,14 @@ namespace RE
 		a_vm->RegisterFunction("SetActorRefraction", "PO3_SKSEFunctions", SetActorRefraction);
 		a_vm->RegisterFunction("GetActorState", "PO3_SKSEFunctions", GetActorState);
 		a_vm->RegisterFunction("InstantKill", "PO3_SKSEFunctions", InstantKill);
+		a_vm->RegisterFunction("AddBasePerk", "PO3_SKSEFunctions", AddBasePerk);
+		a_vm->RegisterFunction("RemoveBasePerk", "PO3_SKSEFunctions", RemoveBasePerk);
 		//a_vm->RegisterFunction("SetShaderType", "PO3_SKSEFunctions", SetShaderType);
+
+		a_vm->RegisterFunction("AddBaseSpell", "PO3_SKSEFunctions", AddBaseSpell);
+		a_vm->RegisterFunction("RemoveBaseSpell", "PO3_SKSEFunctions", RemoveBaseSpell);
+		a_vm->RegisterFunction("GetPerkCount", "PO3_SKSEFunctions", GetPerkCount);
+		a_vm->RegisterFunction("GetNthPerk", "PO3_SKSEFunctions", GetNthPerk);
 
 		a_vm->RegisterFunction("AddStringToArray", "PO3_SKSEFunctions", AddStringToArray);
 		a_vm->RegisterFunction("AddActorToArray", "PO3_SKSEFunctions", AddActorToArray);
@@ -4215,8 +2951,9 @@ namespace RE
 
 		a_vm->RegisterFunction("ReplaceKeywordOnForm", "PO3_SKSEFunctions", ReplaceKeywordOnForm);
 		a_vm->RegisterFunction("AddKeywordToForm", "PO3_SKSEFunctions", AddKeywordToForm);
+		a_vm->RegisterFunction("RemoveKeywordOnForm", "PO3_SKSEFunctions", RemoveKeywordOnForm);
 
-		a_vm->RegisterFunction("IsPluginFound", "PO3_SKSEFunctions", IsPluginFound, BSScript::IVirtualMachine::FunctionFlag::kNoWait);
+		a_vm->RegisterFunction("IsPluginFound", "PO3_SKSEFunctions", IsPluginFound, true);
 		a_vm->RegisterFunction("GetAllSpellsInMod", "PO3_SKSEFunctions", GetAllSpellsInMod);
 		a_vm->RegisterFunction("GetAllRacesInMod", "PO3_SKSEFunctions", GetAllRacesInMod);
 		a_vm->RegisterFunction("AddAllGameSpellsToList", "PO3_SKSEFunctions", AddAllGameSpellsToList);
@@ -4240,8 +2977,8 @@ namespace RE
 		a_vm->RegisterFunction("GetParentLocation", "PO3_SKSEFunctions", GetParentLocation);
 		a_vm->RegisterFunction("SetParentLocation", "PO3_SKSEFunctions", SetParentLocation);
 
-		a_vm->RegisterFunction("GenerateRandomFloat", "PO3_SKSEFunctions", GenerateRandomFloat, BSScript::IVirtualMachine::FunctionFlag::kNoWait);
-		a_vm->RegisterFunction("GenerateRandomInt", "PO3_SKSEFunctions", GenerateRandomInt, BSScript::IVirtualMachine::FunctionFlag::kNoWait);
+		a_vm->RegisterFunction("GenerateRandomFloat", "PO3_SKSEFunctions", GenerateRandomFloat, true);
+		a_vm->RegisterFunction("GenerateRandomInt", "PO3_SKSEFunctions", GenerateRandomInt, true);
 
 		a_vm->RegisterFunction("GetAllActiveEffectsOnActor", "PO3_SKSEFunctions", GetAllActiveEffectsOnActor);
 		a_vm->RegisterFunction("HasMagicEffectWithArchetype", "PO3_SKSEFunctions", HasMagicEffectWithArchetype);
@@ -4258,6 +2995,7 @@ namespace RE
 		a_vm->RegisterFunction("AddAllEquippedItemsToArray", "PO3_SKSEFunctions", AddAllEquippedItemsToArray);
 		a_vm->RegisterFunction("ReplaceKeywordOnRef", "PO3_SKSEFunctions", ReplaceKeywordOnRef);
 		a_vm->RegisterFunction("AddKeywordToRef", "PO3_SKSEFunctions", AddKeywordToRef);
+		a_vm->RegisterFunction("RemoveKeywordFromRef", "PO3_SKSEFunctions", RemoveKeywordFromRef);
 		a_vm->RegisterFunction("Apply2DHavokImpulse", "PO3_SKSEFunctions", Apply2DHavokImpulse);
 		a_vm->RegisterFunction("Apply3DHavokImpulse", "PO3_SKSEFunctions", Apply3DHavokImpulse);
 		a_vm->RegisterFunction("MoveToNearestNavmeshLocation", "PO3_SKSEFunctions", MoveToNearestNavmeshLocation);
@@ -4274,6 +3012,7 @@ namespace RE
 		a_vm->RegisterFunction("FindAllReferencesWithKeyword", "PO3_SKSEFunctions", FindAllReferencesWithKeyword);
 		a_vm->RegisterFunction("GetEffectShaderDuration", "PO3_SKSEFunctions", GetEffectShaderDuration);
 		a_vm->RegisterFunction("SetEffectShaderDuration", "PO3_SKSEFunctions", SetEffectShaderDuration);
+		a_vm->RegisterFunction("SetupBodyPartGeometry", "PO3_SKSEFunctions", SetupBodyPartGeometry);
 
 		a_vm->RegisterFunction("GetPackageType", "PO3_SKSEFunctions", GetPackageType);
 
@@ -4290,6 +3029,7 @@ namespace RE
 		a_vm->RegisterFunction("SetSoundDescriptor", "PO3_SKSEFunctions", SetSoundDescriptor);
 
 		a_vm->RegisterFunction("GetSpellType", "PO3_SKSEFunctions", GetSpellType);
+		a_vm->RegisterFunction("HasActiveSpell", "PO3_SKSEFunctions", HasActiveSpell);
 
 		a_vm->RegisterFunction("GetArtObject", "PO3_SKSEFunctions", GetArtObject);
 		a_vm->RegisterFunction("SetArtObject", "PO3_SKSEFunctions", SetArtObject);

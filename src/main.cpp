@@ -3,10 +3,11 @@
 
 
 const SKSE::TaskInterface* g_task = nullptr;
-RE::BGSKeyword* g_npcKeyword = nullptr;
-RE::BGSArtObject* g_soulTrapArt = nullptr;
+const RE::BGSKeyword* g_npcKeyword = nullptr;
+const RE::BGSArtObject* g_soulTrapArt = nullptr;
+std::vector<RE::BGSBipedObjectForm::BipedObjectSlot> fxSlots;
 
-float version;
+constexpr float version = static_cast<float>(2.50);
 
 //----------------------------------------------------------------------------------------
 
@@ -129,6 +130,10 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
 		g_npcKeyword = static_cast<RE::BGSKeyword*>(RE::BGSDefaultObjectManager::GetSingleton()->GetObject(RE::DEFAULT_OBJECTS::kKeywordNPC));
 		g_soulTrapArt = RE::TESForm::LookupByID<RE::BGSArtObject>(RE::ArtSoulTrapTargetEffectsID);
+
+		using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
+
+		fxSlots = { Slot::kModMouth, Slot::kModChestPrimary, Slot::kModPelvisPrimary, Slot::kModLegRight, Slot::kModChestSecondary, Slot::kModArmRight };
 	}
 }
 
@@ -146,7 +151,7 @@ extern "C" {
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "powerofthree's PapyrusExtender for SSE";
-		version = a_info->version = static_cast<float>(2.4);
+		a_info->version = version;
 
 		if (a_skse->IsEditor()) {
 			_FATALERROR("Loaded in editor, marking as incompatible!\n");

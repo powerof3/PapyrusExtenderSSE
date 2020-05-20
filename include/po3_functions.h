@@ -27,11 +27,56 @@ namespace RE
 {
 	static constexpr FormID ArtSoulTrapTargetEffectsID = 0x000506D6;
 
+	//--------------------------------------------------------------------------------------------
+
+	class Random
+	{
+		std::mt19937 twister;
+	public:
+		static Random* GetSingleton()
+		{
+			static Random singleton;
+			return &singleton;
+		}
+		
+		UInt32 operator() (UInt32 min_val, UInt32 max_val)
+		{
+			std::uniform_int_distribution<UInt32> distr(min_val, max_val);
+			return distr(twister);
+		}
+
+		float operator() (float min_val, float max_val)
+		{
+			std::uniform_real_distribution<float> distr(min_val, max_val);
+			return distr(twister);
+		}
+
+	private:
+		Random() :
+			twister(std::random_device{}())
+		{
+		}
+	};
+
+	//--------------------------------------------------------------------------------------------
 
 	class PO3_SKSEFunctions
 	{
 	public:
 
+		enum class EFFECT_TYPES : SInt32
+		{
+			kNone = -1,
+			kCharred = 0,
+			kSkeletonized = kCharred,
+			kDrained = 1,
+			kPoisoned = 2,
+			kFrightened = kPoisoned,
+			kAged = 3,
+			kCharredCreature = 4,
+			kFrozenCreature = 5
+		};
+		
 		//--------------------------------------------------------------------------------------------
 		// ACTOR
 		//--------------------------------------------------------------------------------------------
@@ -43,6 +88,8 @@ namespace RE
 		static BGSColorForm* GetSkinColor(StaticFunctionTag*, Actor* a_actor);
 
 		static void SetSkinColor(StaticFunctionTag*, Actor* a_actor, BGSColorForm* a_color);
+
+		static void BlendColorWithSkinTone(StaticFunctionTag*, Actor* a_actor, BGSColorForm* a_color, SInt32 a_blendMode, bool a_autoCalc, float a_opacity);
 
 		static void MixColorWithSkinTone(StaticFunctionTag*, Actor* a_actor, BGSColorForm* a_color, bool a_manual, float a_percent);
 
@@ -70,7 +117,7 @@ namespace RE
 
 		static bool ResetActor3D(StaticFunctionTag*, Actor* a_actor, BSFixedString a_folderName);
 
-		static void RemoveEffectsNotOfType(StaticFunctionTag*, Actor* a_actor, UInt32 a_type);
+		static void RemoveEffectsNotOfType(StaticFunctionTag*, Actor* a_actor, SInt32 a_type);
 
 		static void DecapitateActor(StaticFunctionTag*, Actor* a_actor);
 
@@ -100,8 +147,6 @@ namespace RE
 
 		static bool RemoveBaseSpell(StaticFunctionTag*, Actor* a_actor, SpellItem* a_spell);
 
-		//static void SetShaderType(StaticFunctionTag*, Actor* a_actor, TESObjectARMO* templateArmor);
-
 		//--------------------------------------------------------------------------------------------
 		// ACTORBASE
 		//--------------------------------------------------------------------------------------------
@@ -114,13 +159,21 @@ namespace RE
 		// ARRAY
 		//--------------------------------------------------------------------------------------------
 
-		static bool AddStringToArray(StaticFunctionTag*, BSFixedString a_string, BSScript::VMArray<BSFixedString> a_stringArray);
+		static bool AddActorToArray(StaticFunctionTag*, Actor* a_actor, reference_array<Actor*> a_actors);
 
-		static bool AddActorToArray(StaticFunctionTag*, Actor* a_actor, BSScript::VMArray<Actor*> actorArray);
+		static bool AddStringToArray(StaticFunctionTag*, BSFixedString a_string, reference_array<BSFixedString> a_strings);
+		
+		static UInt32 ArrayStringCount(StaticFunctionTag*, BSFixedString a_string, std::vector<BSFixedString> a_strings);
 
-		static UInt32 ArrayStringCount(StaticFunctionTag*, BSFixedString a_string, BSScript::VMArray<BSFixedString> a_stringArray);
+		static std::vector<BSFixedString> SortArrayString(StaticFunctionTag*, reference_array<BSFixedString> a_strings);
 
-		static BSScript::VMArray<BSFixedString> SortArrayString(StaticFunctionTag*, BSScript::VMArray<BSFixedString> a_stringArray);
+		static std::vector<BSFixedString> GetSortedActorNameArray(StaticFunctionTag*, BGSKeyword* a_keyword, bool a_invert);
+
+		//--------------------------------------------------------------------------------------------
+		// CELL
+		//--------------------------------------------------------------------------------------------
+		
+		static std::vector<TESObjectCELL*> PO3_SKSEFunctions::GetAttachedCells(StaticFunctionTag*);
 
 		//--------------------------------------------------------------------------------------------
 		// EFFECTSHADER
@@ -158,15 +211,15 @@ namespace RE
 
 		static bool IsPluginFound(StaticFunctionTag*, BSFixedString a_name);
 
-		static BSScript::VMArray<TESForm*> GetAllSpellsInMod(StaticFunctionTag*, BSFixedString a_name, BSScript::VMArray<BGSKeyword*> a_keywordArray, bool a_playable);
+		static std::vector<TESForm*> GetAllSpellsInMod(StaticFunctionTag*, BSFixedString a_name, std::vector<BGSKeyword*> a_keywords, bool a_playable);
 
-		static BSScript::VMArray<TESForm*> GetAllRacesInMod(StaticFunctionTag*, BSFixedString a_name, BSScript::VMArray<BGSKeyword*> a_keywordArray);
+		static std::vector<TESForm*> GetAllRacesInMod(StaticFunctionTag*, BSFixedString a_name, std::vector<BGSKeyword*> a_keywords);
 
-		static void AddAllGameSpellsToList(StaticFunctionTag*, BGSListForm* a_list, BSScript::VMArray<BGSKeyword*> a_keywordArray, bool a_playable);
+		static void AddAllGameSpellsToList(StaticFunctionTag*, BGSListForm* a_list, std::vector<BGSKeyword*> a_keywords, bool a_playable);
 
-		static void AddAllGameRacesToList(StaticFunctionTag*, BGSListForm* a_list, BSScript::VMArray<BGSKeyword*> a_keywordArray);
+		static void AddAllGameRacesToList(StaticFunctionTag*, BGSListForm* a_list, std::vector<BGSKeyword*> a_keywords);
 
-		static BSScript::VMArray<Actor*> GetActorsByProcessingLevel(StaticFunctionTag*, UInt32 a_level);
+		static std::vector<Actor*> GetActorsByProcessingLevel(StaticFunctionTag*, UInt32 a_level);
 
 		static SInt32 GetNumActorsInHigh(StaticFunctionTag*);
 
@@ -218,7 +271,7 @@ namespace RE
 		// MAGICEFFECT
 		//--------------------------------------------------------------------------------------------
 
-		static BSScript::VMArray<EffectSetting*> GetAllActiveEffectsOnActor(StaticFunctionTag*, Actor* a_actor, bool a_inactive);
+		static std::vector<EffectSetting*> GetAllActiveEffectsOnActor(StaticFunctionTag*, Actor* a_actor, bool a_inactive);
 
 		static bool HasMagicEffectWithArchetype(StaticFunctionTag*, Actor* a_actor, BSFixedString a_archetype);
 
@@ -234,17 +287,17 @@ namespace RE
 		// OBJECTREFERENCE
 		//--------------------------------------------------------------------------------------------
 
-		static BSScript::VMArray<float> GetPositionAsArray(StaticFunctionTag*, TESObjectREFR* a_ref);
+		static std::vector<float> GetPositionAsArray(StaticFunctionTag*, TESObjectREFR* a_ref);
 
-		static BSScript::VMArray<float> GetRotationAsArray(StaticFunctionTag*, TESObjectREFR* a_ref);
+		static std::vector<float> GetRotationAsArray(StaticFunctionTag*, TESObjectREFR* a_ref);
 
 		static bool IsLoadDoor(StaticFunctionTag*, TESObjectREFR* a_door);
 
 		static void AddAllInventoryItemsToList(StaticFunctionTag*, TESObjectREFR* a_ref, BGSListForm* a_list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
 
-		static BSScript::VMArray<TESForm*> AddAllInventoryItemsToArray(StaticFunctionTag*, TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
+		static std::vector<TESForm*> AddAllInventoryItemsToArray(StaticFunctionTag*, TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
 
-		static BSScript::VMArray<TESForm*> AddAllEquippedItemsToArray(StaticFunctionTag*, Actor* a_actor);
+		static std::vector<TESForm*> AddAllEquippedItemsToArray(StaticFunctionTag*, Actor* a_actor);
 
 		static void ReplaceKeywordOnRef(StaticFunctionTag*, TESObjectREFR* a_ref, BGSKeyword* a_remove, BGSKeyword* a_add);
 
@@ -258,11 +311,11 @@ namespace RE
 
 		static void MoveToNearestNavmeshLocation(StaticFunctionTag*, TESObjectREFR* a_ref);
 
-		static BSScript::VMArray<TESEffectShader*>GetAllEffectShaders(StaticFunctionTag*, TESObjectREFR* a_ref);
+		static std::vector<TESEffectShader*>GetAllEffectShaders(StaticFunctionTag*, TESObjectREFR* a_ref);
 
 		static UInt32 HasEffectShader(StaticFunctionTag*, TESObjectREFR* a_ref, TESEffectShader* a_effectShader, bool a_active);
 
-		static BSScript::VMArray<BGSArtObject*> GetAllArtObjects(StaticFunctionTag*, TESObjectREFR* a_ref);
+		static std::vector<BGSArtObject*> GetAllArtObjects(StaticFunctionTag*, TESObjectREFR* a_ref);
 
 		static UInt32 HasArtObject(StaticFunctionTag*, TESObjectREFR* a_ref, BGSArtObject* a_art, bool a_active);
 
@@ -276,15 +329,19 @@ namespace RE
 
 		static Actor* GetRandomActorFromRef(StaticFunctionTag*, TESObjectREFR* a_ref, float a_radius, bool a_ignorePlayer);
 
-		static BSScript::VMArray<TESObjectREFR*> FindAllReferencesOfType(StaticFunctionTag*, TESObjectREFR* a_ref, TESForm* a_type, float a_radius);
+		static std::vector<TESObjectREFR*> FindAllReferencesOfType(StaticFunctionTag*, TESObjectREFR* a_ref, TESForm* a_formOrList, float a_radius);
 
-		static BSScript::VMArray<TESObjectREFR*> FindAllReferencesWithKeyword(StaticFunctionTag*, TESObjectREFR* a_ref, BSScript::VMArray<BGSKeyword*> a_keywordArray, float a_radius, bool a_matchAll);
+		static std::vector<TESObjectREFR*> FindAllReferencesWithKeyword(StaticFunctionTag*, TESObjectREFR* a_ref, TESForm* a_formOrList, float a_radius, bool a_matchAll);
 
 		static float GetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* a_ref, TESEffectShader* a_effectShader);
 
 		static void SetEffectShaderDuration(StaticFunctionTag*, TESObjectREFR* a_ref, TESEffectShader* a_effectShader, float a_time, bool a_absolute);
 
 		static void SetupBodyPartGeometry(StaticFunctionTag*, TESObjectREFR* a_miscItem, Actor* a_actor);
+
+		static void SetShaderType(StaticFunctionTag*, TESObjectREFR* a_ref, TESObjectREFR* a_template, BSFixedString a_filter, UInt32 a_shaderType, SInt32 a_textureType, bool a_noWeapons, bool a_noAlpha);
+
+		static bool HasNiExtraData(StaticFunctionTag*, TESObjectREFR* a_ref, BSFixedString a_name);
 
 		//--------------------------------------------------------------------------------------------
 		// PACKAGE
@@ -327,6 +384,14 @@ namespace RE
 		static UInt32 GetSpellType(StaticFunctionTag*, SpellItem* a_spell);
 
 		static bool HasActiveSpell(StaticFunctionTag*, Actor* a_actor, SpellItem* a_spell);
+
+		//--------------------------------------------------------------------------------------------
+		// STRING
+		//--------------------------------------------------------------------------------------------
+
+		static SInt32 StringToInt(StaticFunctionTag*, BSFixedString a_string);
+
+		static BSFixedString IntToString(StaticFunctionTag*, UInt32 a_int, bool a_hex);
 
 		//--------------------------------------------------------------------------------------------
 		// VISUALEFFECT

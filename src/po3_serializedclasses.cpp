@@ -159,9 +159,9 @@ namespace RE
 		return &singleton;
 	}
 
-	bool Keywords::ApplyKeywords(TESForm* thisForm, BGSKeyword* keyword, UInt32 add)
+	bool Keywords::ApplyKeywords(TESForm* a_form, BGSKeyword* keyword, UInt32 add)
 	{
-		auto pKeywords = skyrim_cast<BGSKeywordForm*>(thisForm);
+		auto pKeywords = a_form->As<BGSKeywordForm>();
 		if (pKeywords) {
 			UInt32 index = kInvalid;
 			for (UInt32 i = 0; i < pKeywords->numKeywords; ++i) {
@@ -170,7 +170,6 @@ namespace RE
 					break;
 				}
 			}
-
 			if (add == kAdd) {
 				if (index != kInvalid) {
 					return false;
@@ -204,17 +203,15 @@ namespace RE
 					oldData = nullptr;
 				}
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 
-	bool Keywords::PapyrusApplyKeywords(TESForm* thisForm, BGSKeyword* keyword, UInt32 add)
+	bool Keywords::PapyrusApplyKeywords(TESForm* a_form, BGSKeyword* keyword, UInt32 add)
 	{
-		if (ApplyKeywords(thisForm, keyword, add)) {
-			std::vector<FormID> _data = { thisForm->formID, keyword->formID };
+		if (ApplyKeywords(a_form, keyword, add)) {
+			std::vector<FormID> _data = { a_form->formID, keyword->formID };
 
 			auto& vec = GetData(add);
 			auto& otherVec = GetData(!add);

@@ -6,65 +6,39 @@ namespace RE
 {
 	//------------------------------SKIN--------------------------------------------------
 
-	void MakeFaceTintable(Actor* a_actor, const NiColor& a_color)
+	void TintFace(Actor* a_actor, const NiColor& a_color)
 	{
-		auto geometry = a_actor->GetHeadPartGeometry(BGSHeadPart::HeadPartType::kFace);
-		if (geometry) {
-			geometry->UpdateFaceGenTint(a_color);
-		}
-		geometry = GetSkinGeometry(a_actor, BGSBipedObjectForm::FirstPersonFlag::kDecapitate);
-		if (geometry) {
-			geometry->UpdateFaceGenTint(a_color);
+		auto object = a_actor->GetHeadPartObject(BGSHeadPart::HeadPartType::kFace);
+		if (object) {
+			auto geometry = object->AsGeometry();
+			if (geometry) {
+				geometry->MakeFaceGenTintable();
+				geometry->UpdateBodyTint(a_color);
+			}
 		}
 	}
 
 
-	void AddOrUpdateColorData(NiAVObject* a_root, const BSFixedString& a_name, const Color& a_color)
+	void AddOrUpdateColorData(NiAVObject* a_root, const BSFixedString& a_name, const NiColor& a_color)
 	{
-		auto data = static_cast<NiIntegersExtraData*>(a_root->GetExtraData(a_name));
+		auto data = static_cast<NiIntegerExtraData*>(a_root->GetExtraData(a_name));
 		if (!data) {
-			std::vector<SInt32> vec;
-			vec.reserve(3);
-			vec.emplace_back(a_color.red);
-			vec.emplace_back(a_color.green);
-			vec.emplace_back(a_color.blue);
-			auto newData = NiIntegersExtraData::Create(a_name, vec.data(), static_cast<UInt32>(vec.size()));
+			auto newData = NiIntegerExtraData::Create(a_name, NiColor::ColorToInt(a_color));
 			if (newData) {
 				a_root->AddExtraData(newData);
 			}
 		}
 		else {
-			Color color;
-			color.red = static_cast<UInt8>(data->value[0]);
-			color.green = static_cast<UInt8>(data->value[1]);
-			color.blue = static_cast<UInt8>(data->value[2]);
+			auto color = NiColor(data->value);
 			if (a_color != color) {
-				data->value[0] = a_color.red;
-				data->value[1] = a_color.green;
-				data->value[2] = a_color.blue;
-			}
-		}
-	}
-
-	//----------------------------SET ALPHA-----------------------------------------------
-
-	void SetArmorSkinAlpha(Actor* a_actor, BGSBipedObjectForm::FirstPersonFlag a_slot, float a_alpha)
-	{
-		TESObjectARMO* skinarmor = a_actor->GetSkin(a_slot);
-		if (skinarmor) {
-			TESObjectARMA* foundAddon = skinarmor->GetArmorAddonByMask(a_actor->race, a_slot);
-			if (foundAddon) {
-				NiAVObject* armorObject = a_actor->VisitArmorAddon(skinarmor, foundAddon);
-				if (armorObject) {
-					armorObject->UpdateMaterialAlpha(a_alpha, true);
-				}
+				data->value = NiColor::ColorToInt(a_color);
 			}
 		}
 	}
 
 	//----------------------------SET TEXTURESET--------------------------------------------
 
-	void SetTextureSet(NiAVObject* a_object, BGSTextureSet* a_srcTXST, BGSTextureSet* a_tgtTXST, SInt32 a_type, const std::string& a_tgtPath, bool& replaced)
+	void SetTextureSet(NiAVObject* a_object, BGSTextureSet& a_txst, SInt32 a_type, const std::string& a_tgtPath, bool& replaced)
 	{
 		BSVisit::TraverseScenegraphGeometries(a_object, [&](BSGeometry* a_geometry) -> BSVisit::BSVisitControl
 		{
@@ -82,30 +56,32 @@ namespace RE
 						Util::SanitizeTexturePath(sourcePath);
 						if (sourcePath == a_tgtPath) {
 							auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(material->Create());
-							newMaterial->CopyMembers(material);
-							if (a_type == -1) {
+							if (newMaterial) {
+								newMaterial->CopyMembers(material);
 								newMaterial->ClearTextures();
-								newMaterial->SetTextureSet(a_tgtTXST);
-							}
-							else {
-								auto newTextureSet = BSShaderTextureSet::Create();
-								for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-									newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
+								if (a_type == -1) {
+									newMaterial->OnLoadTextureSet(0, &a_txst);
 								}
-								auto BSTextureType = static_cast<Texture>(a_type);
-								newTextureSet->SetTexturePath(BSTextureType, a_tgtTXST->GetTexturePath(BSTextureType));
+								else {
+									auto newTextureSet = BSShaderTextureSet::Create();
+									if (newTextureSet) {
+										for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+											newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
+										}
+										auto BSTextureType = static_cast<Texture>(a_type);
+										newTextureSet->SetTexturePath(BSTextureType, a_txst.GetTexturePath(BSTextureType));
 
-								newMaterial->ClearTextures();
-								newMaterial->SetTextureSet(newTextureSet);
+										newMaterial->OnLoadTextureSet(0, newTextureSet);
+									}
+								}
+								lightingShader->SetMaterial(newMaterial, 1);
+								lightingShader->InitializeGeometry(a_geometry);
+								lightingShader->InitializeShader(a_geometry);
+								newMaterial->~BSLightingShaderMaterialBase();
+								free(newMaterial);
+
+								replaced = true;
 							}
-							lightingShader->SetMaterial(newMaterial, 1);
-							lightingShader->InvalidateTextures(0);
-							lightingShader->InitializeGeometry(a_geometry);
-							lightingShader->InitializeShader(a_geometry);
-							newMaterial->~BSLightingShaderMaterialBase();
-							free(newMaterial);
-
-							replaced = true;
 						}
 					}
 				}
@@ -116,7 +92,7 @@ namespace RE
 
 	//----------------------------SET SKIN TEXTURESET--------------------------------------------
 
-	void SetSkinTextureSet(NiAVObject* a_object, BGSTextureSet* a_txst, std::vector<BSFixedString>& a_vec, SInt32 a_type)
+	void SetSkinTextureSet(NiAVObject* a_object, BGSTextureSet& a_txst, std::vector<BSFixedString>& a_vec, SInt32 a_type)
 	{
 		BSVisit::TraverseScenegraphGeometries(a_object, [&](BSGeometry* a_geometry) -> BSVisit::BSVisitControl
 		{
@@ -138,37 +114,42 @@ namespace RE
 								}
 							}
 							auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(material->Create());
-							newMaterial->CopyMembers(material);
-							if (a_type == -1) {
+							if (newMaterial) {
+								newMaterial->CopyMembers(material);
 								newMaterial->ClearTextures();
-								if (type == Feature::kFaceGen) {
-									auto newTextureSet = BSShaderTextureSet::Create();
-									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-										newTextureSet->SetTexturePath(i, a_txst->GetTexturePath(i));
+								if (a_type == -1) {
+									if (type == Feature::kFaceGen) {
+										auto newTextureSet = BSShaderTextureSet::Create();
+										if (newTextureSet) {
+											for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+												newTextureSet->SetTexturePath(i, a_txst.GetTexturePath(i));
+												newTextureSet->SetTexturePath(Texture::kMultilayer, material->textureSet->GetTexturePath(Texture::kMultilayer));
+												newMaterial->OnLoadTextureSet(0, newTextureSet);
+											}
+										}
 									}
-									newTextureSet->SetTexturePath(Texture::kMultilayer, material->textureSet->GetTexturePath(Texture::kMultilayer));
-									newMaterial->SetTextureSet(newTextureSet);
+									else {
+										newMaterial->OnLoadTextureSet(0, &a_txst);
+									}
 								}
 								else {
-									newMaterial->SetTextureSet(a_txst);
+									auto newTextureSet = BSShaderTextureSet::Create();
+									if (newTextureSet) {
+										for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+											newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
+										}
+										auto BSTextureType = static_cast<Texture>(a_type);
+										newTextureSet->SetTexturePath(BSTextureType, a_txst.GetTexturePath(BSTextureType));
+										
+										newMaterial->OnLoadTextureSet(0, newTextureSet);
+									}
 								}
+								lightingShader->SetMaterial(newMaterial, 1);
+								lightingShader->InitializeGeometry(a_geometry);
+								lightingShader->InitializeShader(a_geometry);
+								newMaterial->~BSLightingShaderMaterialBase();
+								free(newMaterial);
 							}
-							else {
-								auto newTextureSet = BSShaderTextureSet::Create();
-								for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-									newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
-								}
-								auto BSTextureType = static_cast<Texture>(a_type);
-								newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
-								newMaterial->ClearTextures();
-								newMaterial->SetTextureSet(newTextureSet);
-							}
-							lightingShader->SetMaterial(newMaterial, 1);
-							lightingShader->InvalidateTextures(0);
-							lightingShader->InitializeGeometry(a_geometry);
-							lightingShader->InitializeShader(a_geometry);
-							newMaterial->~BSLightingShaderMaterialBase();
-							free(newMaterial);
 						}
 					}
 				}
@@ -190,7 +171,7 @@ namespace RE
 					if (armorObject) {
 						std::vector<BSFixedString> vec;
 						vec.reserve(10);
-						SetSkinTextureSet(armorObject, a_txst, vec, a_type);
+						SetSkinTextureSet(armorObject, *a_txst, vec, a_type);
 
 						auto root = a_actor->Get3D(0);
 						if (!vec.empty() && root) {
@@ -219,6 +200,7 @@ namespace RE
 		if (!skinarmor) {
 			return nullptr;
 		}
+
 		TESObjectARMA* foundAddon = skinarmor->GetArmorAddonByMask(a_actor->race, a_slot);
 		if (foundAddon) {
 			NiAVObject* armorObject = a_actor->VisitArmorAddon(skinarmor, foundAddon);
@@ -235,7 +217,7 @@ namespace RE
 
 	//-------------------------RESET---------------------------------------------------------
 
-	void ResetTextureSet(NiAVObject* a_object, BSShaderTextureSet* a_txst, bool a_skin, const std::string& a_folder)
+	void ResetTextureSet(NiAVObject* a_object, BSShaderTextureSet& a_txst, NiAVObject::ALPHA_MODE a_type, const std::string& a_folder)
 	{
 		BSVisit::TraverseScenegraphGeometries(a_object, [&](BSGeometry* a_geometry) -> BSVisit::BSVisitControl
 		{
@@ -249,7 +231,7 @@ namespace RE
 				if (lightingShader) {
 					auto material = static_cast<BSLightingShaderMaterialBase*>(lightingShader->material);
 					if (material) {
-						if (!a_skin) {
+						if (a_type == NiAVObject::ALPHA_MODE::kAll) {
 							if (!a_folder.empty()) {
 								std::string sourcePath = material->textureSet->GetTexturePath(Texture::kDiffuse);
 								Util::SanitizeTexturePath(sourcePath);
@@ -266,21 +248,206 @@ namespace RE
 							}
 						}
 						auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(material->Create());
-						newMaterial->CopyMembers(material);
-
-						newMaterial->ClearTextures();
-						newMaterial->SetTextureSet(a_txst);
-
-						lightingShader->SetMaterial(newMaterial, 1);
-						lightingShader->InvalidateTextures(0);
-						lightingShader->InitializeGeometry(a_geometry);
-						lightingShader->InitializeShader(a_geometry);
-
-						newMaterial->~BSLightingShaderMaterialBase();
-						free(newMaterial);
+						if (newMaterial) {
+							newMaterial->CopyMembers(material);
+							newMaterial->ClearTextures();
+							newMaterial->OnLoadTextureSet(0, &a_txst);
+							lightingShader->SetMaterial(newMaterial, 1);
+							lightingShader->InitializeGeometry(a_geometry);
+							lightingShader->InitializeShader(a_geometry);
+							newMaterial->~BSLightingShaderMaterialBase();
+							free(newMaterial);
+						}
 					}
 				}
 			}
+			return BSVisit::BSVisitControl::kContinue;
+		});
+	}
+
+	//-------------------------SET SHADER TYPE---------------------------------------------------------
+
+	void SetShaderType_Impl(NiAVObject* a_object, BSGeometry* a_template, const std::string& a_path, SInt32 a_textureType, std::vector<std::vector<BSFixedString>>& a_vec, bool a_noWeapons, bool a_noAlpha, bool a_isActor)
+	{
+		BSVisit::TraverseScenegraphGeometries(a_object, [&](BSGeometry* a_geometry) -> BSVisit::BSVisitControl
+		{
+			using State = BSGeometry::States;
+			using Feature = BSShaderMaterial::Feature;
+			using Texture = BSTextureSet::Texture;
+			using Flag = BSShaderProperty::EShaderPropertyFlag8;
+			using VertexFlags = NiSkinPartition::VertexFlags;
+
+			if (a_template) {
+				bool hasNormals = (NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::VF_NORMAL) == VertexFlags::VF_NORMAL;
+				if (!hasNormals) {
+					return BSVisit::BSVisitControl::kContinue;
+				}
+
+				auto alpha = a_geometry->properties[State::kProperty].get();
+				if (alpha && a_noAlpha) {
+					return BSVisit::BSVisitControl::kContinue;
+				}
+				
+				auto parent = a_geometry->parent;
+				if (parent) {
+					if (a_isActor && a_noWeapons && parent->AsFadeNode()) {
+						return BSVisit::BSVisitControl::kContinue;
+					}
+				}
+
+				auto effect = a_geometry->properties[State::kEffect].get();
+				auto tempEffect = a_template->properties[State::kEffect].get();
+
+				if (effect && tempEffect) {
+					auto lightingShader = netimmerse_cast<BSLightingShaderProperty*>(effect);
+					auto tempLightingShader = netimmerse_cast<BSLightingShaderProperty*>(tempEffect);
+
+					if (lightingShader && tempLightingShader) {
+						auto material = static_cast<BSLightingShaderMaterialBase*>(lightingShader->material);
+						auto tempMaterial = static_cast<BSLightingShaderMaterialBase*>(tempLightingShader->material);
+
+						if (material && tempMaterial) {
+
+							std::string sourceDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
+							Util::SanitizeTexturePath(sourceDiffuse);
+							if (!a_path.empty()) {
+								std::size_t found = sourceDiffuse.find(a_path);
+								if (found == std::string::npos) {
+									return BSVisit::BSVisitControl::kContinue;
+								}
+							}
+							
+							if (material->GetFeature() != tempMaterial->GetFeature()) {
+								auto newMaterial = static_cast<BSLightingShaderMaterialBase*>(tempMaterial->Create());
+								if (newMaterial) {									
+									std::string newDiffuse = tempMaterial->textureSet->GetTexturePath(Texture::kDiffuse);
+									Util::SanitizeTexturePath(newDiffuse);
+
+									std::string oldDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
+
+									if (a_vec.empty() || !a_vec.back().empty() && a_vec.back().front() != oldDiffuse.c_str()) {
+										std::vector<BSFixedString> shaderData;
+										shaderData.reserve(15);
+										for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+											shaderData.emplace_back(material->textureSet->GetTexturePath(i));
+										}
+										shaderData.emplace_back(std::to_string(static_cast<UInt32>(lightingShader->flags))); 
+										shaderData.emplace_back(NiColor::ColorToString(*lightingShader->emissiveColor));
+										shaderData.emplace_back(std::to_string(lightingShader->emissiveMult));
+										shaderData.emplace_back(std::to_string(static_cast<UInt32>(tempMaterial->GetFeature())));
+										shaderData.emplace_back(std::to_string(static_cast<UInt32>(material->GetFeature())));
+										shaderData.emplace_back(Util::GetTextureName(newDiffuse));
+										Util::SanitizeTexturePath(oldDiffuse);
+										shaderData.emplace_back(Util::GetTextureName(oldDiffuse));
+										
+										a_vec.push_back(shaderData);
+									}
+
+									newMaterial->CopyMembers(tempMaterial);
+									newMaterial->ClearTextures();
+									if (a_textureType != -1) {
+										auto newTextureSet = BSShaderTextureSet::Create();
+										if (newTextureSet) {
+											for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+												newTextureSet->SetTexturePath(i, tempMaterial->textureSet->GetTexturePath(i));
+											}
+											auto BSTextureType = static_cast<Texture>(a_textureType);
+											newTextureSet->SetTexturePath(BSTextureType, material->textureSet->GetTexturePath(BSTextureType));
+											
+											newMaterial->OnLoadTextureSet(0, newTextureSet);
+										}
+									}
+									
+									lightingShader->SetMaterial(newMaterial, 1);
+									lightingShader->InitializeGeometry(a_geometry);
+									lightingShader->InitializeShader(a_geometry);
+									lightingShader->CopyMembers(tempLightingShader);
+
+									bool isSkinned = (NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::VF_SKINNED) == VertexFlags::VF_SKINNED;
+									if (isSkinned) {
+										lightingShader->SetFlags(Flag::kSkinned, true);
+									}
+									else {
+										lightingShader->SetFlags(Flag::kSkinned, false);
+									}
+									
+									newMaterial->~BSLightingShaderMaterialBase();
+									free(newMaterial);
+								}
+							}
+						}
+					}
+				}
+			}
+			return BSVisit::BSVisitControl::kContinue;
+		});
+	}
+
+
+	void ResetShaderType(NiAVObject* a_object, BSShaderTextureSet& a_txst, BSShaderProperty::EShaderPropertyFlag a_flags, const NiColor& a_emissive, float a_emissiveMult, BSShaderMaterial::Feature a_changed, BSShaderMaterial::Feature a_original, const std::string& a_changedDiffuse)
+	{
+		BSVisit::TraverseScenegraphGeometries(a_object, [&](BSGeometry* a_geometry) -> BSVisit::BSVisitControl
+		{
+			using State = BSGeometry::States;
+			using Feature = BSShaderMaterial::Feature;
+			using Texture = BSTextureSet::Texture;
+			using Flag = BSShaderProperty::EShaderPropertyFlag;
+			using VertexFlags = NiSkinPartition::VertexFlags;
+
+			bool hasNormals = (NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::VF_NORMAL) == VertexFlags::VF_NORMAL;
+			if (!hasNormals) {
+				return BSVisit::BSVisitControl::kContinue;
+			}
+			
+			auto parent = a_geometry->parent;
+			if (parent && parent->AsFadeNode()) {
+				return BSVisit::BSVisitControl::kContinue;
+			}
+			
+			auto alpha = a_geometry->properties[State::kProperty].get();
+			if (alpha) {
+				return BSVisit::BSVisitControl::kContinue;
+			}
+			
+			auto effect = a_geometry->properties[State::kEffect].get();
+			if (effect) {
+				auto lightingShader = netimmerse_cast<BSLightingShaderProperty*>(effect);
+				if (lightingShader) {
+					auto material = static_cast<BSLightingShaderMaterialBase*>(lightingShader->material);
+					if (material) {
+						if (material->GetFeature() == a_changed) {
+							std::string currentDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
+							Util::SanitizeTexturePath(currentDiffuse);
+							std::size_t found = currentDiffuse.find(a_changedDiffuse);
+							if (found == std::string::npos) {
+								return BSVisit::BSVisitControl::kContinue;
+							}
+							auto newMaterial = BSLightingShaderMaterialBase::CreateMaterial(a_original);
+							if (newMaterial) {
+								newMaterial->CopyBaseMembers(material);
+								newMaterial->ClearTextures();
+								newMaterial->OnLoadTextureSet(0, &a_txst);															
+								lightingShader->SetMaterial(newMaterial, 1);
+								lightingShader->InitializeGeometry(a_geometry);
+								lightingShader->InitializeShader(a_geometry);
+																
+								lightingShader->flags = a_flags;
+								lightingShader->lastRenderPassState = std::numeric_limits<SInt32>::max();
+								if ((lightingShader->flags & Flag::kOwnEmit) == Flag::kOwnEmit) {
+									lightingShader->emissiveColor->red = a_emissive.red;
+									lightingShader->emissiveColor->green = a_emissive.green;
+									lightingShader->emissiveColor->blue = a_emissive.blue;
+								}
+								lightingShader->emissiveMult = a_emissiveMult;
+
+								newMaterial->~BSLightingShaderMaterialBase();
+								free(newMaterial);
+							}
+						}
+					}
+				}
+			}
+			
 			return BSVisit::BSVisitControl::kContinue;
 		});
 	}

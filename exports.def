@@ -1,4 +1,4 @@
-LIBRARY	"po3_papyrusextender64"
+LIBRARY	"po3_PapyrusExtender"
 EXPORTS
 SKSEPlugin_Query
 SKSEPlugin_Load

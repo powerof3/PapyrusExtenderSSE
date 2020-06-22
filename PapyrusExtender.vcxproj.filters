@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <None Include="exports.def" />
+    <None Include="..\..\CommonLibSSE\src\.clang-format" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -10,47 +11,170 @@
     <Filter Include="include">
       <UniqueIdentifier>{aee06ac9-1bc5-42ef-858c-7657bb1ee832}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\NetImmerseLib">
-      <UniqueIdentifier>{83a75ce6-92cb-4817-8b02-d3d52671a49d}</UniqueIdentifier>
+    <Filter Include="include\Serialization">
+      <UniqueIdentifier>{0721c1eb-6ebc-4b0a-ad07-77515770934d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Serialization">
+      <UniqueIdentifier>{cd6ea0ef-eced-49ce-b630-679c382d62c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Papyrus">
+      <UniqueIdentifier>{170748aa-2881-451d-bd88-5613a057e9fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Papyrus">
+      <UniqueIdentifier>{373db07c-477e-4b0d-b383-b9624861f612}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\po3_functions.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\Papyrus\PapyrusActor.cpp">
+      <Filter>src\Papyrus</Filter>
     </ClCompile>
-    <ClCompile Include="src\po3_graphicfunctions.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\Papyrus\PapyrusArray.cpp">
+      <Filter>src\Papyrus</Filter>
     </ClCompile>
-    <ClCompile Include="src\po3_serializedclasses.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\Papyrus\PapyrusCell.cpp">
+      <Filter>src\Papyrus</Filter>
     </ClCompile>
-    <ClCompile Include="src\po3_resetfunctions.cpp">
+    <ClCompile Include="src\Papyrus\PapyrusDebug.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusEffectShader.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusForm.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusGame.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusLight.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusLocation.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusMagicEffect.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusObjectReference.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusPackage.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusProjectile.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusSound.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusSpell.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusStrings.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusUtility.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusVisualEffect.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusWeather.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\Registration.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Serialization\Reset.cpp">
+      <Filter>src\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Serialization\Serialize.cpp">
+      <Filter>src\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ConditionParser.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\po3_functions.h">
+    <ClInclude Include="include\main.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\po3_graphicfunctions.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\Papyrus\Registration.h">
+      <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\NetImmerseLib\kd_matcher.h">
-      <Filter>include\NetImmerseLib</Filter>
+    <ClInclude Include="include\Papyrus\PapyrusActorBase.h">
+      <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\po3_serializedclasses.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\Papyrus\PapyrusActor.h">
+      <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\NetImmerseLib\shape.h">
-      <Filter>include\NetImmerseLib</Filter>
+    <ClInclude Include="include\Papyrus\PapyrusArray.h">
+      <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\NetImmerseLib\half.hpp">
-      <Filter>include\NetImmerseLib</Filter>
+    <ClInclude Include="include\Papyrus\PapyrusCell.h">
+      <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\po3_resetfunctions.h">
+    <ClInclude Include="include\Papyrus\PapyrusDebug.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusEffectShader.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusForm.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusGame.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusLight.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusLocation.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusMagicEffect.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusObjectReference.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusPackage.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusProjectile.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusSound.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusSpell.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusStrings.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusUtility.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusVisualEffect.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusWeather.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Serialization\Reset.h">
+      <Filter>include\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Serialization\Serialize.h">
+      <Filter>include\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ConditionParser.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

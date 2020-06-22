@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>po3_papyrusextender64</ProjectName>
+    <ProjectName>po3_PapyrusExtender</ProjectName>
     <ProjectGuid>{330347F6-F933-4C02-AE08-91B9F7203234}</ProjectGuid>
     <RootNamespace>ScaleformTranslationPP</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -55,11 +55,11 @@
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
-    <IncludePath>D:\Mods\SKSE64\skse64;D:\Mods\SKSE64\CommonLibSSE\include;$(IncludePath)</IncludePath>
-    <OutDir>..\..\..\Games\The Elder Scrolls Skyrim Special Edition\Data\skse\Plugins</OutDir>
+    <IncludePath>D:\Mods\SKSE64\Dependancies;D:\Mods\SKSE64\CommonLibSSE\include;$(IncludePath)</IncludePath>
+    <OutDir>..\..\..\..\Games\The Elder Scrolls Skyrim Special Edition\Data\skse\Plugins</OutDir>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>..\CommonLibSSE\CommonLibCore.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>ConcurrencyCheckRules.ruleset</CodeAnalysisRuleSet>
     <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,22 +112,26 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ForcedIncludeFiles>ForceInclude.h;SKSE/Logger.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <OmitFramePointers>
       </OmitFramePointers>
-      <MultiProcessorCompilation>
-      </MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <UseFullPaths>false</UseFullPaths>
       <EnablePREfast>false</EnablePREfast>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <TreatSpecificWarningsAsErrors>
+      </TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
@@ -135,7 +139,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -151,30 +155,66 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\..\CommonLibSSE\src\.clang-format" />
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\ConditionParser.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\po3_functions.cpp" />
-    <ClCompile Include="src\po3_graphicfunctions.cpp" />
-    <ClCompile Include="src\po3_resetfunctions.cpp" />
-    <ClCompile Include="src\po3_serializedclasses.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusActor.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusArray.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusCell.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusDebug.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusEffectShader.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusForm.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusGame.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusLight.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusLocation.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusMagicEffect.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusObjectReference.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusPackage.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusProjectile.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusSound.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusSpell.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusStrings.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusUtility.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusVisualEffect.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusWeather.cpp" />
+    <ClCompile Include="src\Papyrus\Registration.cpp" />
+    <ClCompile Include="src\Serialization\Reset.cpp" />
+    <ClCompile Include="src\Serialization\Serialize.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\NetImmerseLib\half.hpp" />
-    <ClInclude Include="include\NetImmerseLib\kd_matcher.h" />
-    <ClInclude Include="include\NetImmerseLib\shape.h" />
-    <ClInclude Include="include\po3_functions.h" />
-    <ClInclude Include="include\po3_graphicfunctions.h" />
-    <ClInclude Include="include\po3_resetfunctions.h" />
-    <ClInclude Include="include\po3_serializedclasses.h" />
+    <ClInclude Include="include\ConditionParser.h" />
+    <ClInclude Include="include\main.h" />
+    <ClInclude Include="include\Papyrus\PapyrusActor.h" />
+    <ClInclude Include="include\Papyrus\PapyrusActorBase.h" />
+    <ClInclude Include="include\Papyrus\PapyrusArray.h" />
+    <ClInclude Include="include\Papyrus\PapyrusCell.h" />
+    <ClInclude Include="include\Papyrus\PapyrusDebug.h" />
+    <ClInclude Include="include\Papyrus\PapyrusEffectShader.h" />
+    <ClInclude Include="include\Papyrus\PapyrusForm.h" />
+    <ClInclude Include="include\Papyrus\PapyrusGame.h" />
+    <ClInclude Include="include\Papyrus\PapyrusLight.h" />
+    <ClInclude Include="include\Papyrus\PapyrusLocation.h" />
+    <ClInclude Include="include\Papyrus\PapyrusMagicEffect.h" />
+    <ClInclude Include="include\Papyrus\PapyrusObjectReference.h" />
+    <ClInclude Include="include\Papyrus\PapyrusPackage.h" />
+    <ClInclude Include="include\Papyrus\PapyrusProjectile.h" />
+    <ClInclude Include="include\Papyrus\PapyrusSound.h" />
+    <ClInclude Include="include\Papyrus\PapyrusSpell.h" />
+    <ClInclude Include="include\Papyrus\PapyrusStrings.h" />
+    <ClInclude Include="include\Papyrus\PapyrusUtility.h" />
+    <ClInclude Include="include\Papyrus\PapyrusVisualEffect.h" />
+    <ClInclude Include="include\Papyrus\PapyrusWeather.h" />
+    <ClInclude Include="include\Papyrus\Registration.h" />
+    <ClInclude Include="include\Serialization\Reset.h" />
+    <ClInclude Include="include\Serialization\Serialize.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
+    <ProjectReference Include="..\..\CommonLibSSE\CommonLibSSE.vcxproj">
       <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\simpleini-4.17\SimpleIni.vcxproj">
-      <Project>{c23240a6-aa9d-4827-af06-c98e97ca6dfb}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

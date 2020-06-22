@@ -1,19 +1,17 @@
 #pragma once
 
-#include "po3_functions.h"
+#include "main.h"
 
-namespace RE
+namespace Serialize
 {
+	using FormRecordPair = std::pair<RE::FormID, RE::FormID>;
+
 	class Base
 	{
 	public:
-		virtual std::vector<std::vector<FormID>>& GetData(UInt32 add) = 0;
+		virtual std::set<FormRecordPair>& GetData(UInt32 add) = 0;
 		virtual const char* GetType(UInt32 add) = 0;
-		virtual UInt32 GetSize()
-		{
-			return 2;
-		}
-		virtual void ApplyData(std::vector<FormID>& a_vec, UInt32 add) = 0;
+		virtual void ApplyData(FormRecordPair& a_pair, UInt32 add) = 0;
 
 		enum : UInt32
 		{
@@ -33,13 +31,13 @@ namespace RE
 	class Perks : public Base
 	{
 	private:
-		std::vector<std::vector<FormID>> perkAddData;
-		std::vector<std::vector<FormID>> perkRemoveData;
+		std::set<FormRecordPair> perkAddData;
+		std::set<FormRecordPair> perkRemoveData;
 
 	public:
 		static Perks* GetSingleton();
 
-		virtual std::vector<std::vector<FormID>>& GetData(UInt32 add) override
+		virtual std::set<FormRecordPair>& GetData(UInt32 add) override
 		{
 			return add == kAdd ? perkAddData : perkRemoveData;
 		}
@@ -47,23 +45,22 @@ namespace RE
 		{
 			return add == kAdd ? "Add Perk" : "Remove Perk";
 		}
-		virtual void ApplyData(std::vector<FormID>& a_vec, UInt32 add) override
+		virtual void ApplyData(FormRecordPair& a_pair, UInt32 add) override
 		{
-			auto actor = a_vec[0] == kInvalid ? nullptr : TESForm::LookupByID<Actor>(a_vec[0]);
-			auto perk = a_vec[1] == kInvalid ? nullptr : TESForm::LookupByID<BGSPerk>(a_vec[1]);
+			auto actor = a_pair.first == kInvalid ? nullptr : RE::TESForm::LookupByID<RE::Actor>(a_pair.first);
+			auto perk = a_pair.second == kInvalid ? nullptr : RE::TESForm::LookupByID<RE::BGSPerk>(a_pair.second);
 
 			if (actor && perk) {
 				_MESSAGE("[%s] : %s", GetType(add), actor->GetName());
-
 				if (ApplyPerks(actor, perk, add)) {
-					auto vec = GetData(add);
-					vec.push_back(a_vec);
+					auto set = GetData(add);
+					set.insert(a_pair);
 				}
 			}
 		}
 
-		bool ApplyPerks(Actor* a_actor, BGSPerk* perk, UInt32 add);
-		bool PapyrusApplyPerks(Actor* a_actor, BGSPerk* perk, UInt32 add);
+		bool ApplyPerks(RE::Actor* a_actor, RE::BGSPerk* perk, UInt32 add);
+		bool PapyrusApplyPerks(RE::Actor* a_actor, RE::BGSPerk* perk, UInt32 add);
 
 	protected:
 		Perks() = default;
@@ -80,13 +77,13 @@ namespace RE
 	class Keywords : public Base
 	{
 	private:
-		std::vector<std::vector<FormID>> keywordAddData;
-		std::vector<std::vector<FormID>> keywordRemoveData;
+		std::set<FormRecordPair> keywordAddData;
+		std::set<FormRecordPair> keywordRemoveData;
 
 	public:
 		static Keywords* GetSingleton();
 
-		virtual std::vector<std::vector<FormID>>& GetData(UInt32 add) override
+		virtual std::set<FormRecordPair>& GetData(UInt32 add) override
 		{
 			return add == kAdd ? keywordAddData : keywordRemoveData;
 		}
@@ -94,21 +91,21 @@ namespace RE
 		{
 			return add == kAdd ? "Add Keyword" : "Remove Keyword";
 		}
-		virtual void ApplyData(std::vector<FormID>& a_vec, UInt32 add) override
+		virtual void ApplyData(FormRecordPair& a_pair, UInt32 add) override
 		{
-			auto actor = a_vec[0] == kInvalid ? nullptr : TESForm::LookupByID<Actor>(a_vec[0]);
-			auto keyword = a_vec[1] == kInvalid ? nullptr : TESForm::LookupByID<BGSKeyword>(a_vec[1]);
+			auto actor = a_pair.first == kInvalid ? nullptr : RE::TESForm::LookupByID<RE::Actor>(a_pair.first);
+			auto keyword = a_pair.second == kInvalid ? nullptr : RE::TESForm::LookupByID<RE::BGSKeyword>(a_pair.second);
 
 			if (actor && keyword) {
 				if (ApplyKeywords(actor, keyword, add)) {
-					auto vec = GetData(add);
-					vec.push_back(a_vec);
+					auto set = GetData(add);
+					set.insert(a_pair);
 				}
 			}
 		}
 
-		bool ApplyKeywords(TESForm* a_form, BGSKeyword* keyword, UInt32 add);
-		bool PapyrusApplyKeywords(TESForm* a_form, BGSKeyword* keyword, UInt32 add);
+		bool ApplyKeywords(RE::TESForm* a_form, RE::BGSKeyword* keyword, UInt32 add);
+		bool PapyrusApplyKeywords(RE::TESForm* a_form, RE::BGSKeyword* keyword, UInt32 add);
 
 	protected:
 		Keywords() = default;

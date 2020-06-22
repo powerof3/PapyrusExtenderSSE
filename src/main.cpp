@@ -1,15 +1,8 @@
-#include "po3_functions.h"
-#include "po3_serializedclasses.h"
+#include "main.h"
 
+#include "Papyrus/Registration.h"
+#include "Serialization/Serialize.h"
 
-const SKSE::TaskInterface* g_task = nullptr;
-const RE::BGSKeyword* g_npcKeyword = nullptr;
-const RE::BGSArtObject* g_soulTrapArt = nullptr;
-std::vector<RE::BGSBipedObjectForm::BipedObjectSlot> fxSlots;
-
-constexpr float version = static_cast<float>(2.50);
-
-//----------------------------------------------------------------------------------------
 
 enum : UInt32
 {
@@ -21,6 +14,7 @@ enum : UInt32
 	kAddKeywords = 'AKTF',
 	kRemoveKeywords = 'RKOF',
 };
+
 
 std::string DecodeTypeCode(UInt32 a_typeCode)
 {
@@ -35,82 +29,84 @@ std::string DecodeTypeCode(UInt32 a_typeCode)
 	return sig;
 }
 
+
 void SaveCallback(SKSE::SerializationInterface* a_intfc)
 {
-	auto perks = RE::Perks::GetSingleton();
-	if (!perks->GetData(RE::Base::kAdd).empty()) {
-		if (!perks->Save(a_intfc, kAddPerks, kSerializationVersion, RE::Base::kAdd)) {
-			_ERROR("[%u] : Failed to save data!\n", perks->GetType(RE::Base::kAdd));
-			perks->Clear(RE::Base::kAdd);
+	auto perks = Serialize::Perks::GetSingleton();
+	if (!perks->GetData(Serialize::Base::kAdd).empty()) {
+		if (!perks->Save(a_intfc, kAddPerks, kSerializationVersion, Serialize::Base::kAdd)) {
+			_ERROR("[%u] : Failed to save data!\n", perks->GetType(Serialize::Base::kAdd));
+			perks->Clear(Serialize::Base::kAdd);
 		}
 	}
-	if (!perks->GetData(RE::Base::kRemove).empty()) {
-		if (!perks->Save(a_intfc, kRemovePerks, kSerializationVersion, RE::Base::kRemove)) {
-			_ERROR("[%u] : Failed to save data!\n", perks->GetType(RE::Base::kRemove));
-			perks->Clear(RE::Base::kRemove);
+	if (!perks->GetData(Serialize::Base::kRemove).empty()) {
+		if (!perks->Save(a_intfc, kRemovePerks, kSerializationVersion, Serialize::Base::kRemove)) {
+			_ERROR("[%u] : Failed to save data!\n", perks->GetType(Serialize::Base::kRemove));
+			perks->Clear(Serialize::Base::kRemove);
 		}
 	}
 
-	auto keywords = RE::Keywords::GetSingleton();
-	if (!keywords->GetData(RE::Base::kAdd).empty()) {
-		if (!keywords->Save(a_intfc, kAddKeywords, kSerializationVersion, RE::Base::kAdd)) {
-			_ERROR("[%u] : Failed to save data!\n", keywords->GetType(RE::Base::kAdd));
+	auto keywords = Serialize::Keywords::GetSingleton();
+	if (!keywords->GetData(Serialize::Base::kAdd).empty()) {
+		if (!keywords->Save(a_intfc, kAddKeywords, kSerializationVersion, Serialize::Base::kAdd)) {
+			_ERROR("[%u] : Failed to save data!\n", keywords->GetType(Serialize::Base::kAdd));
 			keywords->Clear(true);
 		}
 	}
-	if (!keywords->GetData(RE::Base::kRemove).empty()) {
-		if (!keywords->Save(a_intfc, kRemoveKeywords, kSerializationVersion, RE::Base::kRemove)) {
-			_ERROR("[%u] : Failed to save data!\n", keywords->GetType(RE::Base::kRemove));
-			keywords->Clear(RE::Base::kRemove);
+	if (!keywords->GetData(Serialize::Base::kRemove).empty()) {
+		if (!keywords->Save(a_intfc, kRemoveKeywords, kSerializationVersion, Serialize::Base::kRemove)) {
+			_ERROR("[%u] : Failed to save data!\n", keywords->GetType(Serialize::Base::kRemove));
+			keywords->Clear(Serialize::Base::kRemove);
 		}
 	}
 
 	_MESSAGE("Finished saving data");
 }
 
+
 void LoadCallback(SKSE::SerializationInterface* a_intfc)
 {
-	auto perks = RE::Perks::GetSingleton();
-	perks->Clear(RE::Base::kAdd);
-	perks->Clear(RE::Base::kRemove);
+	auto perks = Serialize::Perks::GetSingleton();
+	perks->Clear(Serialize::Base::kAdd);
+	perks->Clear(Serialize::Base::kRemove);
 
-	auto keywords = RE::Keywords::GetSingleton();
-	keywords->Clear(RE::Base::kAdd);
-	keywords->Clear(RE::Base::kRemove);
+	auto keywords = Serialize::Keywords::GetSingleton();
+	keywords->Clear(Serialize::Base::kAdd);
+	keywords->Clear(Serialize::Base::kRemove);
 
 	UInt32 type;
-	UInt32 version;
+	UInt32 serialized_ver;
 	UInt32 length;
-	while (a_intfc->GetNextRecordInfo(type, version, length)) {
-		if (version != kSerializationVersion) {
-			_ERROR("Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, kSerializationVersion, DecodeTypeCode(type).c_str());
+	while (a_intfc->GetNextRecordInfo(type, serialized_ver, length)) {
+		if (serialized_ver != kSerializationVersion) {
+			_ERROR("Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", serialized_ver, kSerializationVersion, DecodeTypeCode(type).c_str());
 			continue;
 		}
 
 		switch (type) {
 			case kAddPerks:
-				if (!perks->Load(a_intfc, RE::Base::kAdd)) {
-					_ERROR("[%u] : Data not found or loaded\n", perks->GetType(RE::Base::kAdd));
-					perks->Clear(RE::Base::kAdd);
+				if (!perks->Load(a_intfc, Serialize::Base::kAdd)) {
+					_ERROR("[%u] : Data not found or loaded\n", perks->GetType(Serialize::Base::kAdd));
+					perks->Clear(Serialize::Base::kAdd);
 				}
 				break;
 			case kRemovePerks:
-				if (!perks->Load(a_intfc, RE::Base::kRemove)) {
-					_ERROR("[%u] : Data not found or loaded\n", perks->GetType(RE::Base::kRemove));
-					perks->Clear(RE::Base::kRemove);
+				if (!perks->Load(a_intfc, Serialize::Base::kRemove)) {
+					_ERROR("[%u] : Data not found or loaded\n", perks->GetType(Serialize::Base::kRemove));
+					perks->Clear(Serialize::Base::kRemove);
 				}
 				break;
 
 			case kAddKeywords:
-				if (!keywords->Load(a_intfc, RE::Base::kAdd)) {
-					_ERROR("[%u] : Data not found or loaded\n", keywords->GetType(RE::Base::kAdd));
-					keywords->Clear(RE::Base::kAdd);
+				if (!keywords->Load(a_intfc, Serialize::Base::kAdd)) {
+					_ERROR("[%u] : Data not found or loaded\n", keywords->GetType(Serialize::Base::kAdd));
+					keywords->Clear(Serialize::Base::kAdd);
 				}
 				break;
 			case kRemoveKeywords:
-				if (!keywords->Load(a_intfc, RE::Base::kRemove)) {
-					_ERROR("[%u] : Data not found or loaded\n", keywords->GetType(RE::Base::kRemove));
-					keywords->Clear(RE::Base::kRemove);
+				if (!keywords->Load(a_intfc, Serialize::Base::kRemove)) {
+					_ERROR("[%u] : Data not found or loaded\n", keywords->GetType(Serialize::Base::kRemove));
+					keywords->Clear(Serialize::Base::kRemove);
 				}
 				break;
 
@@ -123,21 +119,14 @@ void LoadCallback(SKSE::SerializationInterface* a_intfc)
 	_MESSAGE("Finished loading data");
 }
 
-//----------------------------------------------------------------------------------------
 
 void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
 	if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
-		g_npcKeyword = static_cast<RE::BGSKeyword*>(RE::BGSDefaultObjectManager::GetSingleton()->GetObject(RE::DEFAULT_OBJECTS::kKeywordNPC));
-		g_soulTrapArt = RE::TESForm::LookupByID<RE::BGSArtObject>(RE::ArtSoulTrapTargetEffectsID);
-
-		using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
-
-		fxSlots = { Slot::kModMouth, Slot::kModChestPrimary, Slot::kModPelvisPrimary, Slot::kModLegRight, Slot::kModChestSecondary, Slot::kModArmRight };
+		return;
 	}
 }
 
-//----------------------------------------------------------------------------------------
 
 extern "C" {
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
@@ -151,7 +140,7 @@ extern "C" {
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "powerofthree's PapyrusExtender for SSE";
-		a_info->version = version;
+		a_info->version = Version::version;
 
 		if (a_skse->IsEditor()) {
 			_FATALERROR("Loaded in editor, marking as incompatible!\n");
@@ -167,17 +156,12 @@ extern "C" {
 		return true;
 	}
 
+
 	bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	{
 		_MESSAGE("po3_PapyrusExtender SSE loaded");
 
 		if (!SKSE::Init(a_skse)) {
-			return false;
-		}
-
-		g_task = SKSE::GetTaskInterface();
-		if (!g_task) {
-			_FATALERROR("Task interface registration failed!\n");
 			return false;
 		}
 
@@ -187,11 +171,7 @@ extern "C" {
 			return false;
 		}
 
-		const auto papyrus = SKSE::GetPapyrusInterface();
-		if (!papyrus->Register(RE::PO3_SKSEFunctions::Register)) {
-			_FATALERROR("Failed to register papyrus callback!\n");
-			return false;
-		}
+		Papyrus::Register();
 
 		auto serialization = SKSE::GetSerializationInterface();
 		serialization->SetUniqueID(kPapyrusExtender);
@@ -201,8 +181,9 @@ extern "C" {
 		return true;
 	}
 
+
 	__declspec(dllexport) float GetPluginVersion()
 	{
-		return version;
+		return Version::version;
 	}
 };

@@ -97,7 +97,7 @@
     <ClCompile Include="src\Serialization\Serialize.cpp">
       <Filter>src\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="include\ConditionParser.cpp">
+    <ClCompile Include="src\ConditionParser.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

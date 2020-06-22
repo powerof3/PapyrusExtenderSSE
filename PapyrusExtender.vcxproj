@@ -159,7 +159,7 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\ConditionParser.cpp" />
+    <ClCompile Include="src\ConditionParser.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Papyrus\PapyrusActor.cpp" />
     <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp" />

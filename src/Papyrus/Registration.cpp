@@ -6,6 +6,7 @@
 #include "Papyrus/PapyrusDebug.h"
 #include "Papyrus/PapyrusEffectShader.h"
 #include "Papyrus/PapyrusForm.h"
+#include "Papyrus/PapyrusFurniture.h"
 #include "Papyrus/PapyrusGame.h"
 #include "Papyrus/PapyrusLight.h"
 #include "Papyrus/PapyrusLocation.h"
@@ -26,59 +27,62 @@ void Papyrus::Register()
 	auto papyrus = SKSE::GetPapyrusInterface();
 
 	papyrus->Register(papyrusActor::RegisterFuncs);
-	_MESSAGE("Registered actor functions");
+	logger::info("Registered actor functions");
 
 	papyrus->Register(papyrusActorBase::RegisterFuncs);
-	_MESSAGE("Registered actorbase functions");
+	logger::info("Registered actorbase functions");
 
 	papyrus->Register(papyrusArray::RegisterFuncs);
-	_MESSAGE("Registered array functions");
+	logger::info("Registered array functions");
 
 	papyrus->Register(papyrusDebug::RegisterFuncs);
-	_MESSAGE("Registered debug functions");
+	logger::info("Registered debug functions");
 
 	papyrus->Register(papyrusEffectShader::RegisterFuncs);
-	_MESSAGE("Registered effect shader functions");
+	logger::info("Registered effect shader functions");
 
 	papyrus->Register(papyrusForm::RegisterFuncs);
-	_MESSAGE("Registered form functions");
+	logger::info("Registered form functions");
+
+	papyrus->Register(papyrusFurniture::RegisterFuncs);
+	logger::info("Registered furniture functions");
 
 	papyrus->Register(papyrusGame::RegisterFuncs);
-	_MESSAGE("Registered game functions");
+	logger::info("Registered game functions");
 
 	papyrus->Register(papyrusLight::RegisterFuncs);
-	_MESSAGE("Registered light functions");
+	logger::info("Registered light functions");
 
 	papyrus->Register(papyrusLocation::RegisterFuncs);
-	_MESSAGE("Registered location functions");
+	logger::info("Registered location functions");
 
 	papyrus->Register(papyrusMagicEffect::RegisterFuncs);
-	_MESSAGE("Registered magiceffect functions");
+	logger::info("Registered magiceffect functions");
 
 	papyrus->Register(papyrusObjectReference::RegisterFuncs);
-	_MESSAGE("Registered objectreference functions");
+	logger::info("Registered objectreference functions");
 
 	papyrus->Register(papyrusPackage::RegisterFuncs);
-	_MESSAGE("Registered package functions");
+	logger::info("Registered package functions");
 
 	papyrus->Register(papyrusProjectile::RegisterFuncs);
-	_MESSAGE("Registered projectile functions");
+	logger::info("Registered projectile functions");
 
 	papyrus->Register(papyrusSound::RegisterFuncs);
-	_MESSAGE("Registered sound functions");
+	logger::info("Registered sound functions");
 
 	papyrus->Register(papyrusSpell::RegisterFuncs);
-	_MESSAGE("Registered spell functions");
+	logger::info("Registered spell functions");
 
 	papyrus->Register(papyrusStrings::RegisterFuncs);
-	_MESSAGE("Registered string functions");
+	logger::info("Registered string functions");
 
 	papyrus->Register(papyrusUtility::RegisterFuncs);
-	_MESSAGE("Registered utility functions");
+	logger::info("Registered utility functions");
 
 	papyrus->Register(papyrusVisualEffect::RegisterFuncs);
-	_MESSAGE("Registered visual effect functions");
+	logger::info("Registered visual effect functions");
 
 	papyrus->Register(papyrusWeather::RegisterFuncs);
-	_MESSAGE("Registered weather functions");
+	logger::info("Registered weather functions");
 }

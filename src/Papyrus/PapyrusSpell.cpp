@@ -3,24 +3,22 @@
 #include "ConditionParser.h"
 
 
-void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, UInt32 a_area, UInt32 a_dur, float a_cost, std::vector<RE::BSFixedString> a_conditionList)
+void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost, std::vector<RE::BSFixedString> a_conditionList)
 {
 	if (!a_spell) {
 		a_vm->TraceStack("Spell is None", a_stackID, Severity::kWarning);
 		return;
-	}
-	if (!a_mgef) {
+	} else if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
 		return;
-	}
-	if (a_mgef->data.castingType != a_spell->data.castingType) {
+	} else if (a_mgef->data.castingType != a_spell->data.castingType) {
 		a_vm->TraceStack("Casting types don't match", a_stackID, Severity::kWarning);
 		return;
-	}
-	if (a_mgef->data.delivery != a_spell->data.delivery) {
+	} else if (a_mgef->data.delivery != a_spell->data.delivery) {
 		a_vm->TraceStack("Delivery types don't match", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	auto effect = a_spell->GetMatchingEffect(a_mgef, a_mag, a_area, a_dur, a_cost);
 	if (!effect) {
 		effect = new RE::Effect();
@@ -47,18 +45,16 @@ void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::Static
 							newNode->data.flags.opCode = opCode;
 							newNode->data.comparisonValue.f = value;
 							newNode->data.flags.isOR = ANDOR;
-							
+
 							if (effect->conditions.head == nullptr) {
 								effect->conditions.head = newNode;
-							}
-							else {
+							} else {
 								newNode->next = effect->conditions.head;
 								effect->conditions.head = newNode;
 							}
 						}
 					}
-				}
-				else {
+				} else {
 					a_vm->TraceStack("Failed to parse condition list", a_stackID, Severity::kWarning);
 				}
 			}
@@ -68,26 +64,27 @@ void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::Static
 }
 
 
-SInt32 papyrusSpell::GetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell)
+std::int32_t papyrusSpell::GetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell)
 {
 	if (!a_spell) {
 		a_vm->TraceStack("Spell is None", a_stackID, Severity::kWarning);
 		return -1;
 	}
+
 	return to_underlying(a_spell->data.spellType);
 }
 
 
-void papyrusSpell::RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, UInt32 a_area, UInt32 a_dur, float a_cost)
+void papyrusSpell::RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost)
 {
 	if (!a_spell) {
 		a_vm->TraceStack("Spell is None", a_stackID, Severity::kWarning);
 		return;
-	}
-	if (!a_mgef) {
+	} else if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	auto effect = a_spell->GetMatchingEffect(a_mgef, a_mag, a_area, a_dur, a_cost);
 	if (effect) {
 		a_spell->effects.erase(&effect);
@@ -100,7 +97,7 @@ void papyrusSpell::RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::S
 bool papyrusSpell::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusSpell - couldn't get VMState");
+		logger::critical("papyrusSpell - couldn't get VMState");
 		return false;
 	}
 

@@ -4,9 +4,10 @@
 RE::BGSLocation* papyrusLocation::GetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSLocation* a_location)
 {
 	if (!a_location) {
-		a_vm->TraceStack("Cannot get parent location of a None location", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Location is None", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
+
 	return a_location->parentLoc;
 }
 
@@ -14,9 +15,10 @@ RE::BGSLocation* papyrusLocation::GetParentLocation(VM* a_vm, StackID a_stackID,
 void papyrusLocation::SetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSLocation* a_location, RE::BGSLocation* a_newLocation)
 {
 	if (!a_location) {
-		a_vm->TraceStack("Cannot set parent location of a None location", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Location is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	a_location->parentLoc = a_newLocation;
 }
 
@@ -24,7 +26,7 @@ void papyrusLocation::SetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticF
 bool papyrusLocation::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusLocation - couldn't get VMState");
+		logger::critical("papyrusLocation - couldn't get VMState");
 		return false;
 	}
 

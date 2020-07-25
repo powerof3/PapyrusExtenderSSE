@@ -1,7 +1,5 @@
 #pragma once
 
-#include "main.h"
-
 
 namespace papyrusCell
 {

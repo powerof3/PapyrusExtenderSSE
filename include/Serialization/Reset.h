@@ -1,18 +1,16 @@
 #pragma once
 
-#include "main.h"
-
 
 namespace Reset
 {
 	using Flags = RE::BSShaderProperty::EShaderPropertyFlag;
 	using Feature = RE::BSShaderMaterial::Feature;
 	using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
-	
-	inline constexpr std::array<Slot, 6> fxSlots = { Slot::kModMouth, Slot::kModChestPrimary, Slot::kModPelvisPrimary, Slot::kModLegRight, Slot::kModChestSecondary, Slot::kModArmRight };
+
+	constexpr inline frozen::set<Slot, 6> fxSlots = { Slot::kModMouth, Slot::kModChestPrimary, Slot::kModPelvisPrimary, Slot::kModLegRight, Slot::kModChestSecondary, Slot::kModArmRight };
 
 
-	enum RESET_TYPE : UInt8
+	enum RESET_TYPE : std::uint8_t
 	{
 		kToggle = 0,
 		kTintSkin,
@@ -28,7 +26,7 @@ namespace Reset
 	using ResetData = std::tuple<RE::NiStringsExtraData*, RE::NiIntegersExtraData*, RE::NiIntegersExtraData*, RE::NiFloatExtraData*, RE::NiIntegersExtraData*, RE::NiStringsExtraData*, std::vector<RE::NiStringsExtraData*>, std::vector<RE::NiStringsExtraData*>, std::vector<RE::NiStringsExtraData*>>;
 
 
-	enum SHADER_TYPE : UInt8
+	enum SHADER_TYPE : std::uint8_t
 	{
 		kTexture = 0,
 		kFlags,
@@ -41,16 +39,7 @@ namespace Reset
 	using ShaderData = std::tuple<RE::BSShaderTextureSet*, Flags, RE::NiColor, float, Feature, Feature, std::string>;
 
 
-	inline UInt32 constexpr const_hash(const char* input, UInt32 hash = 5381)
-	{
-		return *input ?
-			const_hash(input + 1, hash * 33 + static_cast<UInt32>(*input)) :
-			hash;
-	}
-
-
 	ResetData GetResetData(RE::NiAVObject* a_object);
-	
 
 	void ResetToggleData(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);
 
@@ -70,4 +59,3 @@ namespace Reset
 
 	void ResetShaderData(RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec);
 }
-

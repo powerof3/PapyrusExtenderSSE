@@ -3,31 +3,33 @@
 
 RE::BGSArtObject* papyrusVisualEffect::GetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx)
 {
-    if (!a_vfx) {
-        a_vm->TraceStack("Visual Effect is None", a_stackID, Severity::kWarning);
-        return nullptr;
-    }
-    return a_vfx->data.artObject;
+	if (!a_vfx) {
+		a_vm->TraceStack("VisualEffect is None", a_stackID, Severity::kWarning);
+		return nullptr;
+	}
+
+	return a_vfx->data.artObject;
 }
 
 
-UInt32 papyrusVisualEffect::GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx, bool a_active)
+std::uint32_t papyrusVisualEffect::GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx, bool a_active)
 {
-	UInt32 count = 0;
+	std::uint32_t count = 0;
 
 	if (!a_vfx) {
-		a_vm->TraceStack("Visual Effect is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("VisualEffect is None", a_stackID, Severity::kWarning);
 		return count;
 	}
+
 	auto art = a_vfx->data.artObject;
 	if (!art) {
-		a_vm->TraceStack("Couldn't get art object", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("ArtObject is None", a_stackID, Severity::kWarning);
 		return count;
 	}
+
 	auto processLists = RE::ProcessLists::GetSingleton();
 	if (processLists) {
-		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect)
-		{
+		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
 			auto modelEffect = a_tempEffect->As<RE::ModelReferenceEffect>();
 			if (modelEffect) {
 				auto modelArt = modelEffect->artObject;
@@ -40,7 +42,7 @@ UInt32 papyrusVisualEffect::GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, 
 			return true;
 		});
 	}
-	
+
 	return count;
 }
 
@@ -48,13 +50,13 @@ UInt32 papyrusVisualEffect::GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, 
 void papyrusVisualEffect::SetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx, RE::BGSArtObject* a_art)
 {
 	if (!a_vfx) {
-		a_vm->TraceStack("Visual Effect is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("VisualEffect is None", a_stackID, Severity::kWarning);
+		return;
+	} else if (!a_art) {
+		a_vm->TraceStack("ArtObject is None", a_stackID, Severity::kWarning);
 		return;
 	}
-	if (!a_art) {
-		a_vm->TraceStack("Art Object is None", a_stackID, Severity::kWarning);
-		return;
-	}
+
 	a_vfx->data.artObject = a_art;
 }
 
@@ -62,7 +64,7 @@ void papyrusVisualEffect::SetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFu
 bool papyrusVisualEffect::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusVisualEffect - couldn't get VMState");
+		logger::critical("papyrusVisualEffect - couldn't get VMState");
 		return false;
 	}
 

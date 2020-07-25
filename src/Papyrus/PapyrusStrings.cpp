@@ -1,7 +1,7 @@
 #include "Papyrus/PapyrusStrings.h"
 
 
-RE::BSFixedString papyrusStrings::IntToString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, UInt32 a_int, bool a_hex)
+RE::BSFixedString papyrusStrings::IntToString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::uint32_t a_int, bool a_hex)
 {
 	if (a_hex) {
 		std::stringstream stream;
@@ -12,14 +12,13 @@ RE::BSFixedString papyrusStrings::IntToString(VM* a_vm, StackID a_stackID, RE::S
 }
 
 
-SInt32 papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string)
+std::int32_t papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string)
 {
-	SInt32 value = -1;
+	std::int32_t value = -1;
 	if (!a_string.empty()) {
 		try {
 			value = std::stoi(a_string.c_str(), nullptr, 0);
-		}
-		catch (...) {
+		} catch (...) {
 			a_vm->TraceStack("String is out of range - cannot be converted to an integer", a_stackID, Severity::kWarning);
 		}
 	}
@@ -30,7 +29,7 @@ SInt32 papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 bool papyrusStrings::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusObjectStrings - couldn't get VMState");
+		logger::critical("papyrusStrings - couldn't get VMState");
 		return false;
 	}
 

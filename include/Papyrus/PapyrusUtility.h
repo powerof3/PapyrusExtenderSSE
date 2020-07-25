@@ -1,7 +1,5 @@
 #pragma once
 
-#include "main.h"
-
 
 namespace papyrusUtility
 {
@@ -12,7 +10,7 @@ namespace papyrusUtility
 
 	float GenerateRandomFloat(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, float a_min, float a_max);
 
-	UInt32 GenerateRandomInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, UInt32 a_min, UInt32 a_max);
+	std::uint32_t GenerateRandomInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::uint32_t a_min, std::uint32_t a_max);
 
 
 	bool RegisterFuncs(VM* a_vm);

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "main.h"
-
 
 namespace papyrusSpell
 {
@@ -10,11 +8,11 @@ namespace papyrusSpell
 	using Severity = RE::BSScript::ErrorLogger::Severity;
 
 
-	void AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, UInt32 a_area, UInt32 a_dur, float a_cost, std::vector<RE::BSFixedString> a_conditionList);
+	void AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost, std::vector<RE::BSFixedString> a_conditionList);
 
-	SInt32 GetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell);
+	std::int32_t GetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell);
 
-	void RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, UInt32 a_area, UInt32 a_dur, float a_cost);
+	void RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::SpellItem* a_spell, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost);
 
 
 	bool RegisterFuncs(VM* a_vm);

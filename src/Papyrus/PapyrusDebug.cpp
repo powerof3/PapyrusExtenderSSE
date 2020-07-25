@@ -5,9 +5,10 @@ void papyrusDebug::GivePlayerSpellBook(VM* a_vm, StackID a_stackID, RE::StaticFu
 {
 	auto player = RE::PlayerCharacter::GetSingleton();
 	auto dataHandler = RE::TESDataHandler::GetSingleton();
+
 	if (player && dataHandler) {
 		for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
-			if (book && book->HasKeyword("VendorItemSpellTome")) { //fixes crash
+			if (book && book->HasKeywordString("VendorItemSpellTome")) {  //fixes crash
 				auto spell = book->data.teaches.spell;
 				if (spell) {
 					if (!spell->fullName.empty()) {
@@ -30,7 +31,7 @@ void papyrusDebug::GivePlayerSpellBook(VM* a_vm, StackID a_stackID, RE::StaticFu
 bool papyrusDebug::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusDebug - couldn't get VMState");
+		logger::critical("papyrusDebug - couldn't get VMState");
 		return false;
 	}
 

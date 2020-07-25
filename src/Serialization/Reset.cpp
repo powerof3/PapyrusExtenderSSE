@@ -1,6 +1,14 @@
 #include "Serialization/Reset.h"
 
 
+std::uint32_t constexpr const_hash(const char* input, std::uint32_t hash = 5381)
+{
+	return *input ?
+			   const_hash(input + 1, hash * 33 + static_cast<std::uint32_t>(*input)) :
+			   hash;
+}
+
+
 Reset::ResetData Reset::GetResetData(RE::NiAVObject* a_object)
 {
 	ResetData resetData;
@@ -8,7 +16,7 @@ Reset::ResetData Reset::GetResetData(RE::NiAVObject* a_object)
 	if (!a_object->extra || a_object->extraDataSize == 0) {
 		return resetData;
 	}
-	for (UInt16 i = 0; i < a_object->extraDataSize; i++) {
+	for (std::uint16_t i = 0; i < a_object->extraDataSize; i++) {
 		auto extraData = a_object->extra[i];
 		if (!extraData) {
 			continue;
@@ -18,45 +26,43 @@ Reset::ResetData Reset::GetResetData(RE::NiAVObject* a_object)
 			continue;
 		}
 		switch (const_hash(name.c_str())) {
-			case const_hash("PO3_TOGGLE"):
+		case const_hash("PO3_TOGGLE"):
 			{
 				std::get<kToggle>(resetData) = static_cast<RE::NiStringsExtraData*>(extraData);
 			}
 			break;
-			case  const_hash("PO3_SKINTINT"):
+		case const_hash("PO3_SKINTINT"):
 			{
 				std::get<kTintSkin>(resetData) = static_cast<RE::NiIntegersExtraData*>(extraData);
 			}
 			break;
-			case const_hash("PO3_HAIRTINT"):
+		case const_hash("PO3_HAIRTINT"):
 			{
 				std::get<kTintHair>(resetData) = static_cast<RE::NiIntegersExtraData*>(extraData);
 			}
 			break;
-			case const_hash("PO3_ALPHA"):
+		case const_hash("PO3_ALPHA"):
 			{
 				std::get<kAlpha>(resetData) = static_cast<RE::NiFloatExtraData*>(extraData);
 			}
 			break;
-			case const_hash("PO3_HEADPARTALPHA"):
+		case const_hash("PO3_HEADPARTALPHA"):
 			{
 				std::get<kAlphaHDPT>(resetData) = static_cast<RE::NiIntegersExtraData*>(extraData);
 			}
 			break;
-			case const_hash("PO3_FACETXST"):
+		case const_hash("PO3_FACETXST"):
 			{
 				std::get<kTXSTFace>(resetData) = static_cast<RE::NiStringsExtraData*>(extraData);
 			}
 			break;
-			default:
+		default:
 			{
 				if (name.find("PO3_TXST") != std::string::npos) {
 					std::get<kTXST>(resetData).push_back(static_cast<RE::NiStringsExtraData*>(extraData));
-				}
-				else if (name.find("PO3_SKINTXST") != std::string::npos) {
+				} else if (name.find("PO3_SKINTXST") != std::string::npos) {
 					std::get<kTXSTSkin>(resetData).push_back(static_cast<RE::NiStringsExtraData*>(extraData));
-				}
-				else if (name.find("PO3_SHADER") != std::string::npos) {
+				} else if (name.find("PO3_SHADER") != std::string::npos) {
 					std::get<kShader>(resetData).push_back(static_cast<RE::NiStringsExtraData*>(extraData));
 				}
 			}
@@ -70,9 +76,8 @@ Reset::ResetData Reset::GetResetData(RE::NiAVObject* a_object)
 void Reset::ResetToggleData(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data)
 {
 	auto task = SKSE::GetTaskInterface();
-	task->AddTask([a_root, a_data]()
-	{
-		for (UInt32 i = 0; i < a_data->size; i++) {
+	task->AddTask([a_root, a_data]() {
+		for (std::uint32_t i = 0; i < a_data->size; i++) {
 			auto nodeName = RE::BSFixedString(a_data->value[i]);
 			auto object = a_root->GetObjectByName(nodeName);
 			if (object) {
@@ -94,8 +99,7 @@ void Reset::ResetSkinTintData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::Ni
 		auto facePart = actorbase->GetCurrentHeadPartByType(HeadPartType::kFace);
 		if (faceNode && facePart) {
 			auto task = SKSE::GetTaskInterface();
-			task->AddTask([a_root, a_data, faceNode, facePart, actorbase]()
-			{
+			task->AddTask([a_root, a_data, faceNode, facePart, actorbase]() {
 				auto faceGen = RE::FaceGen::GetSingleton();
 				if (faceGen) {
 					faceGen->RegenerateHead(faceNode, facePart, actorbase);
@@ -117,8 +121,7 @@ void Reset::ResetHairTintData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::Ni
 			auto colorForm = headData->hairColor;
 			if (colorForm) {
 				auto task = SKSE::GetTaskInterface();
-				task->AddTask([a_root, a_data, colorForm]()
-				{
+				task->AddTask([a_root, a_data, colorForm]() {
 					a_root->UpdateHairColor(colorForm->color);
 					a_root->RemoveExtraData(a_data);
 				});
@@ -133,12 +136,11 @@ void Reset::ResetAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiFlo
 	for (auto& slot : fxSlots) {
 		auto armor = a_actor->GetWornArmor(slot);
 		if (armor) {
-			a_actor->UnequipItem(0, armor);
+			a_actor->UnequipItem(0, armor, 1, nullptr);
 		}
 	}
 	auto task = SKSE::GetTaskInterface();
-	task->AddTask([a_actor, a_root, a_data]()
-	{
+	task->AddTask([a_actor, a_root, a_data]() {
 		a_root->UpdateAlpha(1.0, RE::NiAVObject::ALPHA_MODE::kSkin);
 		a_root->RemoveExtraData(a_data);
 	});
@@ -150,9 +152,8 @@ void Reset::ResetHeadPartAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, R
 	using HeadPartType = RE::BGSHeadPart::HeadPartType;
 
 	auto task = SKSE::GetTaskInterface();
-	task->AddTask([a_actor, a_root, a_data]()
-	{
-		for (UInt32 i = 0; i < a_data->size; i++) {
+	task->AddTask([a_actor, a_root, a_data]() {
+		for (std::uint32_t i = 0; i < a_data->size; i++) {
 			auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_data->value[i]));
 			if (object) {
 				object->UpdateAlpha(1.0, RE::NiAVObject::ALPHA_MODE::kAll);
@@ -165,8 +166,7 @@ void Reset::ResetHeadPartAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, R
 
 void ResetTextureSet(RE::NiAVObject* a_object, RE::BSShaderTextureSet* a_txst, RE::NiAVObject::ALPHA_MODE a_type, std::string_view a_folder)
 {
-	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl
-	{
+	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
 		using ALPHA_MODE = RE::NiAVObject::ALPHA_MODE;
 		using State = RE::BSGeometry::States;
 		using Feature = RE::BSShaderMaterial::Feature;
@@ -186,8 +186,7 @@ void ResetTextureSet(RE::NiAVObject* a_object, RE::BSShaderTextureSet* a_txst, R
 								return RE::BSVisit::BSVisitControl::kContinue;
 							}
 						}
-					}
-					else {
+					} else {
 						auto type = material->GetFeature();
 						if (type != Feature::kFaceGenRGBTint && type != Feature::kFaceGen) {
 							return RE::BSVisit::BSVisitControl::kContinue;
@@ -228,8 +227,7 @@ void Reset::ResetFaceTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::Ni
 		auto faceObject = a_actor->GetHeadPartObject(HeadPartType::kFace);
 		if (faceObject) {
 			auto task = SKSE::GetTaskInterface();
-			task->AddTask([a_root, a_data, faceObject, textureset]()
-			{
+			task->AddTask([a_root, a_data, faceObject, textureset]() {
 				ResetTextureSet(faceObject, textureset, ALPHA_MODE::kSkin, std::string());
 				a_root->RemoveExtraData(a_data);
 			});
@@ -249,16 +247,14 @@ void Reset::ResetTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, const RE::
 	for (auto& a_data : a_vec) {
 		if (a_data) {
 			auto task = SKSE::GetTaskInterface();
-			task->AddTask([a_actor, a_root, folder, a_data]()
-			{
+			task->AddTask([a_actor, a_root, folder, a_data]() {
 				std::string armorID = a_data->value[a_data->size - 1];
-				UInt32 formID = 0;
+				std::uint32_t formID = 0;
 				if (!armorID.empty()) {
 					try {
 						formID = std::stoul(armorID);
-					}
-					catch (...) {
-						_MESSAGE("ResetTXSTData - Unable to get armor ID!");
+					} catch (...) {
+						SKSE::log::warn("ResetTXSTData - Unable to get armor ID!");
 					}
 				}
 				auto armor = a_actor->GetWornArmor(formID);
@@ -303,16 +299,14 @@ void Reset::ResetSkinTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, const 
 	for (auto& data : a_vec) {
 		if (data) {
 			auto task = SKSE::GetTaskInterface();
-			task->AddTask([a_actor, a_root, a_vec, data]()
-			{
+			task->AddTask([a_actor, a_root, a_vec, data]() {
 				std::string slotMaskstr = data->value[data->size - 1];
 				Slot a_slot = Slot::kNone;
 				if (!slotMaskstr.empty()) {
 					try {
 						a_slot = static_cast<Slot>(std::stoul(slotMaskstr));
-					}
-					catch (...) {
-						_MESSAGE("ResetSkinTXSTData - Unable to get armor slot!");
+					} catch (...) {
+						SKSE::log::warn("ResetSkinTXSTData - Unable to get armor slot!");
 					}
 				}
 				auto skinarmor = a_actor->GetSkin(a_slot);
@@ -342,16 +336,15 @@ void Reset::ResetSkinTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, const 
 
 void ResetShaderData_Impl(RE::NiAVObject* a_object, Reset::ShaderData data)
 {
-	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl
-	{
+	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
 		using State = RE::BSGeometry::States;
 		using Texture = RE::BSTextureSet::Texture;
 		using Flag = RE::BSShaderProperty::EShaderPropertyFlag;
 		using Flag8 = RE::BSShaderProperty::EShaderPropertyFlag8;
-		using VertexFlags = RE::NiSkinPartition::VertexFlags;
+		using VertexFlags = RE::NiSkinPartition::Vertex::Flags;
 		using SHADER = Reset::SHADER_TYPE;
 
-		bool hasNormals = (RE::NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::VF_NORMAL) == VertexFlags::VF_NORMAL;
+		bool hasNormals = (RE::NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::kNormal) == VertexFlags::kNormal;
 		if (!hasNormals) {
 			return RE::BSVisit::BSVisitControl::kContinue;
 		}
@@ -376,6 +369,7 @@ void ResetShaderData_Impl(RE::NiAVObject* a_object, Reset::ShaderData data)
 						if (currentDiffuse.find(std::get<SHADER::kDiffuse>(data)) == std::string::npos) {
 							return RE::BSVisit::BSVisitControl::kContinue;
 						}
+
 						auto newMaterial = RE::BSLightingShaderMaterialBase::CreateMaterial(std::get<SHADER::kFeatureOrig>(data));
 						if (newMaterial) {
 							newMaterial->CopyBaseMembers(material);
@@ -386,17 +380,17 @@ void ResetShaderData_Impl(RE::NiAVObject* a_object, Reset::ShaderData data)
 							lightingShader->InitializeShader(a_geometry);
 
 							lightingShader->flags = std::get<SHADER::kFlags>(data);
-							lightingShader->lastRenderPassState = std::numeric_limits<SInt32>::max();
+							lightingShader->lastRenderPassState = std::numeric_limits<std::int32_t>::max();
 							if ((lightingShader->flags & Flag::kOwnEmit) == Flag::kOwnEmit) {
 								auto emissive = std::get<SHADER::kEmissive>(data);
 								lightingShader->emissiveColor->red = emissive.red;
 								lightingShader->emissiveColor->green = emissive.green;
 								lightingShader->emissiveColor->blue = emissive.blue;
 							}
-							lightingShader->emissiveMult = std::get<SHADER::kEmissiveMult>(data);;
+							lightingShader->emissiveMult = std::get<SHADER::kEmissiveMult>(data);
 
-							bool hasVertexColors = (RE::NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::VF_COLORS) == VertexFlags::VF_COLORS;
-							hasVertexColors ? lightingShader->SetFlags(Flag8::kVertexColors, true) : lightingShader->SetFlags(Flag8::kVertexColors, false);
+							bool hasVertexColors = (RE::NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::kColors) == VertexFlags::kColors;
+							lightingShader->SetFlags(Flag8::kVertexColors, hasVertexColors);
 
 							newMaterial->~BSLightingShaderMaterialBase();
 							RE::free(newMaterial);
@@ -418,8 +412,7 @@ void Reset::ResetShaderData(RE::NiAVObject* a_root, const std::vector<RE::NiStri
 	using SHADER = Reset::SHADER_TYPE;
 
 	auto task = SKSE::GetTaskInterface();
-	task->AddTask([a_root, a_vec]()
-	{
+	task->AddTask([a_root, a_vec]() {
 		for (auto& a_data : a_vec) {
 			if (a_data) {
 				auto textureset = RE::BSShaderTextureSet::Create();
@@ -439,9 +432,8 @@ void Reset::ResetShaderData(RE::NiAVObject* a_root, const std::vector<RE::NiStri
 						std::get<SHADER::kFeatureOrig>(data) = static_cast<Feature>(std::stoul(a_data->value[13]));
 						std::get<SHADER::kDiffuse>(data) = a_data->value[14];
 						ResetShaderData_Impl(a_root, data);
-					}
-					catch (...) {
-						_MESSAGE("ResetShaderData - unable to get original shader params!");
+					} catch (...) {
+						SKSE::log::warn("ResetShaderData - unable to get original shader params!");
 					}
 				}
 			}

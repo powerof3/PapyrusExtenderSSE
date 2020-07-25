@@ -1,11 +1,9 @@
 #pragma once
 
-#include "main.h"
-
 
 namespace Condition
 {
-	enum class TYPE : UInt8
+	enum class TYPE : std::uint32_t
 	{
 		kConditionItemObject = 0,
 		kFunctionID,
@@ -17,7 +15,7 @@ namespace Condition
 	};
 
 
-	enum class PARAMETER : UInt8
+	enum class PARAMETER : std::uint32_t
 	{
 		kFormID = 0,
 		kESP,

@@ -12,6 +12,7 @@ bool papyrusArray::AddActorToArray(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 	return false;
 }
 
+
 bool papyrusArray::AddStringToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings)
 {
 	for (auto& string : a_strings) {
@@ -24,9 +25,9 @@ bool papyrusArray::AddStringToArray(VM* a_vm, StackID a_stackID, RE::StaticFunct
 }
 
 
-UInt32 papyrusArray::ArrayStringCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings)
+std::uint32_t papyrusArray::ArrayStringCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings)
 {
-	return static_cast<UInt32>(std::count(a_strings.begin(), a_strings.end(), a_string));
+	return static_cast<std::uint32_t>(std::count(a_strings.begin(), a_strings.end(), a_string));
 }
 
 
@@ -35,10 +36,10 @@ std::vector<RE::BSFixedString> papyrusArray::SortArrayString(VM* a_vm, StackID a
 	std::vector<RE::BSFixedString> strings;
 
 	strings = a_strings;
-	strings.erase(std::remove_if(strings.begin(), strings.end(), [](const RE::BSFixedString& str)
-	{
+	strings.erase(std::remove_if(strings.begin(), strings.end(), [](const RE::BSFixedString& str) {
 		return str.empty();
-	}), strings.end());
+	}),
+		strings.end());
 	std::sort(strings.begin(), strings.end());
 
 	return strings;
@@ -84,10 +85,10 @@ std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, S
 bool papyrusArray::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusArray - couldn't get VMState");
+		logger::critical("papyrusArray - couldn't get VMState");
 		return false;
 	}
-	
+
 	a_vm->RegisterFunction("AddActorToArray", "PO3_SKSEFunctions", AddActorToArray);
 
 	a_vm->RegisterFunction("AddStringToArray", "PO3_SKSEFunctions", AddStringToArray);

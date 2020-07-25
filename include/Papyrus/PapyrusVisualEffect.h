@@ -1,7 +1,5 @@
 #pragma once
 
-#include "main.h"
-
 
 namespace papyrusVisualEffect
 {
@@ -12,7 +10,7 @@ namespace papyrusVisualEffect
 
 	RE::BGSArtObject* GetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx);
 
-	UInt32 GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx, bool a_active);
+	std::uint32_t GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx, bool a_active);
 
 	void SetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSReferenceEffect* a_vfx, RE::BGSArtObject* a_art);
 

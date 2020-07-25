@@ -52,16 +52,14 @@ Condition::ConditionDataVec Condition::ParseConditions(const std::vector<RE::BSF
 		try {
 			auto str = UTIL::trim(split_condition.at(to_underlying(TYPE::kConditionItemObject)));
 			std::get<to_underlying(TYPE::kConditionItemObject)>(data) = static_cast<RE::CONDITIONITEMOBJECT>(std::stoul(str));
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		//functionID
 		try {
 			auto str = UTIL::trim(split_condition.at(to_underlying(TYPE::kFunctionID)));
 			std::get<to_underlying(TYPE::kFunctionID)>(data) = static_cast<RE::FUNCTION_DATA::FunctionID>(std::stoul(str));
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		//param1
@@ -69,7 +67,7 @@ Condition::ConditionDataVec Condition::ParseConditions(const std::vector<RE::BSF
 			auto param1 = UTIL::trim(split_condition.at(to_underlying(TYPE::kParam1)));
 			if (param1.find("NONE") == std::string::npos) {
 				auto split_param = UTIL::split(param1.c_str(), " ~ ");
-				auto formID = std::stoul(split_param.at(to_underlying(PARAMETER::kFormID)), nullptr, 16);
+				const auto formID = std::stoul(split_param.at(to_underlying(PARAMETER::kFormID)), nullptr, 16);
 				auto esp = split_param.at(to_underlying(PARAMETER::kESP));
 
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -80,8 +78,7 @@ Condition::ConditionDataVec Condition::ParseConditions(const std::vector<RE::BSF
 					}
 				}
 			}
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		//param2
@@ -89,7 +86,7 @@ Condition::ConditionDataVec Condition::ParseConditions(const std::vector<RE::BSF
 			auto param2 = UTIL::trim(split_condition.at(to_underlying(TYPE::kParam2)));
 			if (param2.find("NONE") == std::string::npos) {
 				auto split_param = UTIL::split(param2.c_str(), " ~ ");
-				auto formID = std::stoul(split_param.at(to_underlying(PARAMETER::kFormID)), nullptr, 16);
+				const auto formID = std::stoul(split_param.at(to_underlying(PARAMETER::kFormID)), nullptr, 16);
 				auto esp = split_param.at(to_underlying(PARAMETER::kESP));
 
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -100,32 +97,28 @@ Condition::ConditionDataVec Condition::ParseConditions(const std::vector<RE::BSF
 					}
 				}
 			}
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		//OPCode
 		try {
 			auto str = UTIL::trim(split_condition.at(to_underlying(TYPE::kOPCode)));
 			std::get<to_underlying(TYPE::kOPCode)>(data) = static_cast<RE::CONDITION_ITEM_DATA::OpCode>(std::stoul(str));
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		//float
 		try {
 			auto str = UTIL::trim(split_condition.at(to_underlying(TYPE::kFloat)));
 			std::get<to_underlying(TYPE::kFloat)>(data) = std::stof(str);
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		//operator
 		try {
 			auto str = UTIL::trim(split_condition.at(to_underlying(TYPE::kANDOR)));
 			std::get<to_underlying(TYPE::kANDOR)>(data) = str.find("OR") != std::string::npos ? true : false;
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 

@@ -6,11 +6,11 @@ void papyrusSound::SetSoundDescriptor(VM* a_vm, StackID a_stackID, RE::StaticFun
 	if (!a_sound) {
 		a_vm->TraceStack("Sound is None", a_stackID, Severity::kWarning);
 		return;
-	}
-	if (!a_soundDescriptor) {
+	} else if (!a_soundDescriptor) {
 		a_vm->TraceStack("Sound Descriptor is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	a_sound->descriptor = a_soundDescriptor;
 }
 
@@ -18,7 +18,7 @@ void papyrusSound::SetSoundDescriptor(VM* a_vm, StackID a_stackID, RE::StaticFun
 bool papyrusSound::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusSound - couldn't get VMState");
+		logger::critical("papyrusSound - couldn't get VMState");
 		return false;
 	}
 

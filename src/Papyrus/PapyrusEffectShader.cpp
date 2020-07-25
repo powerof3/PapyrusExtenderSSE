@@ -1,12 +1,13 @@
 #include "Papyrus/PapyrusEffectShader.h"
 
 
-void papyrusEffectShader::ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, UInt32 a_flag)
+void papyrusEffectShader::ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, std::uint32_t a_flag)
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	a_effectShader->data.flags &= ~static_cast<RE::EffectShaderData::Flags>(a_flag);
 }
 
@@ -17,6 +18,7 @@ float papyrusEffectShader::GetEffectShaderFullParticleCount(VM* a_vm, StackID a_
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return 0.0f;
 	}
+
 	return a_effectShader->data.particleShaderFullParticleBirthRatio;
 }
 
@@ -27,22 +29,23 @@ float papyrusEffectShader::GetEffectShaderPersistentParticleCount(VM* a_vm, Stac
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return 0.0f;
 	}
+
 	return a_effectShader->data.particleShaderPersistantParticleCount;
 }
 
 
-UInt32 papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, bool a_active)
+std::uint32_t papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, bool a_active)
 {
-	UInt32 count = 0;
+	std::uint32_t count = 0;
 
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return count;
 	}
+
 	auto processLists = RE::ProcessLists::GetSingleton();
 	if (processLists) {
-		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect)
-		{
+		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
 			auto shaderEffect = a_tempEffect->As<RE::ShaderReferenceEffect>();
 			if (shaderEffect) {
 				auto effectData = shaderEffect->effectData;
@@ -60,22 +63,24 @@ UInt32 papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a_stackI
 }
 
 
-bool papyrusEffectShader::IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, UInt32 a_flag)
+bool papyrusEffectShader::IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, std::uint32_t a_flag)
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return false;
 	}
-	return (to_underlying(a_effectShader->data.flags) & a_flag) == a_flag;
+
+	return (to_underlying(a_effectShader->data.flags.get()) & a_flag) == a_flag;
 }
 
 
-void papyrusEffectShader::SetEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, UInt32 a_flag)
+void papyrusEffectShader::SetEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, std::uint32_t a_flag)
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	a_effectShader->data.flags |= static_cast<RE::EffectShaderData::Flags>(a_flag);
 }
 
@@ -86,6 +91,7 @@ void papyrusEffectShader::SetEffectShaderFullParticleCount(VM* a_vm, StackID a_s
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	a_effectShader->data.particleShaderFullParticleBirthRatio = a_particleCount;
 }
 
@@ -96,6 +102,7 @@ void papyrusEffectShader::SetEffectShaderPersistentParticleCount(VM* a_vm, Stack
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return;
 	}
+
 	a_effectShader->data.particleShaderPersistantParticleCount = a_particleCount;
 }
 
@@ -103,7 +110,7 @@ void papyrusEffectShader::SetEffectShaderPersistentParticleCount(VM* a_vm, Stack
 bool papyrusEffectShader::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		_MESSAGE("papyrusEffectShader - couldn't get VMState");
+		logger::critical("papyrusEffectShader - couldn't get VMState");
 		return false;
 	}
 

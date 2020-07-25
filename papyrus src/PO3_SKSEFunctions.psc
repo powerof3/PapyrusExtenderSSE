@@ -108,7 +108,10 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Decapitates living and dead actors. Living actors will not die when this is called!
 	;This is what is called internally during beheading scenes
-	Function DecapitateActor(Actor akActor) global native	
+	Function DecapitateActor(Actor akActor) global native
+
+	;EnableAI + toggling record hits flags so they don't go flying 300 feet when unfrozen.
+	Function FreezeActor(Actor akActor, bool freeze) global native
 		
 	;returns whether the actor was instantly killed and set dead
 	;doesn't work on creatures - AI gets fucked up and they don't die.
@@ -295,10 +298,23 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function AddKeywordToForm(Form akForm, Keyword KYWDtoAdd) global native
 	
+	;Returns whether the form is temporary (ie. has a formID beginning with FF)
+	bool Function IsGeneratedForm(Form akForm) global native
+	
 	;Replaces given keyword with new one on form. Only lasts for a single gaming session. [ported from DienesTools]
 	Function ReplaceKeywordOnForm(Form akForm, Keyword KYWDtoAdd, Keyword KYWDtoRemove) global native
 	
 	bool Function RemoveKeywordOnForm(Form akForm, Keyword KYWDtoRemove) global native
+
+;----------------------------------------------------------------------------------------------------------	
+;FURNITURE
+;----------------------------------------------------------------------------------------------------------
+	
+	;0 - perch
+	;1 - lean
+	;2 - sit
+	;3 - sleep
+	int Function GetFurnitureType(Furniture akFurniture) global native
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;GAME
@@ -315,7 +331,6 @@ Scriptname PO3_SKSEFunctions Hidden
 	;lowProcess = 3,
 	;see https://geck.bethsoft.com/index.php?title=GetActorsByProcessingLevel for more info	
 	;middle-low process is empty/unused?
-	;more efficient than GetNumRefs
 	Actor[] Function GetActorsByProcessingLevel(int Level) global native
 	
 	;Checks to see if any of the keywords in the array are found, && returns all races added by a specified mod/game esm. 
@@ -550,6 +565,11 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Replaces given keyword with new one on form. Only lasts for a single gaming session. [ported from DienesTools]
 	Function ReplaceKeywordOnRef(ObjectReference akRef, Keyword KYWDtoAdd, Keyword KYWDtoRemove) global native
+	
+	;Scales node & collision (bhkBoxShape, bhkSphereShape). Entire nif will be scaled if string is empty
+	;collision has to be directly attached to named nodes
+	;Adds "PO3_SCALE" niextradata to root node
+	Function ScaleObject3D(ObjectReference akRef, String nodeName, float scale) global native
 	
 	;sets EffectShader duration. Internal duration is set when the effectshader begins and does not change with time.
 	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float time, bool absolute) global native

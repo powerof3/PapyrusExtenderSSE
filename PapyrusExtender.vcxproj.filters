@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <None Include="exports.def" />
-    <None Include="..\..\CommonLibSSE\src\.clang-format" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="src">
       <UniqueIdentifier>{57c9eac9-3a96-4dbf-8d19-cdddafb51688}</UniqueIdentifier>
     </Filter>
@@ -22,6 +18,12 @@
     </Filter>
     <Filter Include="src\Papyrus">
       <UniqueIdentifier>{373db07c-477e-4b0d-b383-b9624861f612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Serialization\NetImmerse">
+      <UniqueIdentifier>{da0c206c-cacf-41e9-bb31-57739ce69ede}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Serialization\NetImmerse">
+      <UniqueIdentifier>{6ddf0d4a-f888-4715-af9b-aa621855a80e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,23 +90,32 @@
     <ClCompile Include="src\Papyrus\Registration.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
-    <ClCompile Include="src\Serialization\Reset.cpp">
-      <Filter>src\Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp">
       <Filter>src\Papyrus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Serialization\Serialize.cpp">
-      <Filter>src\Serialization</Filter>
     </ClCompile>
     <ClCompile Include="src\ConditionParser.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Serialization\Reset.cpp">
+      <Filter>src\Serialization\NetImmerse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Serialization\Base.cpp">
+      <Filter>src\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Serialization\Perks.cpp">
+      <Filter>src\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Serialization\Keywords.cpp">
+      <Filter>src\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PCH.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusFurniture.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\main.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Papyrus\Registration.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
@@ -168,14 +179,32 @@
     <ClInclude Include="include\Papyrus\PapyrusWeather.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\Serialization\Reset.h">
-      <Filter>include\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Serialization\Serialize.h">
-      <Filter>include\Serialization</Filter>
-    </ClInclude>
     <ClInclude Include="include\ConditionParser.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Serialization\Perks.h">
+      <Filter>include\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Serialization\Reset.h">
+      <Filter>include\Serialization\NetImmerse</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Serialization\Base.h">
+      <Filter>include\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Serialization\Keywords.h">
+      <Filter>include\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PCH.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusFurniture.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Version.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".clang-format" />
   </ItemGroup>
 </Project>

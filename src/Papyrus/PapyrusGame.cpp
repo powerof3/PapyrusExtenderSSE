@@ -48,7 +48,7 @@ std::vector<RE::TESRace*> papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, 
 	auto dataHandler = RE::TESDataHandler::GetSingleton();
 	if (dataHandler) {
 		for (auto& race : dataHandler->GetFormArray<RE::TESRace>()) {
-			if (!race || !race->HasKeywords(a_keywords)) {
+			if (!race || !a_keywords.empty() && !race->HasKeywords(a_keywords)) {
 				continue;
 			}
 			vec.push_back(race);
@@ -69,7 +69,7 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackI
 			for (auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
 				if (book) {
 					auto spell = book->data.teaches.spell;
-					if (!spell || !spell->HasKeywords(a_keywords)) {
+					if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
 						continue;
 					}
 					vec.push_back(spell);
@@ -77,7 +77,7 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackI
 			}
 		} else {
 			for (auto& spell : dataHandler->GetFormArray<RE::SpellItem>()) {
-				if (!spell || !spell->HasKeywords(a_keywords)) {
+				if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
 					continue;
 				}
 				vec.push_back(spell);
@@ -106,7 +106,7 @@ std::vector<RE::TESRace*> papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stac
 			return vec;
 		}
 		for (auto& race : dataHandler->GetFormArray<RE::TESRace>()) {
-			if (!race || !modInfo->IsFormInMod(race->formID) || !race->HasKeywords(a_keywords)) {
+			if (!race || !modInfo->IsFormInMod(race->formID) || !a_keywords.empty() && !race->HasKeywords(a_keywords)) {
 				continue;
 			}
 			vec.push_back(race);
@@ -139,14 +139,14 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 					continue;
 				}
 				auto spell = book->data.teaches.spell;
-				if (!spell || !spell->HasKeywords(a_keywords)) {
+				if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
 					continue;
 				}
 				vec.push_back(spell);
 			}
 		} else {
 			for (const auto& spell : dataHandler->GetFormArray<RE::SpellItem>()) {
-				if (!spell || !modInfo->IsFormInMod(spell->formID) || !spell->HasKeywords(a_keywords)) {
+				if (!spell || !modInfo->IsFormInMod(spell->formID) || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
 					continue;
 				}
 				vec.push_back(spell);

@@ -216,9 +216,9 @@ bool papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		auto modInfo = dataHandler->LookupLoadedModByName(a_name.c_str());
 		if (!modInfo) {
 			modInfo = dataHandler->LookupLoadedLightModByName(a_name.c_str());
-			if (modInfo) {
-				return true;
-			}
+		}
+		if (modInfo) {
+			return true;
 		}
 	}
 

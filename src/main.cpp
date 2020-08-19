@@ -152,7 +152,7 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* 
 
 		const auto ver = a_skse->RuntimeVersion();
 		if (ver < SKSE::RUNTIME_1_5_39) {
-			logger::critical("Unsupported runtime version {}", ver.GetString().c_str());
+			logger::critical("Unsupported runtime version {}", ver.string());
 			return false;
 		}
 	} catch (const std::exception& e) {

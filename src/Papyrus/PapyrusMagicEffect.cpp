@@ -10,6 +10,7 @@ RE::TESForm* papyrusMagicEffect::GetAssociatedForm(VM* a_vm, StackID a_stackID, 
 	return a_mgef->data.associatedForm;
 }
 
+
 std::uint32_t papyrusMagicEffect::GetEffectArchetypeAsInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef)
 {
 	if (!a_mgef) {

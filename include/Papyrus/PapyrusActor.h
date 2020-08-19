@@ -121,8 +121,6 @@ namespace papyrusActor
 
 	void SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSColorForm* a_color);
 
-	void ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_nodeName, bool a_disable);
-
 
 	bool RegisterFuncs(VM* a_vm);
 }

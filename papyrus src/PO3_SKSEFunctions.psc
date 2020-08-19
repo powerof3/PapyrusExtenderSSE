@@ -188,10 +188,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Sets skin color (face and body). Changes may persist throughout gaming session, even when reloading previous saves.
 	Function SetSkinColor(Actor akActor, ColorForm color) global native
-	
-	;Toggles node visibility
-	Function ToggleChildNode(Actor akActor, String nodeName, bool disable) global native
-		
+			
 ;----------------------------------------------------------------------------------------------------------
 ;ACTORBASE
 ;----------------------------------------------------------------------------------------------------------
@@ -516,6 +513,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	ObjectReference[] Function FindAllReferencesOfType(ObjectReference akRef, Form formOrList, float radius) global native
 	
+	Form Function FindFirstItemInList(ObjectReference akRef, FormList list) global native
+	
 	;Gets actor responsible for object
 	Actor Function GetActorCause(ObjectReference akRef) global native
 	
@@ -610,6 +609,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Checks if the specified art object (hit magic effect/not just visual effect) is attached to reference, and if so removes it.
 	Function StopArtObject(ObjectReference akTarget, Art akArtObject) global native
+	
+	;Toggles node visibility
+	Function ToggleChildNode(ObjectReference akTarget, String nodeName, bool disable) global native
 							
 ;----------------------------------------------------------------------------------------------------------
 ;PACKAGES
@@ -729,7 +731,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Subject	| HasMagicEffectKeyword	| MagicInvisibility		| NONE | == | 0.0 | AND
 	;0 			| 699					| 0001EA6F ~ Skyrim.esm | NONE | 0  | 0.0 | AND		
 	
-	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect mgef, float magnitude, int area, int duration, float cost = 0.0, String[] conditionList = None) global native
+	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect mgef, float magnitude, int area, int duration, float cost = 0.0, String[] conditionList) global native
 	
 	;returns which type of spell it is (0-7) / returns -1 if spell is None
 	;kTypeSpell = 0

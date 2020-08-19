@@ -1,5 +1,4 @@
 #include "Papyrus/PapyrusSpell.h"
-
 #include "ConditionParser.h"
 
 
@@ -55,7 +54,7 @@ void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::Static
 						}
 					}
 				} else {
-					a_vm->TraceStack("Failed to parse condition list", a_stackID, Severity::kWarning);
+					a_vm->TraceStack("Failed to parse condition list", a_stackID, Severity::kInfo);
 				}
 			}
 			a_spell->effects.push_back(effect);
@@ -85,11 +84,11 @@ void papyrusSpell::RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::S
 		return;
 	}
 
-	auto effect = a_spell->GetMatchingEffect(a_mgef, a_mag, a_area, a_dur, a_cost);
-	if (effect) {
-		a_spell->effects.erase(&effect);
-		RE::free(effect);
-		effect = nullptr;
+	auto it = std::find_if(a_spell->effects.begin(), a_spell->effects.end(),
+		[&](const auto& effect) { return effect->IsMatch(a_mgef, a_mag, a_area, a_dur, a_cost); }
+	);
+	if (it != a_spell->effects.end()) {
+		a_spell->effects.erase(it);
 	}
 }
 

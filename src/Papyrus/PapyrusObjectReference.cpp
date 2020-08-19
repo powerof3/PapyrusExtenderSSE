@@ -62,29 +62,11 @@ void papyrusObjectReference::AddKeywordToRef(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-void ForEachRefWithinDistance(const RE::TESObjectCELL* a_cell, const RE::NiPoint3& a_origin, float a_radius, std::function<bool(RE::TESObjectREFR* a_cellRef)> a_fn)
-{
-	a_cell->spinLock.Lock();
-	for (auto& refPtr : a_cell->references) {
-		auto ref = refPtr.get();
-		if (ref) {
-			auto distance = RE::NiPoint3::GetSquaredDistance(a_origin, ref->GetPosition());
-			if (distance <= a_radius) {
-				if (!a_fn(ref)) {
-					break;
-				}
-			}
-		}
-	}
-	a_cell->spinLock.Unlock();
-}
-
-
 void IterateOverAttachedCells(RE::TES* TES, const RE::NiPoint3& a_origin, float a_radius, std::function<bool(RE::TESObjectREFR* a_ref)> a_fn)
 {
 	auto cell = TES->currentInteriorCell;
 	if (cell) {
-		ForEachRefWithinDistance(cell, a_origin, a_radius, [&](RE::TESObjectREFR* ref) {
+		cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR* ref) {
 			if (!a_fn(ref)) {
 				return false;
 			}
@@ -108,7 +90,7 @@ void IterateOverAttachedCells(RE::TES* TES, const RE::NiPoint3& a_origin, float 
 						auto cellCoords = cell->GetCoordinates();
 						if (cellCoords) {
 							if (cellCoords->worldX < xPlus && (cellCoords->worldX + 4096.0) > xMinus && cellCoords->worldY < yPlus && (cellCoords->worldY + 4096.0) > yMinus) {
-								ForEachRefWithinDistance(cell, a_origin, a_radius, [&](RE::TESObjectREFR* a_cellRef) {
+								cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR* a_cellRef) {
 									if (!a_fn(a_cellRef)) {
 										return false;
 									}
@@ -152,7 +134,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfFormT
 			if (worldSpace) {
 				auto skyCell = worldSpace->GetOrCreateSkyCell();
 				if (skyCell) {
-					ForEachRefWithinDistance(skyCell, originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
+					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
 						auto form = a_cellRef->GetBaseObject();
 						if (form && form->GetFormType() == formType) {
 							vec.push_back(a_cellRef);
@@ -189,23 +171,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfType(
 		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR* a_ref) {
 			auto base = a_ref->GetBaseObject();
 			if (base) {
-				if (list) {
-					if (!list->forms.empty()) {
-						for (auto& form : list->forms) {
-							if (form && form == base) {
-								vec.push_back(a_ref);
-							}
-						}
-					}
-					if (list->scriptAddedTempForms) {
-						for (const auto& formID : *list->scriptAddedTempForms) {
-							auto form = RE::TESForm::LookupByID(formID);
-							if (form && form == base) {
-								vec.push_back(a_ref);
-							}
-						}
-					}
-				} else if (a_formOrList == base) {
+				if (list && list->HasForm(base) || a_formOrList == base) {
 					vec.push_back(a_ref);
 				}
 			}
@@ -217,26 +183,10 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfType(
 			if (worldSpace) {
 				auto skyCell = worldSpace->GetOrCreateSkyCell();
 				if (skyCell) {
-					ForEachRefWithinDistance(skyCell, originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
+					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
 						auto base = a_cellRef->GetBaseObject();
 						if (base) {
-							if (list) {
-								if (!list->forms.empty()) {
-									for (auto& form : list->forms) {
-										if (form && form == base) {
-											vec.push_back(a_cellRef);
-										}
-									}
-								}
-								if (list->scriptAddedTempForms) {
-									for (const auto& formID : *list->scriptAddedTempForms) {
-										auto form = RE::TESForm::LookupByID(formID);
-										if (form && form == base) {
-											vec.push_back(a_cellRef);
-										}
-									}
-								}
-							} else if (a_formOrList == base) {
+							if (list && list->HasForm(base) || a_formOrList == base) {
 								vec.push_back(a_cellRef);
 							}
 						}
@@ -292,9 +242,9 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 		if (vec.empty()) {
 			auto worldSpace = TES->worldSpace;
 			if (worldSpace) {
-				auto cell = worldSpace->GetOrCreateSkyCell();
-				if (cell) {
-					ForEachRefWithinDistance(cell, originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
+				auto skyCell = worldSpace->GetOrCreateSkyCell();
+				if (skyCell) {
+					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
 						bool success = false;
 						if (list) {
 							success = a_matchAll ? a_cellRef->HasAllKeywords(list) : a_cellRef->HasKeywords(list);
@@ -312,6 +262,30 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 	}
 
 	return vec;
+}
+
+
+RE::TESForm* papyrusObjectReference::FindFirstItemInList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list)
+{
+	if (!a_ref) {
+		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		return nullptr;
+	}
+
+	if (!a_list) {
+		a_vm->TraceStack("Formlist is None", a_stackID, Severity::kWarning);
+		return nullptr;
+	}
+
+	auto inv = a_ref->GetInventory();
+	for (auto& itemPair : inv) {
+		auto& item = itemPair.first;
+		if (item && a_list->HasForm(item)) {
+			return item;
+		}
+	}
+
+	return nullptr;
 }
 
 
@@ -851,7 +825,6 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 			root->AddExtraData(newData);
 		}
 	}
-	
 }
 
 
@@ -946,7 +919,7 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 							RE::Util::SanitizeTexturePath(newDiffuse);
 
 							std::string oldDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
-							if (a_vec.empty() || !a_vec.back().empty() && a_vec.back().front() != oldDiffuse) {
+							if (a_vec.empty() || !a_vec.back().empty() && a_vec.back().front() != oldDiffuse.c_str()) {
 								std::vector<RE::BSFixedString> resetData;
 								resetData.reserve(15);
 
@@ -1169,6 +1142,44 @@ void papyrusObjectReference::StopArtObject(VM* a_vm, StackID a_stackID, RE::Stat
 }
 
 
+void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_nodeName, bool a_disable)
+{
+	if (!a_ref) {
+		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto root = a_ref->Get3D();
+	if (!root) {
+		a_vm->TraceStack("ObjectReference has no 3D", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto object = root->GetObjectByName(a_nodeName);
+	if (object) {
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([object, a_disable]() {
+			object->UpdateVisibility(a_disable);
+			});
+
+		auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE");
+		if (!data) {
+			if (a_disable) {
+				std::vector<RE::BSFixedString> vec;
+				vec.push_back(a_nodeName);
+				auto newData = RE::NiStringsExtraData::Create("PO3_TOGGLE", vec);
+				if (newData) {
+					root->AddExtraData(newData);
+				}
+			}
+		}
+		else {
+			a_disable == true ? data->InsertElement(a_nodeName) : data->RemoveElement(a_nodeName);
+		}
+	}
+}
+
+
 bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
@@ -1187,6 +1198,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("FindAllReferencesOfType", "PO3_SKSEFunctions", FindAllReferencesOfType);
 
 	a_vm->RegisterFunction("FindAllReferencesWithKeyword", "PO3_SKSEFunctions", FindAllReferencesWithKeyword);
+
+	a_vm->RegisterFunction("FindFirstItemInList", "PO3_SKSEFunctions", FindFirstItemInList);
 
 	a_vm->RegisterFunction("GetActorCause", "PO3_SKSEFunctions", GetActorCause);
 
@@ -1225,6 +1238,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("StopAllShaders", "PO3_SKSEFunctions", StopAllShaders);
 
 	a_vm->RegisterFunction("StopArtObject", "PO3_SKSEFunctions", StopArtObject);
+
+	a_vm->RegisterFunction("ToggleChildNode", "PO3_SKSEFunctions", ToggleChildNode);
 
 	return true;
 }

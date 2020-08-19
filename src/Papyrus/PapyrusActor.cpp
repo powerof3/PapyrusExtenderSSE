@@ -575,8 +575,8 @@ bool papyrusActor::IsActorSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFun
 	}
 
 	if (hasSoulTrap && caster) {
-		auto inv = caster->GetInventory([](RE::TESBoundObject* a_object) -> bool {
-			return a_object->IsSoulGem();
+		auto inv = caster->GetInventory([](RE::TESBoundObject& a_object) -> bool {
+			return a_object.IsSoulGem();
 		});
 
 		for (auto& item : inv) {
@@ -667,7 +667,7 @@ bool papyrusActor::RemoveBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 			if (activeEffects) {
 				for (auto& activeEffect : *activeEffects) {
 					if (activeEffect && activeEffect->spell && activeEffect->spell == a_spell) {
-						activeEffect->Dispell(true);
+						activeEffect->Dispel(true);
 					}
 				}
 			}
@@ -1367,43 +1367,6 @@ void papyrusActor::SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
-void papyrusActor::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_nodeName, bool a_disable)
-{
-	if (!a_actor) {
-		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
-		return;
-	}
-
-	auto root = a_actor->Get3D(0);
-	if (!root) {
-		a_vm->TraceStack("Actor has no 3D", a_stackID, Severity::kWarning);
-		return;
-	}
-
-	auto object = root->GetObjectByName(a_nodeName);
-	if (object) {
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, object, a_disable]() {
-			object->UpdateVisibility(a_disable);
-		});
-
-		auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE");
-		if (!data) {
-			if (a_disable) {
-				std::vector<RE::BSFixedString> vec;
-				vec.push_back(a_nodeName);
-				auto newData = RE::NiStringsExtraData::Create("PO3_TOGGLE", vec);
-				if (newData) {
-					root->AddExtraData(newData);
-				}
-			}
-		} else {
-			a_disable == true ? data->InsertElement(a_nodeName) : data->RemoveElement(a_nodeName);
-		}
-	}
-}
-
-
 bool papyrusActor::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
@@ -1488,8 +1451,6 @@ bool papyrusActor::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("SetSkinAlpha", "PO3_SKSEFunctions", SetSkinAlpha);
 
 	a_vm->RegisterFunction("SetSkinColor", "PO3_SKSEFunctions", SetSkinColor);
-
-	a_vm->RegisterFunction("ToggleChildNode", "PO3_SKSEFunctions", ToggleChildNode);
 
 	return true;
 }

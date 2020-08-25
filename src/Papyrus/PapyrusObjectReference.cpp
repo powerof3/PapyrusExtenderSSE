@@ -3,19 +3,19 @@
 #include "Serialization/Keywords.h"
 
 
-std::vector<RE::TESForm*> papyrusObjectReference::AddAllInventoryItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+std::vector<RE::TESForm*> papyrusObjectReference::AddAllItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 {
 	std::vector<RE::TESForm*> vec;
 
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return vec;
 	}
 
 	auto inv = a_ref->GetInventory();
 	for (auto& item : inv) {
 		auto& [count, entry] = item.second;
-		if (entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
+		if (count > 0 && entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
 			vec.push_back(item.first);
 		}
 	}
@@ -24,10 +24,10 @@ std::vector<RE::TESForm*> papyrusObjectReference::AddAllInventoryItemsToArray(VM
 }
 
 
-void papyrusObjectReference::AddAllInventoryItemsToList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+void papyrusObjectReference::AddAllItemsToList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_list) {
 		a_vm->TraceStack("Formlist is None", a_stackID, Severity::kWarning);
@@ -37,7 +37,7 @@ void papyrusObjectReference::AddAllInventoryItemsToList(VM* a_vm, StackID a_stac
 	auto inv = a_ref->GetInventory();
 	for (auto& item : inv) {
 		auto& [count, entry] = item.second;
-		if (entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
+		if (count > 0 && entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
 			a_list->AddForm(item.first);
 		}
 	}
@@ -47,7 +47,7 @@ void papyrusObjectReference::AddAllInventoryItemsToList(VM* a_vm, StackID a_stac
 void papyrusObjectReference::AddKeywordToRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_add)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_add) {
 		a_vm->TraceStack("Keyword is None", a_stackID, Severity::kWarning);
@@ -111,7 +111,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfFormT
 	std::vector<RE::TESObjectREFR*> vec;
 
 	if (!a_origin) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return vec;
 	}
 
@@ -155,7 +155,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfType(
 	std::vector<RE::TESObjectREFR*> vec;
 
 	if (!a_origin) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return vec;
 	} else if (!a_formOrList) {
 		a_vm->TraceStack("FormOrList parameter is None", a_stackID, Severity::kWarning);
@@ -206,7 +206,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 	std::vector<RE::TESObjectREFR*> vec;
 
 	if (!a_origin) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return vec;
 	} else if (!a_formOrList) {
 		a_vm->TraceStack("FormOrList parameter is None", a_stackID, Severity::kWarning);
@@ -268,7 +268,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 RE::TESForm* papyrusObjectReference::FindFirstItemInList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
 
@@ -278,10 +278,9 @@ RE::TESForm* papyrusObjectReference::FindFirstItemInList(VM* a_vm, StackID a_sta
 	}
 
 	auto inv = a_ref->GetInventory();
-	for (auto& itemPair : inv) {
-		auto& item = itemPair.first;
-		if (item && a_list->HasForm(item)) {
-			return item;
+	for (auto& item : inv) {
+		if (a_list->HasForm(item.first)) {
+			return item.first;
 		}
 	}
 
@@ -292,7 +291,7 @@ RE::TESForm* papyrusObjectReference::FindFirstItemInList(VM* a_vm, StackID a_sta
 RE::Actor* papyrusObjectReference::GetActorCause(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
 
@@ -308,10 +307,68 @@ RE::Actor* papyrusObjectReference::GetActorCause(VM* a_vm, StackID a_stackID, RE
 }
 
 
+std::vector<RE::BGSArtObject*> papyrusObjectReference::GetAllArtObjects(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	std::vector<RE::BGSArtObject*> vec;
+
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto processLists = RE::ProcessLists::GetSingleton();
+	if (processLists) {
+		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
+			auto modelEffect = a_tempEffect->As<RE::ModelReferenceEffect>();
+			if (modelEffect) {
+				auto handle = a_ref->CreateRefHandle();
+				if (modelEffect->target == handle) {
+					if (modelEffect->artObject) {
+						vec.push_back(modelEffect->artObject);
+					}
+				}
+			}
+			return true;
+		});
+	}
+
+	return vec;
+}
+
+
+std::vector<RE::TESEffectShader*> papyrusObjectReference::GetAllEffectShaders(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	std::vector<RE::TESEffectShader*> vec;
+
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto processLists = RE::ProcessLists::GetSingleton();
+	if (processLists) {
+		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
+			auto shaderEffect = a_tempEffect->As<RE::ShaderReferenceEffect>();
+			if (shaderEffect) {
+				auto handle = a_ref->CreateRefHandle();
+				if (shaderEffect->target == handle) {
+					if (shaderEffect->effectData) {
+						vec.push_back(shaderEffect->effectData);
+					}
+				}
+			}
+			return true;
+		});
+	}
+
+	return vec;
+}
+
+
 RE::Actor* papyrusObjectReference::GetClosestActorFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, bool a_ignorePlayer)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
 
@@ -360,70 +417,12 @@ RE::Actor* papyrusObjectReference::GetClosestActorFromRef(VM* a_vm, StackID a_st
 }
 
 
-std::vector<RE::BGSArtObject*> papyrusObjectReference::GetAllArtObjects(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
-{
-	std::vector<RE::BGSArtObject*> vec;
-
-	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
-		return vec;
-	}
-
-	auto processLists = RE::ProcessLists::GetSingleton();
-	if (processLists) {
-		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
-			auto modelEffect = a_tempEffect->As<RE::ModelReferenceEffect>();
-			if (modelEffect) {
-				auto handle = a_ref->CreateRefHandle();
-				if (modelEffect->target == handle) {
-					if (modelEffect->artObject) {
-						vec.push_back(modelEffect->artObject);
-					}
-				}
-			}
-			return true;
-		});
-	}
-
-	return vec;
-}
-
-
-std::vector<RE::TESEffectShader*> papyrusObjectReference::GetAllEffectShaders(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
-{
-	std::vector<RE::TESEffectShader*> vec;
-
-	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
-		return vec;
-	}
-
-	auto processLists = RE::ProcessLists::GetSingleton();
-	if (processLists) {
-		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
-			auto shaderEffect = a_tempEffect->As<RE::ShaderReferenceEffect>();
-			if (shaderEffect) {
-				auto handle = a_ref->CreateRefHandle();
-				if (shaderEffect->target == handle) {
-					if (shaderEffect->effectData) {
-						vec.push_back(shaderEffect->effectData);
-					}
-				}
-			}
-			return true;
-		});
-	}
-
-	return vec;
-}
-
-
 float papyrusObjectReference::GetEffectShaderDuration(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::TESEffectShader* a_effectShader)
 {
 	float time = 0.0f;
 
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return time;
 	} else if (!a_effectShader) {
 		a_vm->TraceStack("Effect shader is None", a_stackID, Severity::kWarning);
@@ -452,10 +451,106 @@ float papyrusObjectReference::GetEffectShaderDuration(VM* a_vm, StackID a_stackI
 }
 
 
+void GetMaterialType_Impl(RE::bhkWorldObject* a_body, std::vector<RE::BSFixedString>& vec)
+{
+	if (!a_body) {
+		return;
+	}
+
+	auto& materialMap = papyrusObjectReference::materialMap;
+
+	auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
+	if (hkpBody) {
+		auto hkpShape = hkpBody->GetShape();
+		if (hkpShape) {
+			switch (hkpShape->type) {
+			case RE::hkpShapeType::kMOPP:
+				{
+					auto mopp = static_cast<const RE::hkpMoppBvTreeShape*>(hkpShape);
+					if (mopp) {
+						auto childShape = mopp->child.childShape;
+						if (childShape) {
+							auto bhkShape = childShape->userData;
+							if (bhkShape) {
+								auto compressedShape = netimmerse_cast<RE::bhkCompressedMeshShape*>(bhkShape);
+								if (compressedShape) {
+									auto data = compressedShape->data.get();
+									if (data) {
+										for (auto& meshMaterial : data->meshMaterials) {
+											vec.push_back(materialMap.at(meshMaterial.materialID).data());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
+			default:
+				{
+					auto bhkShape = hkpShape->userData;
+					if (bhkShape) {
+						vec.push_back(materialMap.at(bhkShape->materialID).data());
+					}
+				}
+				break;
+			}
+		}
+	}
+}
+
+
+std::vector<RE::BSFixedString> papyrusObjectReference::GetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_nodeName)
+{
+	std::vector<RE::BSFixedString> vec;
+
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto root = a_ref->Get3D();
+	if (!root) {
+		a_vm->TraceStack("Object has no 3D", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto cell = a_ref->parentCell;
+	if (!cell) {
+		a_vm->TraceStack("Object is not in a loaded cell", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	if (!a_nodeName.empty()) {
+		auto object = root->GetObjectByName(a_nodeName);
+		if (object) {
+			cell->LockHavokWorld();
+			auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
+			if (colObject) {
+				GetMaterialType_Impl(colObject->body.get(), vec);
+			}
+			cell->UnlockHavokWorld();
+		}
+	} else {
+		cell->LockHavokWorld();
+		RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+			auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
+			if (colObject) {
+				GetMaterialType_Impl(colObject->body.get(), vec);
+			}
+			return RE::BSVisit::BSVisitControl::kStop;
+		});
+		cell->UnlockHavokWorld();
+	}
+
+	return vec;
+}
+
+
 RE::Actor* papyrusObjectReference::GetRandomActorFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, float a_radius, bool a_ignorePlayer)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
 
@@ -507,7 +602,7 @@ std::uint32_t papyrusObjectReference::HasArtObject(VM* a_vm, StackID a_stackID, 
 	std::uint32_t count = 0;
 
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return count;
 	} else if (!a_art) {
 		a_vm->TraceStack("ArtObject is None", a_stackID, Severity::kWarning);
@@ -542,7 +637,7 @@ std::uint32_t papyrusObjectReference::HasEffectShader(VM* a_vm, StackID a_stackI
 	std::uint32_t count = 0;
 
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return count;
 	} else if (!a_effectShader) {
 		a_vm->TraceStack("Effect shader is None", a_stackID, Severity::kWarning);
@@ -575,7 +670,7 @@ std::uint32_t papyrusObjectReference::HasEffectShader(VM* a_vm, StackID a_stackI
 bool papyrusObjectReference::IsLoadDoor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_door)
 {
 	if (!a_door) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return false;
 	}
 
@@ -583,10 +678,55 @@ bool papyrusObjectReference::IsLoadDoor(VM* a_vm, StackID a_stackID, RE::StaticF
 }
 
 
+bool papyrusObjectReference::IsQuestItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return false;
+	}
+
+	return a_ref->HasQuestObject();
+}
+
+
+bool papyrusObjectReference::IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	using FILL_TYPE = RE::BGSBaseAlias::FILL_TYPE;
+	using Flags = RE::BGSBaseAlias::FLAGS;
+	using TYPE = RE::QUEST_DATA::Type;
+
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return false;
+	}
+
+	bool isVIP = false;
+
+	auto xAlias = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>();
+	if (xAlias) {
+		xAlias->lock.LockForRead();
+		for (auto& aliasData : xAlias->aliases) {
+			if (aliasData) {
+				auto alias = aliasData->alias;
+				if (alias) {
+					auto quest = alias->owningQuest;
+					if (quest && quest->GetType() != TYPE::kNone && quest->IsRunning() && alias->IsQuestObject() || alias->IsEssential() || alias->IsProtected() || alias->flags.none(Flags::kOptional) && (alias->fillType.get() == FILL_TYPE::kForced || alias->fillType.get() == FILL_TYPE::kUniqueActor)) {
+						isVIP = true;
+					}
+				}
+			}
+		}
+		xAlias->lock.UnlockForRead();
+	}
+
+	return isVIP;
+}
+
+
 bool papyrusObjectReference::HasNiExtraData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_name)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return false;
 	}
 
@@ -629,7 +769,7 @@ std::optional<RE::NiPoint3> FindNearestVertex(RE::TESObjectREFR* a_ref)
 void papyrusObjectReference::MoveToNearestNavmeshLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -654,7 +794,7 @@ void papyrusObjectReference::MoveToNearestNavmeshLocation(VM* a_vm, StackID a_st
 bool papyrusObjectReference::RemoveKeywordFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_remove)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return false;
 	} else if (!a_remove) {
 		a_vm->TraceStack("Keyword is None", a_stackID, Severity::kWarning);
@@ -670,7 +810,7 @@ bool papyrusObjectReference::RemoveKeywordFromRef(VM* a_vm, StackID a_stackID, R
 void papyrusObjectReference::ReplaceKeywordOnRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_remove, RE::BGSKeyword* a_add)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_remove) {
 		a_vm->TraceStack("Remove keyword is None", a_stackID, Severity::kWarning);
@@ -708,17 +848,12 @@ void papyrusObjectReference::ReplaceKeywordOnRef(VM* a_vm, StackID a_stackID, RE
 }
 
 
-void ScaleObject3D_Impl(RE::bhkWorldObject* a_body, float a_scale, bool a_lockWorld)
+void ScaleObject3D_Impl(RE::bhkWorldObject* a_body, float a_scale)
 {
-	auto world = a_body->GetWorld2();
-	if (a_lockWorld) {
-		if (world) {
-			auto havokWorld = world->unk430;
-			if (havokWorld) {
-				havokWorld->LockWorld();
-			}
-		}
+	if (!a_body) {
+		return;
 	}
+
 	auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
 	if (hkpBody) {
 		auto shape = hkpBody->GetShape();
@@ -745,14 +880,6 @@ void ScaleObject3D_Impl(RE::bhkWorldObject* a_body, float a_scale, bool a_lockWo
 			}
 		}
 	}
-	if (a_lockWorld) {
-		if (world) {
-			auto havokWorld = world->unk430;
-			if (havokWorld) {
-				havokWorld->UnlockWorld();
-			}
-		}
-	}
 }
 
 
@@ -769,6 +896,12 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 		return;
 	}
 
+	auto cell = a_ref->parentCell;
+	if (!cell) {
+		a_vm->TraceStack("Object is not in a loaded cell", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	if (!a_nodeName.empty()) {
 		auto object = root->GetObjectByName(a_nodeName);
 		if (object) {
@@ -778,13 +911,12 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 				RE::NiUpdateData updateData = { 0.0f, RE::NiUpdateData::Flag::kNone };
 				object->Update(updateData);
 			});
+			cell->LockHavokWorld();
 			auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
 			if (colObject) {
-				auto body = colObject->body.get();
-				if (body) {
-					ScaleObject3D_Impl(body, a_scale, true);
-				}
+				ScaleObject3D_Impl(colObject->body.get(), a_scale);
 			}
+			cell->UnlockHavokWorld();
 		}
 	} else {
 		auto task = SKSE::GetTaskInterface();
@@ -793,29 +925,15 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 			RE::NiUpdateData updateData = { 0.0f, RE::NiUpdateData::Flag::kNone };
 			root->Update(updateData);
 		});
-		auto cell = a_ref->parentCell;
-		if (cell) {
-			auto world = cell->GetHavokWorld();
-			if (world) {
-				world->LockWorld();
-			}
-		}
+		cell->LockHavokWorld();
 		RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 			auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
 			if (colObject) {
-				auto body = colObject->body.get();
-				if (body) {
-					ScaleObject3D_Impl(body, a_scale, false);
-				}
+				ScaleObject3D_Impl(colObject->body.get(), a_scale);
 			}
 			return RE::BSVisit::BSVisitControl::kContinue;
 		});
-		if (cell) {
-			auto world = cell->GetHavokWorld();
-			if (world) {
-				world->UnlockWorld();
-			}
-		}
+		cell->UnlockHavokWorld();
 	}
 
 	auto data = root->GetExtraData<RE::NiFloatExtraData>("PO3_SCALE");
@@ -861,6 +979,126 @@ void papyrusObjectReference::SetEffectShaderDuration(VM* a_vm, StackID a_stackID
 			}
 			return true;
 		});
+	}
+}
+
+
+void SetMaterialType_Impl(RE::bhkWorldObject* a_body, RE::MATERIAL_ID newID, RE::MATERIAL_ID oldID)
+{
+	if (!a_body) {
+		return;
+	}
+
+	auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
+	if (hkpBody) {
+		auto hkpShape = hkpBody->GetShape();
+		if (hkpShape) {
+			switch (hkpShape->type) {
+			case RE::hkpShapeType::kMOPP:
+				{
+					auto mopp = static_cast<const RE::hkpMoppBvTreeShape*>(hkpShape);
+					if (mopp) {
+						auto childShape = mopp->child.childShape;
+						if (childShape) {
+							auto bhkShape = childShape->userData;
+							if (bhkShape) {
+								auto compressedShape = netimmerse_cast<RE::bhkCompressedMeshShape*>(bhkShape);
+								if (compressedShape) {
+									auto data = compressedShape->data.get();
+									if (data) {
+										for (auto& meshMaterial : data->meshMaterials) {
+											if (oldID != RE::MATERIAL_ID::kNone) {
+												if (meshMaterial.materialID != oldID) {
+													continue;
+												}
+											}
+											meshMaterial.materialID = newID;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
+			default:
+				{
+					auto bhkShape = hkpShape->userData;
+					if (bhkShape) {
+						if (oldID != RE::MATERIAL_ID::kNone) {
+							if (bhkShape->materialID != oldID) {
+								return;
+							}
+						}
+						bhkShape->materialID = newID;
+					}
+				}
+				break;
+			}
+		}
+	}
+}
+
+
+void papyrusObjectReference::SetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_newMaterialType, RE::BSFixedString a_oldMaterialType, RE::BSFixedString a_nodeName)
+{
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return;
+	} else if (a_newMaterialType.empty()) {
+		a_vm->TraceStack("Material type is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto root = a_ref->Get3D();
+	if (!root) {
+		a_vm->TraceStack("Object has no 3D", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto cell = a_ref->parentCell;
+	if (!cell) {
+		a_vm->TraceStack("Object is not in a loaded cell", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto newID = RE::MATERIAL_ID::kNone;
+	auto oldID = RE::MATERIAL_ID::kNone;
+	for (auto& mat : materialMap) {
+		if (_stricmp(mat.second.data(), a_newMaterialType.data()) == 0) {
+			newID = mat.first;
+			break;
+		}
+		if (!a_oldMaterialType.empty()) {
+			if (_stricmp(mat.second.data(), a_oldMaterialType.data()) == 0) {
+				oldID = mat.first;
+				break;
+			}
+		}
+	}
+
+	if (newID != RE::MATERIAL_ID::kNone) {
+		if (!a_nodeName.empty()) {
+			auto object = root->GetObjectByName(a_nodeName);
+			if (object) {
+				cell->LockHavokWorld();
+				auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
+				if (colObject) {
+					SetMaterialType_Impl(colObject->body.get(), newID, oldID);
+				}
+				cell->UnlockHavokWorld();
+			}
+		} else {
+			cell->LockHavokWorld();
+			RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+				auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
+				if (colObject) {
+					SetMaterialType_Impl(colObject->body.get(), newID, oldID);
+				}
+				return RE::BSVisit::BSVisitControl::kContinue;
+			});
+			cell->UnlockHavokWorld();
+		}
 	}
 }
 
@@ -977,13 +1215,13 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::TESObjectREFR* a_template, RE::BSFixedString a_filter, std::uint32_t a_shaderType, std::int32_t a_textureType, bool a_noWeapons, bool a_noAlpha)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_template) {
 		a_vm->TraceStack("Template object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_ref->Is3DLoaded()) {
-		a_vm->TraceStack("ObjectReference is not loaded", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is not loaded", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_template->Is3DLoaded()) {
 		a_vm->TraceStack("Template object is not loaded", a_stackID, Severity::kWarning);
@@ -1082,7 +1320,7 @@ void papyrusObjectReference::StopAllShaders_Impl(RE::TESObjectREFR* a_ref)
 void papyrusObjectReference::StopAllShaders(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1116,7 +1354,7 @@ void papyrusObjectReference::StopAllSkinAlphaShaders_Impl(RE::TESObjectREFR* a_r
 void papyrusObjectReference::StopArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSArtObject* a_art)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_art) {
 		a_vm->TraceStack("Art Object is None", a_stackID, Severity::kWarning);
@@ -1145,13 +1383,13 @@ void papyrusObjectReference::StopArtObject(VM* a_vm, StackID a_stackID, RE::Stat
 void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_nodeName, bool a_disable)
 {
 	if (!a_ref) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
 	auto root = a_ref->Get3D();
 	if (!root) {
-		a_vm->TraceStack("ObjectReference has no 3D", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object has no 3D", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1160,7 +1398,7 @@ void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::St
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([object, a_disable]() {
 			object->UpdateVisibility(a_disable);
-			});
+		});
 
 		auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE");
 		if (!data) {
@@ -1172,8 +1410,7 @@ void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::St
 					root->AddExtraData(newData);
 				}
 			}
-		}
-		else {
+		} else {
 			a_disable == true ? data->InsertElement(a_nodeName) : data->RemoveElement(a_nodeName);
 		}
 	}
@@ -1187,9 +1424,9 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 		return false;
 	}
 
-	a_vm->RegisterFunction("AddAllInventoryItemsToArray", "PO3_SKSEFunctions", AddAllInventoryItemsToArray);
+	a_vm->RegisterFunction("AddAllItemsToArray", "PO3_SKSEFunctions", AddAllItemsToArray);
 
-	a_vm->RegisterFunction("AddAllInventoryItemsToList", "PO3_SKSEFunctions", AddAllInventoryItemsToList);
+	a_vm->RegisterFunction("AddAllItemsToList", "PO3_SKSEFunctions", AddAllItemsToList);
 
 	a_vm->RegisterFunction("AddKeywordToRef", "PO3_SKSEFunctions", AddKeywordToRef);
 
@@ -1211,6 +1448,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("GetEffectShaderDuration", "PO3_SKSEFunctions", GetEffectShaderDuration);
 
+	a_vm->RegisterFunction("GetMaterialType", "PO3_SKSEFunctions", GetMaterialType);
+
 	a_vm->RegisterFunction("GetRandomActorFromRef", "PO3_SKSEFunctions", GetRandomActorFromRef);
 
 	a_vm->RegisterFunction("HasArtObject", "PO3_SKSEFunctions", HasArtObject);
@@ -1221,6 +1460,10 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("IsLoadDoor", "PO3_SKSEFunctions", IsLoadDoor, true);
 
+	a_vm->RegisterFunction("IsQuestItem", "PO3_SKSEFunctions", IsQuestItem);
+
+	a_vm->RegisterFunction("IsVIP", "PO3_SKSEFunctions", IsVIP);
+
 	a_vm->RegisterFunction("MoveToNearestNavmeshLocation", "PO3_SKSEFunctions", MoveToNearestNavmeshLocation);
 
 	a_vm->RegisterFunction("RemoveKeywordFromRef", "PO3_SKSEFunctions", RemoveKeywordFromRef);
@@ -1230,6 +1473,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("ScaleObject3D", "PO3_SKSEFunctions", ScaleObject3D);
 
 	a_vm->RegisterFunction("SetEffectShaderDuration", "PO3_SKSEFunctions", SetEffectShaderDuration);
+
+	a_vm->RegisterFunction("SetMaterialType", "PO3_SKSEFunctions", SetMaterialType);
 
 	a_vm->RegisterFunction("SetShaderType", "PO3_SKSEFunctions", SetShaderType);
 

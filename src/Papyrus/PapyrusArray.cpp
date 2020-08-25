@@ -41,7 +41,7 @@ std::vector<RE::BSFixedString> papyrusArray::SortArrayString(VM* a_vm, StackID a
 	}),
 		strings.end());
 	std::sort(strings.begin(), strings.end(), [](const RE::BSFixedString& a_lhs, const RE::BSFixedString& a_rhs) {
-			return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
+		return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
 	});
 
 	return strings;
@@ -78,9 +78,9 @@ std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, S
 		std::string fullName = name.second > 1 ? std::to_string(name.second) + " " + name.first + "(s)" : name.first;
 		names.push_back(fullName.c_str());
 	}
-	
+
 	std::sort(names.begin(), names.end(), [](const RE::BSFixedString& a_lhs, const RE::BSFixedString& a_rhs) {
-			return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
+		return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
 	});
 
 	return names;
@@ -102,7 +102,7 @@ bool papyrusArray::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("SortArrayString", "PO3_SKSEFunctions", SortArrayString);
 
-	a_vm->RegisterFunction("GetSortedActorNameArray", "PO3_SKSEFunctions", GetSortedActorNameArray);
+	//a_vm->RegisterFunction("GetSortedActorNameArray", "PO3_SKSEFunctions", GetSortedActorNameArray);
 
 	return true;
 }

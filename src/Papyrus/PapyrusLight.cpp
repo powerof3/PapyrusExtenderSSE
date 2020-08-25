@@ -53,6 +53,24 @@ float papyrusLight::GetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 }
 
 
+std::vector<std::uint32_t> papyrusLight::GetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+{
+	std::vector<std::uint32_t> vec(3, 0);
+
+	if (!a_light) {
+		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto color = a_light->data.color;
+	for (std::size_t i = 0; i < 3; ++i) {
+		vec[i] = color[i];
+	}
+
+	return vec;
+}
+
+
 float papyrusLight::GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject)
 {
 	if (!a_lightObject) {
@@ -144,6 +162,26 @@ void papyrusLight::SetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 }
 
 
+void papyrusLight::SetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light, std::vector<std::uint32_t> a_rgb)
+{
+	if (!a_light) {
+		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
+		return;
+	} else if (a_rgb.empty()) {
+		a_vm->TraceStack("RGB array is empty", a_stackID, Severity::kWarning);
+		return;
+	} else if (a_rgb.size() != 3) {
+		a_vm->TraceStack("RGB array is incorrect size", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto& color = a_light->data.color;
+	for (std::size_t i = 0; i < 3; ++i) {
+		color[i] = a_rgb[i];
+	}
+}
+
+
 void papyrusLight::SetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject, float a_depthBias)
 {
 	if (!a_lightObject) {
@@ -217,11 +255,15 @@ bool papyrusLight::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("GetLightRadius", "PO3_SKSEFunctions", GetLightRadius, true);
 
+	a_vm->RegisterFunction("GetLightRGB", "PO3_SKSEFunctions", GetLightRGB);
+
 	a_vm->RegisterFunction("GetLightShadowDepthBias", "PO3_SKSEFunctions", GetLightShadowDepthBias);
 
 	a_vm->RegisterFunction("GetLightType", "PO3_SKSEFunctions", GetLightType);
 
 	a_vm->RegisterFunction("SetLightRadius", "PO3_SKSEFunctions", SetLightRadius);
+
+	a_vm->RegisterFunction("SetLightRGB", "PO3_SKSEFunctions", SetLightRGB);
 
 	a_vm->RegisterFunction("SetLightColor", "PO3_SKSEFunctions", SetLightColor);
 

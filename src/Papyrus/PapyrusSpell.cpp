@@ -85,8 +85,7 @@ void papyrusSpell::RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::S
 	}
 
 	auto it = std::find_if(a_spell->effects.begin(), a_spell->effects.end(),
-		[&](const auto& effect) { return effect->IsMatch(a_mgef, a_mag, a_area, a_dur, a_cost); }
-	);
+		[&](const auto& effect) { return effect->IsMatch(a_mgef, a_mag, a_area, a_dur, a_cost); });
 	if (it != a_spell->effects.end()) {
 		a_spell->effects.erase(it);
 	}

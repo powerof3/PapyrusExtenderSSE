@@ -20,9 +20,13 @@ namespace papyrusGame
 
 	std::vector<RE::TESObjectCELL*> GetAttachedCells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*);
 
+	std::vector<float> GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*);
+
 	std::int32_t GetNumActorsInHigh(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*);
 
 	bool IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name);
+
+	void SetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, float a_x, float a_y, float a_z);
 
 
 	bool RegisterFuncs(VM* a_vm);

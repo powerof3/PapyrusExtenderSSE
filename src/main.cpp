@@ -130,7 +130,7 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 	try {
-		auto path = logger::log_directory() / "po3_papyrusextender64.log";
+		auto path = logger::log_directory().value() / "po3_papyrusextender64.log";
 		auto log = spdlog::basic_logger_mt("global log", path.string(), true);
 		log->flush_on(spdlog::level::info);
 
@@ -172,9 +172,7 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Load(const SKSE::LoadInterface* a_
 	try {
 		logger::info("po3_PapyrusExtender loaded");
 
-		if (!SKSE::Init(a_skse)) {
-			return false;
-		}
+		SKSE::Init(a_skse);
 
 		/*const auto messaging = SKSE::GetMessagingInterface();
 		if (!messaging->RegisterListener("SKSE", OnInit)) {

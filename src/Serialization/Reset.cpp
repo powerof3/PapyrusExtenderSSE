@@ -4,8 +4,8 @@
 std::uint32_t constexpr const_hash(const char* input, std::uint32_t hash = 5381)
 {
 	return *input ?
-			   const_hash(input + 1, hash * 33 + static_cast<std::uint32_t>(*input)) :
-			   hash;
+				 const_hash(input + 1, hash * 33 + static_cast<std::uint32_t>(*input)) :
+				 hash;
 }
 
 

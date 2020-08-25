@@ -198,6 +198,34 @@ std::vector<RE::TESObjectCELL*> papyrusGame::GetAttachedCells(VM* a_vm, StackID 
 }
 
 
+std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
+{
+	std::vector<float> vec(3, 0.0f);
+	
+	auto player = RE::PlayerCharacter::GetSingleton();
+	if (player) {
+		auto cell = player->GetParentCell();
+		if (cell) {
+			auto world = cell->GetHavokWorld();
+			if (world) {
+				world->LockWorld();
+				auto havokWorld = world->GetWorld2();
+				if (havokWorld) {
+					float gravity[4];
+					_mm_store_ps(gravity, havokWorld->gravity.quad);
+					for (std::size_t i = 0; i < 3; ++i) {
+						vec[i] = gravity[i];
+					}
+				}
+				world->UnlockWorld();
+			}
+		}
+	}
+	
+	return vec;
+}
+
+
 std::int32_t papyrusGame::GetNumActorsInHigh(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
 {
 	auto processLists = RE::ProcessLists::GetSingleton();
@@ -226,6 +254,26 @@ bool papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
+void papyrusGame::SetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
+{
+	auto player = RE::PlayerCharacter::GetSingleton();
+	if (player) {
+		auto cell = player->GetParentCell();
+		if (cell) {
+			auto world = cell->GetHavokWorld();
+			if (world) {
+				world->LockWorld();
+				auto havokWorld = world->GetWorld2();
+				if (havokWorld) {
+					havokWorld->gravity = RE::hkVector4(a_x, a_y, a_z, 0.0f);
+				}
+				world->UnlockWorld();
+			}
+		}
+	}
+}
+
+
 bool papyrusGame::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
@@ -245,9 +293,13 @@ bool papyrusGame::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("GetAttachedCells", "PO3_SKSEFunctions", GetAttachedCells);
 
+	a_vm->RegisterFunction("GetLocalGravity", "PO3_SKSEFunctions", GetLocalGravity);
+
 	a_vm->RegisterFunction("GetNumActorsInHigh", "PO3_SKSEFunctions", GetNumActorsInHigh);
 
 	a_vm->RegisterFunction("IsPluginFound", "PO3_SKSEFunctions", IsPluginFound);
+
+	a_vm->RegisterFunction("SetLocalGravity", "PO3_SKSEFunctions", SetLocalGravity);
 
 	return true;
 }

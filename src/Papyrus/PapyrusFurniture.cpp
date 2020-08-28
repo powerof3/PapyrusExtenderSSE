@@ -11,13 +11,13 @@ std::int32_t papyrusFurniture::GetFurnitureType(VM* a_vm, StackID a_stackID, RE:
 	}
 
 	const auto flags = a_furniture->furnFlags;
-	if ((flags & FLAGS::kIsPerch) == FLAGS::kIsPerch) {
+	if (flags.all(FLAGS::kIsPerch)) {
 		return 0;
-	} else if ((flags & FLAGS::kCanLean) == FLAGS::kCanLean) {
+	} else if (flags.all(FLAGS::kCanLean)) {
 		return 1;
-	} else if ((flags & FLAGS::kCanSit) == FLAGS::kCanSit) {
+	} else if (flags.all(FLAGS::kCanSit)) {
 		return 2;
-	} else if ((flags & FLAGS::kCanSleep) == FLAGS::kCanSleep) {
+	} else if (flags.all(FLAGS::kCanSleep)) {
 		return 3;
 	} else {
 		return -1;

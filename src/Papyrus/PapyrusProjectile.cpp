@@ -55,25 +55,25 @@ std::uint32_t papyrusProjectile::GetProjectileType(VM* a_vm, StackID a_stackID, 
 	}
 
 	const auto types = a_projectile->data.types;
-	if ((types & Type::kMissile) == Type::kMissile)	 //Missile
+	if (types.all(Type::kMissile))
 	{
 		return 1;
-	} else if ((types & Type::kGrenade) == Type::kGrenade)	//Lobber (runes)
+	} else if (types.all(Type::kGrenade))
 	{
 		return 2;
-	} else if ((types & Type::kBeam) == Type::kBeam)  //Beam
+	} else if (types.all(Type::kBeam))
 	{
 		return 3;
-	} else if ((types & Type::kFlamethrower) == Type::kFlamethrower)  //Flame
+	} else if (types.all(Type::kFlamethrower))
 	{
 		return 4;
-	} else if ((types & Type::kCone) == Type::kCone)  //Cone
+	} else if (types.all(Type::kCone))
 	{
 		return 5;
-	} else if ((types & Type::kBarrier) == Type::kBarrier)	//Barrier
+	} else if (types.all(Type::kBarrier))
 	{
 		return 6;
-	} else if ((types & Type::kArrow) == Type::kArrow)	//Arrow
+	} else if (types.all(Type::kArrow))
 	{
 		return 7;
 	} else {

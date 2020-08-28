@@ -29,7 +29,7 @@ bool papyrusActor::AddBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		a_vm->TraceStack("Spell is None", a_stackID, Severity::kWarning);
 		return false;
 	} else if (a_actor->HasSpell(a_spell)) {
-		a_vm->TraceStack("Found existing spell on actor", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Actor already has spell", a_stackID, Severity::kWarning);
 		return false;
 	}
 
@@ -230,7 +230,7 @@ std::vector<RE::EffectSetting*> papyrusActor::GetActiveEffects(VM* a_vm, StackID
 
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack("Actor has no active effects", a_stackID, Severity::kInfo);
+		a_vm->TraceStack("Actor has no active effects", a_stackID, Severity::kWarning);
 		return vec;
 	}
 
@@ -561,7 +561,7 @@ bool papyrusActor::HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack("Actor has no active effects", a_stackID, Severity::kInfo);
+		a_vm->TraceStack("Actor has no active effects", a_stackID, Severity::kWarning);
 		return false;
 	}
 
@@ -589,7 +589,7 @@ bool papyrusActor::HasMagicEffectWithArchetype(VM* a_vm, StackID a_stackID, RE::
 
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack("Actor has no active effects", a_stackID, Severity::kInfo);
+		a_vm->TraceStack("Actor has no active effects", a_stackID, Severity::kWarning);
 		return false;
 	}
 
@@ -737,7 +737,7 @@ bool papyrusActor::RemoveBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 		auto actorEffects = actorbase->actorEffects;
 		if (actorEffects) {
 			if (actorEffects->GetIndex(a_spell) == std::nullopt) {
-				a_vm->TraceStack("Spell is not active on actor", a_stackID, Severity::kWarning);
+				a_vm->TraceStack("Actor does not have spell", a_stackID, Severity::kWarning);
 				return false;
 			}
 			auto activeEffects = a_actor->GetActiveEffectList();
@@ -930,10 +930,10 @@ void papyrusActor::ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::Stati
 		a_vm->TraceStack("Armor is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_srcTXST) {
-		a_vm->TraceStack("Source textureset is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Source TextureSet is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_tgtTXST) {
-		a_vm->TraceStack("Target textureset is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Target TextureSet is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_actor->Is3DLoaded()) {
 		a_vm->TraceStack("Actor has no 3D", a_stackID, Severity::kWarning);
@@ -1062,7 +1062,7 @@ void papyrusActor::ReplaceFaceTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 
 	auto txst = isFemale ? a_femaleTXST : a_maleTXST;
 	if (!txst) {
-		a_vm->TraceStack("Textureset is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("TextureSet is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1147,13 +1147,13 @@ void papyrusActor::ReplaceSkinTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 
 	if (isFemale) {
 		if (!a_femaleTXST) {
-			a_vm->TraceStack("Female textureset is None", a_stackID, Severity::kWarning);
+			a_vm->TraceStack("Female TextureSet is None", a_stackID, Severity::kWarning);
 			return;
 		}
 		SetArmorSkinTXST(a_actor, a_femaleTXST, static_cast<BipedSlot>(a_slot), a_type);
 	} else {
 		if (!a_maleTXST) {
-			a_vm->TraceStack("Male textureset is None", a_stackID, Severity::kWarning);
+			a_vm->TraceStack("Male TextureSet is None", a_stackID, Severity::kWarning);
 			return;
 		}
 		SetArmorSkinTXST(a_actor, a_maleTXST, static_cast<BipedSlot>(a_slot), a_type);

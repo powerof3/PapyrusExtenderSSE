@@ -31,28 +31,26 @@ std::int32_t papyrusWeather::GetWeatherType(VM* a_vm, StackID a_stackID, RE::Sta
 
 	if (a_weather) {
 		currentWeather = a_weather;
-	}
-
-	if (!currentWeather) {
+	} else {
 		auto sky = RE::Sky::GetSingleton();
 		if (sky) {
 			currentWeather = sky->currentWeather;
-		}
+		}	
 	}
 
 	if (!currentWeather) {
-		a_vm->TraceStack("Weather/current weather is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Weather/current Weather is None", a_stackID, Severity::kWarning);
 		return -1;
 	}
 
 	const auto flags = currentWeather->data.flags;
-	if ((flags & Type::kPleasant) == Type::kPleasant) {
+	if (flags.all(Type::kPleasant)) {
 		return 0;
-	} else if ((flags & Type::kCloudy) == Type::kCloudy) {
+	} else if (flags.all(Type::kCloudy)) {
 		return 1;
-	} else if ((flags & Type::kRainy) == Type::kRainy) {
+	} else if (flags.all(Type::kRainy)) {
 		return 2;
-	} else if ((flags & Type::kSnow) == Type::kSnow) {
+	} else if (flags.all(Type::kSnow)) {
 		return 3;
 	} else {
 		return -1;

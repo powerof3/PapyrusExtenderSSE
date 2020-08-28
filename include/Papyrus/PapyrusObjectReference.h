@@ -157,7 +157,7 @@ namespace papyrusObjectReference
 
 	void SetShaderType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::TESObjectREFR* a_template, RE::BSFixedString a_filter, std::uint32_t a_shaderType, std::int32_t a_textureType, bool a_noWeapons, bool a_noAlpha);
 
-	void SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_miscItem, RE::Actor* a_actor);
+	void SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_bodyparts, RE::Actor* a_actor);
 
 	void StopAllShaders_Impl(RE::TESObjectREFR* a_ref);
 

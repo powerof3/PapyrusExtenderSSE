@@ -102,7 +102,7 @@ bool papyrusArray::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("SortArrayString", "PO3_SKSEFunctions", SortArrayString);
 
-	//a_vm->RegisterFunction("GetSortedActorNameArray", "PO3_SKSEFunctions", GetSortedActorNameArray);
+	a_vm->RegisterFunction("GetSortedActorNameArray", "PO3_SKSEFunctions", GetSortedActorNameArray);
 
 	return true;
 }

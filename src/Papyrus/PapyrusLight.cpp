@@ -74,13 +74,13 @@ std::vector<std::uint32_t> papyrusLight::GetLightRGB(VM* a_vm, StackID a_stackID
 float papyrusLight::GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject)
 {
 	if (!a_lightObject) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return 1.0f;
 	}
 
 	auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
 	if (!a_light) {
-		a_vm->TraceStack("ObjectReference is not a Light form", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is not a Light form", a_stackID, Severity::kWarning);
 		return 1.0f;
 	}
 
@@ -99,15 +99,15 @@ std::uint32_t papyrusLight::GetLightType(VM* a_vm, StackID a_stackID, RE::Static
 	}
 
 	const auto flags = a_light->data.flags;
-	if ((flags & FLAGS::kHemiShadow) == FLAGS::kHemiShadow) {
+	if (flags.all(FLAGS::kHemiShadow)) {
 		return 1;
-	} else if ((flags & FLAGS::kNone) == FLAGS::kNone) {
+	} else if (flags.all(FLAGS::kNone)) {
 		return 2;
-	} else if ((flags & FLAGS::kOmniShadow) == FLAGS::kOmniShadow) {
+	} else if (flags.all(FLAGS::kOmniShadow)) {
 		return 3;
-	} else if ((flags & FLAGS::kSpotlight) == FLAGS::kSpotlight) {
+	} else if (flags.all(FLAGS::kSpotlight)) {
 		return 4;
-	} else if ((flags & FLAGS::kSpotShadow) == FLAGS::kSpotShadow) {
+	} else if (flags.all(FLAGS::kSpotShadow)) {
 		return 5;
 	} else {
 		return 0;
@@ -121,7 +121,7 @@ void papyrusLight::SetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunction
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_color) {
-		a_vm->TraceStack("Colorform is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("ColorForm is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -170,10 +170,7 @@ void papyrusLight::SetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 	} else if (a_rgb.empty()) {
 		a_vm->TraceStack("RGB array is empty", a_stackID, Severity::kWarning);
 		return;
-	} else if (a_rgb.size() != 3) {
-		a_vm->TraceStack("RGB array is incorrect size", a_stackID, Severity::kWarning);
-		return;
-	}
+	} 
 
 	auto& color = a_light->data.color;
 	for (std::size_t i = 0; i < 3; ++i) {
@@ -185,13 +182,13 @@ void papyrusLight::SetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 void papyrusLight::SetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject, float a_depthBias)
 {
 	if (!a_lightObject) {
-		a_vm->TraceStack("ObjectReference is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
 	auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
 	if (!a_light) {
-		a_vm->TraceStack("ObjectReference is not a Light form", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object is not a Light form", a_stackID, Severity::kWarning);
 		return;
 	}
 

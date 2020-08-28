@@ -28,7 +28,7 @@ void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::Static
 			effect->baseEffect = a_mgef;
 			effect->cost = a_cost;
 
-			if (!a_conditionList.empty()) {
+			if (!a_conditionList.empty() && !a_conditionList.front().empty()) {
 				auto conditions = Condition::ParseConditions(a_conditionList);
 				if (!conditions.empty()) {
 					for (auto& data : conditions) {

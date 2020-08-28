@@ -158,7 +158,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfType(
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return vec;
 	} else if (!a_formOrList) {
-		a_vm->TraceStack("FormOrList parameter is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("FormOrList is None", a_stackID, Severity::kWarning);
 		return vec;
 	}
 
@@ -209,7 +209,7 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return vec;
 	} else if (!a_formOrList) {
-		a_vm->TraceStack("FormOrList parameter is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("FormOrList is None", a_stackID, Severity::kWarning);
 		return vec;
 	}
 
@@ -425,7 +425,7 @@ float papyrusObjectReference::GetEffectShaderDuration(VM* a_vm, StackID a_stackI
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return time;
 	} else if (!a_effectShader) {
-		a_vm->TraceStack("Effect shader is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return time;
 	}
 
@@ -640,7 +640,7 @@ std::uint32_t papyrusObjectReference::HasEffectShader(VM* a_vm, StackID a_stackI
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return count;
 	} else if (!a_effectShader) {
-		a_vm->TraceStack("Effect shader is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return count;
 	}
 
@@ -775,7 +775,7 @@ void papyrusObjectReference::MoveToNearestNavmeshLocation(VM* a_vm, StackID a_st
 
 	auto nearestVertex = FindNearestVertex(a_ref);
 	if (!nearestVertex) {
-		a_vm->TraceStack("Object does not have a valid navmesh vertex position", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object does not have a valid navmesh position", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -952,7 +952,7 @@ void papyrusObjectReference::SetEffectShaderDuration(VM* a_vm, StackID a_stackID
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_effectShader) {
-		a_vm->TraceStack("Effect shader is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1046,7 +1046,7 @@ void papyrusObjectReference::SetMaterialType(VM* a_vm, StackID a_stackID, RE::St
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (a_newMaterialType.empty()) {
-		a_vm->TraceStack("Material type is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Material type is empty", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1218,13 +1218,13 @@ void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::Stat
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_template) {
-		a_vm->TraceStack("Template object is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Template is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_ref->Is3DLoaded()) {
-		a_vm->TraceStack("Object is not loaded", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Object has no 3D", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_template->Is3DLoaded()) {
-		a_vm->TraceStack("Template object is not loaded", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Template has no 3D", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1268,21 +1268,21 @@ void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::Stat
 }
 
 
-void papyrusObjectReference::SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_miscItem, RE::Actor* a_actor)
+void papyrusObjectReference::SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_bodyparts, RE::Actor* a_actor)
 {
-	if (!a_miscItem) {
+	if (!a_bodyparts) {
 		a_vm->TraceStack("BodyParts is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_actor) {
-		a_vm->TraceStack("Reference actor is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("Actor is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_miscItem->Get3D()) {
+	} else if (!a_bodyparts->Get3D()) {
 		a_vm->TraceStack("BodyParts has no 3D", a_stackID, Severity::kWarning);
 		return;
 	}
 
 	auto actorbase = a_actor->GetActorBase();
-	auto root = a_miscItem->Get3D()->AsFadeNode();
+	auto root = a_bodyparts->Get3D()->AsFadeNode();
 
 	if (actorbase && root) {
 		auto actorRoot = a_actor->Get3D(0);
@@ -1357,7 +1357,7 @@ void papyrusObjectReference::StopArtObject(VM* a_vm, StackID a_stackID, RE::Stat
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_art) {
-		a_vm->TraceStack("Art Object is None", a_stackID, Severity::kWarning);
+		a_vm->TraceStack("ArtObject is None", a_stackID, Severity::kWarning);
 		return;
 	}
 

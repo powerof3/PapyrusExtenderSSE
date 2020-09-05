@@ -35,8 +35,10 @@ namespace Serialize
 
 		auto actorbase = a_actor->GetActorBase();
 		if (actorbase) {
-			success = a_add == kAdd ? actorbase->AddPerk(a_perk, 1) : actorbase->RemovePerk(a_perk);
-			a_actor->ApplyPerksFromBase();
+			success = (a_add == kAdd) ? actorbase->AddPerk(a_perk, 1) : actorbase->RemovePerk(a_perk);
+			if (success) {
+				a_actor->ApplyPerksFromBase();
+			}
 		}
 
 		return success;

@@ -208,7 +208,7 @@ std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE:
 		if (cell) {
 			auto world = cell->GetHavokWorld();
 			if (world) {
-				world->LockWorld();
+				world->LockWorldForRead();
 				auto havokWorld = world->GetWorld2();
 				if (havokWorld) {
 					float gravity[4];
@@ -217,7 +217,7 @@ std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE:
 						vec[i] = gravity[i];
 					}
 				}
-				world->UnlockWorld();
+				world->UnlockWorldForRead();
 			}
 		}
 	}
@@ -262,12 +262,12 @@ void papyrusGame::SetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 		if (cell) {
 			auto world = cell->GetHavokWorld();
 			if (world) {
-				world->LockWorld();
+				world->LockWorldForWrite();
 				auto havokWorld = world->GetWorld2();
 				if (havokWorld) {
 					havokWorld->gravity = RE::hkVector4(a_x, a_y, a_z, 0.0f);
 				}
-				world->UnlockWorld();
+				world->UnlockWorldForWrite();
 			}
 		}
 	}

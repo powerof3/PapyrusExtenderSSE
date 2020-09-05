@@ -270,9 +270,7 @@ RE::TESForm* papyrusObjectReference::FindFirstItemInList(VM* a_vm, StackID a_sta
 	if (!a_ref) {
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return nullptr;
-	}
-
-	if (!a_list) {
+	} else if (!a_list) {
 		a_vm->TraceStack("Formlist is None", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
@@ -457,6 +455,8 @@ void GetMaterialType_Impl(RE::bhkWorldObject* a_body, std::vector<RE::BSFixedStr
 		return;
 	}
 
+	a_body->EnterCriticalOperationRead();
+
 	auto& materialMap = papyrusObjectReference::materialMap;
 
 	auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
@@ -497,6 +497,8 @@ void GetMaterialType_Impl(RE::bhkWorldObject* a_body, std::vector<RE::BSFixedStr
 			}
 		}
 	}
+
+	a_body->ExitCriticalOperationRead();
 }
 
 
@@ -515,24 +517,15 @@ std::vector<RE::BSFixedString> papyrusObjectReference::GetMaterialType(VM* a_vm,
 		return vec;
 	}
 
-	auto cell = a_ref->parentCell;
-	if (!cell) {
-		a_vm->TraceStack("Object is not in a loaded cell", a_stackID, Severity::kWarning);
-		return vec;
-	}
-
 	if (!a_nodeName.empty()) {
 		auto object = root->GetObjectByName(a_nodeName);
 		if (object) {
-			cell->LockHavokWorld();
 			auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
 			if (colObject) {
 				GetMaterialType_Impl(colObject->body.get(), vec);
 			}
-			cell->UnlockHavokWorld();
 		}
 	} else {
-		cell->LockHavokWorld();
 		RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 			auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
 			if (colObject) {
@@ -540,10 +533,44 @@ std::vector<RE::BSFixedString> papyrusObjectReference::GetMaterialType(VM* a_vm,
 			}
 			return RE::BSVisit::BSVisitControl::kStop;
 		});
-		cell->UnlockHavokWorld();
 	}
 
 	return vec;
+}
+
+
+std::int32_t papyrusObjectReference::GetMotionType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	std::int32_t motionType = -1;
+
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return motionType;
+	}
+
+	auto root = a_ref->Get3D();
+	if (!root) {
+		a_vm->TraceStack("Object has no 3D", a_stackID, Severity::kWarning);
+		return motionType;
+	}
+
+	RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+		auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
+		if (colObject) {
+			auto body = colObject->body.get();
+			if (body) {
+				body->EnterCriticalOperationRead();
+				auto hkpRigidBody = static_cast<RE::hkpRigidBody*>(body->referencedObject.get());
+				if (hkpRigidBody) {
+					motionType = hkpRigidBody->motion.type.underlying();
+				}
+				body->ExitCriticalOperationRead();
+			}
+		}
+		return motionType != -1 ? RE::BSVisit::BSVisitControl::kStop : RE::BSVisit::BSVisitControl::kContinue;
+	});
+
+	return motionType;
 }
 
 
@@ -854,6 +881,8 @@ void ScaleObject3D_Impl(RE::bhkWorldObject* a_body, float a_scale)
 		return;
 	}
 
+	a_body->EnterCriticalOperationWrite();
+
 	auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
 	if (hkpBody) {
 		auto shape = hkpBody->GetShape();
@@ -880,6 +909,8 @@ void ScaleObject3D_Impl(RE::bhkWorldObject* a_body, float a_scale)
 			}
 		}
 	}
+
+	a_body->ExitCriticalOperationWrite();
 }
 
 
@@ -896,12 +927,6 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 		return;
 	}
 
-	auto cell = a_ref->parentCell;
-	if (!cell) {
-		a_vm->TraceStack("Object is not in a loaded cell", a_stackID, Severity::kWarning);
-		return;
-	}
-
 	if (!a_nodeName.empty()) {
 		auto object = root->GetObjectByName(a_nodeName);
 		if (object) {
@@ -911,12 +936,10 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 				RE::NiUpdateData updateData = { 0.0f, RE::NiUpdateData::Flag::kNone };
 				object->Update(updateData);
 			});
-			cell->LockHavokWorld();
 			auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
 			if (colObject) {
 				ScaleObject3D_Impl(colObject->body.get(), a_scale);
 			}
-			cell->UnlockHavokWorld();
 		}
 	} else {
 		auto task = SKSE::GetTaskInterface();
@@ -925,7 +948,6 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 			RE::NiUpdateData updateData = { 0.0f, RE::NiUpdateData::Flag::kNone };
 			root->Update(updateData);
 		});
-		cell->LockHavokWorld();
 		RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 			auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
 			if (colObject) {
@@ -933,7 +955,6 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 			}
 			return RE::BSVisit::BSVisitControl::kContinue;
 		});
-		cell->UnlockHavokWorld();
 	}
 
 	auto data = root->GetExtraData<RE::NiFloatExtraData>("PO3_SCALE");
@@ -989,6 +1010,8 @@ void SetMaterialType_Impl(RE::bhkWorldObject* a_body, RE::MATERIAL_ID newID, RE:
 		return;
 	}
 
+	a_body->EnterCriticalOperationWrite();
+
 	auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
 	if (hkpBody) {
 		auto hkpShape = hkpBody->GetShape();
@@ -1037,6 +1060,8 @@ void SetMaterialType_Impl(RE::bhkWorldObject* a_body, RE::MATERIAL_ID newID, RE:
 			}
 		}
 	}
+
+	a_body->ExitCriticalOperationWrite();
 }
 
 
@@ -1053,12 +1078,6 @@ void papyrusObjectReference::SetMaterialType(VM* a_vm, StackID a_stackID, RE::St
 	auto root = a_ref->Get3D();
 	if (!root) {
 		a_vm->TraceStack("Object has no 3D", a_stackID, Severity::kWarning);
-		return;
-	}
-
-	auto cell = a_ref->parentCell;
-	if (!cell) {
-		a_vm->TraceStack("Object is not in a loaded cell", a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1081,15 +1100,12 @@ void papyrusObjectReference::SetMaterialType(VM* a_vm, StackID a_stackID, RE::St
 		if (!a_nodeName.empty()) {
 			auto object = root->GetObjectByName(a_nodeName);
 			if (object) {
-				cell->LockHavokWorld();
 				auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
 				if (colObject) {
 					SetMaterialType_Impl(colObject->body.get(), newID, oldID);
 				}
-				cell->UnlockHavokWorld();
 			}
 		} else {
-			cell->LockHavokWorld();
 			RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 				auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
 				if (colObject) {
@@ -1097,7 +1113,6 @@ void papyrusObjectReference::SetMaterialType(VM* a_vm, StackID a_stackID, RE::St
 				}
 				return RE::BSVisit::BSVisitControl::kContinue;
 			});
-			cell->UnlockHavokWorld();
 		}
 	}
 }
@@ -1449,6 +1464,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("GetEffectShaderDuration", "PO3_SKSEFunctions", GetEffectShaderDuration);
 
 	a_vm->RegisterFunction("GetMaterialType", "PO3_SKSEFunctions", GetMaterialType);
+
+	a_vm->RegisterFunction("GetMotionType", "PO3_SKSEFunctions", GetMotionType);
 
 	a_vm->RegisterFunction("GetRandomActorFromRef", "PO3_SKSEFunctions", GetRandomActorFromRef);
 

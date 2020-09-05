@@ -1,36 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="src">
-      <UniqueIdentifier>{57c9eac9-3a96-4dbf-8d19-cdddafb51688}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{aee06ac9-1bc5-42ef-858c-7657bb1ee832}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Serialization">
-      <UniqueIdentifier>{0721c1eb-6ebc-4b0a-ad07-77515770934d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Serialization">
-      <UniqueIdentifier>{cd6ea0ef-eced-49ce-b630-679c382d62c8}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Papyrus">
       <UniqueIdentifier>{170748aa-2881-451d-bd88-5613a057e9fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Papyrus">
-      <UniqueIdentifier>{373db07c-477e-4b0d-b383-b9624861f612}</UniqueIdentifier>
+    <Filter Include="include\Serialization">
+      <UniqueIdentifier>{0721c1eb-6ebc-4b0a-ad07-77515770934d}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Serialization\NetImmerse">
       <UniqueIdentifier>{da0c206c-cacf-41e9-bb31-57739ce69ede}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{57c9eac9-3a96-4dbf-8d19-cdddafb51688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Papyrus">
+      <UniqueIdentifier>{373db07c-477e-4b0d-b383-b9624861f612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Serialization">
+      <UniqueIdentifier>{cd6ea0ef-eced-49ce-b630-679c382d62c8}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Serialization\NetImmerse">
       <UniqueIdentifier>{6ddf0d4a-f888-4715-af9b-aa621855a80e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ConditionParser.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Papyrus\ExtendedObjectTypes.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
     <ClCompile Include="src\Papyrus\PapyrusActor.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusArmorAddon.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
     <ClCompile Include="src\Papyrus\PapyrusArray.cpp">
@@ -48,7 +60,13 @@
     <ClCompile Include="src\Papyrus\PapyrusForm.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusFurniture.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
     <ClCompile Include="src\Papyrus\PapyrusGame.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Papyrus\PapyrusHazard.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
     <ClCompile Include="src\Papyrus\PapyrusLight.cpp">
@@ -90,39 +108,36 @@
     <ClCompile Include="src\Papyrus\Registration.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
-    <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp">
-      <Filter>src\Papyrus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ConditionParser.cpp">
+    <ClCompile Include="src\PCH.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Serialization\Reset.cpp">
-      <Filter>src\Serialization\NetImmerse</Filter>
-    </ClCompile>
     <ClCompile Include="src\Serialization\Base.cpp">
-      <Filter>src\Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Serialization\Perks.cpp">
       <Filter>src\Serialization</Filter>
     </ClCompile>
     <ClCompile Include="src\Serialization\Keywords.cpp">
       <Filter>src\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="src\PCH.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\Serialization\Perks.cpp">
+      <Filter>src\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="src\Papyrus\PapyrusFurniture.cpp">
-      <Filter>src\Papyrus</Filter>
+    <ClCompile Include="src\Serialization\Reset.cpp">
+      <Filter>src\Serialization\NetImmerse</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Papyrus\Registration.h">
+    <ClInclude Include="include\ConditionParser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\ExtendedObjectTypes.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusActor.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\PapyrusActorBase.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\Papyrus\PapyrusActor.h">
+    <ClInclude Include="include\Papyrus\PapyrusArmorAddon.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\PapyrusArray.h">
@@ -140,7 +155,13 @@
     <ClInclude Include="include\Papyrus\PapyrusForm.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusFurniture.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
     <ClInclude Include="include\Papyrus\PapyrusGame.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\PapyrusHazard.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\PapyrusLight.h">
@@ -179,14 +200,11 @@
     <ClInclude Include="include\Papyrus\PapyrusWeather.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
-    <ClInclude Include="include\ConditionParser.h">
+    <ClInclude Include="include\Papyrus\Registration.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PCH.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Serialization\Perks.h">
-      <Filter>include\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Serialization\Reset.h">
-      <Filter>include\Serialization\NetImmerse</Filter>
     </ClInclude>
     <ClInclude Include="include\Serialization\Base.h">
       <Filter>include\Serialization</Filter>
@@ -194,11 +212,11 @@
     <ClInclude Include="include\Serialization\Keywords.h">
       <Filter>include\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="include\PCH.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\Serialization\Perks.h">
+      <Filter>include\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="include\Papyrus\PapyrusFurniture.h">
-      <Filter>include\Papyrus</Filter>
+    <ClInclude Include="include\Serialization\Reset.h">
+      <Filter>include\Serialization\NetImmerse</Filter>
     </ClInclude>
     <ClInclude Include="include\Version.h">
       <Filter>include</Filter>

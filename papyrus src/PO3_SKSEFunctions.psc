@@ -9,7 +9,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
  
 	;Gets all magiceffects currently on the actor. Filters out inactive and hideinui spells.
-	MagicEffect[] Function GetActiveEffects(Actor akActor, bool showInactive = false) global native
+	MagicEffect[] Function GetActiveEffects(Actor akActor, bool abShowInactive = false) global native
 	
 	float Function GetActorAlpha(Actor akActor) global native
 	
@@ -28,7 +28,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Gets actor state 
-	int Function GetActorState(Actor thisActor) global native;
+	int Function GetActorState(Actor thisActor) global native
 		
 	;Gets all allies of the actor, if in combat
 	Actor[] Function GetCombatAllies(Actor akActor) global native
@@ -40,7 +40,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	ColorForm Function GetHairColor(Actor akActor) global native
 	
 	;Gets textureset belonging to headpart, if any. 
-	TextureSet Function GetHeadPartTextureSet(Actor akActor, int type) global native
+	TextureSet Function GetHeadPartTextureSet(Actor akActor, int aiType) global native
 	
 	;Gets the actor's local gravity.
 	Float Function GetLocalGravityActor(Actor akActor) global native
@@ -64,7 +64,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function HasActiveSpell(Actor akActor, Spell akSpell) global native
 	
 	;Checks if activemagiceffect with given archetype is present on actor. Archetype MUST be typed as given below.
-	bool Function HasMagicEffectWithArchetype(Actor akActor, String akArchetype) global native
+	bool Function HasMagicEffectWithArchetype(Actor akActor, String asArchetype) global native
 	
 	;Returns whether the actor is in cell water or lava
 	bool Function IsActorInWater(Actor akActor) global native
@@ -116,13 +116,13 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Blends existing skin color with specified color, using photoshop blend formulas, with alpha (opacity).
 	;if true, autoLuminance calculates skin tone relative luminance. The opacity value is then used as a multiplier on top of that, final value is clamped to 0-1
 	;if false, only opacity will be used. Recommend to use autoluminance because colors will not blend well for all skin tones using flat values. 
-	Function BlendColorWithSkinTone(Actor akActor, ColorForm color, int blendMode, bool autoLuminance, float opacity) global native
+	Function BlendColorWithSkinTone(Actor akActor, ColorForm akColor, int aiBlendMode, bool abAutoLuminance, float afOpacity) global native
 	
 	;Decapitates living and dead actors. Living actors will not die when this is called!
 	Function DecapitateActor(Actor akActor) global native
 
 	;EnableAI + toggling record hits flags so they don't go flying 300 feet when unfrozen.
-	Function FreezeActor(Actor akActor, bool freeze) global native
+	Function FreezeActor(Actor akActor, bool abFreeze) global native
 		
 	;Quick and dirty hack to instantly kill the actor and set as dead.
 	Function KillNoWait(Actor akActor) global native
@@ -130,7 +130,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;DEPRECIATED
 	;Blends existing skin color with specified color. 
 	;True - intensity is manually calculated using percentage 0-1.0, False - automatically calculated using skin tone luminance 
-	Function MixColorWithSkinTone(Actor akActor, ColorForm color, bool manualMode, float percentage) global native
+	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
 	
 	;Removes perks from the actorbase
 	;Perk effects may not be removed from unique actors, more testing required.
@@ -147,19 +147,19 @@ Scriptname PO3_SKSEFunctions Hidden
 	3-  aged
 	4 - charred creature
 	5 - frozen/;	
-	Function RemoveEffectsNotOfType(Actor akActor, int effectType) global native
+	Function RemoveEffectsNotOfType(Actor akActor, int aiEffectType) global native
 	
 	;Replaces specified source textureset on worn armor with target textureset. Lasts for one single gaming session.
 	;If texture type is -1, the entire textureset is replaced, otherwise the texture map specified at [textureType] index is replaced (diffuse is 0, normal is 1...)
-	Function ReplaceArmorTextureSet(Actor akActor, Armor akArmor, TextureSet sourceTXST, TextureSet targetTXST, int textureType = -1) global native
+	Function ReplaceArmorTextureSet(Actor akActor, Armor akArmor, TextureSet akSourceTXST, TextureSet akTargetTXST, int aiTextureType = -1) global native
 	
 	;Replaces face textureset. Lasts one gaming session. Can be applied to non-unique actors.
 	;If texture type is -1, the entire textureset is replaced, otherwise the texture map specified at [textureType] index is replaced. Replacing the entire textureset may cause a visible neckseam.
-	Function ReplaceFaceTextureSet(Actor akActor, TextureSet maleTXST, TextureSet femaleTXST, int textureType = -1) global native
+	Function ReplaceFaceTextureSet(Actor akActor, TextureSet akMaleTXST, TextureSet akFemaleTXST, int aiTextureType = -1) global native
 	
 	;Replaces skin textureset for given slotmask (ie. body/hand). Lasts one gaming session. Has to be reapplied when re-equipping armor.
 	;If texture type is -1, the entire textureset is replaced, otherwise the texture map specified at [textureType] index is replaced.
-	Function ReplaceSkinTextureSet(Actor akActor, TextureSet maleTXST, TextureSet femaleTXST, int slotMask, int textureType = -1) global native
+	Function ReplaceSkinTextureSet(Actor akActor, TextureSet akMaleTXST, TextureSet akFemaleTXST, int aiSlotMask, int aiTextureType = -1) global native
 	
 	;Checks for NiExtraData nodes on actor - PO3_TINT/PO3_ALPHA/PO3_TXST/PO3_TOGGLE/PO3_SHADER
 	;Stops all effect shaders and
@@ -168,31 +168,31 @@ Scriptname PO3_SKSEFunctions Hidden
 	;PO3_TXST - resets texturesets with texturepaths containing folderName
 	;PO3_TOGGLE - unhides all children of nodes that were written to the extraData
 	;PO3_SHADER - recreates the original shader type (as close as possible, projectedUV params are not restored)
-	bool Function ResetActor3D(Actor akActor, String folderName) global native
+	bool Function ResetActor3D(Actor akActor, String asFolderName) global native
 	
 	;0.0 disables refraction, 1.0 is max refraction
-	Function SetActorRefraction(Actor thisActor, float refraction) global native;
+	Function SetActorRefraction(Actor thisActor, float afRefraction) global native
 	
 	;Sets hair color on actor. Changes may persist throughout gaming session, even when reloading previous saves.
-	Function SetHairColor(Actor akActor, ColorForm color) global native
+	Function SetHairColor(Actor akActor, ColorForm akColor) global native
 	
 	;Sets headpart's mesh alpha. Doesn't work for some hair types and heterochromic eyes
-	Function SetHeadPartAlpha(Actor akActor, int partType, float alpha) global native
+	Function SetHeadPartAlpha(Actor akActor, int aiPartType, float afAlpha) global native
 	
 	;Sets textureset belonging to headpart, if any. 
-	Function SetHeadPartTextureSet(Actor akActor, TextureSet headpartTXST, int type) global native	
+	Function SetHeadPartTextureSet(Actor akActor, TextureSet headpartTXST, int aiType) global native	
 	
 	;Sets velocity of the actor. May not take place immediately.
-	Function SetLinearVelocity(Actor akActor, float x, float y, float z) global native
+	Function SetLinearVelocity(Actor akActor, float afX, float afY, float afZ) global native
 	
 	;Sets local gravity of the actor. Negative values will cause them to fly. May not take place immediately.
-	Function SetLocalGravityActor(Actor akActor, float value, bool disableGravityOnGround) global native
+	Function SetLocalGravityActor(Actor akActor, float afValue, bool abDisableGravityOnGround) global native
 	
 	;Sets alpha on face, base skin form and armor meshes with visible skin. Has to be re-applied when armor is un/re-equipped.
-	Function SetSkinAlpha(Actor akActor, float alpha) global native
+	Function SetSkinAlpha(Actor akActor, float afAlpha) global native
 	
 	;Sets skin color (face and body). Has to be re-applied when armor is un/re-equipped.
-	Function SetSkinColor(Actor akActor, ColorForm color) global native
+	Function SetSkinColor(Actor akActor, ColorForm akColor) global native
 	
 	;/	ARMOR TYPE
 		Light = 0
@@ -201,17 +201,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Unequips all armor of type, optionally skipping biped slots.
-	Function UnequipAllOfType(Actor akActor, int armorType, int[] slotsToSkip) global native
+	Function UnequipAllOfType(Actor akActor, int afArmorType, int[] aiSlotsToSkip) global native
 			
 ;----------------------------------------------------------------------------------------------------------
 ;ACTORBASE
 ;----------------------------------------------------------------------------------------------------------
 
 	;Get actorbase perk at nth index
-	Perk Function GetNthPerk(Actorbase akActorbase, int index) global native
+	Perk Function GetNthPerk(Actorbase akBase, int aiIndex) global native
 	
 	;Get total actorbase perk count
-	int Function GetPerkCount(Actorbase akActorbase) global native
+	int Function GetPerkCount(Actorbase akBase) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;ARMOR/ADDONS
@@ -219,6 +219,12 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Equips armor if actor has skin/armor with skin present
 	Function EquipArmorIfSkinVisible(Actor akActor, Armor akArmorToCheck, Armor akArmorToEquip) global native
+	
+	;Gets armor addon's footstep set 
+	FootstepSet Function GetFootstepSet(ArmorAddon akArma) global native
+	
+	;Sets armor addon's footstep set 
+	Function SetFootstepSet(ArmorAddon akArma, FootstepSet akFootstepSet) global native
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;ARRAYS
@@ -228,22 +234,26 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function AddActorToArray(Actor akActor, Actor[] actorArray) global native
 
 	;Adds string to array. Modifies array directly, it must be initialized!
-	bool Function AddStringToArray(String akString, String[] stringArray) global native
+	bool Function AddStringToArray(String asString, String[] asStrings) global native
 
 	;Counts how many instances of a string are in an array.
-	int Function ArrayStringCount(String akString, String[] stringArray) global native
+	int Function ArrayStringCount(String asString, String[] asStrings) global native
 
 	;Alphabetically sorts and returns truncated sring array.
-	String[] Function SortArrayString(String[] stringArray) global native	
+	String[] Function SortArrayString(String[] asStrings) global native	
 	
 	;Gets sorted string array of all the actors in the area, sorted alphabetically. Generic actors are merged (ie. 3 Whiterun Guards). Filter keyword optional
-	String[] Function GetSortedActorNameArray(Keyword akKeyword, bool invert) global native	
+	String[] Function GetSortedActorNameArray(Keyword akKeyword, bool abInvert) global native	
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;CELL
 ;----------------------------------------------------------------------------------------------------------
 	
-;??
+	;Gets cell lighting template
+	LightingTemplate Function GetLightingTemplate(Cell akCell) global native
+	
+	;Sets cell lighting template
+	Function SetLightingTemplate(Cell akCell, LightingTemplate akLightingTemplate) global native
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;DEBUG
@@ -275,34 +285,70 @@ Scriptname PO3_SKSEFunctions Hidden
 	int property kEffectShader_ParticleGreyscaleColor = 0x00010000 AutoReadOnly ; 16
 	int property kEffectShader_ParticleGreyscaleAlpha = 0x00020000 AutoReadOnly ; 17
 	int property kEffectShader_UseBloodGeometry = 0x01000000 AutoReadOnly ; 24
-
-	;Gets full particle count.
-	float Function GetEffectShaderFullParticleCount(EffectShader akEffectShader) global native
 	
-	;Gets persistent count.
-	float Function GetEffectShaderPersistentParticleCount(EffectShader akEffectShader) global native
-		
 	;Returns the total number of effect shaders present/present and active (on objects) within the loaded area. 
-	int Function GetEffectShaderTotalCount(EffectShader akEffectShader, bool active) global native
+	int Function GetEffectShaderTotalCount(EffectShader akEffectShader, bool abActive) global native
 	
 	;Is effect shader flag set?
-	bool Function IsEffectShaderFlagSet(EffectShader akEffectShader, int flag) global native
+	bool Function IsEffectShaderFlagSet(EffectShader akEffectShader, int aiFlag) global native
+	
+	;Get fill texture
+	String Function GetMembraneFillTexture(EffectShader akEffectShader) global native
+	
+	;Get holes texture
+	String Function GetMembraneHolesTexture(EffectShader akEffectShader) global native
+	
+	;Get membrane palette texture
+	String Function GetMembranePaletteTexture(EffectShader akEffectShader) global native
+	
+	;Gets full particle count.
+	float Function GetParticleFullCount(EffectShader akEffectShader) global native
+	
+	;Get particle palette texture
+	String Function GetParticlePaletteTexture(EffectShader akEffectShader) global native
+	
+	;Get particle shader texture
+	String Function GetParticleShaderTexture(EffectShader akEffectShader) global native
+	
+	;Gets persistent count.
+	float Function GetParticlePersistentCount(EffectShader akEffectShader) global native
 	
 	;-------
 	;SETTERS
 	;-------
 	
 	;Clears effect shader flag.
-	Function ClearEffectShaderFlag(EffectShader akEffectShader, int flag) global native
+	Function ClearEffectShaderFlag(EffectShader akEffectShader, int aiFlag) global native
 	
 	;Set effect shader flag.
-	Function SetEffectShaderFlag(EffectShader akEffectShader, int flag) global native
+	Function SetEffectShaderFlag(EffectShader akEffectShader, int aiFlag) global native
+	
+	;Set membrane color key
+	Function SetMembraneColorKeyData(EffectShader akEffectShader, int aiColorKey, int[] aiRGB, float afAlpha, float afTime) global native
+	
+	;Set membrane fill texture
+	Function SetMembraneFillTexture(EffectShader akEffectShader, String asTextureName) global native
+	
+	;Set membrane holes texture
+	Function SetMembraneHolesTexture(EffectShader akEffectShader, String asTextureName) global native
+	
+	;Set membrane palette texture
+	Function SetMembranePaletteTexture(EffectShader akEffectShader, String asTextureName) global native
+	
+	;Set particle color key
+	Function SetParticleColorKeyData(EffectShader akEffectShader, int aiColorKey, int[] aiRGB, float afAlpha, float afTime) global native
 	
 	;Sets full particle count.
-	Function SetEffectShaderFullParticleCount(EffectShader akEffectShader, float particleCount) global native
+	Function SetParticleFullCount(EffectShader akEffectShader, float afParticleCount) global native
+	
+	;Set particle shader texture
+	Function SetParticlePaletteTexture(EffectShader akEffectShader, String asTextureName) global native
 	
 	;Sets persistent particle count.
-	Function SetEffectShaderPersistentParticleCount(EffectShader akEffectShader, float particleCount) global native
+	Function SetParticlePersistentCount(EffectShader akEffectShader, float afParticleCount) global native
+	
+	;Set particle shader texture
+	Function SetParticleShaderTexture(EffectShader akEffectShader, String asTextureName) global native
 		
 ;----------------------------------------------------------------------------------------------------------	
 ;FORM
@@ -316,17 +362,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function IsGeneratedForm(Form akForm) global native
 	
 	;Adds keyword to form. Fails if the form doesn't accept keywords.
-	Function AddKeywordToForm(Form akForm, Keyword KYWDtoAdd) global native
+	Function AddKeywordToForm(Form akForm, Keyword akKeyword) global native
 	
 	;-------
 	;SETTERS
 	;-------
 	
 	;Replaces given keyword with new one on form. Only lasts for a single gaming session. [ported from DienesTools].
-	Function ReplaceKeywordOnForm(Form akForm, Keyword KYWDtoAdd, Keyword KYWDtoRemove) global native
+	Function ReplaceKeywordOnForm(Form akForm, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
 	
 	;Removes keyword, if present, from form.
-	bool Function RemoveKeywordOnForm(Form akForm, Keyword KYWDtoRemove) global native
+	bool Function RemoveKeywordOnForm(Form akForm, Keyword akKeyword) global native
 
 ;----------------------------------------------------------------------------------------------------------	
 ;FURNITURE
@@ -347,10 +393,10 @@ Scriptname PO3_SKSEFunctions Hidden
 ;----------------------------------------------------------------------------------------------------------
 		
 	;Gets all races from base game + mods, filtered using optional keyword array
-	Race[] Function GetAllRaces(Keyword[] keywords = None) global native
+	Race[] Function GetAllRaces(Keyword[] akKeywords = None) global native
 	
 	;Gets all spells from base game + mods, filtered using optional keyword array. IsPlayable filters out spells that are not found in spellbooks. 
-	Spell[] Function GetAllSpells(Keyword[] keywords = None, bool IsPlayable = false) global native
+	Spell[] Function GetAllSpells(Keyword[] akKeywords = None, bool abIsPlayable = false) global native
 				
 	
 	;/	AI PROCESS LEVEL
@@ -361,13 +407,13 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 		
 	;Gets all actors by AI processing type. https://geck.bethsoft.com/index.php?title=GetActorsByProcessingLevel for more info	
-	Actor[] Function GetActorsByProcessingLevel(int Level) global native
+	Actor[] Function GetActorsByProcessingLevel(int aiLevel) global native
 	
 	;Gets all races added by a specified mod/game esm, filtered using optional keyword array. 
-	Race[] Function GetAllRacesInMod(String modName, Keyword[] keywords = None) global native
+	Race[] Function GetAllRacesInMod(String asModName, Keyword[] akKeywords = None) global native
 	
 	;Gets all spells added by a specified mod/game esm, filtered using optional keyword array. 
-	Spell[] Function GetAllSpellsInMod(String modName, Keyword[] keywords = None, bool IsPlayable = false) global native
+	Spell[] Function GetAllSpellsInMod(String asModName, Keyword[] akKeywords = None, bool abIsPlayable = false) global native
 	
 	;Gets current cell if in interior/attached cells in exterior/sky cells if in worldspace with no attached cells??
 	Cell[] Function GetAttachedCells() global native
@@ -382,7 +428,101 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function IsPluginFound(String akName) global native
 	
 	;Sets local gravity (ms-2) of the exterior worldspace/interior cell. 
-	Function SetLocalGravity(float xAccel, float yAccel, float zAccel) global native
+	Function SetLocalGravity(float afXAxis, float afYAxis, float afZAxis) global native
+	
+;----------------------------------------------------------------------------------------------------------	
+;HAZARD
+;----------------------------------------------------------------------------------------------------------
+
+	;-------
+	;GETTERS
+	;-------
+	
+	int property kHazard_None = 0 AutoReadOnly ; 0
+	int property kHazard_PCOnly = 0x00000001 AutoReadOnly ; 1
+	int property kHazard_InheritDuration = 0x00000002 AutoReadOnly ; 2
+	int property kHazard_AlignToNormal = 0x00000004 AutoReadOnly ; 3
+	int property kHazard_InheritRadius = 0x00000008 AutoReadOnly ; 4
+	int property kHazard_DropToGround = 0x00000010 AutoReadOnly ; 5
+	
+	;Gets hazard art path, eg. "Effects/MyHazardArt.nif"
+	String Function GetHazardArt(Hazard akHazard) global native
+	
+	;Gets associated IMOD
+	ImageSpaceModifier Function GetHazardIMOD(Hazard akHazard) global native
+
+	;Gets IMOD radius
+	float Function GetHazardIMODRadius(Hazard akHazard) global native
+	
+	;Gets impact data set 
+	ImpactDataSet Function GetHazardIPDS(Hazard akHazard) global native
+	
+	;Gets hazard lifetime
+	float Function GetHazardLifetime(Hazard akHazard) global native
+	
+	;Gets hazard light
+	Light Function GetHazardLight(Hazard akHazard) global native
+
+	;Gets hazard limit
+	int Function GetHazardLimit(Hazard akHazard) global native
+	
+	;Gets hazard radius
+	float Function GetHazardRadius(Hazard akHazard) global native
+
+	;Gets hazard sound
+	SoundDescriptor Function GetHazardSound(Hazard akHazard) global native
+	
+	;Gets hazard spell
+	Spell Function GetHazardSpell(Hazard akHazard) global native
+
+	;Gets target interval (duration between casts)
+	float Function GetHazardTargetInterval(Hazard akHazard) global native
+
+	;Is hazard flag set?
+	bool Function IsHazardFlagSet(Hazard akHazard, int aiFlag) global native
+
+	;-------
+	;SETTERS
+	;-------
+	
+	;Clears hazard flag
+	Function ClearHazardFlag(Hazard akHazard, int aiFlag) global native
+	
+	;Sets hazard art path. Does not work on active hazards
+	Function SetHazardArt(Hazard akHazard, String asPath) global native
+
+	;Set flag
+	Function SetHazardFlag(Hazard akHazard, int aiFlag) global native
+
+	;Sets IMOD
+	Function SetHazardIMOD(Hazard akHazard, ImageSpaceModifier akIMOD) global native
+
+	;Sets IMOD radius
+	Function SetHazardIMODRadius(Hazard akHazard, float afRadius) global native
+	
+	;Sets impact data set
+	Function SetHazardIPDS(Hazard akHazard, ImpactDataSet akIPDS) global native
+	
+	;Sets hazard lifetime
+	Function SetHazardLifetime(Hazard akHazard, float afLifetime) global native
+	
+	;Sets hazard light
+	Function SetHazardLight(Hazard akHazard, Light akLight) global native
+
+	;Sets hazard limit
+	Function SetHazardLimit(Hazard akHazard, int aiLimit) global native
+	
+	;Sets hazard radius
+	Function SetHazardRadius(Hazard akHazard, float afRadius) global native
+
+	;Sets hazard sound
+	Function SetHazardSound(Hazard akHazard, SoundDescriptor akSound) global native
+
+	;Sets hazard spell
+	Function SetHazardSpell(Hazard akHazard, Spell akspell) global native
+
+	;Sets hazard interval
+	Function SetHazardTargetInterval(Hazard akHazard, float afInterval) global native
 		
 ;----------------------------------------------------------------------------------------------------------
 ;LIGHT
@@ -405,7 +545,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	float Function GetLightRadius(Light akLight) global native
 	
 	;Gets light color as RGB array [0-255].
-	Int[] Function GetLightRGB(Light akLight) global native
+	int[] Function GetLightRGB(Light akLight) global native
 	
 	;Gets depth bias, returns 1 if not set.
 	float Function GetLightShadowDepthBias(ObjectReference akLightObject) global native
@@ -429,22 +569,22 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function SetLightColor(Light akLight, ColorForm akColorform) global native
 		
 	;Sets light fade range.
-	Function SetLightFade(Light akLight, float range) global native
+	Function SetLightFade(Light akLight, float afRange) global native
 		
 	;sets base light FOV.
-	Function SetLightFOV(Light akLight, float FOV) global native
+	Function SetLightFOV(Light akLight, float afFOV) global native
 	
 	;Sets light radius (minimum light radius is 16) .
-	Function SetLightRadius(Light akLight, float radius) global native
+	Function SetLightRadius(Light akLight, float afRadius) global native
 	
 	;Sets light color using RGB array [0-255]. Array must contain 3 elements (r,g,b).
-	Function SetLightRGB(Light akLight, Int[] rgb) global native
+	Function SetLightRGB(Light akLight, int[] aiRGB) global native
 	
 	;sets depth bias on light reference. Creates new depth bias extradata on lights that don't have it set.
-	Function SetLightShadowDepthBias(ObjectReference akLightObject, float depthBias) global native
+	Function SetLightShadowDepthBias(ObjectReference akLightObject, float afDepthBias) global native
 	
 	;Sets light type. Does not persist between sessions.
-	Function SetLightType(Light akLight, int lightType) global native
+	Function SetLightType(Light akLight, int aiLightType) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;LOCATION
@@ -455,14 +595,14 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 
 	;Get parent location.
-	Location Function GetParentLocation(Location akLocation) global native
+	Location Function GetParentLocation(Location akLoc) global native
 	
 	;-------
 	;SETTERS
 	;-------
 	
 	;Set parent location.
-	Function SetParentLocation(Location akLocation, Location newLocation) global native
+	Function SetParentLocation(Location akLoc, Location akNewLoc) global native
 	
 ;----------------------------------------------------------------------------------------------------------		
 ;MAGIC EFFECTS
@@ -473,7 +613,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;---------
 	
 	;Gets associated form (Light for Light spells, Actor for Summon Creature...), if any
-	Form Function GetAssociatedForm(MagicEffect mgef) global native;
+	Form Function GetAssociatedForm(MagicEffect akMagicEffect) global native
 	
 	;/	EFFECT ARCHETYPES
 		ValueMod = 0
@@ -526,16 +666,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Gets effect archetype of magiceffect and returns as int (0-46).
-	int Function GetEffectArchetypeAsInt(MagicEffect mgef) global native;
+	int Function GetEffectArchetypeAsInt(MagicEffect akMagicEffect) global native
 	
 	;Gets effect archetype of magiceffect and returns as String.
-	String Function GetEffectArchetypeAsString(MagicEffect mgef) global native
+	String Function GetEffectArchetypeAsString(MagicEffect akMagicEffect) global native
 	
 	;Gets primary actor value as string, if any (FrostResist, SpeedMult).
-	String Function GetPrimaryActorValue(MagicEffect mgef) global native
+	String Function GetPrimaryActorValue(MagicEffect akMagicEffect) global native
 	
 	;Gets secondary actor value as string, if any.
-	String Function GetSecondaryActorValue(MagicEffect mgef) global native
+	String Function GetSecondaryActorValue(MagicEffect akMagicEffect) global native
 		
 	;/	MGEF SOUND TYPES
 		Draw/Sheathe = 0
@@ -547,14 +687,14 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Gets Sound attached to index of Sound type specified in magic effect.
-	SoundDescriptor Function GetMagicEffectSound(MagicEffect mgef, int type) global native
+	SoundDescriptor Function GetMagicEffectSound(MagicEffect akMagicEffect, int aiType) global native
 	
 	;-------
 	;SETTERS
 	;-------
 	
-	;Sets Sound attached to index of Sound type specified in magic effect.
-	Function SetMagicEffectSound(MagicEffect mgef, SoundDescriptor mgefSound, int type) global native
+	;Sets sound descriptor attached to index of Sound type specified in magic effect.
+	Function SetMagicEffectSound(MagicEffect akMagicEffect, SoundDescriptor akSoundDescriptor, int aiType) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;OBJECTREFERENCES
@@ -565,32 +705,32 @@ Scriptname PO3_SKSEFunctions Hidden
 	;--------
 		
 	;Finds all references of form type in loaded cells, from ref.
-	ObjectReference[] Function FindAllReferencesOfFormType(ObjectReference akRef, Int formType, float radius) global native
+	ObjectReference[] Function FindAllReferencesOfFormType(ObjectReference akRef, int formType, float afRadius) global native
 	
 	;Find all references with keyword in loaded cells, from ref.
-	ObjectReference[] Function FindAllReferencesWithKeyword(ObjectReference akRef, Form keywordOrList, float radius, bool matchAll) global native
+	ObjectReference[] Function FindAllReferencesWithKeyword(ObjectReference akRef, Form keywordOrList, float afRadius, bool abMatchAll) global native
 	
 	;Find all references matching base form/in formlist, from ref.
-	ObjectReference[] Function FindAllReferencesOfType(ObjectReference akRef, Form formOrList, float radius) global native
+	ObjectReference[] Function FindAllReferencesOfType(ObjectReference akRef, Form akFormOrList, float afRadius) global native
 	
 	;Gets the first item in inventory that exists in formlist.
-	Form Function FindFirstItemInList(ObjectReference akRef, FormList list) global native
+	Form Function FindFirstItemInList(ObjectReference akRef, FormList akList) global native
 	
 	;Gets actor responsible for object.
 	Actor Function GetActorCause(ObjectReference akRef) global native
 	
 	;Get all art objects attached to this object.
-	Art[] Function GetAllArtObjects(ObjectReference akTarget) global native
+	Art[] Function GetAllArtObjects(ObjectReference akRef) global native
 	
 	;Get all effect shaders attached to this object.
-	EffectShader[] Function GetAllEffectShaders(ObjectReference akTarget) global native
+	EffectShader[] Function GetAllEffectShaders(ObjectReference akRef) global native
 		
 	;Gets closest actor to ref (without returning the reference itself).
-	Actor Function GetClosestActorFromRef(ObjectReference akRef, bool ignorePlayer) global native
+	Actor Function GetClosestActorFromRef(ObjectReference akRef, bool abIgnorePlayer) global native
 	
 	;Gets duration of the effectshader on the ref.
 	float Function GetEffectShaderDuration(ObjectReference akRef, EffectShader akShader) global native
-	
+		
 	;/	MATERIAL TYPES - String
 		StoneBroken
 		BlockBlade1Hand
@@ -683,19 +823,22 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Gets the specified collision shape's havok material types as string array. Returns the first material type if nodeName is empty
-	String[] Function GetMaterialType(ObjectReference akRef, String nodeName = "") global native
+	String[] Function GetMaterialType(ObjectReference akRef, String asNodeName = "") global native
+	
+	;Gets the motion type of the object (see vanilla SetMotionType for types). Returns -1 if 3d is not loaded
+	int Function GetMotionType(ObjectReference akRef) global native
 	
 	;Gets random actor near ref (without returning the reference itself).
-	Actor Function GetRandomActorFromRef(ObjectReference akRef, float radius, bool ignorePlayer) global native
+	Actor Function GetRandomActorFromRef(ObjectReference akRef, float afRadius, bool abIgnorePlayer) global native
 	
 	;Returns the number of instances of the specified art object (attached using visual effects) on the reference.
-	int Function HasArtObject(ObjectReference akTarget, Art akArtObject, bool active = false) global native
+	int Function HasArtObject(ObjectReference akRef, Art akArtObject, bool abActive = false) global native
 	
 	;Returns the number of instances of the specified effect shader on the reference.
-	int Function HasEffectShader(ObjectReference akTarget, EffectShader akShader, bool active = false) global native
+	int Function HasEffectShader(ObjectReference akRef, EffectShader akShader, bool abActive = false) global native
 	
 	;Returns whether the reference has niextradata (attached to root 3D node). Partial matches accepted.
-	bool Function HasNiExtraData(ObjectReference akRef, String name) global native
+	bool Function HasNiExtraData(ObjectReference akRef, String asName) global native
 	
 	;Is door a load door?
 	bool Function IsLoadDoor(ObjectReference akRef) global native
@@ -711,33 +854,33 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 	
 	;Adds all inventory items to array, filtering out equipped, favourited and quest items. 
-	Form[] Function AddAllItemsToArray(ObjectReference akRef, bool noEquipped = true, bool noFavourited = false, bool noQuestItem = false) global native
+	Form[] Function AddAllItemsToArray(ObjectReference akRef, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 	
 	;Adds all inventory items to formlist, filtering out equipped, favourited and quest items. 
-	Function AddAllItemsToList(ObjectReference akRef, Formlist akList, bool noEquipped = true, bool noFavourited = false, bool noQuestItem = false) global native
+	Function AddAllItemsToList(ObjectReference akRef, Formlist akList, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 	
 	;Wrapper function for AddKeywordToForm.
-	Function AddKeywordToRef(ObjectReference akTarget, Keyword KYWDtoAdd) global native	
+	Function AddKeywordToRef(ObjectReference akRef, Keyword akKeyword) global native	
 	
 	;Snaps the object to the nearest navmesh point closest to its current position in the cell.
-	Function MoveToNearestNavmeshLocation(ObjectReference akTarget) global native
+	Function MoveToNearestNavmeshLocation(ObjectReference akRef) global native
 				
 	;Wrapper function for RemoveKeywordFromForm.
-	bool Function RemoveKeywordFromRef(ObjectReference akTarget, Keyword KYWDtoRemove) global native
+	bool Function RemoveKeywordFromRef(ObjectReference akRef, Keyword akKeyword) global native
 	
 	;Wrapper function for ReplaceKeywordOnForm.
-	Function ReplaceKeywordOnRef(ObjectReference akRef, Keyword KYWDtoAdd, Keyword KYWDtoRemove) global native
+	Function ReplaceKeywordOnRef(ObjectReference akRef, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
 	
 	;Scales node & collision (bhkBoxShape, bhkSphereShape). Entire nif will be scaled if string is empty. Collision has to be directly attached to named nodes.
 	;Adds "PO3_SCALE" niextradata to root node.
-	Function ScaleObject3D(ObjectReference akRef, String nodeName, float scale) global native
+	Function ScaleObject3D(ObjectReference akRef, String asNodeName, float afScale) global native
 	
 	;Sets effectshader duration. Internal duration is set when the effectshader begins and does not change with time.
-	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float time, bool absolute) global native
-	
+	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float afTime, bool abAbsolute) global native
+		
 	;Sets havok material type. Use oldMaterial string to select what material you want to change from to (eg. from stone to wood), and nodeName to apply it to the specific node. 
 	;If both are empty, every collision material will be set.
-	Function SetMaterialType(ObjectReference akRef, String newMaterial, String oldMaterial = "", String nodeName = "") global native
+	Function SetMaterialType(ObjectReference akRef, String asNewMaterial, String asOldMaterial = "", String asNodeName = "") global native
 	
 	;Copies skin tint color from actorbase to bodyparts nif
 	Function SetupBodyPartGeometry(ObjectReference akRef, actor akActor) global native
@@ -768,16 +911,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	;if texture type is 0-9 the template's textureset is still applied but reference's texture at that index will take priority.
 	;optional diffuse path can be used to filter shapes to apply the shader to, partial matches are accepted like "Draugr.dds"
 	;limitations - cannot be used on geometry with no normals (ie. body skin meshes)	
-	Function SetShaderType(ObjectReference akRef, ObjectReference akTemplate, String diffusePath, int shaderType, int textureType, bool noWeapons, bool noAlphaProperty) global native
+	Function SetShaderType(ObjectReference akRef, ObjectReference akTemplate, String asDiffusePath, int aiShaderType, int aiTextureType, bool abNoWeapons, bool abNoAlphaProperty) global native
 								
 	;Stops ALL effect shaders and art objects (visual effects) currently on this actor
-	Function StopAllShaders(ObjectReference akTarget) global native
+	Function StopAllShaders(ObjectReference akRef) global native
 	
 	;Removes all instances of the art object (hit magic effect/visual effect) attached to the reference.
-	Function StopArtObject(ObjectReference akTarget, Art akArtObject) global native
+	Function StopArtObject(ObjectReference akRef, Art akArt) global native
 	
 	;Toggles node visibility.
-	Function ToggleChildNode(ObjectReference akTarget, String nodeName, bool disable) global native
+	Function ToggleChildNode(ObjectReference akRef, String asNodeName, bool abDisable) global native
 							
 ;----------------------------------------------------------------------------------------------------------
 ;PACKAGES
@@ -872,23 +1015,23 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 	
 	;Sets projectile gravity. 
-	Function SetProjectileGravity(Projectile akProjectile, float gravity) global native
+	Function SetProjectileGravity(Projectile akProjectile, float afGravity) global native
 	
 	;Sets projectile impact force. 
-	Function SetProjectileImpactForce(Projectile akProjectile, float impactForce) global native
+	Function SetProjectileImpactForce(Projectile akProjectile, float afImpactForce) global native
 	
 	;Sets projectile range.
-	Function SetProjectileRange(Projectile akProjectile, float range) global native
+	Function SetProjectileRange(Projectile akProjectile, float afRange) global native
 	
 	;Sets projectile speed. 
-	Function SetProjectileSpeed(Projectile akProjectile, float speed) global native
+	Function SetProjectileSpeed(Projectile akProjectile, float afSpeed) global native
 
 	
 ;-----------------------------------------------------------------------------------------------------------	
 ;SOUND
 ;-----------------------------------------------------------------------------------------------------------	
 
-	;Sets sound descriptor.	
+	;Sets sound descriptor attached to the sound.	
 	Function SetSoundDescriptor(Sound akSound, SoundDescriptor akSoundDescriptor) global native
 	
 ;-----------------------------------------------------------------------------------------------------------	
@@ -904,7 +1047,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Subject	| HasMagicEffectKeyword	| MagicInvisibility		| NONE | == | 0.0 | AND
 	;0 			| 699					| 0001EA6F ~ Skyrim.esm | NONE | 0  | 0.0 | AND		
 	
-	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect mgef, float magnitude, int area, int duration, float cost = 0.0, String[] conditionList) global native
+	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native
 	
 	;/	SPELL TYPES
 		Spell = 0
@@ -921,17 +1064,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	int Function GetSpellType(Spell akSpell) global native
 	
 	;Removes magic effect from spell that matches magnitude/area/duration/cost.
-	Function RemoveMagicEffectFromSpell(Spell akSpell, MagicEffect mgef, float magnitude, int area, int duration, float cost = 0.0) global native
+	Function RemoveMagicEffectFromSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native
 			
 ;----------------------------------------------------------------------------------------------------------	
 ;STRINGS
 ;----------------------------------------------------------------------------------------------------------
 
 	;Converts string to hex value if valid
-	String Function IntToString(int value, bool hex) global native
+	String Function IntToString(int aiValue, bool abHex) global native
 	
 	;Converts strng to int. Returns -1 for out of bound values.
-	int Function StringToInt(String akString) global native
+	int Function StringToInt(String asString) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;UTILITY
@@ -952,17 +1095,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	;--------
 	
 	;Gets the art object associated with the visual effect.
-	Art Function GetArtObject(VisualEffect effect) global native
+	Art Function GetArtObject(VisualEffect akEffect) global native
 	
 	;Returns the total number of art objects present/active (on objects) within the loaded area.
-	int Function GetArtObjectTotalCount(VisualEffect effect, bool active) global native
+	int Function GetArtObjectTotalCount(VisualEffect akEffect, bool abActive) global native
 	
 	;--------
 	;SETTERS
 	;--------
 	
 	;Sets the art object associated with the visual effect.
-	Function SetArtObject(VisualEffect effect, Art artObject) global native
+	Function SetArtObject(VisualEffect akEffect, Art akArt) global native
 			
 ;-----------------------------------------------------------------------------------------------------------
 ;WEATHER

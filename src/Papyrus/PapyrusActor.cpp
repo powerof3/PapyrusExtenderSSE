@@ -166,18 +166,14 @@ void papyrusActor::EquipArmorIfSkinVisible(VM* a_vm, StackID a_stackID, RE::Stat
 
 	auto task = SKSE::GetTaskInterface();
 	task->AddTask([a_actor, a_check, a_equip]() {
-		bool isSkin = false;
 		for (const auto& arma : a_check->armorAddons) {
 			if (arma) {
 				auto armorObject = a_actor->VisitArmorAddon(a_check, arma);
 				if (armorObject && armorObject->HasShaderType(Feature::kFaceGenRGBTint)) {
-					isSkin = true;
+					a_actor->AddWornItem(a_equip, 1, false, 0, 0);
 					break;
 				}
 			}
-		}
-		if (isSkin) {
-			a_actor->AddWornItem(a_equip, 1, false, 0, 0);
 		}
 	});
 }

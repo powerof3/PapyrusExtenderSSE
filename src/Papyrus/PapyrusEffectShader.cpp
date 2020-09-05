@@ -8,7 +8,7 @@ void papyrusEffectShader::ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE:
 		return;
 	}
 
-	a_effectShader->data.flags &= ~static_cast<RE::EffectShaderData::Flags>(a_flag);
+	a_effectShader->data.flags.reset(static_cast<RE::EffectShaderData::Flags>(a_flag));
 }
 
 
@@ -136,7 +136,7 @@ void papyrusEffectShader::SetEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::S
 		return;
 	}
 
-	a_effectShader->data.flags |= static_cast<RE::EffectShaderData::Flags>(a_flag);
+	a_effectShader->data.flags.set(static_cast<RE::EffectShaderData::Flags>(a_flag));
 }
 
 

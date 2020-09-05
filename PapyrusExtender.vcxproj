@@ -162,6 +162,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Papyrus\PapyrusArmorAddon.cpp" />
+    <ClCompile Include="src\Papyrus\ExtendedObjectTypes.cpp" />
+    <ClCompile Include="src\Papyrus\PapyrusHazard.cpp" />
     <ClCompile Include="src\ConditionParser.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Papyrus\PapyrusActor.cpp" />
@@ -199,13 +202,16 @@
     <ClInclude Include="include\ConditionParser.h" />
     <ClInclude Include="include\Papyrus\PapyrusActor.h" />
     <ClInclude Include="include\Papyrus\PapyrusActorBase.h" />
+    <ClInclude Include="include\Papyrus\PapyrusArmorAddon.h" />
     <ClInclude Include="include\Papyrus\PapyrusArray.h" />
     <ClInclude Include="include\Papyrus\PapyrusCell.h" />
     <ClInclude Include="include\Papyrus\PapyrusDebug.h" />
     <ClInclude Include="include\Papyrus\PapyrusEffectShader.h" />
+    <ClInclude Include="include\Papyrus\ExtendedObjectTypes.h" />
     <ClInclude Include="include\Papyrus\PapyrusForm.h" />
     <ClInclude Include="include\Papyrus\PapyrusFurniture.h" />
     <ClInclude Include="include\Papyrus\PapyrusGame.h" />
+    <ClInclude Include="include\Papyrus\PapyrusHazard.h" />
     <ClInclude Include="include\Papyrus\PapyrusLight.h" />
     <ClInclude Include="include\Papyrus\PapyrusLocation.h" />
     <ClInclude Include="include\Papyrus\PapyrusMagicEffect.h" />

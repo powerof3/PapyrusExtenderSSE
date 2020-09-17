@@ -392,6 +392,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;GAME
 ;----------------------------------------------------------------------------------------------------------
 		
+	;Gets all enchantments from base game + mods, filtered using optional keyword array
+	Enchantment[] Function GetAllEnchantments(Keyword[] akKeywords = None) global native
+	
 	;Gets all races from base game + mods, filtered using optional keyword array
 	Race[] Function GetAllRaces(Keyword[] akKeywords = None) global native
 	
@@ -408,6 +411,9 @@ Scriptname PO3_SKSEFunctions Hidden
 		
 	;Gets all actors by AI processing type. https://geck.bethsoft.com/index.php?title=GetActorsByProcessingLevel for more info	
 	Actor[] Function GetActorsByProcessingLevel(int aiLevel) global native
+	
+	;Gets all enchantments added by a specified mod/game esm, filtered using optional keyword array. 
+	Enchantment[] Function GetAllEnchantmentsInMod(String asModName, Keyword[] akKeywords = None) global native
 	
 	;Gets all races added by a specified mod/game esm, filtered using optional keyword array. 
 	Race[] Function GetAllRacesInMod(String asModName, Keyword[] akKeywords = None) global native
@@ -921,6 +927,11 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Toggles node visibility.
 	Function ToggleChildNode(ObjectReference akRef, String asNodeName, bool abDisable) global native
+	
+	;Moves hit effect art to new node (ie. from "MagicEffectsNode" to "NPC Head [Head]"), optionally updating translate, rotate, and scale values.
+	;Translate and Rotate arrays must have three values in order to work. Rotate uses euler angles in degrees (XYZ). Scale is relative, and is multiplied by existing scale.
+	;If the hit effect art is removed and reattached, it will revert back to the values in the nif.
+	Function UpdateHitEffectArtNode(ObjectReference akRef, Art akArt, String asNewNode, float[] afTranslate, float[] afRotate, float afRelativeScale = 1.0) global native
 							
 ;----------------------------------------------------------------------------------------------------------
 ;PACKAGES

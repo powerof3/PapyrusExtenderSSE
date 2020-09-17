@@ -41,20 +41,18 @@ std::vector<RE::Actor*> papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackI
 }
 
 
+std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantments(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords)
+{
+	std::vector<RE::EnchantmentItem*> vec;
+	GetAllForms<RE::EnchantmentItem>(vec, a_keywords);
+	return vec;
+}
+
+
 std::vector<RE::TESRace*> papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords)
 {
 	std::vector<RE::TESRace*> vec;
-
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-		for (auto& race : dataHandler->GetFormArray<RE::TESRace>()) {
-			if (!race || !a_keywords.empty() && !race->HasKeywords(a_keywords)) {
-				continue;
-			}
-			vec.push_back(race);
-		}
-	}
-
+	GetAllForms<RE::TESRace>(vec, a_keywords);
 	return vec;
 }
 
@@ -63,9 +61,9 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackI
 {
 	std::vector<RE::SpellItem*> vec;
 
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-		if (a_playable) {
+	if (a_playable) {
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
+		if (dataHandler) {
 			for (auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
 				if (book) {
 					auto spell = book->data.teaches.spell;
@@ -75,14 +73,33 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackI
 					vec.push_back(spell);
 				}
 			}
-		} else {
-			for (auto& spell : dataHandler->GetFormArray<RE::SpellItem>()) {
-				if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
-					continue;
-				}
-				vec.push_back(spell);
-			}
 		}
+	} else {
+		GetAllForms<RE::SpellItem>(vec, a_keywords);
+	}
+
+	return vec;
+}
+
+
+std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantmentsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords)
+{
+	std::vector<RE::EnchantmentItem*> vec;
+
+	if (a_name.empty()) {
+		a_vm->TraceStack("Mod name is empty", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
+	if (dataHandler) {
+		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
+		if (!modInfo) {
+			auto msg = a_name.c_str() + std::string(" is not loaded");
+			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
+			return vec;
+		}
+		GetAllFormsInMod<RE::EnchantmentItem>(modInfo, vec, a_keywords);
 	}
 
 	return vec;
@@ -102,15 +119,11 @@ std::vector<RE::TESRace*> papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stac
 	if (dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
 		if (!modInfo) {
-			a_vm->TraceStack("Mod is not loaded", a_stackID, Severity::kWarning);
+			auto msg = a_name.c_str() + std::string(" is not loaded");
+			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
-		for (auto& race : dataHandler->GetFormArray<RE::TESRace>()) {
-			if (!race || !modInfo->IsFormInMod(race->formID) || !a_keywords.empty() && !race->HasKeywords(a_keywords)) {
-				continue;
-			}
-			vec.push_back(race);
-		}
+		GetAllFormsInMod<RE::TESRace>(modInfo, vec, a_keywords);
 	}
 
 	return vec;
@@ -130,7 +143,8 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 	if (dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
 		if (!modInfo) {
-			a_vm->TraceStack("Mod is not loaded", a_stackID, Severity::kWarning);
+			auto msg = a_name.c_str() + std::string(" is not loaded");
+			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
 		if (a_playable) {
@@ -145,12 +159,7 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 				vec.push_back(spell);
 			}
 		} else {
-			for (const auto& spell : dataHandler->GetFormArray<RE::SpellItem>()) {
-				if (!spell || !modInfo->IsFormInMod(spell->formID) || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
-					continue;
-				}
-				vec.push_back(spell);
-			}
+			GetAllFormsInMod<RE::SpellItem>(modInfo, vec, a_keywords);
 		}
 	}
 
@@ -201,7 +210,7 @@ std::vector<RE::TESObjectCELL*> papyrusGame::GetAttachedCells(VM* a_vm, StackID 
 std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
 {
 	std::vector<float> vec(3, 0.0f);
-	
+
 	auto player = RE::PlayerCharacter::GetSingleton();
 	if (player) {
 		auto cell = player->GetParentCell();
@@ -221,7 +230,7 @@ std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE:
 			}
 		}
 	}
-	
+
 	return vec;
 }
 
@@ -283,10 +292,14 @@ bool papyrusGame::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("GetActorsByProcessingLevel", "PO3_SKSEFunctions", GetActorsByProcessingLevel);
 
+	a_vm->RegisterFunction("GetAllEnchantments", "PO3_SKSEFunctions", GetAllEnchantments);
+	
 	a_vm->RegisterFunction("GetAllRaces", "PO3_SKSEFunctions", GetAllRaces);
 
 	a_vm->RegisterFunction("GetAllSpells", "PO3_SKSEFunctions", GetAllSpells);
 
+	a_vm->RegisterFunction("GetAllEnchantmentsInMod", "PO3_SKSEFunctions", GetAllEnchantmentsInMod);
+	
 	a_vm->RegisterFunction("GetAllRacesInMod", "PO3_SKSEFunctions", GetAllRacesInMod);
 
 	a_vm->RegisterFunction("GetAllSpellsInMod", "PO3_SKSEFunctions", GetAllSpellsInMod);

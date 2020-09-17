@@ -14,8 +14,8 @@ void papyrusDebug::GivePlayerSpellBook(VM* a_vm, StackID a_stackID, RE::StaticFu
 					if (!spell->fullName.empty()) {
 						auto mod = spell->GetDescriptionOwnerFile();
 						if (mod) {
-							auto modName = " [" + std::string(mod->fileName).substr(0, 4) + "]";
-							std::string name = spell->fullName.c_str() + modName;
+							auto modName = "[" + std::string(mod->fileName).substr(0, 4) + "] ";
+							std::string name = modName + spell->fullName.c_str();
 
 							spell->fullName = name.c_str();
 						}

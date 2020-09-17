@@ -1432,6 +1432,80 @@ void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
+void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSArtObject* a_art, RE::BSFixedString a_toNode, std::vector<float> a_translate, std::vector<float> a_rotate, float a_scale)
+{
+	if (!a_ref) {
+		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
+		return;
+	} else if (!a_art) {
+		a_vm->TraceStack("Art is None", a_stackID, Severity::kWarning);
+		return;
+	} else if (a_toNode.empty()) {
+		a_vm->TraceStack("Node name is empty", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto processLists = RE::ProcessLists::GetSingleton();
+	if (processLists) {
+		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
+			auto modelEffect = a_tempEffect->As<RE::ModelReferenceEffect>();
+			if (modelEffect) {
+				auto handle = a_ref->CreateRefHandle();
+				if (modelEffect->target == handle && modelEffect->artObject == a_art) {
+					if (modelEffect->hitEffectArtData.nodeName == a_toNode) {
+						return false;
+					}
+					auto current3DRoot = modelEffect->hitEffectArtData.current3DRoot.get();
+					auto art = modelEffect->hitEffectArtData.attachedArt.get();
+					if (current3DRoot && art) {
+						auto newNode = current3DRoot->GetObjectByName(a_toNode);
+						if (!newNode) {
+							std::string error = "Node '" + std::string(a_toNode.c_str()) + "' doesn't exist on actor";
+							a_vm->TraceStack(error.c_str(), a_stackID, Severity::kWarning);
+							return false;
+						}
+						auto task = SKSE::GetTaskInterface();
+						task->AddTask([newNode, art, modelEffect, a_toNode, a_translate, a_rotate, a_scale]() {						
+							if (newNode->AsNode()) {
+								auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT");
+								if (attachTData) {
+									constexpr std::string_view namedNode = "NamedNode&";
+									auto oldNodeStr = namedNode.data() + std::string(modelEffect->hitEffectArtData.nodeName);
+									auto newNodeStr = namedNode.data() + std::string(a_toNode);
+									attachTData->RemoveElement(oldNodeStr.c_str());
+									attachTData->InsertElement(newNodeStr.c_str());
+								}
+								for (auto& nodes : art->children) {
+									if (nodes.get()) {
+										if (!a_translate.empty() && a_translate.size() == 3) {
+											nodes->local.translate = { a_translate[0], a_translate[1], a_translate[2] };
+										}
+										if (!a_rotate.empty() && a_rotate.size() == 3) {
+											float aX = RE::degToRad(a_rotate[0]);
+											float aY = RE::degToRad(a_rotate[1]);
+											float aZ = RE::degToRad(a_rotate[2]);
+											nodes->local.rotate.SetEulerAnglesXYZ(aX, aY, aZ);
+										}
+										nodes->local.scale *= a_scale;
+									}
+								}
+								newNode->AsNode()->AttachChild(art);
+								RE::NiUpdateData data = { 0.0f, RE::NiUpdateData::Flag::kNone };
+								art->UpdateWorldData(&data);
+							}
+							modelEffect->hitEffectArtData.nodeName = a_toNode;
+							modelEffect->UpdatePosition();
+						});
+					}
+					return false;
+				}
+			}
+			return true;
+		});
+	}
+}
+
+
 bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
@@ -1502,6 +1576,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("StopArtObject", "PO3_SKSEFunctions", StopArtObject);
 
 	a_vm->RegisterFunction("ToggleChildNode", "PO3_SKSEFunctions", ToggleChildNode);
+
+	a_vm->RegisterFunction("UpdateHitEffectArtNode", "PO3_SKSEFunctions", UpdateHitEffectArtNode);
 
 	return true;
 }

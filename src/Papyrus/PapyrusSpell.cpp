@@ -18,7 +18,7 @@ void papyrusSpell::AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::Static
 		return;
 	}
 
-	auto effect = a_spell->GetMatchingEffect(a_mgef, a_mag, a_area, a_dur, a_cost);
+	auto effect = a_spell->GetEffectIsMatch(a_mgef, a_mag, a_area, a_dur, a_cost);
 	if (!effect) {
 		effect = new RE::Effect();
 		if (effect) {

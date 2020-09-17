@@ -7,7 +7,7 @@ namespace papyrusObjectReference
 	using StackID = RE::VMStackID;
 	using Severity = RE::BSScript::ErrorLogger::Severity;
 
-	inline constexpr float PI = 3.1415927f;
+	inline constexpr float PI = static_cast<float>(3.1415926535897932);
 
 	using MAT = RE::MATERIAL_ID;	
 	constexpr frozen::map<MAT, frozen::string, 88> materialMap = {
@@ -170,6 +170,8 @@ namespace papyrusObjectReference
 	void StopArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSArtObject* a_art);
 
 	void ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BSFixedString a_nodeName, bool a_disable);
+
+	void UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSArtObject* a_art, RE::BSFixedString a_toNode, std::vector<float> a_translate, std::vector<float> a_rotate, float a_scale);
 
 
 	bool RegisterFuncs(VM* a_vm);

@@ -24,6 +24,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -61,7 +62,7 @@
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\CommonLibRuleSet.ruleset</CodeAnalysisRuleSet>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,6 +141,7 @@
       </TreatSpecificWarningsAsErrors>
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
       <AdditionalOptions>/experimental:external /external:anglebrackets /external:W0 /Zc:externConstexpr /Zc:ternary /Zc:throwingNew /Zc:noexceptTypes /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>
@@ -162,74 +164,88 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Papyrus\PapyrusArmorAddon.cpp" />
+    <ClCompile Include="src\Hooks\EventHook.cpp" />
+    <ClCompile Include="src\Papyrus\ActiveMagicEffect.cpp" />
+    <ClCompile Include="src\Papyrus\Alias.cpp" />
+    <ClCompile Include="src\Papyrus\Events.cpp" />
     <ClCompile Include="src\Papyrus\ExtendedObjectTypes.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusHazard.cpp" />
-    <ClCompile Include="src\ConditionParser.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusActor.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusActorBase.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusArray.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusCell.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusDebug.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusEffectShader.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusForm.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusFurniture.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusGame.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusLight.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusLocation.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusMagicEffect.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusObjectReference.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusPackage.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusProjectile.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusSound.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusSpell.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusStrings.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusUtility.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusVisualEffect.cpp" />
-    <ClCompile Include="src\Papyrus\PapyrusWeather.cpp" />
+    <ClCompile Include="src\Papyrus\Actor.cpp" />
+    <ClCompile Include="src\Papyrus\ActorBase.cpp" />
+    <ClCompile Include="src\Papyrus\ArmorAddon.cpp" />
+    <ClCompile Include="src\Papyrus\Array.cpp" />
+    <ClCompile Include="src\Papyrus\Cell.cpp" />
+    <ClCompile Include="src\Papyrus\Debug.cpp" />
+    <ClCompile Include="src\Papyrus\EffectShader.cpp" />
+    <ClCompile Include="src\Papyrus\Form.cpp" />
+    <ClCompile Include="src\Papyrus\Furniture.cpp" />
+    <ClCompile Include="src\Papyrus\Game.cpp" />
+    <ClCompile Include="src\Papyrus\Hazard.cpp" />
+    <ClCompile Include="src\Papyrus\Light.cpp" />
+    <ClCompile Include="src\Papyrus\Location.cpp" />
+    <ClCompile Include="src\Papyrus\MagicEffect.cpp" />
+    <ClCompile Include="src\Papyrus\ObjectReference.cpp" />
+    <ClCompile Include="src\Papyrus\Package.cpp" />
+    <ClCompile Include="src\Papyrus\Projectile.cpp" />
+    <ClCompile Include="src\Papyrus\Sound.cpp" />
+    <ClCompile Include="src\Papyrus\Spell.cpp" />
+    <ClCompile Include="src\Papyrus\Strings.cpp" />
+    <ClCompile Include="src\Papyrus\Utility.cpp" />
+    <ClCompile Include="src\Papyrus\VisualEffect.cpp" />
+    <ClCompile Include="src\Papyrus\Weather.cpp" />
     <ClCompile Include="src\Papyrus\Registration.cpp" />
     <ClCompile Include="src\PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Serialization\Keywords.cpp" />
-    <ClCompile Include="src\Serialization\Perks.cpp" />
-    <ClCompile Include="src\Serialization\Reset.cpp" />
-    <ClCompile Include="src\Serialization\Base.cpp" />
+    <ClCompile Include="src\Serialization\Events.cpp" />
+    <ClCompile Include="src\Serialization\Form\Base.cpp" />
+    <ClCompile Include="src\Serialization\Form\Keywords.cpp" />
+    <ClCompile Include="src\Serialization\Form\Perks.cpp" />
+    <ClCompile Include="src\Serialization\Manager.cpp" />
+    <ClCompile Include="src\Util\ConditionParser.cpp" />
+    <ClCompile Include="src\Util\GraphicsReset.cpp" />
+    <ClCompile Include="src\Util\VMErrors.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ConditionParser.h" />
-    <ClInclude Include="include\Papyrus\PapyrusActor.h" />
-    <ClInclude Include="include\Papyrus\PapyrusActorBase.h" />
-    <ClInclude Include="include\Papyrus\PapyrusArmorAddon.h" />
-    <ClInclude Include="include\Papyrus\PapyrusArray.h" />
-    <ClInclude Include="include\Papyrus\PapyrusCell.h" />
-    <ClInclude Include="include\Papyrus\PapyrusDebug.h" />
-    <ClInclude Include="include\Papyrus\PapyrusEffectShader.h" />
+    <ClInclude Include="include\Hooks\EventHook.h" />
+    <ClInclude Include="include\Papyrus\ActiveMagicEffect.h" />
+    <ClInclude Include="include\Papyrus\Alias.h" />
+    <ClInclude Include="include\Papyrus\Events.h" />
     <ClInclude Include="include\Papyrus\ExtendedObjectTypes.h" />
-    <ClInclude Include="include\Papyrus\PapyrusForm.h" />
-    <ClInclude Include="include\Papyrus\PapyrusFurniture.h" />
-    <ClInclude Include="include\Papyrus\PapyrusGame.h" />
-    <ClInclude Include="include\Papyrus\PapyrusHazard.h" />
-    <ClInclude Include="include\Papyrus\PapyrusLight.h" />
-    <ClInclude Include="include\Papyrus\PapyrusLocation.h" />
-    <ClInclude Include="include\Papyrus\PapyrusMagicEffect.h" />
-    <ClInclude Include="include\Papyrus\PapyrusObjectReference.h" />
-    <ClInclude Include="include\Papyrus\PapyrusPackage.h" />
-    <ClInclude Include="include\Papyrus\PapyrusProjectile.h" />
-    <ClInclude Include="include\Papyrus\PapyrusSound.h" />
-    <ClInclude Include="include\Papyrus\PapyrusSpell.h" />
-    <ClInclude Include="include\Papyrus\PapyrusStrings.h" />
-    <ClInclude Include="include\Papyrus\PapyrusUtility.h" />
-    <ClInclude Include="include\Papyrus\PapyrusVisualEffect.h" />
-    <ClInclude Include="include\Papyrus\PapyrusWeather.h" />
+    <ClInclude Include="include\Papyrus\Actor.h" />
+    <ClInclude Include="include\Papyrus\ActorBase.h" />
+    <ClInclude Include="include\Papyrus\ArmorAddon.h" />
+    <ClInclude Include="include\Papyrus\Array.h" />
+    <ClInclude Include="include\Papyrus\Cell.h" />
+    <ClInclude Include="include\Papyrus\Debug.h" />
+    <ClInclude Include="include\Papyrus\EffectShader.h" />
+    <ClInclude Include="include\Papyrus\Form.h" />
+    <ClInclude Include="include\Papyrus\Furniture.h" />
+    <ClInclude Include="include\Papyrus\Game.h" />
+    <ClInclude Include="include\Papyrus\Hazard.h" />
+    <ClInclude Include="include\Papyrus\Light.h" />
+    <ClInclude Include="include\Papyrus\Location.h" />
+    <ClInclude Include="include\Papyrus\MagicEffect.h" />
+    <ClInclude Include="include\Papyrus\ObjectReference.h" />
+    <ClInclude Include="include\Papyrus\Package.h" />
+    <ClInclude Include="include\Papyrus\Projectile.h" />
+    <ClInclude Include="include\Papyrus\Sound.h" />
+    <ClInclude Include="include\Papyrus\Spell.h" />
+    <ClInclude Include="include\Papyrus\Strings.h" />
+    <ClInclude Include="include\Papyrus\Utility.h" />
+    <ClInclude Include="include\Papyrus\VisualEffect.h" />
+    <ClInclude Include="include\Papyrus\Weather.h" />
     <ClInclude Include="include\Papyrus\Registration.h" />
     <ClInclude Include="include\PCH.h" />
-    <ClInclude Include="include\Serialization\Keywords.h" />
-    <ClInclude Include="include\Serialization\Perks.h" />
-    <ClInclude Include="include\Serialization\Reset.h" />
-    <ClInclude Include="include\Serialization\Base.h" />
+    <ClInclude Include="include\Serialization\Events.h" />
+    <ClInclude Include="include\Serialization\Form\Base.h" />
+    <ClInclude Include="include\Serialization\Form\Keywords.h" />
+    <ClInclude Include="include\Serialization\Form\Perks.h" />
+    <ClInclude Include="include\Serialization\Manager.h" />
+    <ClInclude Include="include\Util\ConditionParser.h" />
+    <ClInclude Include="include\Util\GraphicsReset.h" />
+    <ClInclude Include="include\Util\VMErrors.h" />
     <ClInclude Include="include\Version.h" />
   </ItemGroup>
   <ItemGroup>

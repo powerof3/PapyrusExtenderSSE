@@ -1,6 +1,18 @@
 #pragma once
 
+
 namespace Papyrus
 {
-	void Register();
+	namespace Functions
+	{
+		void Register();
+	}
+
+
+	namespace Events
+	{
+		void RegisterScriptEvents();
+
+		void RegisterStoryEvents();
+	}
 }

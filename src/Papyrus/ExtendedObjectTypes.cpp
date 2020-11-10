@@ -14,5 +14,8 @@ bool extendedObjectTypes::RegisterTypes(VM* a_vm)
 	a_vm->RegisterObjectType(vm_cast<RE::BGSLightingTemplate>(), "LightingTemplate");
 	logger::info("Registered lighting template object type");
 
+	a_vm->RegisterObjectType(vm_cast<RE::BGSDebris>(), "Debris");
+	logger::info("Registered debris object type");
+
 	return true;
 }

@@ -30,7 +30,9 @@ namespace papyrusActor
 		{
 			kPoison = 0,
 			kFear,
-			kPoisonFear
+			kAsh,
+			kPoisonFear,
+			kAshFear
 		};
 	}
 
@@ -50,7 +52,7 @@ namespace papyrusActor
 	using EFFECT = EFFECT_TYPE;
 
 
-	inline constexpr RE::FormID SoulTrapHitArtID = 0x000506D6;
+	inline constexpr RE::FormID SoulTrapHitArtID = 0x000531AE;
 
 
 	bool AddBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSPerk* a_perk);
@@ -70,6 +72,8 @@ namespace papyrusActor
 	float GetActorAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
 
 	float GetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
+
+	std::int32_t GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
 
 	std::int32_t GetActorState(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
 
@@ -133,6 +137,8 @@ namespace papyrusActor
 
 	bool ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_folderName);
 
+	void SendFECResetEvent(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_type, bool a_reset);
+
 	void SetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, float a_refraction);
 
 	void SetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSColorForm* a_color);
@@ -148,6 +154,8 @@ namespace papyrusActor
 	void SetSkinAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, float a_alpha);
 
 	void SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSColorForm* a_color);
+
+	void SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, bool a_trapped);
 
 	void UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_armorType, std::vector<std::uint32_t> a_slotsToSkip);
 

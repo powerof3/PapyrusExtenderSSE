@@ -39,7 +39,9 @@ namespace Serialization
 		kActorResurrect = 'RSUR',
 		kActorReanimateStart = 'RSTA',
 		kActorReanimateStop = 'REND',
-		kWeatherChange = 'WEAT'
+		kWeatherChange = 'WEAT',
+
+		kFECReset = 'FECR'
 	};
 	
 	std::string DecodeTypeCode(std::uint32_t a_typeCode);

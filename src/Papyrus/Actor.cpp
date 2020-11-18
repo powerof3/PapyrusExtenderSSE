@@ -1,5 +1,6 @@
 #include "Papyrus/Actor.h"
 
+#include "Serialization/Events.h"
 #include "Serialization/Form/Perks.h"
 #include "Util/GraphicsReset.h"
 #include "Util/VMErrors.h"
@@ -67,7 +68,7 @@ std::vector<RE::TESForm*> papyrusActor::AddAllEquippedItemsToArray(VM* a_vm, Sta
 	auto inv = a_actor->GetInventory();
 	for (auto& item : inv) {
 		auto& [count, entry] = item.second;
-		if (count > 0 && entry && entry->GetWorn()) {
+		if (count > 0 && entry->GetWorn()) {
 			vec.push_back(item.first);
 		}
 	}
@@ -148,7 +149,10 @@ void papyrusActor::DecapitateActor(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 		a_vm->TraceStack("Actor is None", a_stackID, Severity::kWarning);
 	}
 
-	a_actor->Decapitate();
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([a_actor]() {
+		a_actor->Decapitate();
+	});
 }
 
 
@@ -215,23 +219,26 @@ void papyrusActor::FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 		if (a_enable) {
 			a_actor->boolBits.reset(BOOL_BITS::kProcessMe);	 // disable AI last
 		}
-	} else {
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_enable]() {
-			auto root = a_actor->Get3D(0);
-			auto charController = a_actor->GetCharController();
-			if (root && charController) {
+	} else if (a_type == 1) {
+		auto root = a_actor->Get3D(0);
+		auto charController = a_actor->GetCharController();
+		if (root && charController) {
+			auto task = SKSE::GetTaskInterface();
+			task->AddTask([root, charController, a_actor, a_enable]() {
+				std::uint32_t unk = 0;
 				if (a_enable) {
 					a_actor->boolBits.set(BOOL_BITS::kParalyzed);
+					auto flags = *(charController->Unk_08(&unk) + 1);
+					root->UpdateRigidBodySettings(32, flags);
+					root->SetRigidConstraints(true);
 				} else {
 					a_actor->boolBits.reset(BOOL_BITS::kParalyzed);
+					root->SetRigidConstraints(false);
+					auto flags = *(charController->Unk_08(&unk));
+					root->UpdateRigidBodySettings(32, flags >> 16);
 				}
-				std::uint32_t unk = 0;
-				auto flags = *(charController->Unk_08(&unk));
-				root->UpdateRigidBodySettings(32, a_enable ? flags + 1 : flags >> 16);
-				root->SetStiffSpringConstraints(a_enable ? true : false);
-			}
-		});
+			});
+		}
 	}
 }
 
@@ -306,6 +313,17 @@ float papyrusActor::GetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFu
 	}
 
 	return 1.0f;
+}
+
+
+std::int32_t papyrusActor::GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+{
+	if (!a_actor) {
+		a_vm->TraceStack("Actor is None", a_stackID, Severity::kWarning);
+		return -1;
+	}
+
+	return to_underlying(a_actor->GetSoulLevel());
 }
 
 
@@ -419,9 +437,9 @@ std::vector<std::int32_t> papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_s
 					if (mgef->HasKeywordString("PO3_MagicDamageSun")) {
 						effectPair = { DEATH_TYPE::kSun, mgef };  //sun override
 						break;
-					} else if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType == RE::MagicSystem::CastingType::kConcentration) {
+						/*} else if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType == RE::MagicSystem::CastingType::kConcentration) {
 						effectPair = { DEATH_TYPE::kAcid, mgef };  //acid override
-						break;
+						break;*/
 					} else if (mgef->HasKeywordString("MagicDamageFire")) {
 						effectMap[DEATH_TYPE::kFire].emplace_back(mgef, -activeEffect->magnitude);	//flipping the magnitude back to +ve
 					} else if (mgef->HasKeywordString("MagicDamageFrost")) {
@@ -432,10 +450,12 @@ std::vector<std::int32_t> papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_s
 						effectMap[DEATH_TYPE::kDrain].emplace_back(mgef, -activeEffect->magnitude);
 					}
 				} else {
-					if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType != RE::MagicSystem::CastingType::kConcentration) {
+					if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist /*&& mgef->data.castingType != RE::MagicSystem::CastingType::kConcentration*/) {
 						effectMap[DEATH_TYPE::kPoison].emplace_back(mgef, -activeEffect->magnitude);
 					} else if (mgef->GetArchetype() == RE::Archetype::kDemoralize || killer && killer->HasKeyword("ActorTypeGhost")) {
-						effectMap[DEATH_TYPE::kDrain].emplace_back(mgef, -activeEffect->magnitude);
+						effectMap[DEATH_TYPE::kFear].emplace_back(mgef, -activeEffect->magnitude);
+					} else if (mgef->data.associatedSkill == RE::ActorValue::kAlteration && mgef->HasKeywordString("MagicParalysis")) {
+						effectMap[DEATH_TYPE::kAsh].emplace_back(mgef, -activeEffect->magnitude);
 					}
 				}
 			}
@@ -455,7 +475,8 @@ std::vector<std::int32_t> papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_s
 			if (a_type != 0) {
 				bool poison = !effectMap[DEATH_TYPE::kPoison].empty();
 				bool fear = !effectMap[DEATH_TYPE::kFear].empty();
-				
+				bool ash = !effectMap[DEATH_TYPE::kAsh].empty();
+
 				if (poison) {
 					auto& poisonVec = effectMap[DEATH_TYPE::kPoison];
 					auto poisonEffect = *std::max_element(poisonVec.begin(), poisonVec.end(), mag_cmp);
@@ -463,6 +484,14 @@ std::vector<std::int32_t> papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_s
 					effectPair = { DEATH_TYPE::kPoison, poisonEffect.first };
 					if (fear) {
 						effectPair.first = DEATH_TYPE::kPoisonFear;
+					}
+				} else if (ash) {
+					auto& ashVec = effectMap[DEATH_TYPE::kAsh];
+					auto ashEffect = *std::max_element(ashVec.begin(), ashVec.end(), mag_cmp);
+
+					effectPair = { DEATH_TYPE::kAsh, ashEffect.first };
+					if (fear) {
+						effectPair.first = DEATH_TYPE::kAshFear;
 					}
 				} else if (fear) {
 					auto& fearVec = effectMap[DEATH_TYPE::kFear];
@@ -1435,13 +1464,6 @@ bool papyrusActor::ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	if (!toggleData && !alphaData && !headpartAlphaData && !skinTintData && !hairTintData && !txstFaceData && txstVec.empty() && txstSkinVec.empty() && shaderVec.empty()) {
 		return false;
 	} else {
-		if (!a_actor->IsPlayerRef()) {
-			auto processLists = RE::ProcessLists::GetSingleton();
-			if (processLists) {
-				processLists->StopAllShaders(a_actor);
-			}
-		}
-
 		if (toggleData) {
 			ResetToggleData(root, toggleData);
 		}
@@ -1470,10 +1492,30 @@ bool papyrusActor::ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 			ResetShaderData(root, shaderVec);
 		}
 
+		if (!a_actor->IsPlayerRef()) {
+			auto processLists = RE::ProcessLists::GetSingleton();
+			if (processLists) {
+				processLists->StopAllShaders(a_actor);
+			}
+		}
+
 		return true;
 	}
 
 	return false;
+}
+
+
+void papyrusActor::SendFECResetEvent(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_type, bool a_reset)
+{
+	using namespace Serialization::FECEvents;
+
+	if (!a_actor) {
+		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	OnFECResetRegMap::GetSingleton()->QueueEvent(a_type, a_actor, a_type, a_reset);
 }
 
 
@@ -1701,6 +1743,23 @@ void papyrusActor::SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
+void papyrusActor::SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, bool a_trapped)
+{
+	if (!a_actor) {
+		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto process = a_actor->currentProcess;
+	if (process) {
+		auto middleHigh = process->middleHigh;
+		if (middleHigh) {
+			middleHigh->soulTrapped = a_trapped;
+		}
+	}
+}
+
+
 void papyrusActor::UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_armorType, std::vector<std::uint32_t> a_slotsToSkip)
 {
 	using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
@@ -1722,18 +1781,10 @@ void papyrusActor::UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunct
 		return false;
 	});
 
-	auto objectManager = RE::BGSDefaultObjectManager::GetSingleton();
-	auto equipManager = RE::ActorEquipManager::GetSingleton();
-	RE::BGSEquipSlot* rightHandSlot = nullptr;
-	if (objectManager) {
-		rightHandSlot = objectManager->GetObject<RE::BGSEquipSlot>(RE::BGSDefaultObjectManager::DefaultObject::kRightHandEquip);
-	}
-	if (rightHandSlot && equipManager) {
-		for (auto& item : inv) {
-			auto& [count, entry] = item.second;
-			if (count > 0 && entry && entry->GetWorn()) {
-				equipManager->UnequipObject(a_actor, item.first, nullptr, 1, rightHandSlot, true, false, false, false, nullptr);
-			}
+	for (auto& item : inv) {
+		auto& [count, entry] = item.second;
+		if (count > 0 && entry && entry->GetWorn()) {
+			a_actor->UnequipItem(0, item.first, 1, nullptr);
 		}
 	}
 }
@@ -1767,6 +1818,8 @@ bool papyrusActor::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("GetActorRefraction", "PO3_SKSEFunctions", GetActorRefraction);
 
 	a_vm->RegisterFunction("GetActorState", "PO3_SKSEFunctions", GetActorState, true);
+
+	a_vm->RegisterFunction("GetActorSoulSize", "PO3_SKSEFunctions", GetActorSoulSize, true);
 
 	a_vm->RegisterFunction("GetCriticalStage", "PO3_SKSEFunctions", GetCriticalStage, true);
 
@@ -1826,6 +1879,8 @@ bool papyrusActor::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("ResetActor3D", "PO3_SKSEFunctions", ResetActor3D);
 
+	a_vm->RegisterFunction("SendFECResetEvent", "PO3_SKSEFunctions", SendFECResetEvent);
+
 	a_vm->RegisterFunction("SetActorRefraction", "PO3_SKSEFunctions", SetActorRefraction);
 
 	a_vm->RegisterFunction("SetHairColor", "PO3_SKSEFunctions", SetHairColor);
@@ -1841,6 +1896,8 @@ bool papyrusActor::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("SetSkinAlpha", "PO3_SKSEFunctions", SetSkinAlpha);
 
 	a_vm->RegisterFunction("SetSkinColor", "PO3_SKSEFunctions", SetSkinColor);
+
+	a_vm->RegisterFunction("SetSoulTrapped", "PO3_SKSEFunctions", SetSoulTrapped);
 
 	a_vm->RegisterFunction("UnequipAllOfType", "PO3_SKSEFunctions", UnequipAllOfType);
 

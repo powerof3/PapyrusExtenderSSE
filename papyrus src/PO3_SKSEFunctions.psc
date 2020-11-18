@@ -7,7 +7,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 	;GETTERS
 	;-------
- 
+	 
 	;Gets all magiceffects currently on the actor. Filters out inactive and hideinui spells.
 	MagicEffect[] Function GetActiveEffects(Actor akActor, bool abShowInactive = false) global native
 	
@@ -29,12 +29,24 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets actor state 
 	int Function GetActorState(Actor thisActor) global native
+	
+	;Gets actor soul size
+	int Function GetActorSoulSize(Actor thisActor) global native
+	
+	;Gets actor critical stage
+	int Function GetCriticalStage(Actor thisActor) global native
 		
 	;Gets all allies of the actor, if in combat
 	Actor[] Function GetCombatAllies(Actor akActor) global native
 	
 	;Gets all targets of the actor, if in combat
 	Actor[] Function GetCombatTargets(Actor akActor) global native
+	
+	;FEC function
+	;returns effect type, effect skill level, and projectile type, of the highest magnitude effect present on the actor
+	;permanent - SUN, ACID, FIRE, FROST, SHOCK, DRAIN
+	;temporary - POISON, FEAR
+	int[] Function GetDeathEffectType(Actor akActor, int type) global native
 	
 	;Gets current hair color on actor. Fails if hair headpart doesn't exist
 	ColorForm Function GetHairColor(Actor akActor) global native
@@ -60,8 +72,11 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Returns time of death in game days passed
 	float Function GetTimeOfDeath(Actor akActor) global native
 	
-	;Returns if spell is present and not inactive/dispelled
+	;HasSpell but checks if the spell is present on the actor (i.e active and not dispelled)
 	bool Function HasActiveSpell(Actor akActor, Spell akSpell) global native
+		
+	;Returns whether the actor is in deferred kill mode
+	bool Function HasDeferredKill(Actor akActor) global native
 	
 	;Checks if activemagiceffect with given archetype is present on actor. Archetype MUST be typed as given below.
 	bool Function HasMagicEffectWithArchetype(Actor akActor, String asArchetype) global native
@@ -69,12 +84,25 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Returns whether the actor is in cell water or lava
 	bool Function IsActorInWater(Actor akActor) global native
 	
-	;Returns whether target is soul trapped / capable of being soul trapped successfully (if using mods that bypass vanilla soul trap system).
-	bool Function IsSoulTrapped(Actor akActor) global native
-	
 	;Returns whether the actor is underwater
 	bool Function IsActorUnderwater(Actor akActor) global native
 	
+	;/	LIMB
+		None = -1
+		Torso = 0
+		Head = 1
+		...
+	/;
+	
+	;Returns whether limb is gone (i.e, the head, but adding the whole enum in case someone expands the dismemberment system in the future)
+	bool Function IsLimbGone(Actor akActor, int aiLimb) global native
+	
+	;Returns whether the actor is a quadruped
+	bool Function IsQuadruped(Actor akActor) global native
+	
+	;Returns whether target is soul trapped / capable of being soul trapped successfully (if using mods that bypass vanilla soul trap system).
+	bool Function IsSoulTrapped(Actor akActor) global native
+		
 	;-------
 	;SETTERS
 	;-------
@@ -114,15 +142,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Blends existing skin color with specified color, using photoshop blend formulas, with alpha (opacity).
-	;if true, autoLuminance calculates skin tone relative luminance. The opacity value is then used as a multiplier on top of that, final value is clamped to 0-1
-	;if false, only opacity will be used. Recommend to use autoluminance because colors will not blend well for all skin tones using flat values. 
+	;If true, autoLuminance calculates skin tone relative luminance. The opacity value is then used as a multiplier on top of that, final value is clamped to 0-1
+	;If false, only opacity will be used. Recommend to use autoluminance because colors will not blend well for all skin tones using flat values. 
 	Function BlendColorWithSkinTone(Actor akActor, ColorForm akColor, int aiBlendMode, bool abAutoLuminance, float afOpacity) global native
 	
 	;Decapitates living and dead actors. Living actors will not die when this is called!
 	Function DecapitateActor(Actor akActor) global native
 
-	;EnableAI + toggling record hits flags so they don't go flying 300 feet when unfrozen.
-	Function FreezeActor(Actor akActor, bool abFreeze) global native
+	;0 - EnableAI + toggling record hits flags so they don't go flying 300 feet when unfrozen.
+	;1 - Paralyzes actor, even when dead.
+	Function FreezeActor(Actor akActor, int type, bool abFreeze) global native
 		
 	;Quick and dirty hack to instantly kill the actor and set as dead.
 	Function KillNoWait(Actor akActor) global native
@@ -131,7 +160,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Blends existing skin color with specified color. 
 	;True - intensity is manually calculated using percentage 0-1.0, False - automatically calculated using skin tone luminance 
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
-	
+		
 	;Removes perks from the actorbase
 	;Perk effects may not be removed from unique actors, more testing required.
 	;Function serializes data to skse cosave, so perks are applied correctly on loading/reloading saves.
@@ -164,11 +193,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Checks for NiExtraData nodes on actor - PO3_TINT/PO3_ALPHA/PO3_TXST/PO3_TOGGLE/PO3_SHADER
 	;Stops all effect shaders and
 	;PO3_TINT - resets tint, rebuilds facegen if actor is player
-	;PO3_ALPHA - resets inventory, resets skin alpha
+	;PO3_ALPHA - resets skin alpha
 	;PO3_TXST - resets texturesets with texturepaths containing folderName
 	;PO3_TOGGLE - unhides all children of nodes that were written to the extraData
 	;PO3_SHADER - recreates the original shader type (as close as possible, projectedUV params are not restored)
 	bool Function ResetActor3D(Actor akActor, String asFolderName) global native
+	
+	; 0 - permanent
+	; 1 - temporary
+	; 2 - frozenActor
+	; 3 - frozenCol
+	Function SendFECResetEvent(Actor akActor, int aiType, bool abReset3D) global native
 	
 	;0.0 disables refraction, 1.0 is max refraction
 	Function SetActorRefraction(Actor thisActor, float afRefraction) global native
@@ -193,6 +228,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Sets skin color (face and body). Has to be re-applied when armor is un/re-equipped.
 	Function SetSkinColor(Actor akActor, ColorForm akColor) global native
+	
+	;Sets the flag used by the game to determine soul trapped NPCs
+	Function SetSoulTrapped(Actor akActor, bool abTrapped) global native
 	
 	;/	ARMOR TYPE
 		Light = 0
@@ -242,18 +280,24 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Alphabetically sorts and returns truncated sring array.
 	String[] Function SortArrayString(String[] asStrings) global native	
 	
-	;Gets sorted string array of all the actors in the area, sorted alphabetically. Generic actors are merged (ie. 3 Whiterun Guards). Filter keyword optional
-	String[] Function GetSortedActorNameArray(Keyword akKeyword, bool abInvert) global native	
+	;Gets sorted string array of all the actors in the area, sorted alphabetically. Generic actors are merged (ie. 3 Whiterun Guard(s)). Filter keyword optional
+	String[] Function GetSortedActorNameArray(Keyword akKeyword, String asPlural = "(s)", bool abInvertKeyword) global native	
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;CELL
 ;----------------------------------------------------------------------------------------------------------
+	
+	;Gets cell north rotation/worldspace north rotation for exterior cells. Rotation is in degrees.
+	float Function GetCellNorthRotation(Cell akCell) global native
 	
 	;Gets cell lighting template
 	LightingTemplate Function GetLightingTemplate(Cell akCell) global native
 	
 	;Sets cell lighting template
 	Function SetLightingTemplate(Cell akCell, LightingTemplate akLightingTemplate) global native
+	
+	;Sets cell north rotation.
+	Function SetCellNorthRotation(Cell akCell, float afAngle) global native
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;DEBUG
@@ -285,6 +329,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	int property kEffectShader_ParticleGreyscaleColor = 0x00010000 AutoReadOnly ; 16
 	int property kEffectShader_ParticleGreyscaleAlpha = 0x00020000 AutoReadOnly ; 17
 	int property kEffectShader_UseBloodGeometry = 0x01000000 AutoReadOnly ; 24
+	
+	;Gets addon models
+	Debris Function GetAddonModels(EffectShader akEffectShader) global native
 	
 	;Returns the total number of effect shaders present/present and active (on objects) within the loaded area. 
 	int Function GetEffectShaderTotalCount(EffectShader akEffectShader, bool abActive) global native
@@ -319,6 +366,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Clears effect shader flag.
 	Function ClearEffectShaderFlag(EffectShader akEffectShader, int aiFlag) global native
+	
+	;Gets addon models
+	Function SetAddonModels(EffectShader akEffectShader, Debris akDebris) global native
 	
 	;Set effect shader flag.
 	Function SetEffectShaderFlag(EffectShader akEffectShader, int aiFlag) global native
@@ -424,6 +474,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets current cell if in interior/attached cells in exterior/sky cells if in worldspace with no attached cells??
 	Cell[] Function GetAttachedCells() global native
 	
+	;Gets the value of the boolean gamesetting. Returns -1 if gmst is None or not a bool.
+	Int Function GetGameSettingBool(String asGameSetting) global native
+	
 	;Gets local gravity of the exterior worldspace/interior cell. Default gravity is [0.0, 0.0, -9.81]
 	Float[] Function GetLocalGravity() global native
 	
@@ -432,6 +485,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Returns whether plugin exists
 	bool Function IsPluginFound(String akName) global native
+	
+	;Returns whether CC Survival Mode is enabled
+	bool Function IsSurvivalModeActive() global native
 	
 	;Sets local gravity (ms-2) of the exterior worldspace/interior cell. 
 	Function SetLocalGravity(float afXAxis, float afYAxis, float afZAxis) global native
@@ -722,6 +778,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets the first item in inventory that exists in formlist.
 	Form Function FindFirstItemInList(ObjectReference akRef, FormList akList) global native
 	
+	;Gets activate children - see IsActivateChild
+	ObjectReference[] Function GetActivateChildren(ObjectReference akRef) global native
+	
 	;Gets actor responsible for object.
 	Actor Function GetActorCause(ObjectReference akRef) global native
 	
@@ -736,6 +795,15 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets duration of the effectshader on the ref.
 	float Function GetEffectShaderDuration(ObjectReference akRef, EffectShader akShader) global native
+	
+	;Gets the door which is linked to this load door.
+	ObjectReference Function GetDoorDestination(ObjectReference akRef) global native
+	
+	;Gets all refs linked to akRef. Keyword optional.
+	ObjectReference[] Function GetLinkedChildren(ObjectReference akRef, Keyword akKeyword) global native
+	
+	;Gets the source of the magic effect (spell/enchantment/scroll etc) and the caster. Magic effect must be present on the reference.
+	Form[] Function GetMagicEffectSource(ObjectReference akRef, MagicEffect akEffect) global native
 		
 	;/	MATERIAL TYPES - String
 		StoneBroken
@@ -836,6 +904,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets random actor near ref (without returning the reference itself).
 	Actor Function GetRandomActorFromRef(ObjectReference akRef, float afRadius, bool abIgnorePlayer) global native
+		
+	;Returns the size of the stored soul in a soulgem objectreference
+	int Function GetStoredSoulSize(ObjectReference akRef) global native
 	
 	;Returns the number of instances of the specified art object (attached using visual effects) on the reference.
 	int Function HasArtObject(ObjectReference akRef, Art akArtObject, bool abActive = false) global native
@@ -881,9 +952,15 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Adds "PO3_SCALE" niextradata to root node.
 	Function ScaleObject3D(ObjectReference akRef, String asNodeName, float afScale) global native
 	
+	;Sets the door as the new linked door
+	bool Function SetDoorDestination(ObjectReference akRef, ObjectReference akDoor) global native
+	
 	;Sets effectshader duration. Internal duration is set when the effectshader begins and does not change with time.
 	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float afTime, bool abAbsolute) global native
 		
+	;Sets linked ref
+	Function SetLinkedRef(ObjectReference akRef, ObjectReference akTargetRef, Keyword akKeyword) global native
+	
 	;Sets havok material type. Use oldMaterial string to select what material you want to change from to (eg. from stone to wood), and nodeName to apply it to the specific node. 
 	;If both are empty, every collision material will be set.
 	Function SetMaterialType(ObjectReference akRef, String asNewMaterial, String asOldMaterial = "", String asNodeName = "") global native

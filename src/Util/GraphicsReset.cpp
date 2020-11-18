@@ -83,8 +83,7 @@ namespace GraphicsReset
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([a_root, a_data]() {
 			for (std::uint32_t i = 0; i < a_data->size; i++) {
-				auto nodeName = RE::BSFixedString(a_data->value[i]);
-				auto object = a_root->GetObjectByName(nodeName);
+				auto object = a_root->GetObjectByName(a_data->value[i]);
 				if (object) {
 					object->UpdateVisibility(false);
 					object->UpdateAlpha(1.0, false);
@@ -139,22 +138,6 @@ namespace GraphicsReset
 
 	void ResetAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiFloatExtraData* a_data, const RE::BSFixedString& a_folderName)
 	{
-		if (!a_folderName.empty() && a_folderName == "po3_FEC") {
-			auto objectManager = RE::BGSDefaultObjectManager::GetSingleton();
-			auto equipManager = RE::ActorEquipManager::GetSingleton();
-			RE::BGSEquipSlot* rightHandSlot = nullptr;
-			if (objectManager) {
-				rightHandSlot = objectManager->GetObject<RE::BGSEquipSlot>(RE::BGSDefaultObjectManager::DefaultObject::kRightHandEquip);
-			}
-			if (rightHandSlot && equipManager) {
-				for (auto& slot : fxSlots) {
-					auto armor = a_actor->GetWornArmor(slot);
-					if (armor && !armor->GetPlayable()) {
-						equipManager->UnequipObject(a_actor, armor, nullptr, 1, rightHandSlot, true, false, false, false, nullptr);
-					}
-				}
-			}
-		}
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([a_root, a_data]() {
 			a_root->UpdateAlpha(1.0, true);

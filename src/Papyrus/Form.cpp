@@ -95,6 +95,55 @@ void papyrusForm::RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::Static
 }
 
 
+void papyrusForm::RegisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, std::uint32_t a_type)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = FECEvents::OnFECResetRegMap::GetSingleton();
+	regs->Register(a_form, a_type);
+}
+
+
+
+void papyrusForm::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
+	regs->Register(a_form);
+}
+
+
+void papyrusForm::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
+	regs->Register(a_form);
+}
+
+
+void papyrusForm::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
+	regs->Register(a_form);
+}
+
+
 void papyrusForm::RegisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
@@ -303,6 +352,18 @@ void papyrusForm::RegisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::Stati
 }
 
 
+void papyrusForm::RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeatherChangeRegSet::GetSingleton();
+	regs->Register(a_form);
+}
+
+
 void papyrusForm::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
@@ -311,6 +372,66 @@ void papyrusForm::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::Stat
 	}
 
 	auto regs = StoryEvents::OnActorKillRegSet::GetSingleton();
+	regs->Unregister(a_form);
+}
+
+
+void papyrusForm::UnregisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, std::uint32_t a_type)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = FECEvents::OnFECResetRegMap::GetSingleton();
+	regs->Unregister(a_form, a_type);
+}
+
+
+void papyrusForm::UnregisterForAllFECResets(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = FECEvents::OnFECResetRegMap::GetSingleton();
+	regs->UnregisterAll(a_form);
+}
+
+
+void papyrusForm::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
+	regs->Unregister(a_form);
+}
+
+
+void papyrusForm::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
+	regs->Unregister(a_form);
+}
+
+
+void papyrusForm::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
 	regs->Unregister(a_form);
 }
 
@@ -566,6 +687,18 @@ void papyrusForm::UnregisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
+void papyrusForm::UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeatherChangeRegSet::GetSingleton();
+	regs->Unregister(a_form);
+}
+
+
 bool papyrusForm::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
@@ -583,6 +716,14 @@ bool papyrusForm::RegisterFuncs(VM* a_vm)
 
 
 	a_vm->RegisterFunction("RegisterForActorKilled", "PO3_Events_Form", RegisterForActorKilled, true);
+
+	a_vm->RegisterFunction("RegisterForFECReset", "PO3_Events_Form", RegisterForFECReset, true);
+
+	a_vm->RegisterFunction("RegisterForActorReanimateStart", "PO3_Events_Form", RegisterForActorReanimateStart, true);
+
+	a_vm->RegisterFunction("RegisterForActorReanimateStop", "PO3_Events_Form", RegisterForActorReanimateStop, true);
+
+	a_vm->RegisterFunction("RegisterForActorResurrected", "PO3_Events_Form", RegisterForActorResurrected, true);
 
 	a_vm->RegisterFunction("RegisterForBookRead", "PO3_Events_Form", RegisterForBookRead, true);
 
@@ -616,8 +757,20 @@ bool papyrusForm::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("RegisterForSpellLearned", "PO3_Events_Form", RegisterForSpellLearned, true);
 
+	a_vm->RegisterFunction("RegisterForWeatherChange", "PO3_Events_Form", RegisterForWeatherChange, true);
+
 
 	a_vm->RegisterFunction("UnregisterForActorKilled", "PO3_Events_Form", UnregisterForActorKilled, true);
+
+	a_vm->RegisterFunction("UnregisterForFECReset", "PO3_Events_Form", UnregisterForFECReset, true);
+
+	a_vm->RegisterFunction("UnregisterForAllFECResets", "PO3_Events_Form", UnregisterForAllFECResets, true);
+
+	a_vm->RegisterFunction("UnregisterForActorReanimateStart", "PO3_Events_Form", UnregisterForActorReanimateStart, true);
+
+	a_vm->RegisterFunction("UnregisterForActorReanimateStop", "PO3_Events_Form", UnregisterForActorReanimateStop, true);
+
+	a_vm->RegisterFunction("UnregisterForActorResurrected", "PO3_Events_Form", UnregisterForActorResurrected, true);
 
 	a_vm->RegisterFunction("UnregisterForBookRead", "PO3_Events_Form", UnregisterForBookRead, true);
 
@@ -656,6 +809,8 @@ bool papyrusForm::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("UnregisterForSoulTrapped", "PO3_Events_Form", UnregisterForSoulTrapped, true);
 
 	a_vm->RegisterFunction("UnregisterForSpellLearned", "PO3_Events_Form", UnregisterForSpellLearned, true);
+
+	a_vm->RegisterFunction("UnregisterForWeatherChange", "PO3_Events_Form", UnregisterForWeatherChange, true);
 
 	return true;
 }

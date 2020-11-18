@@ -273,4 +273,18 @@ namespace Serialization
 			Base("OnWeatherChanged")
 		{}
 	}
+
+
+	namespace FECEvents
+	{
+		OnFECResetRegMap* OnFECResetRegMap::GetSingleton()
+		{
+			static OnFECResetRegMap singleton;
+			return &singleton;
+		}
+
+		OnFECResetRegMap::OnFECResetRegMap() :
+			Base("OnFECReset")
+		{}
+	}
 }

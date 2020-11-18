@@ -388,7 +388,7 @@ namespace Serialization
 		};
 	}
 
-	
+
 	namespace HookedEvents
 	{
 		class OnActorResurrectRegSet : public SKSE::RegistrationSet<const RE::Actor*, bool>
@@ -464,6 +464,28 @@ namespace Serialization
 
 			OnWeatherChangeRegSet& operator=(const OnWeatherChangeRegSet&) = delete;
 			OnWeatherChangeRegSet& operator=(OnWeatherChangeRegSet&&) = delete;
+		};
+	}
+
+
+	namespace FECEvents
+	{
+		class OnFECResetRegMap : public SKSE::RegistrationMap<const RE::Actor*, std::uint32_t, bool>
+		{
+		public:
+			using Base = SKSE::RegistrationMap<const RE::Actor*, std::uint32_t, bool>;
+
+
+			static OnFECResetRegMap* GetSingleton();
+
+		private:
+			OnFECResetRegMap();
+			OnFECResetRegMap(const OnFECResetRegMap&) = delete;
+			OnFECResetRegMap(OnFECResetRegMap&&) = delete;
+			~OnFECResetRegMap() = default;
+
+			OnFECResetRegMap& operator=(const OnFECResetRegMap&) = delete;
+			OnFECResetRegMap& operator=(OnFECResetRegMap&&) = delete;
 		};
 	}
 }

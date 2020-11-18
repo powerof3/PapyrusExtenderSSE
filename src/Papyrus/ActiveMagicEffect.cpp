@@ -13,6 +13,18 @@ void papyrusActiveMagicEffect::RegisterForActorKilled(VM* a_vm, StackID a_stackI
 }
 
 
+void papyrusActiveMagicEffect::RegisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect, std::uint32_t a_type)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = FECEvents::OnFECResetRegMap::GetSingleton();
+	regs->Register(a_activeEffect, a_type);
+}
+
+
 void papyrusActiveMagicEffect::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
@@ -279,6 +291,30 @@ void papyrusActiveMagicEffect::UnregisterForActorKilled(VM* a_vm, StackID a_stac
 
 	auto regs = StoryEvents::OnActorKillRegSet::GetSingleton();
 	regs->Unregister(a_activeEffect);
+}
+
+
+void papyrusActiveMagicEffect::UnregisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect, std::uint32_t a_type)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = FECEvents::OnFECResetRegMap::GetSingleton();
+	regs->Unregister(a_activeEffect, a_type);
+}
+
+
+void papyrusActiveMagicEffect::UnregisterForAllFECResets(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = FECEvents::OnFECResetRegMap::GetSingleton();
+	regs->UnregisterAll(a_activeEffect);
 }
 
 
@@ -576,7 +612,7 @@ void papyrusActiveMagicEffect::UnregisterForWeatherChange(VM* a_vm, StackID a_st
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
+	auto regs = HookedEvents::OnWeatherChangeRegSet::GetSingleton();
 	regs->Unregister(a_activeEffect);
 }
 
@@ -589,6 +625,8 @@ bool papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm)
 	}
 
 	a_vm->RegisterFunction("RegisterForActorKilled", "PO3_Events_AME", RegisterForActorKilled, true);
+
+	a_vm->RegisterFunction("RegisterForFECReset", "PO3_Events_AME", RegisterForFECReset, true);
 
 	a_vm->RegisterFunction("RegisterForActorReanimateStart", "PO3_Events_AME", RegisterForActorReanimateStart, true);
 
@@ -632,6 +670,10 @@ bool papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm)
 
 
 	a_vm->RegisterFunction("UnregisterForActorKilled", "PO3_Events_AME", UnregisterForActorKilled, true);
+
+	a_vm->RegisterFunction("UnregisterForFECReset", "PO3_Events_AME", UnregisterForFECReset, true);
+
+	a_vm->RegisterFunction("UnregisterForAllFECResets", "PO3_Events_AME", UnregisterForAllFECResets, true);
 
 	a_vm->RegisterFunction("UnregisterForActorReanimateStart", "PO3_Events_AME", UnregisterForActorReanimateStart, true);
 

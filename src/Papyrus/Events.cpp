@@ -359,14 +359,9 @@ namespace StoryEvents
 
 		auto trapper = a_event->trapper;
 		auto target = a_event->target;
-
+		
 		if (trapper && target) {
-			auto trapperActor = trapper->As<RE::Actor>();
-			auto targetActor = target->As<RE::Actor>();
-
-			if (trapperActor && targetActor) {
-				OnSoulsTrappedRegSet::GetSingleton()->QueueEvent(targetActor, trapperActor);
-			}
+			OnSoulsTrappedRegSet::GetSingleton()->QueueEvent(target, trapper);
 		}
 
 		return EventResult::kContinue;

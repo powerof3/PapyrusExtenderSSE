@@ -16,7 +16,7 @@ std::vector<RE::TESForm*> papyrusObjectReference::AddAllItemsToArray(VM* a_vm, S
 	auto inv = a_ref->GetInventory();
 	for (auto& item : inv) {
 		auto& [count, entry] = item.second;
-		if (count > 0 && entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
+		if (count > 0 && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
 			vec.push_back(item.first);
 		}
 	}
@@ -38,7 +38,7 @@ void papyrusObjectReference::AddAllItemsToList(VM* a_vm, StackID a_stackID, RE::
 	auto inv = a_ref->GetInventory();
 	for (auto& item : inv) {
 		auto& [count, entry] = item.second;
-		if (count > 0 && entry && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
+		if (count > 0 && entry->CanItemBeTaken(a_noEquipped, a_noFavourited, a_noQuestItem)) {
 			a_list->AddForm(item.first);
 		}
 	}
@@ -289,6 +289,51 @@ RE::TESForm* papyrusObjectReference::FindFirstItemInList(VM* a_vm, StackID a_sta
 }
 
 
+std::vector<RE::TESObjectREFR*> papyrusObjectReference::GetActivateChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	std::vector<RE::TESObjectREFR*> vec;
+
+	if (!a_ref) {
+		a_vm->TraceStack("Object Reference is None", a_stackID, Severity::kWarning);
+		return vec;
+	}
+
+	auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>();
+	if (refChildren) {
+		auto& children = refChildren->children;
+		if (!children.empty()) {
+			for (auto& child : children) {
+				if (child) {
+					auto refPtr = child->activateRef.get();
+					auto ref = refPtr.get();
+					if (ref) {
+						vec.push_back(ref);
+					}
+				}
+			}
+		}
+	}
+
+	auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingRefIDs>();
+	if (missingIDs) {
+		if (missingIDs->IDs) {
+			stl::span<RE::ActivateParentID> span(missingIDs->IDs, missingIDs->numIDs);
+			for (auto& ID : span) {
+				auto form = RE::TESForm::LookupByID(ID.refID);
+				if (form) {
+					auto ref = form->AsReference();
+					if (ref) {
+						vec.push_back(ref);
+					}
+				}
+			}
+		}
+	}
+
+	return vec;
+}
+
+
 RE::Actor* papyrusObjectReference::GetActorCause(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 {
 	if (!a_ref) {
@@ -473,7 +518,7 @@ RE::TESObjectREFR* papyrusObjectReference::GetDoorDestination(VM* a_vm, StackID 
 }
 
 
-std::vector<RE::TESObjectREFR*> papyrusObjectReference::GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+std::vector<RE::TESObjectREFR*> papyrusObjectReference::GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword)
 {
 	std::vector<RE::TESObjectREFR*> vec;
 
@@ -484,14 +529,27 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::GetLinkedChildren(VM* a_
 
 	auto data = a_ref->extraList.GetByType<RE::ExtraLinkedRefChildren>();
 	if (data) {
-		auto& linkedChildren = data->linkedChildren;
-		if (!linkedChildren.empty()) {
-			vec.reserve(linkedChildren.size());
-			for (auto& child : linkedChildren) {
+		for (auto& child : data->linkedChildren) {
+			if (a_keyword && child.keyword == a_keyword) {
 				auto refPtr = child.refr.get();
 				auto ref = refPtr.get();
 				if (ref) {
-					vec.emplace_back(ref);
+					vec.push_back(ref);
+				}
+			}
+		}
+	}
+
+	auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingLinkedRefIDs>();
+	if (missingIDs) {
+		for (auto& entry : missingIDs->entries) {
+			if (a_keyword && entry.keyword == a_keyword) {
+				auto form = RE::TESForm::LookupByID(entry.linkedRefID);
+				if (form) {
+					auto ref = form->AsReference();
+					if (ref) {
+						vec.push_back(ref);
+					}
 				}
 			}
 		}
@@ -713,6 +771,17 @@ RE::Actor* papyrusObjectReference::GetRandomActorFromRef(VM* a_vm, StackID a_sta
 	}
 
 	return nullptr;
+}
+
+
+std::int32_t papyrusObjectReference::GetStoredSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+{
+	if (!a_ref) {
+		a_vm->TraceStack("Object Reference is None", a_stackID, Severity::kWarning);
+		return -1;
+	}
+
+	return to_underlying(a_ref->extraList.GetSoulLevel());
 }
 
 
@@ -1033,9 +1102,20 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 				RE::NiUpdateData updateData = { 0.0f, RE::NiUpdateData::Flag::kNone };
 				object->Update(updateData);
 			});
-			auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
-			if (colObject) {
-				ScaleObject3D_Impl(colObject->body.get(), a_scale);
+			auto node = object->AsNode();
+			if (node) {
+				RE::BSVisit::TraverseScenegraphCollision(node, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+					auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
+					if (colObject) {
+						ScaleObject3D_Impl(colObject->body.get(), a_scale);
+					}
+					return RE::BSVisit::BSVisitControl::kContinue;
+				});
+			} else {
+				auto colObject = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get());
+				if (colObject) {
+					ScaleObject3D_Impl(colObject->body.get(), a_scale);
+				}
 			}
 		}
 	} else {
@@ -1631,6 +1711,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("FindFirstItemInList", "PO3_SKSEFunctions", FindFirstItemInList);
 
+	a_vm->RegisterFunction("GetActivateChildren", "PO3_SKSEFunctions", GetActivateChildren);
+
 	a_vm->RegisterFunction("GetActorCause", "PO3_SKSEFunctions", GetActorCause);
 
 	a_vm->RegisterFunction("GetAllArtObjects", "PO3_SKSEFunctions", GetAllArtObjects);
@@ -1643,6 +1725,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("GetEffectShaderDuration", "PO3_SKSEFunctions", GetEffectShaderDuration);
 
+	a_vm->RegisterFunction("GetLinkedChildren", "PO3_SKSEFunctions", GetLinkedChildren);
+
 	a_vm->RegisterFunction("GetMagicEffectSource", "PO3_SKSEFunctions", GetMagicEffectSource);
 
 	a_vm->RegisterFunction("GetMaterialType", "PO3_SKSEFunctions", GetMaterialType);
@@ -1650,6 +1734,8 @@ bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("GetMotionType", "PO3_SKSEFunctions", GetMotionType);
 
 	a_vm->RegisterFunction("GetRandomActorFromRef", "PO3_SKSEFunctions", GetRandomActorFromRef);
+
+	a_vm->RegisterFunction("GetStoredSoulSize", "PO3_SKSEFunctions", GetStoredSoulSize);
 
 	a_vm->RegisterFunction("HasArtObject", "PO3_SKSEFunctions", HasArtObject);
 

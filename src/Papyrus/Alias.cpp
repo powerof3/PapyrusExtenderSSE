@@ -13,6 +13,42 @@ void papyrusAlias::RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::Stati
 }
 
 
+void papyrusAlias::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
+	regs->Register(a_alias);
+}
+
+
+void papyrusAlias::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
+	regs->Register(a_alias);
+}
+
+
+void papyrusAlias::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
+	regs->Register(a_alias);
+}
+
+
 void papyrusAlias::RegisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 {
 	if (!a_alias) {
@@ -221,6 +257,18 @@ void papyrusAlias::RegisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::Stat
 }
 
 
+void papyrusAlias::RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeatherChangeRegSet::GetSingleton();
+	regs->Register(a_alias);
+}
+
+
 void papyrusAlias::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 {
 	if (!a_alias) {
@@ -229,6 +277,42 @@ void papyrusAlias::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::Sta
 	}
 
 	auto regs = StoryEvents::OnActorKillRegSet::GetSingleton();
+	regs->Unregister(a_alias);
+}
+
+
+void papyrusAlias::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
+	regs->Unregister(a_alias);
+}
+
+
+void papyrusAlias::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
+	regs->Unregister(a_alias);
+}
+
+
+void papyrusAlias::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
 	regs->Unregister(a_alias);
 }
 
@@ -484,6 +568,18 @@ void papyrusAlias::UnregisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
+void papyrusAlias::UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeatherChangeRegSet::GetSingleton();
+	regs->Unregister(a_alias);
+}
+
+
 bool papyrusAlias::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
@@ -492,6 +588,12 @@ bool papyrusAlias::RegisterFuncs(VM* a_vm)
 	}
 
 	a_vm->RegisterFunction("RegisterForActorKilled", "PO3_Events_Alias", RegisterForActorKilled, true);
+
+	a_vm->RegisterFunction("RegisterForActorReanimateStart", "PO3_Events_Alias", RegisterForActorReanimateStart, true);
+
+	a_vm->RegisterFunction("RegisterForActorReanimateStop", "PO3_Events_Alias", RegisterForActorReanimateStop, true);
+
+	a_vm->RegisterFunction("RegisterForActorResurrected", "PO3_Events_Alias", RegisterForActorResurrected, true);
 
 	a_vm->RegisterFunction("RegisterForBookRead", "PO3_Events_Alias", RegisterForBookRead, true);
 
@@ -525,8 +627,16 @@ bool papyrusAlias::RegisterFuncs(VM* a_vm)
 
 	a_vm->RegisterFunction("RegisterForSpellLearned", "PO3_Events_Alias", RegisterForSpellLearned, true);
 
+	a_vm->RegisterFunction("RegisterForWeatherChange", "PO3_Events_Alias", RegisterForWeatherChange, true);
+
 
 	a_vm->RegisterFunction("UnregisterForActorKilled", "PO3_Events_Alias", UnregisterForActorKilled, true);
+
+	a_vm->RegisterFunction("UnregisterForActorReanimateStart", "PO3_Events_Alias", UnregisterForActorReanimateStart, true);
+
+	a_vm->RegisterFunction("UnregisterForActorReanimateStop", "PO3_Events_Alias", UnregisterForActorReanimateStop, true);
+
+	a_vm->RegisterFunction("UnregisterForActorResurrected", "PO3_Events_Alias", UnregisterForActorResurrected, true);
 
 	a_vm->RegisterFunction("UnregisterForBookRead", "PO3_Events_Alias", UnregisterForBookRead, true);
 
@@ -565,6 +675,8 @@ bool papyrusAlias::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("UnregisterForSoulTrapped", "PO3_Events_Alias", UnregisterForSoulTrapped, true);
 
 	a_vm->RegisterFunction("UnregisterForSpellLearned", "PO3_Events_Alias", UnregisterForSpellLearned, true);
+
+	a_vm->RegisterFunction("UnregisterForWeatherChange", "PO3_Events_Alias", UnregisterForWeatherChange, true);
 
 	return true;
 }

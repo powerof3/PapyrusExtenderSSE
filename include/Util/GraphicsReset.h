@@ -38,10 +38,6 @@ namespace GraphicsReset
 	using ShaderData = std::tuple<RE::BSShaderTextureSet*, Flag, RE::NiColor, float, Feature, Feature, std::string>;
 
 
-	inline constexpr frozen::set<Slot, 6> fxSlots = 
-	{ Slot::kModMouth, Slot::kModChestPrimary, Slot::kModPelvisPrimary, Slot::kModLegRight, Slot::kModChestSecondary, Slot::kModArmRight };
-
-
 	ResetData GetResetData(RE::NiAVObject* a_object);
 
 	void ResetToggleData(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);

@@ -27,6 +27,7 @@ namespace Serialization
 		using namespace ScriptEvents;
 		using namespace StoryEvents;
 		using namespace HookedEvents;
+		using namespace FECEvents;
 
 		//forms
 		auto perks = Perks::GetSingleton();
@@ -180,6 +181,12 @@ namespace Serialization
 			logger::critical("Failed to save WeatherChange regs!");
 		}
 
+		//FEC events
+		auto actorEffectReset = OnFECResetRegMap::GetSingleton();
+		if (!actorEffectReset->Save(a_intfc, kFECReset, kSerializationVersion)) {
+			logger::critical("Failed to save FECReset regs!");
+		}
+
 		logger::info("Finished saving data");
 	}
 
@@ -190,6 +197,7 @@ namespace Serialization
 		using namespace ScriptEvents;
 		using namespace StoryEvents;
 		using namespace HookedEvents;
+		using namespace FECEvents;
 
 		auto perks = Perks::GetSingleton();
 		auto keywords = Keywords::GetSingleton();
@@ -457,6 +465,15 @@ namespace Serialization
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
 						logger::critical("Failed to load WeatherChange regs!");
+					}
+				}
+				break;
+			case kFECReset:
+				{
+					auto regs = OnFECResetRegMap::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						logger::critical("Failed to load FECReset regs!");
 					}
 				}
 				break;

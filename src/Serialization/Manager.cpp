@@ -33,13 +33,13 @@ namespace Serialization
 		auto perks = Perks::GetSingleton();
 		if (!perks->GetData(kAdd).empty()) {
 			if (!perks->Save(a_intfc, kAddPerks, kSerializationVersion, kAdd)) {
-				logger::critical("[Add Perks] : Failed to save data!");
+				logger::critical("[Add Perks] : Failed to save data!"sv);
 				perks->Clear(kAdd);
 			}
 		}
 		if (!perks->GetData(kRemove).empty()) {
 			if (!perks->Save(a_intfc, kRemovePerks, kSerializationVersion, kRemove)) {
-				logger::critical("[Remove Perks] : Failed to save data!");
+				logger::critical("[Remove Perks] : Failed to save data!"sv);
 				perks->Clear(kRemove);
 			}
 		}
@@ -47,13 +47,13 @@ namespace Serialization
 		auto keywords = Keywords::GetSingleton();
 		if (!keywords->GetData(kAdd).empty()) {
 			if (!keywords->Save(a_intfc, kAddKeywords, kSerializationVersion, kAdd)) {
-				logger::critical("[Add Keywords] : Failed to save data!");
+				logger::critical("[Add Keywords] : Failed to save data!"sv);
 				keywords->Clear(true);
 			}
 		}
 		if (!keywords->GetData(kRemove).empty()) {
 			if (!keywords->Save(a_intfc, kRemoveKeywords, kSerializationVersion, kRemove)) {
-				logger::critical("[Remove Keywords] : Failed to save data!");
+				logger::critical("[Remove Keywords] : Failed to save data!"sv);
 				keywords->Clear(kRemove);
 			}
 		}
@@ -61,133 +61,133 @@ namespace Serialization
 		//script events
 		auto cellFullyLoaded = OnCellFullyLoadedRegSet::GetSingleton();
 		if (!cellFullyLoaded->Save(a_intfc, kOnCellFullyLoaded, kSerializationVersion)) {
-			logger::critical("Failed to save OnCellFullyLoaded regs!");
+			logger::critical("Failed to save OnCellFullyLoaded regs!"sv);
 		}
 
 		auto questStart = OnQuestStartRegMap::GetSingleton();
 		if (!questStart->Save(a_intfc, kQuestStart, kSerializationVersion)) {
-			logger::critical("Failed to save QuestStart regs!");
+			logger::critical("Failed to save QuestStart regs!"sv);
 		}
 
 		auto questStop = OnQuestStopRegMap::GetSingleton();
 		if (!questStop->Save(a_intfc, kQuestStop, kSerializationVersion)) {
-			logger::critical("Failed to save QuestStop regs!");
+			logger::critical("Failed to save QuestStop regs!"sv);
 		}
 
 		auto questStage = OnQuestStageRegMap::GetSingleton();
 		if (!questStage->Save(a_intfc, kQuestStage, kSerializationVersion)) {
-			logger::critical("Failed to save QuestStage regs!");
+			logger::critical("Failed to save QuestStage regs!"sv);
 		}
 
 		auto objectLoad = OnObjectLoadedRegMap::GetSingleton();
 		if (!objectLoad->Save(a_intfc, kObjectLoaded, kSerializationVersion)) {
-			logger::critical("Failed to save ObjectLoaded regs!");
+			logger::critical("Failed to save ObjectLoaded regs!"sv);
 		}
 
 		auto objectUnload = OnObjectUnloadedRegMap::GetSingleton();
 		if (!objectUnload->Save(a_intfc, kObjectUnloaded, kSerializationVersion)) {
-			logger::critical("Failed to save ObjectUnloaded regs!");
+			logger::critical("Failed to save ObjectUnloaded regs!"sv);
 		}
 
 		auto objectGrab = OnGrabRegSet::GetSingleton();
 		if (!objectGrab->Save(a_intfc, kGrab, kSerializationVersion)) {
-			logger::critical("Failed to save ObjectGrab regs!");
+			logger::critical("Failed to save ObjectGrab regs!"sv);
 		}
 
 		auto objectRelease = OnReleaseRegSet::GetSingleton();
 		if (!objectRelease->Save(a_intfc, kRelease, kSerializationVersion)) {
-			logger::critical("Failed to save ObjectRelease regs!");
+			logger::critical("Failed to save ObjectRelease regs!"sv);
 		}
 
 		// story events
 		auto actorKill = OnActorKillRegSet::GetSingleton();
 		if (!actorKill->Save(a_intfc, kActorKill, kSerializationVersion)) {
-			logger::critical("Failed to save ActorKill regs!");
+			logger::critical("Failed to save ActorKill regs!"sv);
 		}
 
 		auto booksRead = OnBooksReadRegSet::GetSingleton();
 		if (!booksRead->Save(a_intfc, kBookRead, kSerializationVersion)) {
-			logger::critical("Failed to save BooksRead regs!");
+			logger::critical("Failed to save BooksRead regs!"sv);
 		}
 
 		auto criticalHit = OnCriticalHitRegSet::GetSingleton();
 		if (!criticalHit->Save(a_intfc, kCritHit, kSerializationVersion)) {
-			logger::critical("Failed to save CriticalHit regs!");
+			logger::critical("Failed to save CriticalHit regs!"sv);
 		}
 
 		auto disarmed = OnDisarmedRegSet::GetSingleton();
 		if (!disarmed->Save(a_intfc, kDisarm, kSerializationVersion)) {
-			logger::critical("Failed to save Disarmed regs!");
+			logger::critical("Failed to save Disarmed regs!"sv);
 		}
 
 		auto dragonSoul = OnDragonSoulsGainedRegSet::GetSingleton();
 		if (!dragonSoul->Save(a_intfc, kDragonSoul, kSerializationVersion)) {
-			logger::critical("Failed to save DragonSoul regs!");
+			logger::critical("Failed to save DragonSoul regs!"sv);
 		}
 
 		auto harvest = OnItemHarvestedRegSet::GetSingleton();
 		if (!harvest->Save(a_intfc, kHarvest, kSerializationVersion)) {
-			logger::critical("Failed to save ItemHarvested regs!");
+			logger::critical("Failed to save ItemHarvested regs!"sv);
 		}
 
 		auto levelIncrease = OnLevelIncreaseRegSet::GetSingleton();
 		if (!levelIncrease->Save(a_intfc, kLevelIncrease, kSerializationVersion)) {
-			logger::critical("Failed to save LevelIncrease regs!");
+			logger::critical("Failed to save LevelIncrease regs!"sv);
 		}
 
 		auto locDiscovery = OnLocationDiscoveryRegSet::GetSingleton();
 		if (!locDiscovery->Save(a_intfc, kLocDiscovery, kSerializationVersion)) {
-			logger::critical("Failed to save LocDiscovery regs!");
+			logger::critical("Failed to save LocDiscovery regs!"sv);
 		}
 
 		auto skillIncrease = OnSkillIncreaseRegSet::GetSingleton();
 		if (!skillIncrease->Save(a_intfc, kSkillIncrease, kSerializationVersion)) {
-			logger::critical("Failed to save SkillIncrease regs!");
+			logger::critical("Failed to save SkillIncrease regs!"sv);
 		}
 
 		auto shoutAttack = OnShoutAttackRegSet::GetSingleton();
 		if (!shoutAttack->Save(a_intfc, kShoutAttack, kSerializationVersion)) {
-			logger::critical("Failed to save ShoutAttack regs!");
+			logger::critical("Failed to save ShoutAttack regs!"sv);
 		}
 
 		auto soulTrap = OnSoulsTrappedRegSet::GetSingleton();
 		if (!soulTrap->Save(a_intfc, kSoulTrap, kSerializationVersion)) {
-			logger::critical("Failed to save SoulTrap regs!");
+			logger::critical("Failed to save SoulTrap regs!"sv);
 		}
 
 		auto spellLearned = OnSpellsLearnedRegSet::GetSingleton();
 		if (!spellLearned->Save(a_intfc, kSpellLearned, kSerializationVersion)) {
-			logger::critical("Failed to save SpellLearned regs!");
+			logger::critical("Failed to save SpellLearned regs!"sv);
 		}
 
 		//hooked events
 		auto actorResurrect = OnActorResurrectRegSet::GetSingleton();
 		if (!actorResurrect->Save(a_intfc, kActorResurrect, kSerializationVersion)) {
-			logger::critical("Failed to save ActorResurrect regs!");
+			logger::critical("Failed to save ActorResurrect regs!"sv);
 		}
 
 		auto actorReanimateStart = OnActorReanimateStartRegSet::GetSingleton();
 		if (!actorReanimateStart->Save(a_intfc, kActorReanimateStart, kSerializationVersion)) {
-			logger::critical("Failed to save ActorReanimateStart regs!");
+			logger::critical("Failed to save ActorReanimateStart regs!"sv);
 		}
 
 		auto actorReanimateStop = OnActorReanimateStopRegSet::GetSingleton();
 		if (!actorReanimateStop->Save(a_intfc, kActorReanimateStop, kSerializationVersion)) {
-			logger::critical("Failed to save ActorReanimateStop regs!");
+			logger::critical("Failed to save ActorReanimateStop regs!"sv);
 		}
 
 		auto weatherChange = OnWeatherChangeRegSet::GetSingleton();
 		if (!weatherChange->Save(a_intfc, kWeatherChange, kSerializationVersion)) {
-			logger::critical("Failed to save WeatherChange regs!");
+			logger::critical("Failed to save WeatherChange regs!"sv);
 		}
 
 		//FEC events
 		auto actorEffectReset = OnFECResetRegMap::GetSingleton();
 		if (!actorEffectReset->Save(a_intfc, kFECReset, kSerializationVersion)) {
-			logger::critical("Failed to save FECReset regs!");
+			logger::critical("Failed to save FECReset regs!"sv);
 		}
 
-		logger::info("Finished saving data");
+		logger::info("Finished saving data"sv);
 	}
 
 
@@ -216,7 +216,7 @@ namespace Serialization
 				{
 					perks->Clear(Form::kAdd);
 					if (!perks->Load(a_intfc, Form::kAdd)) {
-						logger::critical("Failed to load AddPerks reg!");
+						logger::critical("Failed to load AddPerks reg!"sv);
 					} else {
 						perks->LoadData(Form::kAdd);
 					}
@@ -226,7 +226,7 @@ namespace Serialization
 				{
 					perks->Clear(Form::kRemove);
 					if (!perks->Load(a_intfc, Form::kRemove)) {
-						logger::critical("Failed to load RemovePerks reg!");
+						logger::critical("Failed to load RemovePerks reg!"sv);
 					} else {
 						perks->LoadData(Form::kRemove);
 					}
@@ -236,7 +236,7 @@ namespace Serialization
 				{
 					keywords->Clear(Form::kAdd);
 					if (!keywords->Load(a_intfc, Form::kAdd)) {
-						logger::critical("Failed to load AddKeywords reg!");
+						logger::critical("Failed to load AddKeywords reg!"sv);
 					} else {
 						keywords->LoadData(Form::kAdd);
 					}
@@ -246,7 +246,7 @@ namespace Serialization
 				{
 					keywords->Clear(Form::kRemove);
 					if (!keywords->Load(a_intfc, Form::kRemove)) {
-						logger::critical("Failed to load RemoveKeywords reg!");
+						logger::critical("Failed to load RemoveKeywords reg!"sv);
 					} else {
 						keywords->LoadData(Form::kRemove);
 					}
@@ -257,7 +257,7 @@ namespace Serialization
 					auto regs = OnCellFullyLoadedRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load OnCellFullyLoaded regs!");
+						logger::critical("Failed to load OnCellFullyLoaded regs!"sv);
 					}
 				}
 				break;
@@ -266,7 +266,7 @@ namespace Serialization
 					auto regs = OnQuestStartRegMap::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load QuestStart regs!");
+						logger::critical("Failed to load QuestStart regs!"sv);
 					}
 				}
 				break;
@@ -275,7 +275,7 @@ namespace Serialization
 					auto regs = OnQuestStopRegMap::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load QuestStop regs!");
+						logger::critical("Failed to load QuestStop regs!"sv);
 					}
 				}
 				break;
@@ -284,7 +284,7 @@ namespace Serialization
 					auto regs = OnQuestStageRegMap::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load QuestStage regs!");
+						logger::critical("Failed to load QuestStage regs!"sv);
 					}
 				}
 				break;
@@ -293,7 +293,7 @@ namespace Serialization
 					auto regs = OnObjectLoadedRegMap::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ObjectLoaded regs!");
+						logger::critical("Failed to load ObjectLoaded regs!"sv);
 					}
 				}
 				break;
@@ -302,7 +302,7 @@ namespace Serialization
 					auto regs = OnObjectUnloadedRegMap::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ObjectUnloaded regs!");
+						logger::critical("Failed to load ObjectUnloaded regs!"sv);
 					}
 				}
 				break;
@@ -311,7 +311,7 @@ namespace Serialization
 					auto regs = OnGrabRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ObjectGrab regs!");
+						logger::critical("Failed to load ObjectGrab regs!"sv);
 					}
 				}
 				break;
@@ -320,7 +320,7 @@ namespace Serialization
 					auto regs = OnReleaseRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ObjectRelease regs!");
+						logger::critical("Failed to load ObjectRelease regs!"sv);
 					}
 				}
 				break;
@@ -329,7 +329,7 @@ namespace Serialization
 					auto regs = OnActorKillRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ActorKill regs!");
+						logger::critical("Failed to load ActorKill regs!"sv);
 					}
 				}
 				break;
@@ -338,7 +338,7 @@ namespace Serialization
 					auto regs = OnBooksReadRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load BooksRead regs!");
+						logger::critical("Failed to load BooksRead regs!"sv);
 					}
 				}
 				break;
@@ -347,7 +347,7 @@ namespace Serialization
 					auto regs = OnCriticalHitRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load CriticalHit regs!");
+						logger::critical("Failed to load CriticalHit regs!"sv);
 					}
 				}
 				break;
@@ -356,7 +356,7 @@ namespace Serialization
 					auto regs = OnDisarmedRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load Disarmed regs!");
+						logger::critical("Failed to load Disarmed regs!"sv);
 					}
 				}
 				break;
@@ -365,7 +365,7 @@ namespace Serialization
 					auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load DragonSoulsGained regs!");
+						logger::critical("Failed to load DragonSoulsGained regs!"sv);
 					}
 				}
 				break;
@@ -374,7 +374,7 @@ namespace Serialization
 					auto regs = OnItemHarvestedRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ItemHarvested regs!");
+						logger::critical("Failed to load ItemHarvested regs!"sv);
 					}
 				}
 				break;
@@ -383,7 +383,7 @@ namespace Serialization
 					auto regs = OnLevelIncreaseRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load CriticalHit regs!");
+						logger::critical("Failed to load CriticalHit regs!"sv);
 					}
 				}
 				break;
@@ -392,7 +392,7 @@ namespace Serialization
 					auto regs = OnLocationDiscoveryRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load LocationDiscovery regs!");
+						logger::critical("Failed to load LocationDiscovery regs!"sv);
 					}
 				}
 				break;
@@ -401,7 +401,7 @@ namespace Serialization
 					auto regs = OnShoutAttackRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ShoutAttack regs!");
+						logger::critical("Failed to load ShoutAttack regs!"sv);
 					}
 				}
 				break;
@@ -410,7 +410,7 @@ namespace Serialization
 					auto regs = OnSkillIncreaseRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load SkillIncrease regs!");
+						logger::critical("Failed to load SkillIncrease regs!"sv);
 					}
 				}
 				break;
@@ -419,7 +419,7 @@ namespace Serialization
 					auto regs = OnSoulsTrappedRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load Soul Trap regs!");
+						logger::critical("Failed to load Soul Trap regs!"sv);
 					}
 				}
 				break;
@@ -428,7 +428,7 @@ namespace Serialization
 					auto regs = OnSpellsLearnedRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load SpellsLearned regs!");
+						logger::critical("Failed to load SpellsLearned regs!"sv);
 					}
 				}
 				break;
@@ -437,7 +437,7 @@ namespace Serialization
 					auto regs = OnActorResurrectRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ActorResurrect regs!");
+						logger::critical("Failed to load ActorResurrect regs!"sv);
 					}
 				}
 				break;
@@ -446,7 +446,7 @@ namespace Serialization
 					auto regs = OnActorReanimateStartRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ActorReanimateStart regs!");
+						logger::critical("Failed to load ActorReanimateStart regs!"sv);
 					}
 				}
 				break;
@@ -455,7 +455,7 @@ namespace Serialization
 					auto regs = OnActorReanimateStopRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load ActorReanimateStop regs!");
+						logger::critical("Failed to load ActorReanimateStop regs!"sv);
 					}
 				}
 				break;
@@ -464,7 +464,7 @@ namespace Serialization
 					auto regs = OnWeatherChangeRegSet::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load WeatherChange regs!");
+						logger::critical("Failed to load WeatherChange regs!"sv);
 					}
 				}
 				break;
@@ -473,16 +473,16 @@ namespace Serialization
 					auto regs = OnFECResetRegMap::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						logger::critical("Failed to load FECReset regs!");
+						logger::critical("Failed to load FECReset regs!"sv);
 					}
 				}
 				break;
 			default:
-				logger::critical("Unrecognized record type ({})!", DecodeTypeCode(type));
+				logger::critical("Unrecognized record type ({})!"sv, DecodeTypeCode(type));
 				break;
 			}
 		}
 
-		logger::info("Finished loading data");
+		logger::info("Finished loading data"sv);
 	}
 }

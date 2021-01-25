@@ -30,8 +30,7 @@ std::vector<RE::Actor*> papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackI
 		if (arr) {
 			for (auto& actorHandle : *arr) {
 				auto actorPtr = actorHandle.get();
-				auto actor = actorPtr.get();
-				if (actor) {
+				if (auto actor = actorPtr.get(); actor) {
 					vec.push_back(actor);
 				}
 			}
@@ -96,7 +95,7 @@ std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantmentsInMod(VM* a_vm,
 	if (dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
 		if (!modInfo) {
-			auto msg = a_name.c_str() + std::string(" is not loaded");
+			auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
@@ -120,7 +119,7 @@ std::vector<RE::TESRace*> papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stac
 	if (dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
 		if (!modInfo) {
-			auto msg = a_name.c_str() + std::string(" is not loaded");
+			auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
@@ -144,7 +143,7 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 	if (dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
 		if (!modInfo) {
-			auto msg = a_name.c_str() + std::string(" is not loaded");
+			auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
@@ -174,18 +173,18 @@ std::vector<RE::TESObjectCELL*> papyrusGame::GetAttachedCells(VM* a_vm, StackID 
 
 	auto TES = RE::TES::GetSingleton();
 	if (TES) {
-		auto cell = TES->currentInteriorCell;
+		auto cell = TES->interiorCell;
 		if (cell) {
 			vec.push_back(cell);
 		} else {
-			auto gridCellArray = TES->gridCellArray;
-			if (gridCellArray) {
-				auto gridLength = gridCellArray->length;
+			auto gridCells = TES->gridCells;
+			if (gridCells) {
+				auto gridLength = gridCells->length;
 				if (gridLength > 0) {
 					std::uint32_t x = 0;
 					std::uint32_t y = 0;
 					for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++) {
-						cell = gridCellArray->GetCell(x, y);
+						cell = gridCells->GetCell(x, y);
 						if (cell && cell->IsAttached()) {
 							vec.push_back(cell);
 						}
@@ -316,7 +315,7 @@ void papyrusGame::SetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 bool papyrusGame::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusGame - couldn't get VMState");
+		logger::critical("papyrusGame - couldn't get VMState"sv);
 		return false;
 	}
 

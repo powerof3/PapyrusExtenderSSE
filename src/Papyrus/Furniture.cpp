@@ -28,7 +28,7 @@ std::int32_t papyrusFurniture::GetFurnitureType(VM* a_vm, StackID a_stackID, RE:
 bool papyrusFurniture::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusFurniture - couldn't get VMState");
+		logger::critical("papyrusFurniture - couldn't get VMState"sv);
 		return false;
 	}
 

@@ -29,7 +29,7 @@ std::int32_t papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::Static
 bool papyrusStrings::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusStrings - couldn't get VMState");
+		logger::critical("papyrusStrings - couldn't get VMState"sv);
 		return false;
 	}
 

@@ -31,7 +31,7 @@ namespace Hook
 
 	bool HookActorResurrect()
 	{
-		logger::info("Hooking Actor Resurrect");
+		logger::info("Hooking Actor Resurrect"sv);
 
 		ActorResurrect::Install();
 
@@ -119,7 +119,7 @@ namespace Hook
 
 	bool HookActorReanimate()
 	{
-		logger::info("Hooking Actor Reanimate");
+		logger::info("Hooking Actor Reanimate"sv);
 
 		ActorReanimateStart::Install();
 
@@ -181,7 +181,7 @@ namespace Hook
 
 	bool HookWeatherChange()
 	{
-		logger::info("Hooking Weather Change");
+		logger::info("Hooking Weather Change"sv);
 
 		WeatherEvent::Install();
 
@@ -191,7 +191,7 @@ namespace Hook
 
 	bool HookEvents()
 	{
-		logger::info("{:*^30}", "HOOKED EVENTS");
+		logger::info("{:*^30}", "HOOKED EVENTS"sv);
 
 		HookActorResurrect();
 

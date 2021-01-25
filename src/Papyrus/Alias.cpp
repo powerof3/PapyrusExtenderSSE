@@ -583,7 +583,7 @@ void papyrusAlias::UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::S
 bool papyrusAlias::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusAlias - couldn't get VMState");
+		logger::critical("papyrusAlias - couldn't get VMState"sv);
 		return false;
 	}
 

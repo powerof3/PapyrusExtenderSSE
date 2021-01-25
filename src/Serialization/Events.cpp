@@ -12,7 +12,7 @@ namespace Serialization
 		}
 
 		OnCellFullyLoadedRegSet::OnCellFullyLoadedRegSet() :
-			Base("OnCellFullyLoaded")
+			Base("OnCellFullyLoaded"sv)
 		{}
 
 
@@ -23,7 +23,7 @@ namespace Serialization
 		}
 
 		OnQuestStartRegMap::OnQuestStartRegMap() :
-			Base("OnQuestStart")
+			Base("OnQuestStart"sv)
 		{}
 
 
@@ -34,7 +34,7 @@ namespace Serialization
 		}
 
 		OnQuestStopRegMap::OnQuestStopRegMap() :
-			Base("OnQuestStop")
+			Base("OnQuestStop"sv)
 		{}
 
 
@@ -45,7 +45,7 @@ namespace Serialization
 		}
 
 		OnQuestStageRegMap::OnQuestStageRegMap() :
-			Base("OnQuestStageChange")
+			Base("OnQuestStageChange"sv)
 		{}
 
 
@@ -56,7 +56,7 @@ namespace Serialization
 		}
 
 		OnObjectLoadedRegMap::OnObjectLoadedRegMap() :
-			Base("OnObjectLoaded")
+			Base("OnObjectLoaded"sv)
 		{}
 
 
@@ -67,7 +67,7 @@ namespace Serialization
 		}
 
 		OnObjectUnloadedRegMap::OnObjectUnloadedRegMap() :
-			Base("OnObjectUnloaded")
+			Base("OnObjectUnloaded"sv)
 		{}
 
 
@@ -78,7 +78,7 @@ namespace Serialization
 		}
 
 		OnGrabRegSet::OnGrabRegSet() :
-			Base("OnObjectGrab")
+			Base("OnObjectGrab"sv)
 		{}
 
 
@@ -89,7 +89,7 @@ namespace Serialization
 		}
 
 		OnReleaseRegSet::OnReleaseRegSet() :
-			Base("OnObjectRelease")
+			Base("OnObjectRelease"sv)
 		{}
 	}
 
@@ -103,7 +103,7 @@ namespace Serialization
 		}
 
 		OnActorKillRegSet::OnActorKillRegSet() :
-			Base("OnActorKilled")
+			Base("OnActorKilled"sv)
 		{}
 
 
@@ -114,7 +114,7 @@ namespace Serialization
 		}
 
 		OnBooksReadRegSet::OnBooksReadRegSet() :
-			Base("OnBookRead")
+			Base("OnBookRead"sv)
 		{}
 
 
@@ -125,7 +125,7 @@ namespace Serialization
 		}
 
 		OnCriticalHitRegSet::OnCriticalHitRegSet() :
-			Base("OnCriticalHit")
+			Base("OnCriticalHit"sv)
 		{}
 
 
@@ -136,7 +136,7 @@ namespace Serialization
 		}
 
 		OnDisarmedRegSet::OnDisarmedRegSet() :
-			Base("OnDisarmed")
+			Base("OnDisarmed"sv)
 		{}
 
 
@@ -147,7 +147,7 @@ namespace Serialization
 		}
 
 		OnDragonSoulsGainedRegSet::OnDragonSoulsGainedRegSet() :
-			Base("OnDragonSoulsGained")
+			Base("OnDragonSoulsGained"sv)
 		{}
 
 		OnItemHarvestedRegSet* OnItemHarvestedRegSet::GetSingleton()
@@ -157,7 +157,7 @@ namespace Serialization
 		}
 
 		OnItemHarvestedRegSet::OnItemHarvestedRegSet() :
-			Base("OnItemHarvested")
+			Base("OnItemHarvested"sv)
 		{}
 
 
@@ -168,7 +168,7 @@ namespace Serialization
 		}
 
 		OnLevelIncreaseRegSet::OnLevelIncreaseRegSet() :
-			Base("OnLevelIncrease")
+			Base("OnLevelIncrease"sv)
 		{}
 
 
@@ -179,7 +179,7 @@ namespace Serialization
 		}
 
 		OnLocationDiscoveryRegSet::OnLocationDiscoveryRegSet() :
-			Base("OnLocationDiscovery")
+			Base("OnLocationDiscovery"sv)
 		{}
 
 
@@ -190,7 +190,7 @@ namespace Serialization
 		}
 
 		OnShoutAttackRegSet::OnShoutAttackRegSet() :
-			Base("OnPlayerShoutAttack")
+			Base("OnPlayerShoutAttack"sv)
 		{}
 
 
@@ -201,7 +201,7 @@ namespace Serialization
 		}
 
 		OnSkillIncreaseRegSet::OnSkillIncreaseRegSet() :
-			Base("OnSkillIncrease")
+			Base("OnSkillIncrease"sv)
 		{}
 
 
@@ -212,7 +212,7 @@ namespace Serialization
 		}
 
 		OnSoulsTrappedRegSet::OnSoulsTrappedRegSet() :
-			Base("OnSoulTrapped")
+			Base("OnSoulTrapped"sv)
 		{}
 
 
@@ -223,7 +223,7 @@ namespace Serialization
 		}
 
 		OnSpellsLearnedRegSet::OnSpellsLearnedRegSet() :
-			Base("OnSpellLearned")
+			Base("OnSpellLearned"sv)
 		{}
 	}
 
@@ -237,7 +237,7 @@ namespace Serialization
 		}
 
 		OnActorResurrectRegSet::OnActorResurrectRegSet() :
-			Base("OnActorResurrected")
+			Base("OnActorResurrected"sv)
 		{}
 
 
@@ -248,7 +248,7 @@ namespace Serialization
 		}
 
 		OnActorReanimateStartRegSet::OnActorReanimateStartRegSet() :
-			Base("OnActorReanimateStart")
+			Base("OnActorReanimateStart"sv)
 		{}
 
 
@@ -259,7 +259,7 @@ namespace Serialization
 		}
 
 		OnActorReanimateStopRegSet::OnActorReanimateStopRegSet() :
-			Base("OnActorReanimateStop")
+			Base("OnActorReanimateStop"sv)
 		{}
 
 
@@ -270,7 +270,7 @@ namespace Serialization
 		}
 
 		OnWeatherChangeRegSet::OnWeatherChangeRegSet() :
-			Base("OnWeatherChanged")
+			Base("OnWeatherChanged"sv)
 		{}
 	}
 
@@ -284,7 +284,7 @@ namespace Serialization
 		}
 
 		OnFECResetRegMap::OnFECResetRegMap() :
-			Base("OnFECReset")
+			Base("OnFECReset"sv)
 		{}
 	}
 }

@@ -26,7 +26,7 @@ void papyrusArmorAddon::SetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFu
 bool papyrusArmorAddon::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusArmorAddon - couldn't get VMState");
+		logger::critical("papyrusArmorAddon - couldn't get VMState"sv);
 		return false;
 	}
 

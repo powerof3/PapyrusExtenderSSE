@@ -32,7 +32,7 @@ bool papyrusActor::AddBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		a_vm->TraceStack("Spell is None", a_stackID, Severity::kWarning);
 		return false;
 	} else if (a_actor->HasSpell(a_spell)) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "already has spell").c_str(), a_stackID, Severity::kWarning);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "already has spell"sv).c_str(), a_stackID, Severity::kWarning);
 		return false;
 	}
 
@@ -136,9 +136,8 @@ void papyrusActor::BlendColorWithSkinTone(VM* a_vm, StackID a_stackID, RE::Stati
 		task->AddTask([a_actor, a_color, newColor, root]() {
 			TintFace(a_actor, newColor);
 			root->UpdateBodyTint(newColor);
+			AddOrUpdateColorData(root, "PO3_SKINTINT", newColor);
 		});
-
-		AddOrUpdateColorData(root, "PO3_SKINTINT", newColor);
 	}
 }
 
@@ -147,6 +146,7 @@ void papyrusActor::DecapitateActor(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 {
 	if (!a_actor) {
 		a_vm->TraceStack("Actor is None", a_stackID, Severity::kWarning);
+		return;
 	}
 
 	auto task = SKSE::GetTaskInterface();
@@ -174,18 +174,14 @@ void papyrusActor::EquipArmorIfSkinVisible(VM* a_vm, StackID a_stackID, RE::Stat
 		return;
 	}
 
-	auto task = SKSE::GetTaskInterface();
-	task->AddTask([a_actor, a_equip, a_check]() {
-		for (const auto& arma : a_check->armorAddons) {
-			if (arma) {
-				auto armorObject = a_actor->VisitArmorAddon(a_check, arma);
-				if (armorObject && armorObject->HasShaderType(Feature::kFaceGenRGBTint)) {
-					a_actor->AddWornItem(a_equip, 1, false, 0, 0);
-					break;
-				}
+	if (auto arma = a_check->GetArmorAddon(a_actor->GetRace()); arma) {
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([a_actor, a_check, a_equip, arma]() {
+			if (auto armorObject = a_actor->VisitArmorAddon(a_check, arma); armorObject && armorObject->HasShaderType(Feature::kFaceGenRGBTint)) {
+				a_actor->AddWornItem(a_equip, 1, &a_actor->extraList, false, false, false);
 			}
-		}
-	});
+		});
+	}
 }
 
 
@@ -257,7 +253,7 @@ std::vector<RE::EffectSetting*> papyrusActor::GetActiveEffects(VM* a_vm, StackID
 
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects").c_str(), a_stackID, Severity::kInfo);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects"sv).c_str(), a_stackID, Severity::kInfo);
 		return vec;
 	}
 
@@ -360,7 +356,7 @@ std::vector<RE::Actor*> papyrusActor::GetCombatAllies(VM* a_vm, StackID a_stackI
 
 	auto combatGroup = a_actor->GetCombatGroup();
 	if (!combatGroup) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "does not have a combat group").c_str(), a_stackID, Severity::kWarning);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "does not have a combat group"sv).c_str(), a_stackID, Severity::kWarning);
 		return vec;
 	}
 
@@ -387,7 +383,7 @@ std::vector<RE::Actor*> papyrusActor::GetCombatTargets(VM* a_vm, StackID a_stack
 
 	auto combatGroup = a_actor->GetCombatGroup();
 	if (!combatGroup) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "does not have a combat group").c_str(), a_stackID, Severity::kWarning);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "does not have a combat group"sv).c_str(), a_stackID, Severity::kWarning);
 		return vec;
 	}
 
@@ -417,7 +413,7 @@ std::vector<std::int32_t> papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_s
 	}
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects").c_str(), a_stackID, Severity::kInfo);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects"sv).c_str(), a_stackID, Severity::kInfo);
 		return vec;
 	}
 
@@ -589,7 +585,7 @@ RE::BGSColorForm* papyrusActor::GetHairColor(VM* a_vm, StackID a_stackID, RE::St
 	if (actorbase) {
 		auto root = a_actor->Get3D(0);
 		if (root) {
-			auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_HAIRTINT");
+			auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_HAIRTINT"sv);
 			if (data) {
 				auto factory = RE::IFormFactory::GetFormFactoryByType(RE::FormType::ColorForm);
 				auto color = static_cast<RE::BGSColorForm*>(factory->Create());
@@ -599,11 +595,10 @@ RE::BGSColorForm* papyrusActor::GetHairColor(VM* a_vm, StackID a_stackID, RE::St
 					return color;
 				}
 			}
-		} else {
-			auto headData = actorbase->headRelatedData;
-			if (headData) {
-				return headData->hairColor;
-			}
+		}
+		auto headData = actorbase->headRelatedData;
+		if (headData) {
+			return headData->hairColor;
 		}
 	}
 
@@ -702,7 +697,7 @@ RE::BGSColorForm* papyrusActor::GetSkinColor(VM* a_vm, StackID a_stackID, RE::St
 			color->color = actorBase->bodyTintColor;
 			auto root = a_actor->Get3D(0);
 			if (root) {
-				auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT");
+				auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT"sv);
 				if (data) {
 					color->color = RE::Color(data->value);
 				}
@@ -732,7 +727,7 @@ float papyrusActor::GetTimeDead(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 				return g_gameDaysPassed ? floorf(g_gameDaysPassed->value * 24.0f) - timeOfDeath : 0.0f;
 			}
 		} else {
-			a_vm->TraceStack(VMError::generic_error(a_actor, "is not dead").c_str(), a_stackID, Severity::kWarning);
+			a_vm->TraceStack(VMError::generic_error(a_actor, "is not dead"sv).c_str(), a_stackID, Severity::kWarning);
 		}
 	}
 
@@ -753,7 +748,7 @@ float papyrusActor::GetTimeOfDeath(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 		if (timeOfDeath > 0.0f) {
 			return timeOfDeath / 24.0f;
 		} else {
-			a_vm->TraceStack(VMError::generic_error(a_actor, "is not dead").c_str(), a_stackID, Severity::kWarning);
+			a_vm->TraceStack(VMError::generic_error(a_actor, "is not dead"sv).c_str(), a_stackID, Severity::kWarning);
 		}
 	}
 
@@ -775,7 +770,7 @@ bool papyrusActor::HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects").c_str(), a_stackID, Severity::kInfo);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects"sv).c_str(), a_stackID, Severity::kInfo);
 		return false;
 	}
 
@@ -820,7 +815,7 @@ bool papyrusActor::HasMagicEffectWithArchetype(VM* a_vm, StackID a_stackID, RE::
 
 	auto activeEffects = a_actor->GetActiveEffectList();
 	if (!activeEffects) {
-		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects").c_str(), a_stackID, Severity::kInfo);
+		a_vm->TraceStack(VMError::generic_error(a_actor, "has no active effects"sv).c_str(), a_stackID, Severity::kInfo);
 		return false;
 	}
 
@@ -842,7 +837,8 @@ bool papyrusActor::IsActorInWater(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 		return false;
 	}
 
-	return a_actor->boolBits.all(RE::Actor::BOOL_BITS::kInWater);
+	float waterLevel = a_actor->GetSubmergedWaterLevel(a_actor->GetPositionZ(), a_actor->GetParentCell());
+	return waterLevel >= 0.01f ? true : false;
 }
 
 
@@ -853,7 +849,8 @@ bool papyrusActor::IsActorUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunc
 		return false;
 	}
 
-	return a_actor->boolFlags.all(RE::Actor::BOOL_FLAGS::kUnderwater);
+	float waterLevel = a_actor->GetSubmergedWaterLevel(a_actor->GetPositionZ(), a_actor->GetParentCell());
+	return waterLevel >= 0.875f ? true : false;
 }
 
 
@@ -954,12 +951,64 @@ void papyrusActor::MixColorWithSkinTone(VM* a_vm, StackID a_stackID, RE::StaticF
 				task->AddTask([a_actor, newColor, root]() {
 					TintFace(a_actor, newColor);
 					root->UpdateBodyTint(newColor);
+					AddOrUpdateColorData(root, "PO3_SKINTINT"sv, newColor);
 				});
-
-				AddOrUpdateColorData(root, "PO3_SKINTINT", newColor);
 			}
 		}
 	}
+}
+
+
+bool papyrusActor::RemoveItem_Impl(RE::TESObjectREFR* a_container, RE::TESForm* a_formToRemove, std::uint32_t a_count, bool a_silent, RE::TESObjectREFR* a_otherContainer, StackID a_stackID, VM* a_vm)
+{
+	using func_t = decltype(&papyrusActor::RemoveItem_Impl);
+	REL::Relocation<func_t> func{ REL::ID(56261) };
+	return func(a_container, a_formToRemove, a_count, a_silent, a_otherContainer, a_stackID, a_vm);
+}
+
+
+void papyrusActor::RemoveArmorWithSlots(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::vector<std::uint32_t> a_slots, bool a_playable)
+{
+	using Slot = RE::BIPED_MODEL::BipedObjectSlot;
+
+	if (!a_actor) {
+		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	if (a_slots.empty()) {
+		a_vm->TraceStack("Remove Slots is empty ", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto inv = a_actor->GetInventory([a_slots, a_playable](RE::TESBoundObject& a_object) {
+		if (auto armor = a_object.As<RE::TESObjectARMO>(); armor) {
+			if (a_playable == armor->GetPlayable()) {
+				if (std::any_of(a_slots.begin(), a_slots.end(),
+						[&](const auto& slot) {
+							return armor->HasPartOf(static_cast<Slot>(slot));
+						}))
+					return true;
+			}
+		}
+		return false;
+	});
+
+	std::vector<std::pair<RE::TESForm*, std::uint32_t>> vec;
+	vec.reserve(inv.size());
+	for (auto& item : inv) {
+		auto& [count, entry] = item.second;
+		if (count > 0) {
+			vec.emplace_back(std::make_pair(item.first, count));
+		}
+	}
+
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([a_vm, a_stackID, a_actor, vec]() {
+		for (auto& item : vec) {
+			RemoveItem_Impl(a_actor, item.first, item.second, true, nullptr, a_stackID, a_vm);
+		}
+	});
 }
 
 
@@ -1032,6 +1081,7 @@ void StopAllSkinAlphaShaders_Impl(RE::TESObjectREFR* a_ref)
 					auto effectData = shaderEffect->effectData;
 					if (effectData && effectData->data.flags.all(Flags::kSkinOnly) && !effectData->holesTexture.textureName.empty()) {
 						shaderEffect->finished = true;
+						shaderEffect->Clear();
 					}
 				}
 			}
@@ -1056,93 +1106,102 @@ void papyrusActor::RemoveEffectsNotOfType(VM* a_vm, StackID a_stackID, RE::Stati
 		return;
 	}
 
-	auto [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = GetResetData(root);
+	auto type = static_cast<EFFECT>(a_type);
 
-	switch (static_cast<EFFECT>(a_type)) {
-	case EFFECT::kCharred:
-		{
-			if (skinTintData) {
-				ResetSkinTintData(a_actor, root, skinTintData);
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([a_actor, type, root]() {
+		auto [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = GetResetData(root);
+
+		switch (type) {
+		case EFFECT::kCharred:
+			{
+				if (skinTintData) {
+					ResetSkinTintData(a_actor, root, skinTintData);
+				}
+				if (hairTintData) {
+					ResetHairTintData(a_actor, root, hairTintData);
+				}
+				if (txstFaceData) {
+					ResetFaceTXSTData(a_actor, root, txstFaceData);
+				}
+				if (!txstSkinVec.empty()) {
+					ResetSkinTXSTData(a_actor, root, txstSkinVec);
+				}
 			}
-			if (hairTintData) {
-				ResetHairTintData(a_actor, root, hairTintData);
+			break;
+		case EFFECT::kDrained:
+			{
+				if (toggleData) {
+					ResetToggleData(root, toggleData);
+				}
+				if (skinTintData) {
+					ResetSkinTintData(a_actor, root, skinTintData);
+				}
+				if (hairTintData) {
+					ResetHairTintData(a_actor, root, hairTintData);
+				}
+				if (txstFaceData) {
+					ResetFaceTXSTData(a_actor, root, txstFaceData);
+				}
+				if (!txstSkinVec.empty()) {
+					ResetSkinTXSTData(a_actor, root, txstSkinVec);
+				}
 			}
-			if (txstFaceData) {
-				ResetFaceTXSTData(a_actor, root, txstFaceData);
+			break;
+		case EFFECT::kPoisoned:
+			{
+				if (toggleData) {
+					ResetToggleData(root, toggleData);
+				}
+				if (alphaData) {
+					ResetAlphaData(a_actor, root, alphaData, "po3_FEC"sv);
+				}
+				if (headpartAlphaData) {
+					ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
+				}
+				if (txstFaceData) {
+					ResetFaceTXSTData(a_actor, root, txstFaceData);
+				}
+				if (!txstSkinVec.empty()) {
+					ResetSkinTXSTData(a_actor, root, txstSkinVec);
+				}
 			}
-			if (!txstSkinVec.empty()) {
-				ResetSkinTXSTData(a_actor, root, txstSkinVec);
+			break;
+		case EFFECT::kAged:
+			{
+				if (toggleData) {
+					ResetToggleData(root, toggleData);
+				}
+				if (alphaData) {
+					ResetAlphaData(a_actor, root, alphaData, "po3_FEC"sv);
+				}
+				if (headpartAlphaData) {
+					ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
+				}
 			}
+			break;
+		case EFFECT::kCharredCreature:
+			{
+				if (!shaderVec.empty()) {
+					ResetShaderData(root, shaderVec);
+				}
+			}
+			break;
+		default:
+			break;
 		}
-		break;
-	case EFFECT::kDrained:
-		{
-			if (toggleData) {
-				ResetToggleData(root, toggleData);
-			}
-			if (skinTintData) {
-				ResetSkinTintData(a_actor, root, skinTintData);
-			}
-			if (hairTintData) {
-				ResetHairTintData(a_actor, root, hairTintData);
-			}
-			if (txstFaceData) {
-				ResetFaceTXSTData(a_actor, root, txstFaceData);
-			}
-			if (!txstSkinVec.empty()) {
-				ResetSkinTXSTData(a_actor, root, txstSkinVec);
-			}
-		}
-		break;
+	});
+
+	switch (type) {
 	case EFFECT::kPoisoned:
-		{
-			if (!a_actor->IsPlayerRef()) {
-				StopAllSkinAlphaShaders_Impl(a_actor);
-			}
-			if (toggleData) {
-				ResetToggleData(root, toggleData);
-			}
-			if (alphaData) {
-				ResetAlphaData(a_actor, root, alphaData, "po3_FEC");
-			}
-			if (headpartAlphaData) {
-				ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
-			}
-			if (txstFaceData) {
-				ResetFaceTXSTData(a_actor, root, txstFaceData);
-			}
-			if (!txstSkinVec.empty()) {
-				ResetSkinTXSTData(a_actor, root, txstSkinVec);
-			}
-		}
-		break;
 	case EFFECT::kAged:
 		{
 			if (!a_actor->IsPlayerRef()) {
 				StopAllSkinAlphaShaders_Impl(a_actor);
 			}
-			if (toggleData) {
-				ResetToggleData(root, toggleData);
-			}
-			if (alphaData) {
-				ResetAlphaData(a_actor, root, alphaData, "po3_FEC");
-			}
-			if (headpartAlphaData) {
-				ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
-			}
-		}
-		break;
-	case EFFECT::kCharredCreature:
-		{
-			if (!shaderVec.empty()) {
-				ResetShaderData(root, shaderVec);
-			}
 		}
 		break;
 	default:
-		{
-			a_vm->TraceStack("Invalid effect type", a_stackID, Severity::kWarning);
-		}
 		break;
 	}
 }
@@ -1161,7 +1220,7 @@ void SetTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::int32_t a
 			if (lightingShader) {
 				auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
 				if (material) {
-					std::string sourcePath = material->textureSet->GetTexturePath(Texture::kDiffuse);
+					std::string sourcePath(material->textureSet->GetTexturePath(Texture::kDiffuse));
 					RE::Util::SanitizeTexturePath(sourcePath);
 
 					if (sourcePath == a_tgtPath) {
@@ -1175,12 +1234,13 @@ void SetTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::int32_t a
 							} else {
 								auto newTextureSet = RE::BSShaderTextureSet::Create();
 								if (newTextureSet) {
-									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-										newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
-									}
 									auto BSTextureType = static_cast<Texture>(a_type);
+									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+										if (i != BSTextureType) {
+											newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
+										}
+									}
 									newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
-
 									newMaterial->OnLoadTextureSet(0, newTextureSet);
 								}
 							}
@@ -1223,18 +1283,18 @@ void papyrusActor::ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::Stati
 		return;
 	}
 
-	std::string targetPath = a_srcTXST->GetTexturePath(Texture::kDiffuse);
+	std::string targetPath(a_srcTXST->GetTexturePath(Texture::kDiffuse));
 	RE::Util::SanitizeTexturePath(targetPath);
 
 	auto task = SKSE::GetTaskInterface();
 	task->AddTask([a_actor, a_armor, a_srcTXST, a_tgtTXST, a_type, targetPath]() {
 		bool replaced = false;
-		for (const auto& armorAddon : a_armor->armorAddons) {
-			if (armorAddon) {
-				auto armorObject = a_actor->VisitArmorAddon(a_armor, armorAddon);
-				if (armorObject) {
-					SetTXST(armorObject, a_tgtTXST, a_type, targetPath, replaced);
-				}
+
+		auto armorAddon = a_armor->GetArmorAddon(a_actor->GetRace());
+		if (armorAddon) {
+			auto armorObject = a_actor->VisitArmorAddon(a_armor, armorAddon);
+			if (armorObject) {
+				SetTXST(armorObject, a_tgtTXST, a_type, targetPath, replaced);
 			}
 		}
 
@@ -1243,7 +1303,7 @@ void papyrusActor::ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::Stati
 			auto armorID = std::to_string(a_armor->formID);
 			std::string name = "PO3_TXST - " + armorID;
 
-			auto data = root->GetExtraData<RE::NiStringsExtraData>(name.c_str());
+			auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
 			if (!data) {
 				std::vector<RE::BSFixedString> vec;
 				vec.reserve(Texture::kTotal);
@@ -1251,7 +1311,7 @@ void papyrusActor::ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::Stati
 					vec.emplace_back(a_srcTXST->GetTexturePath(i));
 				}
 				vec.emplace_back(armorID);
-				auto newData = RE::NiStringsExtraData::Create(name.c_str(), vec);
+				auto newData = RE::NiStringsExtraData::Create(name, vec);
 				if (newData) {
 					root->AddExtraData(newData);
 				}
@@ -1274,9 +1334,10 @@ void SetSkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vecto
 			if (lightingShader) {
 				auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
 				if (material) {
-					auto type = material->GetFeature();
+					auto const type = material->GetFeature();
 					if (type == Feature::kFaceGenRGBTint || type == Feature::kFaceGen) {
 						if (a_vec.empty()) {
+							a_vec.reserve(Texture::kTotal);
 							for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
 								a_vec.emplace_back(material->textureSet->GetTexturePath(i));
 							}
@@ -1292,10 +1353,12 @@ void SetSkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vecto
 									auto newTextureSet = RE::BSShaderTextureSet::Create();
 									if (newTextureSet) {
 										for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-											newTextureSet->SetTexturePath(i, a_txst->GetTexturePath(i));
-											newTextureSet->SetTexturePath(Texture::kMultilayer, material->textureSet->GetTexturePath(Texture::kMultilayer));
-											newMaterial->OnLoadTextureSet(0, newTextureSet);
+											if (i != Texture::kMultilayer) {
+												newTextureSet->SetTexturePath(i, a_txst->GetTexturePath(i));
+											}
 										}
+										newTextureSet->SetTexturePath(Texture::kMultilayer, material->textureSet->GetTexturePath(Texture::kMultilayer));
+										newMaterial->OnLoadTextureSet(0, newTextureSet);
 									}
 								} else {
 									newMaterial->OnLoadTextureSet(0, a_txst);
@@ -1303,12 +1366,13 @@ void SetSkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vecto
 							} else {
 								auto newTextureSet = RE::BSShaderTextureSet::Create();
 								if (newTextureSet) {
-									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-										newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
-									}
 									auto BSTextureType = static_cast<Texture>(a_type);
+									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+										if (i != BSTextureType) {
+											newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
+										}
+									}
 									newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
-
 									newMaterial->OnLoadTextureSet(0, newTextureSet);
 								}
 							}
@@ -1349,73 +1413,71 @@ void papyrusActor::ReplaceFaceTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 		return;
 	}
 
-	auto faceObject = a_actor->GetHeadPartObject(RE::BGSHeadPart::HeadPartType::kFace);
-	if (faceObject) {
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([faceObject, txst, a_type, a_actor]() {
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([txst, a_type, a_actor]() {
+		auto faceObject = a_actor->GetHeadPartObject(RE::BGSHeadPart::HeadPartType::kFace);
+		if (faceObject) {
 			std::vector<RE::BSFixedString> vec;
-			vec.reserve(Texture::kTotal);
 			SetSkinTXST(faceObject, txst, vec, a_type);
 
-			auto root = a_actor->Get3D(0);
-			if (!vec.empty() && root) {
-				auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_FACETXST");
-				if (!data) {
-					auto newData = RE::NiStringsExtraData::Create("PO3_FACETXST", vec);
-					if (newData) {
-						root->AddExtraData(newData);
+			if (!vec.empty()) {
+				if (auto root = a_actor->Get3D(0); root) {
+					if (auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_FACETXST"sv); !data) {
+						auto newData = RE::NiStringsExtraData::Create("PO3_FACETXST"sv, vec);
+						if (newData) {
+							root->AddExtraData(newData);
+						}
 					}
 				}
 			}
-		});
-	} else {
-		a_vm->TraceStack("Cannot get face headpart", a_stackID, Severity::kWarning);
-	}
+		}
+	});
 }
 
 
-void SetArmorSkinTXST(RE::Actor* a_actor, RE::BGSTextureSet* a_txst, RE::BGSBipedObjectForm::BipedObjectSlot a_slot, std::int32_t a_type)
+void SetArmorSkinTXST(RE::Actor* a_actor, RE::BGSTextureSet* a_txst, RE::BIPED_MODEL::BipedObjectSlot a_slot, std::int32_t a_type)
 {
 	auto skinArmor = a_actor->GetSkin(a_slot);
 	if (!skinArmor) {
 		return;
 	}
 
-	auto foundAddon = skinArmor->GetArmorAddonByMask(a_actor->race, a_slot);
+	auto foundAddon = skinArmor->GetArmorAddonByMask(a_actor->GetRace(), a_slot);
 	if (!foundAddon) {
 		return;
 	}
 
-	auto armorObject = a_actor->VisitArmorAddon(skinArmor, foundAddon);
-	if (armorObject) {
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_txst, a_slot, a_type, armorObject]() {
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([a_actor, a_txst, a_slot, a_type, skinArmor, foundAddon]() {
+		auto armorObject = a_actor->VisitArmorAddon(skinArmor, foundAddon);
+		if (armorObject) {
 			std::vector<RE::BSFixedString> vec;
 			vec.reserve(10);
+
 			SetSkinTXST(armorObject, a_txst, vec, a_type);
 
 			auto root = a_actor->Get3D(0);
 			if (!vec.empty() && root) {
 				auto slotMaskStr = std::to_string(to_underlying(a_slot));
 				std::string name = "PO3_SKINTXST - " + slotMaskStr;
-				vec.emplace_back(slotMaskStr.c_str());
+				vec.emplace_back(slotMaskStr);
 
-				auto data = root->GetExtraData<RE::NiStringsExtraData>(name.c_str());
+				auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
 				if (!data) {
-					auto newData = RE::NiStringsExtraData::Create(name.c_str(), vec);
+					auto newData = RE::NiStringsExtraData::Create(name, vec);
 					if (newData) {
 						root->AddExtraData(newData);
 					}
 				}
 			}
-		});
-	}
+		}
+	});
 }
 
 
 void papyrusActor::ReplaceSkinTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSTextureSet* a_maleTXST, RE::BGSTextureSet* a_femaleTXST, std::uint32_t a_slot, std::int32_t a_type)
 {
-	using BipedSlot = RE::BGSBipedObjectForm::BipedObjectSlot;
+	using BipedSlot = RE::BIPED_MODEL::BipedObjectSlot;
 
 	if (!a_actor) {
 		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
@@ -1459,38 +1521,43 @@ bool papyrusActor::ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		return false;
 	}
 
-	auto [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = GetResetData(root);
+	auto resetData = GetResetData(root);
+	auto [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = resetData;
 
 	if (!toggleData && !alphaData && !headpartAlphaData && !skinTintData && !hairTintData && !txstFaceData && txstVec.empty() && txstSkinVec.empty() && shaderVec.empty()) {
 		return false;
 	} else {
-		if (toggleData) {
-			ResetToggleData(root, toggleData);
-		}
-		if (alphaData) {
-			ResetAlphaData(a_actor, root, alphaData, a_folderName);
-		}
-		if (headpartAlphaData) {
-			ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
-		}
-		if (skinTintData) {
-			ResetSkinTintData(a_actor, root, skinTintData);
-		}
-		if (hairTintData) {
-			ResetHairTintData(a_actor, root, hairTintData);
-		}
-		if (txstFaceData) {
-			ResetFaceTXSTData(a_actor, root, txstFaceData);
-		}
-		if (!txstSkinVec.empty()) {
-			ResetSkinTXSTData(a_actor, root, txstSkinVec);
-		}
-		if (!txstVec.empty() && !a_folderName.empty()) {
-			ResetTXSTData(a_actor, root, a_folderName, txstVec);
-		}
-		if (!shaderVec.empty()) {
-			ResetShaderData(root, shaderVec);
-		}
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([a_actor, a_folderName, root, resetData]() {
+			auto [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = resetData;
+			if (toggleData) {
+				ResetToggleData(root, toggleData);
+			}
+			if (alphaData) {
+				ResetAlphaData(a_actor, root, alphaData, a_folderName);
+			}
+			if (headpartAlphaData) {
+				ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
+			}
+			if (skinTintData) {
+				ResetSkinTintData(a_actor, root, skinTintData);
+			}
+			if (hairTintData) {
+				ResetHairTintData(a_actor, root, hairTintData);
+			}
+			if (txstFaceData) {
+				ResetFaceTXSTData(a_actor, root, txstFaceData);
+			}
+			if (!txstSkinVec.empty()) {
+				ResetSkinTXSTData(a_actor, root, txstSkinVec);
+			}
+			if (!txstVec.empty() && !a_folderName.empty()) {
+				ResetTXSTData(a_actor, root, a_folderName, txstVec);
+			}
+			if (!shaderVec.empty()) {
+				ResetShaderData(root, shaderVec);
+			}
+		});
 
 		if (!a_actor->IsPlayerRef()) {
 			auto processLists = RE::ProcessLists::GetSingleton();
@@ -1566,9 +1633,8 @@ void papyrusActor::SetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([root, a_color]() {
 			root->UpdateHairColor(a_color->color);
+			AddOrUpdateColorData(root, "PO3_HAIRTINT"sv, a_color->color);
 		});
-
-		AddOrUpdateColorData(root, "PO3_HAIRTINT", a_color->color);
 	} else {
 		a_vm->TraceStack(VMError::no_3D(a_actor).c_str(), a_stackID, Severity::kWarning);
 	}
@@ -1593,29 +1659,27 @@ void papyrusActor::SetHeadPartAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunct
 		return;
 	}
 
-	auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_type));
-	if (object) {
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([object, a_alpha]() {
-			object->UpdateAlpha(a_alpha, false);
-		});
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([root, a_actor, a_alpha, a_type]() {
+		auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_type));
+		if (object) {
+			object->UpdateMaterialAlpha(a_alpha, false);
 
-		auto data = root->GetExtraData<RE::NiIntegersExtraData>("PO3_HEADPARTALPHA");
-		if (!data) {
-			if (a_alpha == 0.0f) {
-				std::vector<std::int32_t> vec;
-				vec.push_back(a_type);
-				auto newData = RE::NiIntegersExtraData::Create("PO3_HEADPARTALPHA", vec);
-				if (newData) {
-					root->AddExtraData(newData);
+			auto data = root->GetExtraData<RE::NiIntegersExtraData>("PO3_HEADPARTALPHA"sv);
+			if (!data) {
+				if (a_alpha == 0.0f) {
+					std::vector<std::int32_t> vec;
+					vec.push_back(a_type);
+					auto newData = RE::NiIntegersExtraData::Create("PO3_HEADPARTALPHA"sv, vec);
+					if (newData) {
+						root->AddExtraData(newData);
+					}
 				}
+			} else {
+				a_alpha == 0.0f ? data->Insert(a_type) : data->Remove(a_type);
 			}
-		} else {
-			a_alpha == 0.0 ? data->InsertElement(a_type) : data->RemoveElement(a_type);
 		}
-	} else {
-		a_vm->TraceStack("Could not find matching headpart object", a_stackID, Severity::kWarning);
-	}
+	});
 }
 
 
@@ -1676,9 +1740,9 @@ void papyrusActor::SetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticF
 		auto charProxy = static_cast<RE::bhkCharProxyController*>(currentProcess->GetCharController());
 		if (charProxy) {
 			a_disableGravityOnGround ? charProxy->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) : charProxy->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+			charProxy->SetLinearVelocityImpl(0.0);
 			charProxy->gravity = a_value;
 		}
-		currentProcess->Update3DModel(a_actor);
 	}
 }
 
@@ -1694,20 +1758,19 @@ void papyrusActor::SetSkinAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	if (root) {
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([root, a_alpha]() {
-			root->UpdateAlpha(a_alpha, true);
+			root->UpdateMaterialAlpha(a_alpha, true);
+			auto data = root->GetExtraData<RE::NiFloatExtraData>("PO3_ALPHA"sv);
+			if (data) {
+				if (a_alpha == 1.0f) {
+					root->RemoveExtraData(data);
+				}
+			} else {
+				auto newData = RE::NiFloatExtraData::Create("PO3_ALPHA"sv, a_alpha);
+				if (newData) {
+					root->AddExtraData(newData);
+				}
+			}
 		});
-
-		auto data = root->GetExtraData<RE::NiFloatExtraData>("PO3_ALPHA");
-		if (data) {
-			if (a_alpha == 1.0) {
-				root->RemoveExtraData(data);
-			}
-		} else {
-			auto newData = RE::NiFloatExtraData::Create("PO3_ALPHA", a_alpha);
-			if (newData) {
-				root->AddExtraData(newData);
-			}
-		}
 	} else {
 		a_vm->TraceStack(VMError::no_3D(a_actor).c_str(), a_stackID, Severity::kWarning);
 	}
@@ -1736,9 +1799,8 @@ void papyrusActor::SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		task->AddTask([a_actor, a_color, root]() {
 			TintFace(a_actor, a_color->color);
 			root->UpdateBodyTint(a_color->color);
+			AddOrUpdateColorData(root, "PO3_SKINTINT"sv, a_color->color);
 		});
-
-		AddOrUpdateColorData(root, "PO3_SKINTINT", a_color->color);
 	}
 }
 
@@ -1762,7 +1824,7 @@ void papyrusActor::SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 
 void papyrusActor::UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_armorType, std::vector<std::uint32_t> a_slotsToSkip)
 {
-	using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
+	using Slot = RE::BIPED_MODEL::BipedObjectSlot;
 
 	if (!a_actor) {
 		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
@@ -1773,7 +1835,7 @@ void papyrusActor::UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunct
 		auto armor = a_object.As<RE::TESObjectARMO>();
 		if (armor && armor->bipedModelData.armorType.underlying() == a_armorType) {
 			if (a_slotsToSkip.empty() || std::none_of(a_slotsToSkip.begin(), a_slotsToSkip.end(),
-											 [&](const std::uint32_t& slot) {
+											 [&](const auto& slot) {
 												 return armor->HasPartOf(static_cast<Slot>(slot));
 											 }))
 				return true;
@@ -1783,8 +1845,8 @@ void papyrusActor::UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunct
 
 	for (auto& item : inv) {
 		auto& [count, entry] = item.second;
-		if (count > 0 && entry && entry->GetWorn()) {
-			a_actor->UnequipItem(0, item.first, 1, nullptr);
+		if (count > 0 && entry->GetWorn()) {
+			a_actor->UnequipItem(0, item.first, 1, &a_actor->extraList);
 		}
 	}
 }
@@ -1793,7 +1855,7 @@ void papyrusActor::UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunct
 bool papyrusActor::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusActor - couldn't get VMState");
+		logger::critical("papyrusActor - couldn't get VMState"sv);
 		return false;
 	}
 
@@ -1864,6 +1926,8 @@ bool papyrusActor::RegisterFuncs(VM* a_vm)
 	a_vm->RegisterFunction("KillNoWait", "PO3_SKSEFunctions", KillNoWait);
 
 	a_vm->RegisterFunction("MixColorWithSkinTone", "PO3_SKSEFunctions", MixColorWithSkinTone);
+
+	a_vm->RegisterFunction("RemoveArmorWithSlots", "PO3_SKSEFunctions", RemoveArmorWithSlots);
 
 	a_vm->RegisterFunction("RemoveBasePerk", "PO3_SKSEFunctions", RemoveBasePerk);
 

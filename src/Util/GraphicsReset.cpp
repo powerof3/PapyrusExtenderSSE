@@ -18,12 +18,13 @@ namespace GraphicsReset
 		if (!a_object->extra || a_object->extraDataSize == 0) {
 			return resetData;
 		}
+		
 		for (std::uint16_t i = 0; i < a_object->extraDataSize; i++) {
 			auto extraData = a_object->extra[i];
 			if (!extraData) {
 				continue;
 			}
-			std::string name = extraData->name.c_str();
+			std::string name(extraData->name.c_str());
 			if (name.empty()) {
 				continue;
 			}
@@ -63,11 +64,11 @@ namespace GraphicsReset
 				break;
 			default:
 				{
-					if (name.find("PO3_TXST") != std::string::npos) {
+					if (name.find("PO3_TXST"sv) != std::string::npos) {
 						TXST.emplace_back(static_cast<RE::NiStringsExtraData*>(extraData));
-					} else if (name.find("PO3_SKINTXST") != std::string::npos) {
+					} else if (name.find("PO3_SKINTXST"sv) != std::string::npos) {
 						TXSTSkin.emplace_back(static_cast<RE::NiStringsExtraData*>(extraData));
-					} else if (name.find("PO3_SHADER") != std::string::npos) {
+					} else if (name.find("PO3_SHADER"sv) != std::string::npos) {
 						shader.emplace_back(static_cast<RE::NiStringsExtraData*>(extraData));
 					}
 				}
@@ -80,17 +81,13 @@ namespace GraphicsReset
 
 	void ResetToggleData(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data)
 	{
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_root, a_data]() {
-			for (std::uint32_t i = 0; i < a_data->size; i++) {
-				auto object = a_root->GetObjectByName(a_data->value[i]);
-				if (object) {
-					object->UpdateVisibility(false);
-					object->UpdateAlpha(1.0, false);
-				}
+		for (std::uint32_t i = 0; i < a_data->size; i++) {
+			auto object = a_root->GetObjectByName(a_data->value[i]);
+			if (object) {
+				object->ToggleNode(false);
 			}
-			a_root->RemoveExtraData(a_data);
-		});
+		}
+		a_root->RemoveExtraData(a_data);
 	}
 
 
@@ -125,11 +122,8 @@ namespace GraphicsReset
 			if (headData) {
 				auto colorForm = headData->hairColor;
 				if (colorForm) {
-					auto task = SKSE::GetTaskInterface();
-					task->AddTask([a_root, a_data, colorForm]() {
-						a_root->UpdateHairColor(colorForm->color);
-						a_root->RemoveExtraData(a_data);
-					});
+					a_root->UpdateHairColor(colorForm->color);
+					a_root->RemoveExtraData(a_data);
 				}
 			}
 		}
@@ -138,11 +132,8 @@ namespace GraphicsReset
 
 	void ResetAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiFloatExtraData* a_data, const RE::BSFixedString& a_folderName)
 	{
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_root, a_data]() {
-			a_root->UpdateAlpha(1.0, true);
-			a_root->RemoveExtraData(a_data);
-		});
+		a_root->UpdateMaterialAlpha(1.0, true);
+		a_root->RemoveExtraData(a_data);
 	}
 
 
@@ -150,16 +141,13 @@ namespace GraphicsReset
 	{
 		using HeadPartType = RE::BGSHeadPart::HeadPartType;
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_root, a_data]() {
-			for (std::uint32_t i = 0; i < a_data->size; i++) {
-				auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_data->value[i]));
-				if (object) {
-					object->UpdateAlpha(1.0, false);
-				}
+		for (std::uint32_t i = 0; i < a_data->size; i++) {
+			auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_data->value[i]));
+			if (object) {
+				object->UpdateMaterialAlpha(1.0f, false);
 			}
-			a_root->RemoveExtraData(a_data);
-		});
+		}
+		a_root->RemoveExtraData(a_data);
 	}
 
 
@@ -223,13 +211,10 @@ namespace GraphicsReset
 			}
 			auto faceObject = a_actor->GetHeadPartObject(HeadPartType::kFace);
 			if (faceObject) {
-				auto task = SKSE::GetTaskInterface();
-				task->AddTask([a_root, a_data, faceObject, textureset]() {
-					ResetTextureSet(faceObject, textureset, true, std::string());
-					a_root->RemoveExtraData(a_data);
-				});
+				ResetTextureSet(faceObject, textureset, true, std::string());
 			}
 		}
+		a_root->RemoveExtraData(a_data);
 	}
 
 
@@ -240,48 +225,45 @@ namespace GraphicsReset
 		std::string folder = a_folderName.c_str();
 		RE::Util::SanitizeTexturePath(folder);
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_root, a_vec, folder]() {
-			for (auto& a_data : a_vec) {
-				if (a_data) {
-					std::string armorID = a_data->value[a_data->size - 1];
-					std::uint32_t formID = 0;
-					if (!armorID.empty()) {
-						try {
-							formID = std::stoul(armorID);
-						} catch (...) {
-							SKSE::log::warn("ResetTXSTData - Unable to get armor ID!");
-						}
+		for (auto& a_data : a_vec) {
+			if (a_data) {
+				std::string armorID = a_data->value[a_data->size - 1];
+				std::uint32_t formID = 0;
+				if (!armorID.empty()) {
+					try {
+						formID = std::stoul(armorID);
+					} catch (...) {
+						SKSE::log::warn("ResetTXSTData - Unable to get armor ID!"sv);
 					}
-					auto armor = a_actor->GetWornArmor(formID);
-					if (!armor) {
-						auto actorBase = a_actor->GetActorBase();
-						if (actorBase) {
-							armor = actorBase->skin;
-						}
-					}
-					if (armor) {
-						auto textureset = RE::BSShaderTextureSet::Create();
-						if (textureset) {
-							for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-								if (a_data->value[i] && *a_data->value[i] != '\0') {
-									textureset->SetTexturePath(i, a_data->value[i]);
-								}
-							}
-							for (auto& armorAddon : armor->armorAddons) {
-								if (armorAddon) {
-									RE::NiAVObject* armorObject = a_actor->VisitArmorAddon(armor, armorAddon);
-									if (armorObject) {
-										ResetTextureSet(armorObject, textureset, false, folder);
-									}
-								}
-							}
-						}
-					}
-					a_root->RemoveExtraData(a_data);
 				}
+				auto armor = a_actor->GetWornArmor(formID);
+				if (!armor) {
+					auto actorBase = a_actor->GetActorBase();
+					if (actorBase) {
+						armor = actorBase->skin;
+					}
+				}
+				if (armor) {
+					auto textureset = RE::BSShaderTextureSet::Create();
+					if (textureset) {
+						for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+							if (a_data->value[i] && *a_data->value[i] != '\0') {
+								textureset->SetTexturePath(i, a_data->value[i]);
+							}
+						}
+						for (auto& armorAddon : armor->armorAddons) {
+							if (armorAddon) {
+								RE::NiAVObject* armorObject = a_actor->VisitArmorAddon(armor, armorAddon);
+								if (armorObject) {
+									ResetTextureSet(armorObject, textureset, false, folder);
+								}
+							}
+						}
+					}
+				}
+				a_root->RemoveExtraData(a_data);
 			}
-		});
+		}
 	}
 
 
@@ -290,40 +272,37 @@ namespace GraphicsReset
 		using Slot = RE::BGSBipedObjectForm::FirstPersonFlag;
 		using Texture = RE::BSTextureSet::Texture;
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_root, a_vec]() {
-			for (auto& data : a_vec) {
-				if (data) {
-					std::string slotMaskstr = data->value[data->size - 1];
-					Slot a_slot = Slot::kNone;
-					if (!slotMaskstr.empty()) {
-						try {
-							a_slot = static_cast<Slot>(std::stoul(slotMaskstr));
-						} catch (...) {
-						}
+		for (auto& data : a_vec) {
+			if (data) {
+				std::string slotMaskstr = data->value[data->size - 1];
+				Slot a_slot = Slot::kNone;
+				if (!slotMaskstr.empty()) {
+					try {
+						a_slot = static_cast<Slot>(std::stoul(slotMaskstr));
+					} catch (...) {
 					}
-					auto skinarmor = a_actor->GetSkin(a_slot);
-					if (skinarmor) {
-						auto foundAddon = skinarmor->GetArmorAddonByMask(a_actor->race, a_slot);
-						if (foundAddon) {
-							auto armorObject = a_actor->VisitArmorAddon(skinarmor, foundAddon);
-							if (armorObject) {
-								auto newTextureSet = RE::BSShaderTextureSet::Create();
-								if (newTextureSet) {
-									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-										if (data->value[i] && *data->value[i] != '\0') {
-											newTextureSet->SetTexturePath(i, data->value[i]);
-										}
+				}
+				auto skinarmor = a_actor->GetSkin(a_slot);
+				if (skinarmor) {
+					auto foundAddon = skinarmor->GetArmorAddonByMask(a_actor->race, a_slot);
+					if (foundAddon) {
+						auto armorObject = a_actor->VisitArmorAddon(skinarmor, foundAddon);
+						if (armorObject) {
+							auto newTextureSet = RE::BSShaderTextureSet::Create();
+							if (newTextureSet) {
+								for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+									if (data->value[i] && *data->value[i] != '\0') {
+										newTextureSet->SetTexturePath(i, data->value[i]);
 									}
-									ResetTextureSet(armorObject, newTextureSet, true, std::string());
 								}
+								ResetTextureSet(armorObject, newTextureSet, true, std::string());
 							}
 						}
 					}
-					a_root->RemoveExtraData(data);
 				}
+				a_root->RemoveExtraData(data);
 			}
-		});
+		}
 	}
 
 
@@ -389,34 +368,31 @@ namespace GraphicsReset
 
 	void ResetShaderData(RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec)
 	{
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_root, a_vec]() {
-			for (auto& data : a_vec) {
-				if (data) {
-					auto textureset = RE::BSShaderTextureSet::Create();
-					if (textureset) {
-						for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-							if (data->value[i] && *data->value[i] != '\0') {
-								textureset->SetTexturePath(i, data->value[i]);
-							}
-						}
-						try {
-							ShaderData shaderData;
-							auto& [texture, flags, emissiveColor, emissiveMult, feature, featureOrig, diffuse] = shaderData;
-							texture = textureset;
-							flags = static_cast<Flag>(std::stoull(data->value[9]));
-							emissiveColor = RE::NiColor(std::stoul(data->value[10]));
-							emissiveMult = std::stof(data->value[11]);
-							feature = static_cast<Feature>(std::stoul(data->value[12]));
-							featureOrig = static_cast<Feature>(std::stoul(data->value[13]));
-							diffuse = data->value[14];
-							ResetShaderData_Impl(a_root, shaderData);
-						} catch (...) {
+		for (auto& data : a_vec) {
+			if (data) {
+				auto textureset = RE::BSShaderTextureSet::Create();
+				if (textureset) {
+					for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+						if (data->value[i] && *data->value[i] != '\0') {
+							textureset->SetTexturePath(i, data->value[i]);
 						}
 					}
-					a_root->RemoveExtraData(data);
+					try {
+						ShaderData shaderData;
+						auto& [texture, flags, emissiveColor, emissiveMult, feature, featureOrig, diffuse] = shaderData;
+						texture = textureset;
+						flags = static_cast<Flag>(std::stoull(data->value[9]));
+						emissiveColor = RE::NiColor(std::stoul(data->value[10]));
+						emissiveMult = std::stof(data->value[11]);
+						feature = static_cast<Feature>(std::stoul(data->value[12]));
+						featureOrig = static_cast<Feature>(std::stoul(data->value[13]));
+						diffuse = data->value[14];
+						ResetShaderData_Impl(a_root, shaderData);
+					} catch (...) {
+					}
 				}
+				a_root->RemoveExtraData(data);
 			}
-		});
+		}
 	}
 }

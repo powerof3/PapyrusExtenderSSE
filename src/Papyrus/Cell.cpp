@@ -81,7 +81,7 @@ void papyrusCell::SetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFu
 bool papyrusCell::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusCell - couldn't get VMState");
+		logger::critical("papyrusCell - couldn't get VMState"sv);
 		return false;
 	}
 

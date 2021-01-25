@@ -5,6 +5,17 @@
 #include "Version.h"
 
 
+void DumpScriptCommands()
+{
+	logger::info("");
+	
+	auto scriptCommands = RE::SCRIPT_FUNCTION::GetFirstScriptCommand();
+	for (std::uint16_t i = 0; i < RE::SCRIPT_FUNCTION::Commands::kScriptCommandsEnd; ++i) {
+		logger::info("{} : {} : {}", scriptCommands[i].functionName, scriptCommands[i].params ? scriptCommands[i].params->paramName : "NONE", scriptCommands[i].params ? to_underlying(scriptCommands[i].params->paramType.get()) : 0);
+	}
+}
+
+
 void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
 	if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
@@ -14,6 +25,8 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 		Papyrus::Events::RegisterStoryEvents();
 
 		Hook::HookEvents();
+
+		//DumpScriptCommands();
 	}
 }
 
@@ -37,20 +50,20 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* 
 		a_info->version = P3PE_VERSION_MAJOR;
 
 		if (a_skse->IsEditor()) {
-			logger::critical("Loaded in editor, marking as incompatible");
+			logger::critical("Loaded in editor, marking as incompatible"sv);
 			return false;
 		}
 
 		const auto ver = a_skse->RuntimeVersion();
 		if (ver < SKSE::RUNTIME_1_5_39) {
-			logger::critical("Unsupported runtime version {}", ver.string());
+			logger::critical("Unsupported runtime version {}"sv, ver.string());
 			return false;
 		}
 	} catch (const std::exception& e) {
 		logger::critical(e.what());
 		return false;
 	} catch (...) {
-		logger::critical("caught unknown exception");
+		logger::critical("caught unknown exception"sv);
 		return false;
 	}
 
@@ -61,7 +74,7 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Query(const SKSE::QueryInterface* 
 extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	try {
-		logger::info("po3_PapyrusExtender loaded");
+		logger::info("po3_PapyrusExtender loaded"sv);
 
 		SKSE::Init(a_skse);
 		SKSE::AllocTrampoline(1 << 6);
@@ -70,7 +83,6 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Load(const SKSE::LoadInterface* a_
 
 		const auto messaging = SKSE::GetMessagingInterface();
 		if (!messaging->RegisterListener("SKSE", OnInit)) {
-			logger::critical("Messaging interface registration failed!\n");
 			return false;
 		}
 
@@ -83,7 +95,7 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Load(const SKSE::LoadInterface* a_
 		logger::critical(e.what());
 		return false;
 	} catch (...) {
-		logger::critical("caught unknown exception");
+		logger::critical("caught unknown exception"sv);
 		return false;
 	}
 

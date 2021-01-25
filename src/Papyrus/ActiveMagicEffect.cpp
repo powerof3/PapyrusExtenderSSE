@@ -620,7 +620,7 @@ void papyrusActiveMagicEffect::UnregisterForWeatherChange(VM* a_vm, StackID a_st
 bool papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusActiveMagicEffect - couldn't get VMState");
+		logger::critical("papyrusActiveMagicEffect - couldn't get VMState"sv);
 		return false;
 	}
 

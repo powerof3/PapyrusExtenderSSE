@@ -123,7 +123,7 @@ void papyrusMagicEffect::SetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::St
 bool papyrusMagicEffect::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusMagicEffect - couldn't get VMState");
+		logger::critical("papyrusMagicEffect - couldn't get VMState"sv);
 		return false;
 	}
 

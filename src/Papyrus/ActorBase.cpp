@@ -29,7 +29,7 @@ RE::BGSPerk* papyrusActorBase::GetNthPerk(VM* a_vm, StackID a_stackID, RE::Stati
 bool papyrusActorBase::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusActorBase - couldn't get VMState");
+		logger::critical("papyrusActorBase - couldn't get VMState"sv);
 		return false;
 	}
 

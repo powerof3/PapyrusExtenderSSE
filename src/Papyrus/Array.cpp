@@ -80,7 +80,7 @@ std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, S
 		names.emplace_back(fullName.c_str());
 	}
 
-	std::sort(names.begin(), names.end(), [](const RE::BSFixedString& a_lhs, const RE::BSFixedString& a_rhs) {
+	std::sort(names.begin(), names.end(), [](const auto& a_lhs, const auto& a_rhs) {
 		return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
 	});
 
@@ -91,7 +91,7 @@ std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, S
 bool papyrusArray::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusArray - couldn't get VMState");
+		logger::critical("papyrusArray - couldn't get VMState"sv);
 		return false;
 	}
 

@@ -64,7 +64,7 @@ void papyrusVisualEffect::SetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFu
 bool papyrusVisualEffect::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusVisualEffect - couldn't get VMState");
+		logger::critical("papyrusVisualEffect - couldn't get VMState"sv);
 		return false;
 	}
 

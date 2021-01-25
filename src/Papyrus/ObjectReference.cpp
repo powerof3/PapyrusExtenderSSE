@@ -65,20 +65,20 @@ void papyrusObjectReference::AddKeywordToRef(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-void IterateOverAttachedCells(RE::TES* TES, const RE::NiPoint3& a_origin, float a_radius, std::function<bool(RE::TESObjectREFR* a_ref)> a_fn)
+void IterateOverAttachedCells(RE::TES* TES, const RE::NiPoint3& a_origin, float a_radius, std::function<bool(RE::TESObjectREFR& a_ref)> a_callback)
 {
-	auto cell = TES->currentInteriorCell;
+	auto cell = TES->interiorCell;
 	if (cell) {
-		cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR* ref) {
-			if (!a_fn(ref)) {
+		cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& ref) {
+			if (!a_callback(ref)) {
 				return false;
 			}
 			return true;
 		});
 	} else {
-		auto gridCellArray = TES->gridCellArray;
-		if (gridCellArray) {
-			auto gridLength = gridCellArray->length;
+		auto gridCells = TES->gridCells;
+		if (gridCells) {
+			auto gridLength = gridCells->length;
 			if (gridLength > 0) {
 				std::uint32_t x = 0;
 				std::uint32_t y = 0;
@@ -88,13 +88,13 @@ void IterateOverAttachedCells(RE::TES* TES, const RE::NiPoint3& a_origin, float 
 				float xMinus = a_origin.x - a_radius;
 
 				for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++) {
-					cell = gridCellArray->GetCell(x, y);
+					cell = gridCells->GetCell(x, y);
 					if (cell && cell->IsAttached()) {
 						auto cellCoords = cell->GetCoordinates();
 						if (cellCoords) {
 							if (cellCoords->worldX < xPlus && (cellCoords->worldX + 4096.0) > xMinus && cellCoords->worldY < yPlus && (cellCoords->worldY + 4096.0) > yMinus) {
-								cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR* a_cellRef) {
-									if (!a_fn(a_cellRef)) {
+								cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
+									if (!a_callback(a_ref)) {
 										return false;
 									}
 									return true;
@@ -124,10 +124,10 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfFormT
 		auto originPos = a_origin->GetPosition();
 		auto squaredRadius = a_radius * a_radius;
 
-		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR* a_ref) {
-			auto form = a_ref->GetBaseObject();
+		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
+			auto form = a_ref.GetBaseObject();
 			if (form && form->Is(formType)) {
-				vec.push_back(a_ref);
+				vec.push_back(&a_ref);
 			}
 			return true;
 		});
@@ -137,10 +137,10 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfFormT
 			if (worldSpace) {
 				auto skyCell = worldSpace->GetOrCreateSkyCell();
 				if (skyCell) {
-					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
-						auto form = a_cellRef->GetBaseObject();
+					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
+						auto form = a_ref.GetBaseObject();
 						if (form && form->Is(formType)) {
-							vec.push_back(a_cellRef);
+							vec.push_back(&a_ref);
 						}
 						return true;
 					});
@@ -171,11 +171,10 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfType(
 		auto originPos = a_origin->GetPosition();
 		auto squaredRadius = a_radius * a_radius;
 
-		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR* a_ref) {
-			auto base = a_ref->GetBaseObject();
-			if (base) {
+		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
+			if (auto base = a_ref.GetBaseObject(); base) {
 				if ((list && list->HasForm(base)) || a_formOrList == base) {
-					vec.push_back(a_ref);
+					vec.push_back(&a_ref);
 				}
 			}
 			return true;
@@ -186,11 +185,10 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesOfType(
 			if (worldSpace) {
 				auto skyCell = worldSpace->GetOrCreateSkyCell();
 				if (skyCell) {
-					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
-						auto base = a_cellRef->GetBaseObject();
-						if (base) {
+					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
+						if (auto base = a_ref.GetBaseObject(); base) {
 							if ((list && list->HasForm(base)) || a_formOrList == base) {
-								vec.push_back(a_cellRef);
+								vec.push_back(&a_ref);
 							}
 						}
 						return true;
@@ -229,15 +227,15 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 		auto originPos = a_origin->GetPosition();
 		float squaredRadius = a_radius * a_radius;
 
-		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR* a_ref) {
+		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
 			bool success = false;
 			if (list) {
-				success = a_matchAll ? a_ref->HasAllKeywords(list) : a_ref->HasKeywords(list);
+				success = a_matchAll ? a_ref.HasAllKeywords(list) : a_ref.HasKeywords(list);
 			} else if (keyword) {
-				success = a_ref->HasKeyword(keyword);
+				success = a_ref.HasKeyword(keyword);
 			}
 			if (success) {
-				vec.push_back(a_ref);
+				vec.push_back(&a_ref);
 			}
 			return true;
 		});
@@ -247,15 +245,15 @@ std::vector<RE::TESObjectREFR*> papyrusObjectReference::FindAllReferencesWithKey
 			if (worldSpace) {
 				auto skyCell = worldSpace->GetOrCreateSkyCell();
 				if (skyCell) {
-					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR* a_cellRef) {
+					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
 						bool success = false;
 						if (list) {
-							success = a_matchAll ? a_cellRef->HasAllKeywords(list) : a_cellRef->HasKeywords(list);
+							success = a_matchAll ? a_ref.HasAllKeywords(list) : a_ref.HasKeywords(list);
 						} else if (keyword) {
-							success = a_cellRef->HasKeyword(keyword);
+							success = a_ref.HasKeyword(keyword);
 						}
 						if (success) {
-							vec.push_back(a_cellRef);
+							vec.push_back(&a_ref);
 						}
 						return true;
 					});
@@ -432,7 +430,7 @@ RE::Actor* papyrusObjectReference::GetClosestActorFromRef(VM* a_vm, StackID a_st
 			auto actorPtr = actorHandle.get();
 			auto actor = actorPtr.get();
 			if (actor && actor != a_ref) {
-				auto distance = RE::NiPoint3::GetDistance(originPos, actorPtr->GetPosition());
+				auto distance = originPos.GetDistance(actorPtr->GetPosition());
 				map.emplace(actor, distance);
 				if (distance < shortestDistance) {
 					shortestDistance = distance;
@@ -443,7 +441,7 @@ RE::Actor* papyrusObjectReference::GetClosestActorFromRef(VM* a_vm, StackID a_st
 		if (!a_ignorePlayer) {
 			auto player = RE::PlayerCharacter::GetSingleton();
 			if (player && a_ref != player) {
-				auto distance = RE::NiPoint3::GetDistance(originPos, player->GetPosition());
+				auto distance = originPos.GetDistance(player->GetPosition());
 				map.emplace(player, distance);
 				if (distance < shortestDistance) {
 					shortestDistance = distance;
@@ -508,7 +506,7 @@ RE::TESObjectREFR* papyrusObjectReference::GetDoorDestination(VM* a_vm, StackID 
 				return doorPtr.get();
 			}
 		} else {
-			a_vm->TraceStack(VMError::generic_error(a_door, "is not a load door").c_str(), a_stackID, Severity::kWarning);
+			a_vm->TraceStack(VMError::generic_error(a_door, "is not a load door"sv).c_str(), a_stackID, Severity::kWarning);
 		}
 	} else {
 		a_vm->TraceStack("Object Reference is None", a_stackID, Severity::kWarning);
@@ -746,7 +744,7 @@ RE::Actor* papyrusObjectReference::GetRandomActorFromRef(VM* a_vm, StackID a_sta
 			if (!actor || actor == a_ref) {
 				continue;
 			}
-			auto distance = RE::NiPoint3::GetSquaredDistance(originPos, actor->GetPosition());
+			auto distance = originPos.GetSquaredDistance(actor->GetPosition());
 			if (distance > squaredRadius) {
 				continue;
 			}
@@ -756,7 +754,7 @@ RE::Actor* papyrusObjectReference::GetRandomActorFromRef(VM* a_vm, StackID a_sta
 		if (!a_ignorePlayer) {
 			auto player = RE::PlayerCharacter::GetSingleton();
 			if (player && a_ref != player) {
-				auto distance = RE::NiPoint3::GetDistance(originPos, player->GetPosition());
+				auto distance = originPos.GetSquaredDistance(player->GetPosition());
 				if (distance <= squaredRadius) {
 					vec.emplace_back(player);
 				}
@@ -945,7 +943,7 @@ std::optional<RE::NiPoint3> FindNearestVertex(RE::TESObjectREFR* a_ref)
 
 	for (auto& navMesh : navMeshes.navMeshes) {
 		for (auto& vertex : navMesh->vertices) {
-			auto linearDistance = RE::NiPoint3::GetDistance(a_ref->GetPosition(), vertex.location);
+			auto linearDistance = a_ref->GetPosition().GetDistance(vertex.location);
 			if (linearDistance < shortestDistance) {
 				shortestDistance = linearDistance;
 				pos.emplace(vertex.location);
@@ -966,7 +964,7 @@ void papyrusObjectReference::MoveToNearestNavmeshLocation(VM* a_vm, StackID a_st
 
 	auto nearestVertex = FindNearestVertex(a_ref);
 	if (!nearestVertex) {
-		a_vm->TraceStack(VMError::generic_error(a_ref, "does not have a valid navmesh position").c_str(), a_stackID, Severity::kWarning);
+		a_vm->TraceStack(VMError::generic_error(a_ref, "does not have a valid navmesh position"sv).c_str(), a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1133,14 +1131,6 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 			return RE::BSVisit::BSVisitControl::kContinue;
 		});
 	}
-
-	auto data = root->GetExtraData<RE::NiFloatExtraData>("PO3_SCALE");
-	if (!data) {
-		auto newData = RE::NiFloatExtraData::Create("PO3_SCALE", a_scale);
-		if (newData) {
-			root->AddExtraData(newData);
-		}
-	}
 }
 
 
@@ -1198,11 +1188,11 @@ bool papyrusObjectReference::SetDoorDestination(VM* a_vm, StackID a_stackID, RE:
 			teleportData->linkedDoor = a_newDoor->CreateRefHandle();
 			return true;
 		} else {
-			a_vm->TraceStack(VMError::generic_error(a_door, "- couldn't get teleport data").c_str(), a_stackID, Severity::kWarning);
+			a_vm->TraceStack(VMError::generic_error(a_door, "- couldn't get teleport data"sv).c_str(), a_stackID, Severity::kWarning);
 			return false;
 		}
 	} else {
-		a_vm->TraceStack(VMError::generic_error(a_door, "is not a load door").c_str(), a_stackID, Severity::kWarning);
+		a_vm->TraceStack(VMError::generic_error(a_door, "is not a load door"sv).c_str(), a_stackID, Severity::kWarning);
 		return false;
 	}
 }
@@ -1357,10 +1347,8 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 			return RE::BSVisit::BSVisitControl::kContinue;
 		}
 		auto parent = a_geometry->parent;
-		if (parent) {
-			if (a_isActor && a_noWeapons && parent->AsFadeNode()) {
-				return RE::BSVisit::BSVisitControl::kContinue;
-			}
+		if (parent && a_isActor && a_noWeapons && parent->AsFadeNode()) {
+			return RE::BSVisit::BSVisitControl::kContinue;
 		}
 
 		auto effect = a_geometry->properties[State::kEffect].get();
@@ -1375,7 +1363,7 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 				auto tempMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempLightingShader->material);
 
 				if (material && tempMaterial) {
-					std::string sourceDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
+					std::string sourceDiffuse(material->textureSet->GetTexturePath(Texture::kDiffuse));
 					RE::Util::SanitizeTexturePath(sourceDiffuse);
 					if (!a_path.empty()) {
 						if (sourceDiffuse.find(a_path) == std::string::npos) {
@@ -1389,7 +1377,7 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 					if (origFeature != tempMaterial->GetFeature()) {
 						auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempMaterial->Create());
 						if (newMaterial) {
-							std::string newDiffuse = tempMaterial->textureSet->GetTexturePath(Texture::kDiffuse);
+							std::string newDiffuse(tempMaterial->textureSet->GetTexturePath(Texture::kDiffuse));
 							RE::Util::SanitizeTexturePath(newDiffuse);
 
 							std::string oldDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
@@ -1406,7 +1394,6 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 								resetData.emplace_back(std::to_string(to_underlying(tempMaterial->GetFeature())));
 								resetData.emplace_back(std::to_string(to_underlying(origFeature)));
 								resetData.emplace_back(RE::Util::GetTextureName(newDiffuse));
-								RE::Util::SanitizeTexturePath(oldDiffuse);
 								resetData.emplace_back(RE::Util::GetTextureName(oldDiffuse));
 
 								a_vec.push_back(resetData);
@@ -1414,15 +1401,17 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 
 							newMaterial->CopyMembers(tempMaterial);
 							newMaterial->ClearTextures();
+
 							if (a_textureType != -1) {
 								auto newTextureSet = RE::BSShaderTextureSet::Create();
 								if (newTextureSet) {
-									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-										newTextureSet->SetTexturePath(i, tempMaterial->textureSet->GetTexturePath(i));
-									}
 									auto BSTextureType = static_cast<Texture>(a_textureType);
+									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+										if (i != BSTextureType) {
+											newTextureSet->SetTexturePath(i, tempMaterial->textureSet->GetTexturePath(i));
+										}
+									}
 									newTextureSet->SetTexturePath(BSTextureType, material->textureSet->GetTexturePath(BSTextureType));
-
 									newMaterial->OnLoadTextureSet(0, newTextureSet);
 								}
 							}
@@ -1460,7 +1449,7 @@ void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::Stat
 		a_vm->TraceStack(VMError::no_3D(a_ref).c_str(), a_stackID, Severity::kWarning);
 		return;
 	} else if (!a_template->Is3DLoaded()) {
-		a_vm->TraceStack(VMError::generic_error(a_template, "template object has no 3D").c_str(), a_stackID, Severity::kWarning);
+		a_vm->TraceStack(VMError::generic_error(a_template, "template object has no 3D"sv).c_str(), a_stackID, Severity::kWarning);
 		return;
 	}
 
@@ -1472,7 +1461,7 @@ void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::Stat
 		sourcePath = a_filter.c_str();
 		RE::Util::SanitizeTexturePath(sourcePath);
 	}
-	bool isActor = a_ref->formType == RE::FormType::ActorCharacter ? true : false;
+	bool isActor = a_ref->Is(RE::FormType::ActorCharacter) ? true : false;
 	auto feature = static_cast<Feature>(a_shaderType);
 	auto root = a_ref->Get3D()->AsNode();
 	auto template_root = a_template->Get3D()->AsNode();
@@ -1487,11 +1476,11 @@ void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::Stat
 
 				if (!vec.empty()) {
 					for (auto& _vec : vec) {
-						std::string textureName = _vec.at(12).c_str();
+						std::string textureName(_vec[12].c_str());
 						std::string name = "PO3_SHADER | " + textureName + " | " + _vec.back().c_str();
 						auto data = root->GetExtraData<RE::NiStringsExtraData>(name.c_str());
 						if (!data) {
-							auto newData = RE::NiStringsExtraData::Create(name.c_str(), _vec);
+							auto newData = RE::NiStringsExtraData::Create(name, _vec);
 							if (newData) {
 								root->AddExtraData(newData);
 							}
@@ -1524,7 +1513,7 @@ void papyrusObjectReference::SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, 
 		auto actorRoot = a_actor->Get3D(0);
 		RE::NiIntegerExtraData* data = nullptr;
 		if (actorRoot) {
-			data = actorRoot->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT");
+			data = actorRoot->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT"sv);
 		}
 
 		auto color = data ? RE::NiColor(data->value) : RE::NiColor(actorbase->bodyTintColor);
@@ -1595,23 +1584,22 @@ void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::St
 	auto object = root->GetObjectByName(a_nodeName);
 	if (object) {
 		auto task = SKSE::GetTaskInterface();
-		task->AddTask([object, a_disable]() {
-			object->UpdateVisibility(a_disable);
-		});
-
-		auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE");
-		if (!data) {
-			if (a_disable) {
-				std::vector<RE::BSFixedString> vec;
-				vec.push_back(a_nodeName);
-				auto newData = RE::NiStringsExtraData::Create("PO3_TOGGLE", vec);
-				if (newData) {
-					root->AddExtraData(newData);
+		task->AddTask([root, object, a_nodeName, a_disable]() {
+			object->ToggleNode(a_disable);
+			auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE"sv);
+			if (!data) {
+				if (a_disable) {
+					std::vector<RE::BSFixedString> vec;
+					vec.push_back(a_nodeName);
+					auto newData = RE::NiStringsExtraData::Create("PO3_TOGGLE"sv, vec);
+					if (newData) {
+						root->AddExtraData(newData);
+					}
 				}
+			} else {
+				a_disable ? data->Insert(a_nodeName) : data->Remove(a_nodeName);
 			}
-		} else {
-			a_disable == true ? data->InsertElement(a_nodeName) : data->RemoveElement(a_nodeName);
-		}
+		});
 	}
 }
 
@@ -1642,22 +1630,22 @@ void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID,
 					auto current3DRoot = modelEffect->hitEffectArtData.current3DRoot.get();
 					auto art = modelEffect->hitEffectArtData.attachedArt.get();
 					if (current3DRoot && art) {
-						auto newNode = current3DRoot->GetObjectByName(a_toNode);
-						if (!newNode) {
+						auto newObject = current3DRoot->GetObjectByName(a_toNode);
+						if (!newObject) {
 							std::string error = "Node '" + std::string(a_toNode.c_str()) + "' doesn't exist on " + VMError::to_id(a_ref);
 							a_vm->TraceStack(error.c_str(), a_stackID, Severity::kWarning);
 							return false;
 						}
 						auto task = SKSE::GetTaskInterface();
-						task->AddTask([a_toNode, a_translate, a_rotate, a_scale, art, newNode, modelEffect]() {
-							if (newNode->AsNode()) {
-								auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT");
+						task->AddTask([a_toNode, a_translate, a_rotate, a_scale, art, newObject, modelEffect]() {
+							if (auto newNode = newObject->AsNode(); newNode) {
+								auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv);
 								if (attachTData) {
-									constexpr std::string_view namedNode = "NamedNode&";
+									constexpr auto namedNode = "NamedNode&"sv;
 									auto oldNodeStr = namedNode.data() + std::string(modelEffect->hitEffectArtData.nodeName);
 									auto newNodeStr = namedNode.data() + std::string(a_toNode);
-									attachTData->RemoveElement(oldNodeStr.c_str());
-									attachTData->InsertElement(newNodeStr.c_str());
+									attachTData->Remove(oldNodeStr);
+									attachTData->Insert(newNodeStr);
 								}
 								for (auto& nodes : art->children) {
 									if (nodes.get()) {
@@ -1673,7 +1661,7 @@ void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID,
 										nodes->local.scale *= a_scale;
 									}
 								}
-								newNode->AsNode()->AttachChild(art);
+								newNode->AttachChild(art);
 								RE::NiUpdateData data = { 0.0f, RE::NiUpdateData::Flag::kDirty };
 								art->UpdateWorldData(&data);
 							}
@@ -1693,7 +1681,7 @@ void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID,
 bool papyrusObjectReference::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusObjectReference - couldn't get VMState");
+		logger::critical("papyrusObjectReference - couldn't get VMState"sv);
 		return false;
 	}
 

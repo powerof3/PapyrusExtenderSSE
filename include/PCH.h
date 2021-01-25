@@ -2,7 +2,6 @@
 
 #include "RE/Skyrim.h"
 #include "xbyak/xbyak.h"
-#include "REL/Relocation.h"
 #include "SKSE/SKSE.h"
 
 #include <frozen/map.h>
@@ -15,6 +14,8 @@
 
 namespace logger = SKSE::log;
 namespace stl = SKSE::stl;
+
 using namespace SKSE::util;
+using namespace std::string_view_literals;
 
 #define DLLEXPORT __declspec(dllexport)

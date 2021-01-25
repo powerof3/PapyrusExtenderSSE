@@ -50,7 +50,7 @@ namespace Serialization
 	bool Base::Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_add)
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
-			logger::error("Failed to open serialization record!\n");
+			logger::error("Failed to open serialization record!"sv);
 			return false;
 		} else {
 			return Save(a_intfc, a_add);
@@ -90,14 +90,14 @@ namespace Serialization
 			RE::FormID formID;
 			a_intfc->ReadRecordData(formID);
 			if (!a_intfc->ResolveFormID(formID, formID)) {
-				logger::error("{} : {} : Failed to resolve formID {}", a_add, i, formID);
+				logger::error("{} : {} : Failed to resolve formID {}"sv, a_add, i, formID);
 				continue;
 			}
 
 			RE::FormID dataID;
 			a_intfc->ReadRecordData(dataID);
 			if (!a_intfc->ResolveFormID(dataID, dataID)) {
-				logger::error("{} : {} : Failed to resolve dataID {}", a_add, i, dataID);
+				logger::error("{} : {} : Failed to resolve dataID {}"sv, a_add, i, dataID);
 				continue;
 			}
 						

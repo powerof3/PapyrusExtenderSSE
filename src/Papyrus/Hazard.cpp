@@ -279,7 +279,7 @@ void papyrusHazard::SetHazardTargetInterval(VM* a_vm, StackID a_stackID, RE::Sta
 bool papyrusHazard::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusHazard - couldn't get VMState");
+		logger::critical("papyrusHazard - couldn't get VMState"sv);
 		return false;
 	}
 

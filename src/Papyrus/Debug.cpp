@@ -29,7 +29,7 @@ void papyrusDebug::GivePlayerSpellBook(RE::StaticFunctionTag*)
 bool papyrusDebug::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusDebug - couldn't get VMState");
+		logger::critical("papyrusDebug - couldn't get VMState"sv);
 		return false;
 	}
 

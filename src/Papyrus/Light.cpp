@@ -240,7 +240,7 @@ void papyrusLight::SetLightType(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 bool papyrusLight::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusLight - couldn't get VMState");
+		logger::critical("papyrusLight - couldn't get VMState"sv);
 		return false;
 	}
 

@@ -103,7 +103,7 @@ void papyrusProjectile::SetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::Stat
 bool papyrusProjectile::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusProjectile - couldn't get VMState");
+		logger::critical("papyrusProjectile - couldn't get VMState"sv);
 		return false;
 	}
 

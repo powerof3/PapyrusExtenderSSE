@@ -4,18 +4,18 @@
 bool extendedObjectTypes::RegisterTypes(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("Object types - couldn't get VMState");
+		logger::critical("Object types - couldn't get VMState"sv);
 		return false;
 	}
 
 	a_vm->RegisterObjectType(vm_cast<RE::BGSFootstepSet>(), "FootstepSet");
-	logger::info("Registered footstep set object type");
+	logger::info("Registered footstep set object type"sv);
 
 	a_vm->RegisterObjectType(vm_cast<RE::BGSLightingTemplate>(), "LightingTemplate");
-	logger::info("Registered lighting template object type");
+	logger::info("Registered lighting template object type"sv);
 
 	a_vm->RegisterObjectType(vm_cast<RE::BGSDebris>(), "Debris");
-	logger::info("Registered debris object type");
+	logger::info("Registered debris object type"sv);
 
 	return true;
 }

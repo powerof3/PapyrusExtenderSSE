@@ -35,84 +35,84 @@ namespace Papyrus
 	{
 		auto papyrus = SKSE::GetPapyrusInterface();
 
-		logger::info("{:*^30}", "FUNCTIONS");
+		logger::info("{:*^30}", "FUNCTIONS"sv);
 		
 		papyrus->Register(extendedObjectTypes::RegisterTypes);
 
 		papyrus->Register(papyrusActiveMagicEffect::RegisterFuncs);
-		logger::info("Registered activemagiceffect functions");
+		logger::info("Registered activemagiceffect functions"sv);
 
 		papyrus->Register(papyrusActor::RegisterFuncs);
-		logger::info("Registered actor functions");
+		logger::info("Registered actor functions"sv);
 
 		papyrus->Register(papyrusActorBase::RegisterFuncs);
-		logger::info("Registered actorbase functions");
+		logger::info("Registered actorbase functions"sv);
 
 		papyrus->Register(papyrusArmorAddon::RegisterFuncs);
-		logger::info("Registered armor addon functions");
+		logger::info("Registered armor addon functions"sv);
 
 		papyrus->Register(papyrusAlias::RegisterFuncs);
-		logger::info("Registered alias functions");
+		logger::info("Registered alias functions"sv);
 
 		papyrus->Register(papyrusArray::RegisterFuncs);
-		logger::info("Registered array functions");
+		logger::info("Registered array functions"sv);
 
 		papyrus->Register(papyrusCell::RegisterFuncs);
-		logger::info("Registered cell functions");
+		logger::info("Registered cell functions"sv);
 
 		papyrus->Register(papyrusDebug::RegisterFuncs);
-		logger::info("Registered debug functions");
+		logger::info("Registered debug functions"sv);
 
 		papyrus->Register(papyrusEffectShader::RegisterFuncs);
-		logger::info("Registered effect shader functions");
+		logger::info("Registered effect shader functions"sv);
 
 		papyrus->Register(papyrusForm::RegisterFuncs);
-		logger::info("Registered form functions");
+		logger::info("Registered form functions"sv);
 
 		papyrus->Register(papyrusFurniture::RegisterFuncs);
-		logger::info("Registered furniture functions");
+		logger::info("Registered furniture functions"sv);
 
 		papyrus->Register(papyrusGame::RegisterFuncs);
-		logger::info("Registered game functions");
+		logger::info("Registered game functions"sv);
 
 		papyrus->Register(papyrusHazard::RegisterFuncs);
-		logger::info("Registered hazard functions");
+		logger::info("Registered hazard functions"sv);
 
 		papyrus->Register(papyrusLight::RegisterFuncs);
-		logger::info("Registered light functions");
+		logger::info("Registered light functions"sv);
 
 		papyrus->Register(papyrusLocation::RegisterFuncs);
-		logger::info("Registered location functions");
+		logger::info("Registered location functions"sv);
 
 		papyrus->Register(papyrusMagicEffect::RegisterFuncs);
-		logger::info("Registered magiceffect functions");
+		logger::info("Registered magiceffect functions"sv);
 
 		papyrus->Register(papyrusObjectReference::RegisterFuncs);
-		logger::info("Registered objectreference functions");
+		logger::info("Registered objectreference functions"sv);
 
 		papyrus->Register(papyrusPackage::RegisterFuncs);
-		logger::info("Registered package functions");
+		logger::info("Registered package functions"sv);
 
 		papyrus->Register(papyrusProjectile::RegisterFuncs);
-		logger::info("Registered projectile functions");
+		logger::info("Registered projectile functions"sv);
 
 		papyrus->Register(papyrusSound::RegisterFuncs);
-		logger::info("Registered sound functions");
+		logger::info("Registered sound functions"sv);
 
 		papyrus->Register(papyrusSpell::RegisterFuncs);
-		logger::info("Registered spell functions");
+		logger::info("Registered spell functions"sv);
 
 		papyrus->Register(papyrusStrings::RegisterFuncs);
-		logger::info("Registered string functions");
+		logger::info("Registered string functions"sv);
 
 		papyrus->Register(papyrusUtility::RegisterFuncs);
-		logger::info("Registered utility functions");
+		logger::info("Registered utility functions"sv);
 
 		papyrus->Register(papyrusVisualEffect::RegisterFuncs);
-		logger::info("Registered visual effect functions");
+		logger::info("Registered visual effect functions"sv);
 
 		papyrus->Register(papyrusWeather::RegisterFuncs);
-		logger::info("Registered weather functions");
+		logger::info("Registered weather functions"sv);
 	}
 
 
@@ -120,23 +120,23 @@ namespace Papyrus
 	{
 		using namespace ScriptEvents;
 
-		logger::info("{:*^30}", "SCRIPT EVENTS");
+		logger::info("{:*^30}", "SCRIPT EVENTS"sv);
 		
 		auto events = RE::ScriptEventSourceHolder::GetSingleton();
 		if (events) {
 			events->AddEventSink(CellFullyLoadedEventHandler::GetSingleton());
-			logger::info("Registered cell loaded event handler");
+			logger::info("Registered cell loaded event handler"sv);
 
 			events->AddEventSink(QuestStartStopEventHandler::GetSingleton());
-			logger::info("Registered quest start stop event handler");
+			logger::info("Registered quest start stop event handler"sv);
 
 			events->AddEventSink(ObjectLoadedEventHandler::GetSingleton());
-			logger::info("Registered object loaded event handler");
+			logger::info("Registered object loaded event handler"sv);
 
 			events->AddEventSink(GrabReleaseEventHandler::GetSingleton());
-			logger::info("Registered grab release event handler");
+			logger::info("Registered grab release event handler"sv);
 		} else {
-			logger::critical("Failed to sink the script event handler");
+			logger::critical("Failed to sink the script event handler"sv);
 		}
 	}
 
@@ -145,78 +145,78 @@ namespace Papyrus
 	{
 		using namespace StoryEvents;
 
-		logger::info("{:*^30}", "STORY EVENTS");
+		logger::info("{:*^30}", "STORY EVENTS"sv);
 		
 		auto actorKill = RE::ActorKill::GetEventSource();
 		if (actorKill) {
 			actorKill->AddEventSink(ActorKillEventHandler::GetSingleton());
-			logger::info("Registered actor kill event handler");
+			logger::info("Registered actor kill event handler"sv);
 		}
 
 		auto books = RE::BooksRead::GetEventSource();
 		if (books) {
 			books->AddEventSink(BooksReadEventHandler::GetSingleton());
-			logger::info("Registered book read event handler");
+			logger::info("Registered book read event handler"sv);
 		}
 
 		auto critHit = RE::CriticalHit::GetEventSource();
 		if (critHit) {
 			critHit->AddEventSink(CriticalHitEventHandler::GetSingleton());
-			logger::info("Registered critical hit event handler");
+			logger::info("Registered critical hit event handler"sv);
 		}
 
 		auto disarmed = RE::DisarmedEvent::GetEventSource();
 		if (disarmed) {
 			disarmed->AddEventSink(DisarmedEventHandler::GetSingleton());
-			logger::info("Registered disarmed event handler");
+			logger::info("Registered disarmed event handler"sv);
 		}
 
 		auto dragonSoulGained = RE::DragonSoulsGained::GetEventSource();
 		if (dragonSoulGained) {
 			dragonSoulGained->AddEventSink(DragonSoulsGainedEventHandler::GetSingleton());
-			logger::info("Registered dragon souls gained event handler");
+			logger::info("Registered dragon souls gained event handler"sv);
 		}
 
 		auto itemHarvest = RE::TESHarvestedEvent::GetEventSource();
 		if (itemHarvest) {
 			itemHarvest->AddEventSink(ItemHarvestedEventHandler::GetSingleton());
-			logger::info("Registered item harvested gained event handler");
+			logger::info("Registered item harvested gained event handler"sv);
 		}
 
 		auto levelIncrease = RE::LevelIncrease::GetEventSource();
 		if (levelIncrease) {
 			levelIncrease->AddEventSink(LevelIncreaseEventHandler::GetSingleton());
-			logger::info("Registered level increase event handler");
+			logger::info("Registered level increase event handler"sv);
 		}
 
 		auto locDiscovery = RE::LocationDiscovery::GetEventSource();
 		if (locDiscovery) {
 			locDiscovery->AddEventSink(LocationDiscoveryEventHandler::GetSingleton());
-			logger::info("Registered location discovery event handler");
+			logger::info("Registered location discovery event handler"sv);
 		}
 
 		auto shoutAttack = RE::ShoutAttack::GetEventSource();
 		if (shoutAttack) {
 			shoutAttack->AddEventSink(ShoutAttackEventHandler::GetSingleton());
-			logger::info("Registered shout attack event handler");
+			logger::info("Registered shout attack event handler"sv);
 		}
 
 		auto skillIncrease = RE::SkillIncrease::GetEventSource();
 		if (skillIncrease) {
 			skillIncrease->AddEventSink(SkillIncreaseEventHandler::GetSingleton());
-			logger::info("Registered skill increase event handler");
+			logger::info("Registered skill increase event handler"sv);
 		}
 
 		auto soulsTrapped = RE::SoulsTrapped::GetEventSource();
 		if (soulsTrapped) {
 			soulsTrapped->AddEventSink(SoulsTrappedEventHandler::GetSingleton());
-			logger::info("Registered soul trap event handler");
+			logger::info("Registered soul trap event handler"sv);
 		}
 
 		auto spellsLearned = RE::SpellsLearned::GetEventSource();
 		if (spellsLearned) {
 			spellsLearned->AddEventSink(SpellsLearnedEventHandler::GetSingleton());
-			logger::info("Registered spells learned event handler");
+			logger::info("Registered spells learned event handler"sv);
 		}
 	}
 }

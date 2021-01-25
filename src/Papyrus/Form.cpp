@@ -702,7 +702,7 @@ void papyrusForm::UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::St
 bool papyrusForm::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusForm - couldn't get VMState");
+		logger::critical("papyrusForm - couldn't get VMState"sv);
 		return false;
 	}
 

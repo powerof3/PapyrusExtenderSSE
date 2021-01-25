@@ -15,7 +15,7 @@ std::int32_t papyrusPackage::GetPackageType(VM* a_vm, StackID a_stackID, RE::Sta
 bool papyrusPackage::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusPackage - couldn't get VMState");
+		logger::critical("papyrusPackage - couldn't get VMState"sv);
 		return false;
 	}
 

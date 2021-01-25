@@ -94,7 +94,7 @@ void papyrusSpell::RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::S
 bool papyrusSpell::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusSpell - couldn't get VMState");
+		logger::critical("papyrusSpell - couldn't get VMState"sv);
 		return false;
 	}
 

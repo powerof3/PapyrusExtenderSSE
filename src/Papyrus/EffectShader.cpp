@@ -330,7 +330,7 @@ void papyrusEffectShader::SetParticleShaderTexture(VM* a_vm, StackID a_stackID, 
 bool papyrusEffectShader::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusEffectShader - couldn't get VMState");
+		logger::critical("papyrusEffectShader - couldn't get VMState"sv);
 		return false;
 	}
 

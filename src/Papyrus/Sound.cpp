@@ -18,7 +18,7 @@ void papyrusSound::SetSoundDescriptor(VM* a_vm, StackID a_stackID, RE::StaticFun
 bool papyrusSound::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusSound - couldn't get VMState");
+		logger::critical("papyrusSound - couldn't get VMState"sv);
 		return false;
 	}
 

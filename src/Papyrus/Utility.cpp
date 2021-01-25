@@ -18,7 +18,7 @@ std::uint32_t papyrusUtility::GenerateRandomInt(VM* a_vm, StackID a_stackID, RE:
 bool papyrusUtility::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusUtility - couldn't get VMState");
+		logger::critical("papyrusUtility - couldn't get VMState"sv);
 		return false;
 	}
 

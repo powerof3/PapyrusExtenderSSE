@@ -61,7 +61,7 @@ std::int32_t papyrusWeather::GetWeatherType(VM* a_vm, StackID a_stackID, RE::Sta
 bool papyrusWeather::RegisterFuncs(VM* a_vm)
 {
 	if (!a_vm) {
-		logger::critical("papyrusWeather - couldn't get VMState");
+		logger::critical("papyrusWeather - couldn't get VMState"sv);
 		return false;
 	}
 

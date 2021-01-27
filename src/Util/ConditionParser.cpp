@@ -10,8 +10,8 @@ namespace Condition
 	using PARAMS = std::pair<std::optional<PARAM_TYPE>, std::optional<PARAM_TYPE>>;
 
 
-	PARAMS GetFuncType(FUNC_ID a_funcID)
-	{
+    auto GetFuncType(FUNC_ID a_funcID) -> PARAMS
+    {
 		PARAMS paramPair;
 
 		switch (a_funcID) {
@@ -569,8 +569,8 @@ namespace Condition
 	}
 
 
-	bool ParseVoidParams(const std::string& a_str, void*& a_param, std::optional<PARAM_TYPE> a_type)
-	{
+    auto ParseVoidParams(const std::string& a_str, void*& a_param, std::optional<PARAM_TYPE> a_type) -> bool
+    {
 		bool result = false;
 
 		if (!a_type.has_value()) {
@@ -586,7 +586,7 @@ namespace Condition
 					result = true;
 				} else {
 					if (STRING::is_only_digit(a_str)) {
-						auto formID = std::stoul(a_str);
+                        const auto formID = std::stoul(a_str);
 						if (formID == 14) {
 							a_param = RE::PlayerCharacter::GetSingleton();
 							result = true;
@@ -627,15 +627,14 @@ namespace Condition
 		case PARAM_TYPE::kBGSScene:
 		case PARAM_TYPE::kKnowableForm:
 			{
-				auto split_param = STRING::split(a_str.c_str(), " ~ ");
+                auto split_param = STRING::split(a_str, " ~ ");
 
-				const auto formID = std::stoul(split_param.at(FORMID::kFormID), nullptr, 16);
-				auto esp = split_param.at(FORMID::kESP);
+                const auto formID = std::stoul(split_param.at(kFormID), nullptr, 16);
+                const auto esp = split_param.at(kESP);
 
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
 				if (dataHandler) {
-					auto form = dataHandler->LookupForm(formID, esp);
-					if (form) {
+					if (const auto form = dataHandler->LookupForm(formID, esp); form) {
 						a_param = form;
 						result = true;
 					}
@@ -650,10 +649,8 @@ namespace Condition
 	}
 
 
-	bool BuildVoidParams(std::string& a_str, void* a_param, std::optional<PARAM_TYPE> a_type)
-	{
-		bool result = false;
-
+    auto BuildVoidParams(std::string& a_str, void* a_param, std::optional<PARAM_TYPE> a_type) -> bool
+    {
 		if (!a_type.has_value()) {
 			a_str += "NONE"sv;
 			return true;
@@ -667,7 +664,6 @@ namespace Condition
 				a_str += player ? "Player"sv : "NONE"sv;
 				return true;
 			}
-			break;
 		case PARAM_TYPE::kEquipType:
 		case PARAM_TYPE::kInventoryObject:
 		case PARAM_TYPE::kInvObjectOrFormList:
@@ -702,7 +698,7 @@ namespace Condition
 			{
 				auto form = reinterpret_cast<RE::TESForm*>(a_param);
 				if (form) {
-					auto formID = std::to_string(form->GetFormID()).erase(0, 1);
+                    const auto formID = std::to_string(form->GetFormID()).erase(0, 1);
 					a_str += formID;
 					a_str.append(" ~ "sv);
 					auto owner = form->sourceFiles.array->front();
@@ -712,17 +708,16 @@ namespace Condition
 				}
 				return true;
 			}
-			break;
 		default:
 			break;
 		}
 
-		return result;
+		return false;
 	}
 
 
-	ConditionDataVec ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList)
-	{
+    auto ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList) -> ConditionDataVec
+    {
 		ConditionDataVec dataVec;
 
 		for (auto& condition : a_conditionList) {
@@ -837,28 +832,25 @@ namespace Condition
 	}
 
 
-	std::vector<RE::BSFixedString> Condition::BuildConditions(const ConditionDataVec& a_conditions)
-	{
+    auto BuildConditions(const ConditionDataVec& a_conditions) -> std::vector<RE::BSFixedString>
+    {
 		using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
 
 		std::vector<RE::BSFixedString> vec;
 		vec.reserve(a_conditions.size());
 
-		PARAMS paramPair = { std::nullopt, std::nullopt };
-
-		for (auto& [conditionItem, functionID, param1, param2, opCode, floatVal, operatorVal] : a_conditions) {
+        for (auto& [conditionItem, functionID, param1, param2, opCode, floatVal, operatorVal] : a_conditions) {
 			std::string condition;
 			//condition
 			condition += std::to_string(static_cast<std::uint32_t>(conditionItem));
 			condition.append(" | "sv);
 			//functionID
 			condition += std::to_string(static_cast<std::uint32_t>(functionID));
-			paramPair = GetFuncType(functionID);
+            const auto paramPair = GetFuncType(functionID);
 			//param1
 			condition.append(" | "sv);
 			try {
-				auto result = BuildVoidParams(condition, param1, paramPair.first);
-				if (!result) {
+				if (!BuildVoidParams(condition, param1, paramPair.first)) {
 					continue;
 				}	
 			} catch (...) {
@@ -867,8 +859,7 @@ namespace Condition
 			condition.append(" | "sv);
 			//param2
 			try {
-				auto result = BuildVoidParams(condition, param2, paramPair.second);
-				if (!result) {
+				if (!BuildVoidParams(condition, param2, paramPair.second)) {
 					continue;
 				}	
 			} catch (...) {

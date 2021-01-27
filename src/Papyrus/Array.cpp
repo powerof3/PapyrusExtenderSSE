@@ -1,7 +1,7 @@
 #include "Papyrus/Array.h"
 
 
-bool papyrusArray::AddActorToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, reference_array<RE::Actor*> a_actors)
+auto papyrusArray::AddActorToArray(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_actor, reference_array<RE::Actor*> a_actors) -> bool
 {
 	for (auto& actor : a_actors) {
 		if (!actor) {
@@ -13,7 +13,7 @@ bool papyrusArray::AddActorToArray(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 }
 
 
-bool papyrusArray::AddStringToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings)
+auto papyrusArray::AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings) -> bool
 {
 	for (auto& string : a_strings) {
 		if (string.empty()) {
@@ -25,17 +25,15 @@ bool papyrusArray::AddStringToArray(VM* a_vm, StackID a_stackID, RE::StaticFunct
 }
 
 
-std::uint32_t papyrusArray::ArrayStringCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings)
+auto papyrusArray::ArrayStringCount(VM*, StackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, reference_array<RE::BSFixedString> a_strings) -> std::uint32_t
 {
 	return static_cast<std::uint32_t>(std::count(a_strings.begin(), a_strings.end(), a_string));
 }
 
 
-std::vector<RE::BSFixedString> papyrusArray::SortArrayString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, reference_array<RE::BSFixedString> a_strings)
+auto papyrusArray::SortArrayString(VM*, StackID, RE::StaticFunctionTag*, reference_array<RE::BSFixedString> a_strings) -> std::vector<RE::BSFixedString>
 {
-	std::vector<RE::BSFixedString> strings;
-
-	strings = a_strings;
+	std::vector<RE::BSFixedString> strings(a_strings);
 	strings.erase(std::remove_if(strings.begin(), strings.end(), [](const RE::BSFixedString& str) {
 		return str.empty();
 	}),
@@ -48,21 +46,20 @@ std::vector<RE::BSFixedString> papyrusArray::SortArrayString(VM* a_vm, StackID a
 }
 
 
-std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSKeyword* a_keyword, RE::BSFixedString a_pronoun, bool a_invert)
+auto papyrusArray::GetSortedActorNameArray(VM*, StackID, RE::StaticFunctionTag*, RE::BGSKeyword* a_keyword, RE::BSFixedString a_pronoun, bool a_invert) -> std::vector<RE::BSFixedString>
 {
 	std::unordered_map<std::string, size_t> nameMap;
 
 	bool noKeyword = !a_keyword ? true : false;
 	bool hasKeyword = false;
 
-	auto processLists = RE::ProcessLists::GetSingleton();
-	if (processLists) {
+	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 		for (const auto& handle : processLists->highActorHandles) {
 			auto actorPtr = handle.get();
 			auto actor = actorPtr.get();
 			if (actor) {
 				if (!noKeyword) {
-					hasKeyword = actor->HasKeyword(a_keyword) ? true : false;
+					hasKeyword = actor->HasKeyword(a_keyword);
 					if (a_invert) {
 						hasKeyword = !hasKeyword;
 					}
@@ -75,9 +72,9 @@ std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, S
 	}
 
 	std::vector<RE::BSFixedString> names;
-	for (const auto& name : nameMap) {
-		std::string fullName = name.second > 1 ? std::to_string(name.second) + " " + name.first + a_pronoun.c_str() : name.first;
-		names.emplace_back(fullName.c_str());
+	for (const auto& [name, count] : nameMap) {
+		std::string fullName = count > 1 ? std::to_string(count) + " " + name + a_pronoun.c_str() : name;
+		names.emplace_back(fullName);
 	}
 
 	std::sort(names.begin(), names.end(), [](const auto& a_lhs, const auto& a_rhs) {
@@ -88,22 +85,24 @@ std::vector<RE::BSFixedString> papyrusArray::GetSortedActorNameArray(VM* a_vm, S
 }
 
 
-bool papyrusArray::RegisterFuncs(VM* a_vm)
+auto papyrusArray::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusArray - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("AddActorToArray", "PO3_SKSEFunctions", AddActorToArray);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("AddStringToArray", "PO3_SKSEFunctions", AddStringToArray);
+	a_vm->RegisterFunction("AddActorToArray"sv, Functions, AddActorToArray);
 
-	a_vm->RegisterFunction("ArrayStringCount", "PO3_SKSEFunctions", ArrayStringCount);
+    a_vm->RegisterFunction("AddStringToArray"sv, Functions, AddStringToArray);
 
-	a_vm->RegisterFunction("SortArrayString", "PO3_SKSEFunctions", SortArrayString);
+    a_vm->RegisterFunction("ArrayStringCount"sv, Functions, ArrayStringCount);
 
-	a_vm->RegisterFunction("GetSortedActorNameArray", "PO3_SKSEFunctions", GetSortedActorNameArray);
+    a_vm->RegisterFunction("SortArrayString"sv, Functions, SortArrayString);
+
+    a_vm->RegisterFunction("GetSortedActorNameArray"sv, Functions, GetSortedActorNameArray);
 
 	return true;
 }

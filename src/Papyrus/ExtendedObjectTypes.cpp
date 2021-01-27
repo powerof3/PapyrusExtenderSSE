@@ -1,7 +1,7 @@
-#include "Papyrus\ExtendedObjectTypes.h"
+#include "Papyrus/ExtendedObjectTypes.h"
 
 
-bool extendedObjectTypes::RegisterTypes(VM* a_vm)
+auto extendedObjectTypes::RegisterTypes(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("Object types - couldn't get VMState"sv);

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "Papyrus/EffectShader.h"
 
 
@@ -12,7 +14,7 @@ void papyrusEffectShader::ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE:
 }
 
 
-RE::BGSDebris* papyrusEffectShader::GetAddonModels(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetAddonModels(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> RE::BGSDebris*
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -23,7 +25,7 @@ RE::BGSDebris* papyrusEffectShader::GetAddonModels(VM* a_vm, StackID a_stackID, 
 }
 
 
-std::uint32_t papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, bool a_active)
+auto papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, bool a_active) -> std::uint32_t
 {
 	std::uint32_t count = 0;
 
@@ -32,16 +34,12 @@ std::uint32_t papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a
 		return count;
 	}
 
-	auto processLists = RE::ProcessLists::GetSingleton();
-	if (processLists) {
-		processLists->GetMagicEffects([&](RE::BSTempEffect* a_tempEffect) {
-			auto shaderEffect = a_tempEffect->As<RE::ShaderReferenceEffect>();
-			if (shaderEffect) {
-				auto effectData = shaderEffect->effectData;
-				if (effectData && effectData == a_effectShader) {
-					if (!a_active || (a_active && !shaderEffect->finished)) {
-						count++;
-					}
+	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+		processLists->GetMagicEffects([&](RE::BSTempEffect& a_tempEffect) {
+			const auto shaderEffect = a_tempEffect.As<RE::ShaderReferenceEffect>();
+			if (shaderEffect && shaderEffect->effectData == a_effectShader) {
+				if (!a_active || a_active && !shaderEffect->finished) {
+					count++;
 				}
 			}
 			return true;
@@ -52,7 +50,7 @@ std::uint32_t papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a
 }
 
 
-RE::BSFixedString papyrusEffectShader::GetMembraneFillTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetMembraneFillTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> RE::BSFixedString
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -63,7 +61,7 @@ RE::BSFixedString papyrusEffectShader::GetMembraneFillTexture(VM* a_vm, StackID 
 }
 
 
-RE::BSFixedString papyrusEffectShader::GetMembraneHolesTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetMembraneHolesTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> RE::BSFixedString
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -74,7 +72,7 @@ RE::BSFixedString papyrusEffectShader::GetMembraneHolesTexture(VM* a_vm, StackID
 }
 
 
-RE::BSFixedString papyrusEffectShader::GetMembranePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetMembranePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> RE::BSFixedString
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -85,7 +83,7 @@ RE::BSFixedString papyrusEffectShader::GetMembranePaletteTexture(VM* a_vm, Stack
 }
 
 
-float papyrusEffectShader::GetParticleFullCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetParticleFullCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> float
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -96,7 +94,7 @@ float papyrusEffectShader::GetParticleFullCount(VM* a_vm, StackID a_stackID, RE:
 }
 
 
-RE::BSFixedString papyrusEffectShader::GetParticlePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetParticlePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> RE::BSFixedString
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -107,7 +105,7 @@ RE::BSFixedString papyrusEffectShader::GetParticlePaletteTexture(VM* a_vm, Stack
 }
 
 
-float papyrusEffectShader::GetParticlePersistentCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetParticlePersistentCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> float
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -118,7 +116,7 @@ float papyrusEffectShader::GetParticlePersistentCount(VM* a_vm, StackID a_stackI
 }
 
 
-RE::BSFixedString papyrusEffectShader::GetParticleShaderTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader)
+auto papyrusEffectShader::GetParticleShaderTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader) -> RE::BSFixedString
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -129,7 +127,7 @@ RE::BSFixedString papyrusEffectShader::GetParticleShaderTexture(VM* a_vm, StackI
 }
 
 
-bool papyrusEffectShader::IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, std::uint32_t a_flag)
+auto papyrusEffectShader::IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESEffectShader* a_effectShader, std::uint32_t a_flag) -> bool
 {
 	if (!a_effectShader) {
 		a_vm->TraceStack("EffectShader is None", a_stackID, Severity::kWarning);
@@ -213,7 +211,7 @@ void papyrusEffectShader::SetMembraneHolesTexture(VM* a_vm, StackID a_stackID, R
 		return;
 	}
 
-	a_effectShader->holesTexture.textureName = a_textureName;
+	a_effectShader->holesTexture.textureName = std::move(a_textureName);
 }
 
 
@@ -224,7 +222,7 @@ void papyrusEffectShader::SetMembraneFillTexture(VM* a_vm, StackID a_stackID, RE
 		return;
 	}
 
-	a_effectShader->fillTexture.textureName = a_textureName;
+	a_effectShader->fillTexture.textureName = std::move(a_textureName);
 }
 
 
@@ -235,7 +233,7 @@ void papyrusEffectShader::SetMembranePaletteTexture(VM* a_vm, StackID a_stackID,
 		return;
 	}
 
-	a_effectShader->membranePaletteTexture.textureName = a_textureName;
+	a_effectShader->membranePaletteTexture.textureName = std::move(a_textureName);
 }
 
 
@@ -301,7 +299,7 @@ void papyrusEffectShader::SetParticlePaletteTexture(VM* a_vm, StackID a_stackID,
 		return;
 	}
 
-	a_effectShader->particlePaletteTexture.textureName = a_textureName;
+	a_effectShader->particlePaletteTexture.textureName = std::move(a_textureName);
 }
 
 
@@ -323,58 +321,60 @@ void papyrusEffectShader::SetParticleShaderTexture(VM* a_vm, StackID a_stackID, 
 		return;
 	}
 
-	a_effectShader->particleShaderTexture.textureName = a_textureName;
+	a_effectShader->particleShaderTexture.textureName = std::move(a_textureName);
 }
 
 
-bool papyrusEffectShader::RegisterFuncs(VM* a_vm)
+auto papyrusEffectShader::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusEffectShader - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("ClearEffectShaderFlag", "PO3_SKSEFunctions", ClearEffectShaderFlag);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetAddonModels", "PO3_SKSEFunctions", GetAddonModels, true);
+	a_vm->RegisterFunction("ClearEffectShaderFlag"sv, Functions, ClearEffectShaderFlag);
 
-	a_vm->RegisterFunction("GetMembraneHolesTexture", "PO3_SKSEFunctions", GetMembraneHolesTexture, true);
+	a_vm->RegisterFunction("GetAddonModels"sv, Functions, GetAddonModels, true);
 
-	a_vm->RegisterFunction("GetMembraneFillTexture", "PO3_SKSEFunctions", GetMembraneFillTexture, true);
+	a_vm->RegisterFunction("GetMembraneHolesTexture"sv, Functions, GetMembraneHolesTexture, true);
 
-	a_vm->RegisterFunction("GetParticleFullCount", "PO3_SKSEFunctions", GetParticleFullCount, true);
+	a_vm->RegisterFunction("GetMembraneFillTexture"sv, Functions, GetMembraneFillTexture, true);
 
-	a_vm->RegisterFunction("GetMembranePaletteTexture", "PO3_SKSEFunctions", GetParticlePaletteTexture, true);
+	a_vm->RegisterFunction("GetParticleFullCount"sv, Functions, GetParticleFullCount, true);
 
-	a_vm->RegisterFunction("GetParticlePaletteTexture", "PO3_SKSEFunctions", GetParticlePaletteTexture, true);
+	a_vm->RegisterFunction("GetMembranePaletteTexture"sv, Functions, GetParticlePaletteTexture, true);
 
-	a_vm->RegisterFunction("GetParticlePersistentCount", "PO3_SKSEFunctions", GetParticlePersistentCount, true);
+	a_vm->RegisterFunction("GetParticlePaletteTexture"sv, Functions, GetParticlePaletteTexture, true);
 
-	a_vm->RegisterFunction("GetParticleShaderTexture", "PO3_SKSEFunctions", GetParticleShaderTexture, true);
+	a_vm->RegisterFunction("GetParticlePersistentCount"sv, Functions, GetParticlePersistentCount, true);
 
-	a_vm->RegisterFunction("GetEffectShaderTotalCount", "PO3_SKSEFunctions", GetEffectShaderTotalCount);
+	a_vm->RegisterFunction("GetParticleShaderTexture"sv, Functions, GetParticleShaderTexture, true);
 
-	a_vm->RegisterFunction("IsEffectShaderFlagSet", "PO3_SKSEFunctions", IsEffectShaderFlagSet, true);
+	a_vm->RegisterFunction("GetEffectShaderTotalCount"sv, Functions, GetEffectShaderTotalCount);
 
-	a_vm->RegisterFunction("SetAddonModels", "PO3_SKSEFunctions", SetAddonModels);
+	a_vm->RegisterFunction("IsEffectShaderFlagSet"sv, Functions, IsEffectShaderFlagSet, true);
 
-	a_vm->RegisterFunction("SetEffectShaderFlag", "PO3_SKSEFunctions", SetEffectShaderFlag);
+	a_vm->RegisterFunction("SetAddonModels"sv, Functions, SetAddonModels);
 
-	a_vm->RegisterFunction("SetMembraneColorKeyData", "PO3_SKSEFunctions", SetMembraneColorKeyData);
+	a_vm->RegisterFunction("SetEffectShaderFlag"sv, Functions, SetEffectShaderFlag);
 
-	a_vm->RegisterFunction("SetMembraneHolesTexture", "PO3_SKSEFunctions", SetMembraneHolesTexture);
+	a_vm->RegisterFunction("SetMembraneColorKeyData"sv, Functions, SetMembraneColorKeyData);
 
-	a_vm->RegisterFunction("SetMembraneFillTexture", "PO3_SKSEFunctions", SetMembraneFillTexture);
+	a_vm->RegisterFunction("SetMembraneHolesTexture"sv, Functions, SetMembraneHolesTexture);
 
-	a_vm->RegisterFunction("SetParticleColorKeyData", "PO3_SKSEFunctions", SetParticleColorKeyData);
+	a_vm->RegisterFunction("SetMembraneFillTexture"sv, Functions, SetMembraneFillTexture);
 
-	a_vm->RegisterFunction("SetParticleFullCount", "PO3_SKSEFunctions", SetParticleFullCount);
+	a_vm->RegisterFunction("SetParticleColorKeyData"sv, Functions, SetParticleColorKeyData);
 
-	a_vm->RegisterFunction("SetParticlePaletteTexture", "PO3_SKSEFunctions", SetParticlePaletteTexture);
+	a_vm->RegisterFunction("SetParticleFullCount"sv, Functions, SetParticleFullCount);
 
-	a_vm->RegisterFunction("SetParticlePersistentCount", "PO3_SKSEFunctions", SetParticlePersistentCount);
+	a_vm->RegisterFunction("SetParticlePaletteTexture"sv, Functions, SetParticlePaletteTexture);
 
-	a_vm->RegisterFunction("SetParticleShaderTexture", "PO3_SKSEFunctions", SetParticleShaderTexture);
+	a_vm->RegisterFunction("SetParticlePersistentCount"sv, Functions, SetParticlePersistentCount);
+
+	a_vm->RegisterFunction("SetParticleShaderTexture"sv, Functions, SetParticleShaderTexture);
 
 	return true;
 }

@@ -1,7 +1,7 @@
 #include "Papyrus/Strings.h"
 
 
-RE::BSFixedString papyrusStrings::IntToString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::uint32_t a_int, bool a_hex)
+auto papyrusStrings::IntToString(VM*, StackID, RE::StaticFunctionTag*, std::uint32_t a_int, bool a_hex) -> RE::BSFixedString
 {
 	if (a_hex) {
 		std::stringstream stream;
@@ -12,7 +12,7 @@ RE::BSFixedString papyrusStrings::IntToString(VM* a_vm, StackID a_stackID, RE::S
 }
 
 
-std::int32_t papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string)
+auto papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_string) -> std::int32_t
 {
 	std::int32_t value = -1;
 	if (!a_string.empty()) {
@@ -26,16 +26,18 @@ std::int32_t papyrusStrings::StringToInt(VM* a_vm, StackID a_stackID, RE::Static
 }
 
 
-bool papyrusStrings::RegisterFuncs(VM* a_vm)
+auto papyrusStrings::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusStrings - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("IntToString", "PO3_SKSEFunctions", IntToString);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("StringToInt", "PO3_SKSEFunctions", StringToInt);
+	a_vm->RegisterFunction("IntToString"sv, Functions, IntToString);
+
+	a_vm->RegisterFunction("StringToInt", Functions, StringToInt);
 
 	return true;
 }

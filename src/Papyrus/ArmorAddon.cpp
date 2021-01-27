@@ -1,7 +1,7 @@
-#include "Papyrus\ArmorAddon.h"
+#include "Papyrus/ArmorAddon.h"
 
 
-RE::BGSFootstepSet* papyrusArmorAddon::GetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectARMA* a_arma)
+auto papyrusArmorAddon::GetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectARMA* a_arma) -> RE::BGSFootstepSet*
 {
 	if (!a_arma) {
 		a_vm->TraceStack("Armor Addon is None", a_stackID, Severity::kWarning);
@@ -23,15 +23,18 @@ void papyrusArmorAddon::SetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFu
 }
 
 
-bool papyrusArmorAddon::RegisterFuncs(VM* a_vm)
+auto papyrusArmorAddon::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusArmorAddon - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetFootstepSet", "PO3_SKSEFunctions", GetFootstepSet);
-	a_vm->RegisterFunction("SetFootstepSet", "PO3_SKSEFunctions", SetFootstepSet);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
+
+	a_vm->RegisterFunction("GetFootstepSet"sv, Functions, GetFootstepSet);
+
+    a_vm->RegisterFunction("SetFootstepSet"sv, Functions, SetFootstepSet);
 
 	return true;
 }

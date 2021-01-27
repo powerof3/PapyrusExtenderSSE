@@ -8,17 +8,17 @@ void papyrusForm::AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_add) {
+	}
+	if (!a_add) {
 		a_vm->TraceStack("Keyword is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
-	auto keywords = Form::Keywords::GetSingleton();
-	keywords->PapyrusApply(a_form, a_add, Form::kAdd);
+	Form::Keywords::GetSingleton()->PapyrusApply(a_form, a_add, Form::kAdd);
 }
 
 
-bool papyrusForm::IsGeneratedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+auto papyrusForm::IsGeneratedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form) -> bool
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -29,18 +29,18 @@ bool papyrusForm::IsGeneratedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 }
 
 
-bool papyrusForm::RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::BGSKeyword* a_remove)
+auto papyrusForm::RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::BGSKeyword* a_remove) -> bool
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return false;
-	} else if (!a_remove) {
+	}
+	if (!a_remove) {
 		a_vm->TraceStack("Keyword is None", a_stackID, Severity::kWarning);
 		return false;
 	}
 
-	auto keywords = Form::Keywords::GetSingleton();
-	return keywords->PapyrusApply(a_form, a_remove, Form::kRemove);
+	return Form::Keywords::GetSingleton()->PapyrusApply(a_form, a_remove, Form::kRemove);
 }
 
 
@@ -49,21 +49,22 @@ void papyrusForm::ReplaceKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFu
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_remove) {
+	}
+	if (!a_remove) {
 		a_vm->TraceStack("Remove keyword is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_add) {
+	}
+	if (!a_add) {
 		a_vm->TraceStack("Add keyword is None", a_stackID, Severity::kWarning);
 		return;
 	}
 
-	auto keywordForm = a_form->As<RE::BGSKeywordForm>();
-	if (keywordForm) {
+	if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 		std::uint32_t removeIndex = 0;
 		bool found = false;
 		if (keywordForm->keywords) {
 			for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
-				auto keyword = keywordForm->keywords[i];
+				const auto keyword = keywordForm->keywords[i];
 				if (keyword) {
 					if (keyword == a_add) {
 						return;
@@ -71,6 +72,7 @@ void papyrusForm::ReplaceKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFu
 					if (keyword == a_remove) {
 						removeIndex = i;
 						found = true;
+						break;
 					}
 				}
 			}
@@ -80,7 +82,6 @@ void papyrusForm::ReplaceKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFu
 		}
 	}
 }
-
 
 
 void papyrusForm::RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
@@ -107,8 +108,7 @@ void papyrusForm::RegisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFun
 }
 
 
-
-void papyrusForm::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -120,7 +120,7 @@ void papyrusForm::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE
 }
 
 
-void papyrusForm::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -132,7 +132,7 @@ void papyrusForm::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE:
 }
 
 
-void papyrusForm::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -277,7 +277,8 @@ void papyrusForm::RegisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -295,7 +296,8 @@ void papyrusForm::RegisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticF
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -352,7 +354,7 @@ void papyrusForm::RegisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::Stati
 }
 
 
-void papyrusForm::RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -400,7 +402,7 @@ void papyrusForm::UnregisterForAllFECResets(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
-void papyrusForm::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -412,7 +414,7 @@ void papyrusForm::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, 
 }
 
 
-void papyrusForm::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -424,7 +426,7 @@ void papyrusForm::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, R
 }
 
 
-void papyrusForm::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,  const RE::TESForm* a_form)
+void papyrusForm::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 {
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
@@ -584,7 +586,8 @@ void papyrusForm::UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunc
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -617,7 +620,8 @@ void papyrusForm::UnregisterForQuestStage(VM* a_vm, StackID a_stackID, RE::Stati
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -699,118 +703,121 @@ void papyrusForm::UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-bool papyrusForm::RegisterFuncs(VM* a_vm)
+auto papyrusForm::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusForm - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("AddKeywordToForm", "PO3_SKSEFunctions", AddKeywordToForm);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
+	auto constexpr Event_Form = "PO3_Events_Form"sv;
 
-	a_vm->RegisterFunction("IsGeneratedForm", "PO3_SKSEFunctions", IsGeneratedForm, true);
+	a_vm->RegisterFunction("AddKeywordToForm"sv, Functions, AddKeywordToForm);
 
-	a_vm->RegisterFunction("RemoveKeywordOnForm", "PO3_SKSEFunctions", RemoveKeywordOnForm);
+	a_vm->RegisterFunction("IsGeneratedForm"sv, Functions, IsGeneratedForm, true);
 
-	a_vm->RegisterFunction("ReplaceKeywordOnForm", "PO3_SKSEFunctions", ReplaceKeywordOnForm);
+	a_vm->RegisterFunction("RemoveKeywordOnForm"sv, Functions, RemoveKeywordOnForm);
 
-
-	a_vm->RegisterFunction("RegisterForActorKilled", "PO3_Events_Form", RegisterForActorKilled, true);
-
-	a_vm->RegisterFunction("RegisterForFECReset", "PO3_Events_Form", RegisterForFECReset, true);
-
-	a_vm->RegisterFunction("RegisterForActorReanimateStart", "PO3_Events_Form", RegisterForActorReanimateStart, true);
-
-	a_vm->RegisterFunction("RegisterForActorReanimateStop", "PO3_Events_Form", RegisterForActorReanimateStop, true);
-
-	a_vm->RegisterFunction("RegisterForActorResurrected", "PO3_Events_Form", RegisterForActorResurrected, true);
-
-	a_vm->RegisterFunction("RegisterForBookRead", "PO3_Events_Form", RegisterForBookRead, true);
-
-	a_vm->RegisterFunction("RegisterForCellFullyLoaded", "PO3_Events_Form", RegisterForCellFullyLoaded, true);
-
-	a_vm->RegisterFunction("RegisterForCriticalHit", "PO3_Events_Form", RegisterForCriticalHit, true);
-
-	a_vm->RegisterFunction("RegisterForDisarmed", "PO3_Events_Form", RegisterForDisarmed, true);
-
-	a_vm->RegisterFunction("RegisterForDragonSoulGained", "PO3_Events_Form", RegisterForDragonSoulGained, true);
-
-	a_vm->RegisterFunction("RegisterForItemHarvested", "PO3_Events_Form", RegisterForItemHarvested, true);
-
-	a_vm->RegisterFunction("RegisterForLevelIncrease", "PO3_Events_Form", RegisterForLevelIncrease, true);
-
-	a_vm->RegisterFunction("RegisterForLocationDiscovery", "PO3_Events_Form", RegisterForLocationDiscovery, true);
-
-	a_vm->RegisterFunction("RegisterForObjectGrab", "PO3_Events_Form", RegisterForObjectGrab, true);
-
-	a_vm->RegisterFunction("RegisterForObjectLoaded", "PO3_Events_Form", RegisterForObjectLoaded, true);
-
-	a_vm->RegisterFunction("RegisterForQuest", "PO3_Events_Form", RegisterForQuest, true);
-
-	a_vm->RegisterFunction("RegisterForQuestStage", "PO3_Events_Form", RegisterForQuestStage, true);
-
-	a_vm->RegisterFunction("RegisterForShoutAttack", "PO3_Events_Form", RegisterForShoutAttack, true);
-
-	a_vm->RegisterFunction("RegisterForSkillIncrease", "PO3_Events_Form", RegisterForSkillIncrease, true);
-
-	a_vm->RegisterFunction("RegisterForSoulTrapped", "PO3_Events_Form", RegisterForSoulTrapped, true);
-
-	a_vm->RegisterFunction("RegisterForSpellLearned", "PO3_Events_Form", RegisterForSpellLearned, true);
-
-	a_vm->RegisterFunction("RegisterForWeatherChange", "PO3_Events_Form", RegisterForWeatherChange, true);
+	a_vm->RegisterFunction("ReplaceKeywordOnForm"sv, Functions, ReplaceKeywordOnForm);
 
 
-	a_vm->RegisterFunction("UnregisterForActorKilled", "PO3_Events_Form", UnregisterForActorKilled, true);
+	a_vm->RegisterFunction("RegisterForActorKilled"sv, Event_Form, RegisterForActorKilled, true);
 
-	a_vm->RegisterFunction("UnregisterForFECReset", "PO3_Events_Form", UnregisterForFECReset, true);
+	a_vm->RegisterFunction("RegisterForFECReset"sv, Event_Form, RegisterForFECReset, true);
 
-	a_vm->RegisterFunction("UnregisterForAllFECResets", "PO3_Events_Form", UnregisterForAllFECResets, true);
+	a_vm->RegisterFunction("RegisterForActorReanimateStart"sv, Event_Form, RegisterForActorReanimateStart, true);
 
-	a_vm->RegisterFunction("UnregisterForActorReanimateStart", "PO3_Events_Form", UnregisterForActorReanimateStart, true);
+	a_vm->RegisterFunction("RegisterForActorReanimateStop"sv, Event_Form, RegisterForActorReanimateStop, true);
 
-	a_vm->RegisterFunction("UnregisterForActorReanimateStop", "PO3_Events_Form", UnregisterForActorReanimateStop, true);
+	a_vm->RegisterFunction("RegisterForActorResurrected"sv, Event_Form, RegisterForActorResurrected, true);
 
-	a_vm->RegisterFunction("UnregisterForActorResurrected", "PO3_Events_Form", UnregisterForActorResurrected, true);
+	a_vm->RegisterFunction("RegisterForBookRead"sv, Event_Form, RegisterForBookRead, true);
 
-	a_vm->RegisterFunction("UnregisterForBookRead", "PO3_Events_Form", UnregisterForBookRead, true);
+	a_vm->RegisterFunction("RegisterForCellFullyLoaded"sv, Event_Form, RegisterForCellFullyLoaded, true);
 
-	a_vm->RegisterFunction("UnregisterForCellFullyLoaded", "PO3_Events_Form", UnregisterForCellFullyLoaded, true);
+	a_vm->RegisterFunction("RegisterForCriticalHit"sv, Event_Form, RegisterForCriticalHit, true);
 
-	a_vm->RegisterFunction("UnregisterForCriticalHit", "PO3_Events_Form", UnregisterForCriticalHit, true);
+	a_vm->RegisterFunction("RegisterForDisarmed"sv, Event_Form, RegisterForDisarmed, true);
 
-	a_vm->RegisterFunction("UnregisterForDisarmed", "PO3_Events_Form", UnregisterForDisarmed, true);
+	a_vm->RegisterFunction("RegisterForDragonSoulGained"sv, Event_Form, RegisterForDragonSoulGained, true);
 
-	a_vm->RegisterFunction("UnregisterForDragonSoulGained", "PO3_Events_Form", UnregisterForDragonSoulGained, true);
+	a_vm->RegisterFunction("RegisterForItemHarvested"sv, Event_Form, RegisterForItemHarvested, true);
 
-	a_vm->RegisterFunction("UnregisterForItemHarvested", "PO3_Events_Form", UnregisterForItemHarvested, true);
+	a_vm->RegisterFunction("RegisterForLevelIncrease"sv, Event_Form, RegisterForLevelIncrease, true);
 
-	a_vm->RegisterFunction("UnregisterForLevelIncrease", "PO3_Events_Form", UnregisterForLevelIncrease, true);
+	a_vm->RegisterFunction("RegisterForLocationDiscovery"sv, Event_Form, RegisterForLocationDiscovery, true);
 
-	a_vm->RegisterFunction("UnregisterForLocationDiscovery", "PO3_Events_Form", UnregisterForLocationDiscovery, true);
+	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_Form, RegisterForObjectGrab, true);
 
-	a_vm->RegisterFunction("UnregisterForObjectGrab", "PO3_Events_Form", UnregisterForObjectGrab, true);
+	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_Form, RegisterForObjectLoaded, true);
 
-	a_vm->RegisterFunction("UnregisterForObjectLoaded", "PO3_Events_Form", UnregisterForObjectLoaded, true);
+	a_vm->RegisterFunction("RegisterForQuest"sv, Event_Form, RegisterForQuest, true);
 
-	a_vm->RegisterFunction("UnregisterForAllObjectsLoaded", "PO3_Events_Form", UnregisterForAllObjectsLoaded, true);
+	a_vm->RegisterFunction("RegisterForQuestStage"sv, Event_Form, RegisterForQuestStage, true);
 
-	a_vm->RegisterFunction("UnregisterForQuest", "PO3_Events_Form", UnregisterForQuest, true);
+	a_vm->RegisterFunction("RegisterForShoutAttack"sv, Event_Form, RegisterForShoutAttack, true);
 
-	a_vm->RegisterFunction("UnregisterForAllQuests", "PO3_Events_Form", UnregisterForAllQuests, true);
+	a_vm->RegisterFunction("RegisterForSkillIncrease"sv, Event_Form, RegisterForSkillIncrease, true);
 
-	a_vm->RegisterFunction("UnregisterForQuestStage", "PO3_Events_Form", UnregisterForQuestStage, true);
+	a_vm->RegisterFunction("RegisterForSoulTrapped"sv, Event_Form, RegisterForSoulTrapped, true);
 
-	a_vm->RegisterFunction("UnregisterForAllQuestStages", "PO3_Events_Form", UnregisterForAllQuestStages, true);
+	a_vm->RegisterFunction("RegisterForSpellLearned"sv, Event_Form, RegisterForSpellLearned, true);
 
-	a_vm->RegisterFunction("UnregisterForShoutAttack", "PO3_Events_Form", UnregisterForShoutAttack, true);
+	a_vm->RegisterFunction("RegisterForWeatherChange"sv, Event_Form, RegisterForWeatherChange, true);
 
-	a_vm->RegisterFunction("UnregisterForSkillIncrease", "PO3_Events_Form", UnregisterForSkillIncrease, true);
 
-	a_vm->RegisterFunction("UnregisterForSoulTrapped", "PO3_Events_Form", UnregisterForSoulTrapped, true);
+	a_vm->RegisterFunction("UnregisterForActorKilled"sv, Event_Form, UnregisterForActorKilled, true);
 
-	a_vm->RegisterFunction("UnregisterForSpellLearned", "PO3_Events_Form", UnregisterForSpellLearned, true);
+	a_vm->RegisterFunction("UnregisterForFECReset"sv, Event_Form, UnregisterForFECReset, true);
 
-	a_vm->RegisterFunction("UnregisterForWeatherChange", "PO3_Events_Form", UnregisterForWeatherChange, true);
+	a_vm->RegisterFunction("UnregisterForAllFECResets"sv, Event_Form, UnregisterForAllFECResets, true);
+
+	a_vm->RegisterFunction("UnregisterForActorReanimateStart"sv, Event_Form, UnregisterForActorReanimateStart, true);
+
+	a_vm->RegisterFunction("UnregisterForActorReanimateStop"sv, Event_Form, UnregisterForActorReanimateStop, true);
+
+	a_vm->RegisterFunction("UnregisterForActorResurrected"sv, Event_Form, UnregisterForActorResurrected, true);
+
+	a_vm->RegisterFunction("UnregisterForBookRead"sv, Event_Form, UnregisterForBookRead, true);
+
+	a_vm->RegisterFunction("UnregisterForCellFullyLoaded"sv, Event_Form, UnregisterForCellFullyLoaded, true);
+
+	a_vm->RegisterFunction("UnregisterForCriticalHit"sv, Event_Form, UnregisterForCriticalHit, true);
+
+	a_vm->RegisterFunction("UnregisterForDisarmed"sv, Event_Form, UnregisterForDisarmed, true);
+
+	a_vm->RegisterFunction("UnregisterForDragonSoulGained"sv, Event_Form, UnregisterForDragonSoulGained, true);
+
+	a_vm->RegisterFunction("UnregisterForItemHarvested"sv, Event_Form, UnregisterForItemHarvested, true);
+
+	a_vm->RegisterFunction("UnregisterForLevelIncrease"sv, Event_Form, UnregisterForLevelIncrease, true);
+
+	a_vm->RegisterFunction("UnregisterForLocationDiscovery"sv, Event_Form, UnregisterForLocationDiscovery, true);
+
+	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_Form, UnregisterForObjectGrab, true);
+
+	a_vm->RegisterFunction("UnregisterForObjectLoaded"sv, Event_Form, UnregisterForObjectLoaded, true);
+
+	a_vm->RegisterFunction("UnregisterForAllObjectsLoaded"sv, Event_Form, UnregisterForAllObjectsLoaded, true);
+
+	a_vm->RegisterFunction("UnregisterForQuest"sv, Event_Form, UnregisterForQuest, true);
+
+	a_vm->RegisterFunction("UnregisterForAllQuests"sv, Event_Form, UnregisterForAllQuests, true);
+
+	a_vm->RegisterFunction("UnregisterForQuestStage"sv, Event_Form, UnregisterForQuestStage, true);
+
+	a_vm->RegisterFunction("UnregisterForAllQuestStages"sv, Event_Form, UnregisterForAllQuestStages, true);
+
+	a_vm->RegisterFunction("UnregisterForShoutAttack"sv, Event_Form, UnregisterForShoutAttack, true);
+
+	a_vm->RegisterFunction("UnregisterForSkillIncrease"sv, Event_Form, UnregisterForSkillIncrease, true);
+
+	a_vm->RegisterFunction("UnregisterForSoulTrapped"sv, Event_Form, UnregisterForSoulTrapped, true);
+
+	a_vm->RegisterFunction("UnregisterForSpellLearned"sv, Event_Form, UnregisterForSpellLearned, true);
+
+	a_vm->RegisterFunction("UnregisterForWeatherChange"sv, Event_Form, UnregisterForWeatherChange, true);
 
 	return true;
 }

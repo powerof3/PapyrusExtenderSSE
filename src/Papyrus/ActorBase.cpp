@@ -1,7 +1,7 @@
 #include "Papyrus/ActorBase.h"
 
 
-std::uint32_t papyrusActorBase::GetPerkCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase)
+auto papyrusActorBase::GetPerkCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase) -> std::uint32_t
 {
 	if (!a_actorbase) {
 		a_vm->TraceStack("Actorbase is None", a_stackID, Severity::kWarning);
@@ -12,30 +12,33 @@ std::uint32_t papyrusActorBase::GetPerkCount(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-RE::BGSPerk* papyrusActorBase::GetNthPerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase, std::uint32_t a_index)
+auto papyrusActorBase::GetNthPerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase, std::uint32_t a_index) -> RE::BGSPerk*
 {
 	if (!a_actorbase) {
 		a_vm->TraceStack("Actorbase is None", a_stackID, Severity::kWarning);
 		return nullptr;
-	} else if (a_index >= a_actorbase->perkCount) {
-		a_vm->TraceStack("Index is out of bounds", a_stackID, Severity::kWarning);
-		return nullptr;
 	}
+    if (a_index >= a_actorbase->perkCount) {
+        a_vm->TraceStack("Index is out of bounds", a_stackID, Severity::kWarning);
+        return nullptr;
+    }
 
-	return a_actorbase->perks[a_index].perk;
+    return a_actorbase->perks[a_index].perk;
 }
 
 
-bool papyrusActorBase::RegisterFuncs(VM* a_vm)
+auto papyrusActorBase::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusActorBase - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetPerkCount", "PO3_SKSEFunctions", GetPerkCount);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetNthPerk", "PO3_SKSEFunctions", GetNthPerk);
+	a_vm->RegisterFunction("GetPerkCount"sv, Functions, GetPerkCount);
+
+	a_vm->RegisterFunction("GetNthPerk"sv, Functions, GetNthPerk);
 
 	return true;
 }

@@ -14,9 +14,7 @@ void papyrusDebug::GivePlayerSpellBook(RE::StaticFunctionTag*)
 					auto mod = spell->GetDescriptionOwnerFile();
 					if (mod) {
 						auto modName = "[" + std::string(mod->fileName).substr(0, 4) + "] ";
-						std::string name = modName + spell->fullName.c_str();
-
-						spell->fullName = name.c_str();
+						spell->fullName = modName + spell->fullName.c_str();
 					}
 					player->AddSpell(spell);
 				}
@@ -26,14 +24,14 @@ void papyrusDebug::GivePlayerSpellBook(RE::StaticFunctionTag*)
 }
 
 
-bool papyrusDebug::RegisterFuncs(VM* a_vm)
+auto papyrusDebug::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusDebug - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GivePlayerSpellBook", "PO3_SKSEFunctions", GivePlayerSpellBook);
+	a_vm->RegisterFunction("GivePlayerSpellBook"sv, "PO3_SKSEFunctions", GivePlayerSpellBook);
 
 	return true;
 }

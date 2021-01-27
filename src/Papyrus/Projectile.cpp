@@ -1,7 +1,7 @@
 #include "Papyrus/Projectile.h"
 
 
-float papyrusProjectile::GetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile)
+auto papyrusProjectile::GetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile) -> float
 {
 	if (!a_projectile) {
 		a_vm->TraceStack("Projectile is None", a_stackID, Severity::kWarning);
@@ -12,7 +12,7 @@ float papyrusProjectile::GetProjectileGravity(VM* a_vm, StackID a_stackID, RE::S
 }
 
 
-float papyrusProjectile::GetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile)
+auto papyrusProjectile::GetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile) -> float
 {
 	if (!a_projectile) {
 		a_vm->TraceStack("Projectile is None", a_stackID, Severity::kWarning);
@@ -23,7 +23,7 @@ float papyrusProjectile::GetProjectileImpactForce(VM* a_vm, StackID a_stackID, R
 }
 
 
-float papyrusProjectile::GetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile)
+auto papyrusProjectile::GetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile) -> float
 {
 	if (!a_projectile) {
 		a_vm->TraceStack("Projectile is None", a_stackID, Severity::kWarning);
@@ -34,7 +34,7 @@ float papyrusProjectile::GetProjectileRange(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
-float papyrusProjectile::GetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile)
+auto papyrusProjectile::GetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile) -> float
 {
 	if (!a_projectile) {
 		a_vm->TraceStack("Projectile is None", a_stackID, Severity::kWarning);
@@ -45,7 +45,7 @@ float papyrusProjectile::GetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
-std::uint32_t papyrusProjectile::GetProjectileType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile)
+auto papyrusProjectile::GetProjectileType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSProjectile* a_projectile) -> std::uint32_t
 {
 	if (!a_projectile) {
 		a_vm->TraceStack("Projectile is None", a_stackID, Severity::kWarning);
@@ -100,30 +100,32 @@ void papyrusProjectile::SetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::Stat
 }
 
 
-bool papyrusProjectile::RegisterFuncs(VM* a_vm)
+auto papyrusProjectile::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusProjectile - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetProjectileGravity", "PO3_SKSEFunctions", GetProjectileGravity, true);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetProjectileImpactForce", "PO3_SKSEFunctions", GetProjectileImpactForce, true);
+	a_vm->RegisterFunction("GetProjectileGravity"sv, Functions, GetProjectileGravity, true);
 
-	a_vm->RegisterFunction("GetProjectileRange", "PO3_SKSEFunctions", GetProjectileRange, true);
+	a_vm->RegisterFunction("GetProjectileImpactForce"sv, Functions, GetProjectileImpactForce, true);
 
-	a_vm->RegisterFunction("GetProjectileSpeed", "PO3_SKSEFunctions", GetProjectileSpeed, true);
+	a_vm->RegisterFunction("GetProjectileRange"sv, Functions, GetProjectileRange, true);
 
-	a_vm->RegisterFunction("GetProjectileType", "PO3_SKSEFunctions", GetProjectileType);
+	a_vm->RegisterFunction("GetProjectileSpeed"sv, Functions, GetProjectileSpeed, true);
 
-	a_vm->RegisterFunction("SetProjectileGravity", "PO3_SKSEFunctions", SetProjectileGravity);
+	a_vm->RegisterFunction("GetProjectileType"sv, Functions, GetProjectileType);
 
-	a_vm->RegisterFunction("SetProjectileImpactForce", "PO3_SKSEFunctions", SetProjectileImpactForce);
+	a_vm->RegisterFunction("SetProjectileGravity"sv, Functions, SetProjectileGravity);
 
-	a_vm->RegisterFunction("SetProjectileRange", "PO3_SKSEFunctions", SetProjectileRange);
+	a_vm->RegisterFunction("SetProjectileImpactForce"sv, Functions, SetProjectileImpactForce);
 
-	a_vm->RegisterFunction("SetProjectileSpeed", "PO3_SKSEFunctions", SetProjectileSpeed);
+	a_vm->RegisterFunction("SetProjectileRange"sv, Functions, SetProjectileRange);
+
+	a_vm->RegisterFunction("SetProjectileSpeed"sv, Functions, SetProjectileSpeed);
 
 	return true;
 }

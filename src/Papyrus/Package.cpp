@@ -1,7 +1,7 @@
 #include "Papyrus/Package.h"
 
 
-std::int32_t papyrusPackage::GetPackageType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESPackage* a_package)
+auto papyrusPackage::GetPackageType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESPackage* a_package) -> std::int32_t
 {
 	if (!a_package) {
 		a_vm->TraceStack("Package is None", a_stackID, Severity::kWarning);
@@ -12,14 +12,14 @@ std::int32_t papyrusPackage::GetPackageType(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
-bool papyrusPackage::RegisterFuncs(VM* a_vm)
+auto papyrusPackage::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusPackage - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetPackageType", "PO3_SKSEFunctions", GetPackageType);
+	a_vm->RegisterFunction("GetPackageType"sv, "PO3_SKSEFunctions"sv, GetPackageType);
 
 	return true;
 }

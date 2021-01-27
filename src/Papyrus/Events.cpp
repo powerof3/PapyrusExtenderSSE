@@ -8,7 +8,7 @@ namespace ScriptEvents
 	using namespace Serialization::ScriptEvents;
 
 
-	CellFullyLoadedEventHandler* CellFullyLoadedEventHandler::GetSingleton()
+	auto CellFullyLoadedEventHandler::GetSingleton() -> CellFullyLoadedEventHandler*
 	{
 		static CellFullyLoadedEventHandler singleton;
 		return &singleton;
@@ -27,7 +27,7 @@ namespace ScriptEvents
 	}
 
 
-	QuestStartStopEventHandler* QuestStartStopEventHandler::GetSingleton()
+	auto QuestStartStopEventHandler::GetSingleton() -> QuestStartStopEventHandler*
 	{
 		static QuestStartStopEventHandler singleton;
 		return &singleton;
@@ -40,8 +40,7 @@ namespace ScriptEvents
 			return EventResult::kContinue;
 		}
 
-		auto quest = RE::TESForm::LookupByID<RE::TESQuest>(a_event->formID);
-		if (quest) {
+		if (const auto quest = RE::TESForm::LookupByID<RE::TESQuest>(a_event->formID); quest) {
 			a_event->started ? OnQuestStartRegMap::GetSingleton()->QueueEvent(a_event->formID, quest) : OnQuestStopRegMap::GetSingleton()->QueueEvent(a_event->formID, quest);
 		}
 
@@ -49,7 +48,7 @@ namespace ScriptEvents
 	}
 
 
-	QuestStageEventHandler* QuestStageEventHandler::GetSingleton()
+	auto QuestStageEventHandler::GetSingleton() -> QuestStageEventHandler*
 	{
 		static QuestStageEventHandler singleton;
 		return &singleton;
@@ -62,8 +61,7 @@ namespace ScriptEvents
 			return EventResult::kContinue;
 		}
 
-		auto quest = RE::TESForm::LookupByID<RE::TESQuest>(a_event->formID);
-		if (quest) {
+		if (const auto quest = RE::TESForm::LookupByID<RE::TESQuest>(a_event->formID); quest) {
 			OnQuestStageRegMap::GetSingleton()->QueueEvent(a_event->formID, quest, a_event->stage);
 		}
 
@@ -71,7 +69,7 @@ namespace ScriptEvents
 	}
 
 
-	ObjectLoadedEventHandler* ObjectLoadedEventHandler::GetSingleton()
+	auto ObjectLoadedEventHandler::GetSingleton() -> ObjectLoadedEventHandler*
 	{
 		static ObjectLoadedEventHandler singleton;
 		return &singleton;
@@ -84,9 +82,8 @@ namespace ScriptEvents
 			return EventResult::kContinue;
 		}
 
-		auto object = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_event->formID);
-		if (object) {
-			auto base = object->GetBaseObject();
+		if (auto object = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_event->formID); object) {
+			const auto base = object->GetBaseObject();
 			if (base) {
 				auto baseType = base->GetFormType();
 				a_event->loaded ? OnObjectLoadedRegMap::GetSingleton()->QueueEvent(baseType, object, baseType) : OnObjectUnloadedRegMap::GetSingleton()->QueueEvent(baseType, object, baseType);
@@ -97,7 +94,7 @@ namespace ScriptEvents
 	}
 
 
-	GrabReleaseEventHandler* GrabReleaseEventHandler::GetSingleton()
+	auto GrabReleaseEventHandler::GetSingleton() -> GrabReleaseEventHandler*
 	{
 		static GrabReleaseEventHandler singleton;
 		return &singleton;
@@ -110,8 +107,7 @@ namespace ScriptEvents
 			return EventResult::kContinue;
 		}
 
-		auto object = a_event->ref.get();
-		if (object) {
+		if (const auto object = a_event->ref.get(); object) {
 			a_event->grabbed ? OnGrabRegSet::GetSingleton()->QueueEvent(object) : OnReleaseRegSet::GetSingleton()->QueueEvent(object);
 		}
 
@@ -125,7 +121,7 @@ namespace StoryEvents
 	using namespace Serialization::StoryEvents;
 
 
-	ActorKillEventHandler* ActorKillEventHandler::GetSingleton()
+	auto ActorKillEventHandler::GetSingleton() -> ActorKillEventHandler*
 	{
 		static ActorKillEventHandler singleton;
 		return &singleton;
@@ -138,8 +134,9 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto victim = a_event->victim;
-		auto killer = a_event->killer;
+		const auto victim = a_event->victim;
+		const auto killer = a_event->killer;
+
 		if (victim && killer) {
 			OnActorKillRegSet::GetSingleton()->QueueEvent(victim, killer);
 		}
@@ -148,7 +145,7 @@ namespace StoryEvents
 	}
 
 
-	BooksReadEventHandler* BooksReadEventHandler::GetSingleton()
+	auto BooksReadEventHandler::GetSingleton() -> BooksReadEventHandler*
 	{
 		static BooksReadEventHandler singleton;
 		return &singleton;
@@ -160,8 +157,7 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto book = a_event->book;
-		if (book) {
+		if (const auto book = a_event->book; book) {
 			OnBooksReadRegSet::GetSingleton()->QueueEvent(book);
 		}
 
@@ -169,7 +165,7 @@ namespace StoryEvents
 	}
 
 
-	CriticalHitEventHandler* CriticalHitEventHandler::GetSingleton()
+	auto CriticalHitEventHandler::GetSingleton() -> CriticalHitEventHandler*
 	{
 		static CriticalHitEventHandler singleton;
 		return &singleton;
@@ -182,10 +178,10 @@ namespace StoryEvents
 		}
 
 		auto agressor = a_event->aggressor;
-		auto weapon = a_event->weapon;
+		const auto weapon = a_event->weapon;
+
 		if (agressor && weapon) {
-			auto agressorActor = agressor->As<RE::Actor>();
-			if (agressorActor) {
+			if (const auto agressorActor = agressor->As<RE::Actor>(); agressorActor) {
 				OnCriticalHitRegSet::GetSingleton()->QueueEvent(agressorActor, weapon, a_event->sneakHit);
 			}
 		}
@@ -194,7 +190,7 @@ namespace StoryEvents
 	}
 
 
-	DisarmedEventHandler* DisarmedEventHandler::GetSingleton()
+	auto DisarmedEventHandler::GetSingleton() -> DisarmedEventHandler*
 	{
 		static DisarmedEventHandler singleton;
 		return &singleton;
@@ -206,8 +202,9 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto source = a_event->source;
-		auto target = a_event->target;
+		const auto source = a_event->source;
+		const auto target = a_event->target;
+
 		if (source && target) {
 			OnDisarmedRegSet::GetSingleton()->QueueEvent(source, target);
 		}
@@ -216,7 +213,7 @@ namespace StoryEvents
 	}
 
 
-	DragonSoulsGainedEventHandler* DragonSoulsGainedEventHandler::GetSingleton()
+	auto DragonSoulsGainedEventHandler::GetSingleton() -> DragonSoulsGainedEventHandler*
 	{
 		static DragonSoulsGainedEventHandler singleton;
 		return &singleton;
@@ -234,7 +231,7 @@ namespace StoryEvents
 	}
 
 
-	ItemHarvestedEventHandler* ItemHarvestedEventHandler::GetSingleton()
+	auto ItemHarvestedEventHandler::GetSingleton() -> ItemHarvestedEventHandler*
 	{
 		static ItemHarvestedEventHandler singleton;
 		return &singleton;
@@ -246,8 +243,7 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto produce = a_event->produceItem;
-		if (produce) {
+		if (const auto produce = a_event->produceItem; produce) {
 			OnItemHarvestedRegSet::GetSingleton()->QueueEvent(produce);
 		}
 
@@ -255,7 +251,7 @@ namespace StoryEvents
 	}
 
 
-	LevelIncreaseEventHandler* LevelIncreaseEventHandler::GetSingleton()
+	auto LevelIncreaseEventHandler::GetSingleton() -> LevelIncreaseEventHandler*
 	{
 		static LevelIncreaseEventHandler singleton;
 		return &singleton;
@@ -273,7 +269,7 @@ namespace StoryEvents
 	}
 
 
-	LocationDiscoveryEventHandler* LocationDiscoveryEventHandler::GetSingleton()
+	auto LocationDiscoveryEventHandler::GetSingleton() -> LocationDiscoveryEventHandler*
 	{
 		static LocationDiscoveryEventHandler singleton;
 		return &singleton;
@@ -285,8 +281,7 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto data = a_event->mapMarkerData;
-		if (data) {
+		if (const auto data = a_event->mapMarkerData; data) {
 			OnLocationDiscoveryRegSet::GetSingleton()->QueueEvent(data->locationName.fullName, a_event->worldspaceID);
 		}
 
@@ -294,7 +289,7 @@ namespace StoryEvents
 	}
 
 
-	ShoutAttackEventHandler* ShoutAttackEventHandler::GetSingleton()
+	auto ShoutAttackEventHandler::GetSingleton() -> ShoutAttackEventHandler*
 	{
 		static ShoutAttackEventHandler singleton;
 		return &singleton;
@@ -306,15 +301,14 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto shout = a_event->shout;
-		if (shout) {
+		if (const auto shout = a_event->shout; shout) {
 			OnShoutAttackRegSet::GetSingleton()->QueueEvent(shout);
 		}
 
 		return EventResult::kContinue;
 	}
 
-	SkillIncreaseEventHandler* SkillIncreaseEventHandler::GetSingleton()
+	auto SkillIncreaseEventHandler::GetSingleton() -> SkillIncreaseEventHandler*
 	{
 		static SkillIncreaseEventHandler singleton;
 		return &singleton;
@@ -330,8 +324,7 @@ namespace StoryEvents
 
 		auto actorValueList = RE::ActorValueList::GetSingleton();
 		if (actorValueList) {
-			auto av = actorValueList->GetActorValue(a_event->actorValue);
-			if (av) {
+			if (const auto av = actorValueList->GetActorValue(a_event->actorValue); av) {
 				avName = av->enumName;
 			}
 		}
@@ -344,7 +337,7 @@ namespace StoryEvents
 	}
 
 
-	SoulsTrappedEventHandler* SoulsTrappedEventHandler::GetSingleton()
+	auto SoulsTrappedEventHandler::GetSingleton() -> SoulsTrappedEventHandler*
 	{
 		static SoulsTrappedEventHandler singleton;
 		return &singleton;
@@ -357,9 +350,9 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto trapper = a_event->trapper;
-		auto target = a_event->target;
-		
+		const auto trapper = a_event->trapper;
+		const auto target = a_event->target;
+
 		if (trapper && target) {
 			OnSoulsTrappedRegSet::GetSingleton()->QueueEvent(target, trapper);
 		}
@@ -368,7 +361,7 @@ namespace StoryEvents
 	}
 
 
-	SpellsLearnedEventHandler* SpellsLearnedEventHandler::GetSingleton()
+	auto SpellsLearnedEventHandler::GetSingleton() -> SpellsLearnedEventHandler*
 	{
 		static SpellsLearnedEventHandler singleton;
 		return &singleton;
@@ -380,8 +373,8 @@ namespace StoryEvents
 			return EventResult::kContinue;
 		}
 
-		auto spell = a_event->spell;
-		if (spell) {
+
+		if (auto spell = a_event->spell; spell) {
 			OnSpellsLearnedRegSet::GetSingleton()->QueueEvent(spell);
 		}
 

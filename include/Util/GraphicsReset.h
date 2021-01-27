@@ -42,7 +42,7 @@ namespace GraphicsReset
 
 	void ResetToggleData(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);
 
-	void ResetAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiFloatExtraData* a_data, const RE::BSFixedString& a_folderName);
+	void ResetAlphaData(RE::NiAVObject* a_root, RE::NiFloatExtraData* a_data);
 
 	void ResetHeadPartAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiIntegersExtraData* a_data);
 

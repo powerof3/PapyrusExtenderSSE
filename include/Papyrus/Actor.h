@@ -65,9 +65,11 @@ namespace papyrusActor
 
 	void DecapitateActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
 
+	void EquipItem_Script(VM* a_vm, StackID a_stackID, RE::Actor* a_actor, RE::TESForm* a_form, bool a_forceEquip, bool a_silent);
+
 	void EquipArmorIfSkinVisible(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::TESObjectARMO* a_check, RE::TESObjectARMO* a_equip);
 
-	void FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_ref, std::uint32_t a_type, bool a_enable);
+	void FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_type, bool a_enable);
 
 	float GetActorAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
 
@@ -122,10 +124,6 @@ namespace papyrusActor
 	void KillNoWait(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor);
 
 	void MixColorWithSkinTone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSColorForm* a_color, bool a_manual, float a_percent);
-
-	bool RemoveItem_Impl(RE::TESObjectREFR* a_container, RE::TESForm* a_formToRemove, std::uint32_t a_count, bool a_silent, RE::TESObjectREFR* a_otherContainer, StackID a_stackID, VM* a_vm);
-
-	void RemoveArmorWithSlots(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::vector<std::uint32_t> a_slots, bool a_playable);
 
 	bool RemoveBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSPerk* a_perk);
 

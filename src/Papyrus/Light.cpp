@@ -1,7 +1,7 @@
 #include "Papyrus/Light.h"
 
 
-RE::BGSColorForm* papyrusLight::GetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+auto papyrusLight::GetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light) -> RE::BGSColorForm*
 {
 	if (!a_light) {
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
@@ -9,18 +9,20 @@ RE::BGSColorForm* papyrusLight::GetLightColor(VM* a_vm, StackID a_stackID, RE::S
 	}
 
 	auto factory = RE::IFormFactory::GetFormFactoryByType(RE::FormType::ColorForm);
-	auto color = static_cast<RE::BGSColorForm*>(factory->Create());
-	if (color) {
-		color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-		color->color = a_light->data.color;
-		return color;
+	if (factory) {
+		auto color = static_cast<RE::BGSColorForm*>(factory->Create());
+		if (color) {
+			color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
+			color->color = a_light->data.color;
+			return color;
+		}
 	}
 
 	return nullptr;
 }
 
 
-float papyrusLight::GetLightFade(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+auto papyrusLight::GetLightFade(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light) -> float
 {
 	if (!a_light) {
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
@@ -31,7 +33,7 @@ float papyrusLight::GetLightFade(VM* a_vm, StackID a_stackID, RE::StaticFunction
 }
 
 
-float papyrusLight::GetLightFOV(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+auto papyrusLight::GetLightFOV(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light) -> float
 {
 	if (!a_light) {
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
@@ -42,7 +44,7 @@ float papyrusLight::GetLightFOV(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
-float papyrusLight::GetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+auto papyrusLight::GetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light) -> float
 {
 	if (!a_light) {
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
@@ -53,7 +55,7 @@ float papyrusLight::GetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 }
 
 
-std::vector<std::uint32_t> papyrusLight::GetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+auto papyrusLight::GetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light) -> std::vector<std::uint32_t>
 {
 	std::vector<std::uint32_t> vec(3, 0);
 
@@ -71,25 +73,25 @@ std::vector<std::uint32_t> papyrusLight::GetLightRGB(VM* a_vm, StackID a_stackID
 }
 
 
-float papyrusLight::GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject)
+auto papyrusLight::GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject) -> float
 {
 	if (!a_lightObject) {
 		a_vm->TraceStack("Object is None", a_stackID, Severity::kWarning);
 		return 1.0f;
 	}
 
-	auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
+	const auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
 	if (!a_light) {
 		a_vm->TraceStack("Object is not a Light form", a_stackID, Severity::kWarning);
 		return 1.0f;
 	}
 
-	auto xLightData = a_lightObject->extraList.GetByType<RE::ExtraLightData>();
+	const auto xLightData = a_lightObject->extraList.GetByType<RE::ExtraLightData>();
 	return xLightData ? xLightData->data.shadowDepthBias : 1.0f;
 }
 
 
-std::uint32_t papyrusLight::GetLightType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light)
+auto papyrusLight::GetLightType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectLIGH* a_light) -> std::uint32_t
 {
 	using FLAGS = RE::TES_LIGHT_FLAGS;
 
@@ -101,17 +103,20 @@ std::uint32_t papyrusLight::GetLightType(VM* a_vm, StackID a_stackID, RE::Static
 	const auto flags = a_light->data.flags;
 	if (flags.all(FLAGS::kHemiShadow)) {
 		return 1;
-	} else if (flags.all(FLAGS::kNone)) {
-		return 2;
-	} else if (flags.all(FLAGS::kOmniShadow)) {
-		return 3;
-	} else if (flags.all(FLAGS::kSpotlight)) {
-		return 4;
-	} else if (flags.all(FLAGS::kSpotShadow)) {
-		return 5;
-	} else {
-		return 0;
 	}
+	if (flags.all(FLAGS::kNone)) {
+		return 2;
+	}
+	if (flags.all(FLAGS::kOmniShadow)) {
+		return 3;
+	}
+	if (flags.all(FLAGS::kSpotlight)) {
+		return 4;
+	}
+	if (flags.all(FLAGS::kSpotShadow)) {
+		return 5;
+	}
+	return 0;
 }
 
 
@@ -120,7 +125,8 @@ void papyrusLight::SetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunction
 	if (!a_light) {
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_color) {
+	}
+	if (!a_color) {
 		a_vm->TraceStack("ColorForm is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -167,10 +173,11 @@ void papyrusLight::SetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 	if (!a_light) {
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (a_rgb.empty()) {
+	}
+	if (a_rgb.empty()) {
 		a_vm->TraceStack("RGB array is empty", a_stackID, Severity::kWarning);
 		return;
-	} 
+	}
 
 	auto& color = a_light->data.color;
 	for (std::size_t i = 0; i < 3; ++i) {
@@ -186,13 +193,13 @@ void papyrusLight::SetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::Stat
 		return;
 	}
 
-	auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
+	const auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
 	if (!a_light) {
 		a_vm->TraceStack("Object is not a Light form", a_stackID, Severity::kWarning);
 		return;
 	}
 
-	auto xLightData = a_lightObject->extraList.GetByType<RE::ExtraLightData>();
+	const auto xLightData = a_lightObject->extraList.GetByType<RE::ExtraLightData>();
 	if (xLightData) {
 		xLightData->data.shadowDepthBias = a_depthBias;
 	} else {
@@ -237,40 +244,42 @@ void papyrusLight::SetLightType(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
-bool papyrusLight::RegisterFuncs(VM* a_vm)
+auto papyrusLight::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusLight - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetLightColor", "PO3_SKSEFunctions", GetLightColor);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetLightFade", "PO3_SKSEFunctions", GetLightFade, true);
+	a_vm->RegisterFunction("GetLightColor"sv, Functions, GetLightColor);
 
-	a_vm->RegisterFunction("GetLightFOV", "PO3_SKSEFunctions", GetLightFOV, true);
+	a_vm->RegisterFunction("GetLightFade"sv, Functions, GetLightFade, true);
 
-	a_vm->RegisterFunction("GetLightRadius", "PO3_SKSEFunctions", GetLightRadius, true);
+	a_vm->RegisterFunction("GetLightFOV"sv, Functions, GetLightFOV, true);
 
-	a_vm->RegisterFunction("GetLightRGB", "PO3_SKSEFunctions", GetLightRGB);
+	a_vm->RegisterFunction("GetLightRadius"sv, Functions, GetLightRadius, true);
 
-	a_vm->RegisterFunction("GetLightShadowDepthBias", "PO3_SKSEFunctions", GetLightShadowDepthBias);
+	a_vm->RegisterFunction("GetLightRGB"sv, Functions, GetLightRGB);
 
-	a_vm->RegisterFunction("GetLightType", "PO3_SKSEFunctions", GetLightType);
+	a_vm->RegisterFunction("GetLightShadowDepthBias"sv, Functions, GetLightShadowDepthBias);
 
-	a_vm->RegisterFunction("SetLightRadius", "PO3_SKSEFunctions", SetLightRadius);
+	a_vm->RegisterFunction("GetLightType"sv, Functions, GetLightType);
 
-	a_vm->RegisterFunction("SetLightRGB", "PO3_SKSEFunctions", SetLightRGB);
+	a_vm->RegisterFunction("SetLightRadius"sv, Functions, SetLightRadius);
 
-	a_vm->RegisterFunction("SetLightColor", "PO3_SKSEFunctions", SetLightColor);
+	a_vm->RegisterFunction("SetLightRGB"sv, Functions, SetLightRGB);
 
-	a_vm->RegisterFunction("SetLightFade", "PO3_SKSEFunctions", SetLightFade);
+	a_vm->RegisterFunction("SetLightColor"sv, Functions, SetLightColor);
 
-	a_vm->RegisterFunction("SetLightFOV", "PO3_SKSEFunctions", SetLightFOV);
+	a_vm->RegisterFunction("SetLightFade"sv, Functions, SetLightFade);
 
-	a_vm->RegisterFunction("SetLightShadowDepthBias", "PO3_SKSEFunctions", SetLightShadowDepthBias);
+	a_vm->RegisterFunction("SetLightFOV"sv, Functions, SetLightFOV);
 
-	a_vm->RegisterFunction("SetLightType", "PO3_SKSEFunctions", SetLightType);
+	a_vm->RegisterFunction("SetLightShadowDepthBias"sv, Functions, SetLightShadowDepthBias);
+
+	a_vm->RegisterFunction("SetLightType"sv, Functions, SetLightType);
 
 	return true;
 }

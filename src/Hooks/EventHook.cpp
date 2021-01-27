@@ -29,8 +29,8 @@ namespace Hook
 		static inline REL::Relocation<Resurrect_t> _Resurrect;
 	};
 
-	bool HookActorResurrect()
-	{
+    auto HookActorResurrect() -> bool
+    {
 		logger::info("Hooking Actor Resurrect"sv);
 
 		ActorResurrect::Install();
@@ -55,7 +55,7 @@ namespace Hook
 
 			if (a_this->flags.none(RE::ActiveEffect::Flag::kDispelled)) {  //effect can get dispelled in original func
 
-				auto zombiePtr = a_this->commandedActor.get();
+                const auto zombiePtr = a_this->commandedActor.get();
 				auto zombie = zombiePtr.get();
 
 				if (!zombie) {
@@ -63,19 +63,19 @@ namespace Hook
 				}
 
 				if (zombie->boolBits.all(RE::Actor::BOOL_BITS::kParalyzed)) {
-					auto root = zombie->Get3D(0);
+					auto root = zombie->Get3D(false);
 					auto charController = zombie->GetCharController();
 					if (root && charController) {
 						zombie->boolBits.reset(RE::Actor::BOOL_BITS::kParalyzed);
 						root->SetRigidConstraints(false);
 						std::uint32_t unk = 0;
-						auto const flags = *(charController->Unk_08(&unk));
+						auto const flags = *charController->Unk_08(&unk);
 						root->UpdateRigidBodySettings(32, flags >> 16);
 					}
 				}
 
-				auto casterPtr = a_this->caster.get();
-				auto caster = casterPtr.get();
+                const auto casterPtr = a_this->caster.get();
+                const auto caster = casterPtr.get();
 				if (caster) {
 					OnActorReanimateStartRegSet::GetSingleton()->QueueEvent(zombie, caster);
 				}
@@ -99,11 +99,11 @@ namespace Hook
 	private:
 		static void Reanimate(RE::ReanimateEffect* a_this)
 		{
-			auto zombiePtr = a_this->commandedActor.get();
-			auto zombie = zombiePtr.get();
+            const auto zombiePtr = a_this->commandedActor.get();
+            const auto zombie = zombiePtr.get();
 			if (zombie) {
-				auto casterPtr = a_this->caster.get();
-				auto caster = casterPtr.get();
+                const auto casterPtr = a_this->caster.get();
+                const auto caster = casterPtr.get();
 				if (caster) {
 					OnActorReanimateStopRegSet::GetSingleton()->QueueEvent(zombie, caster);
 				}
@@ -117,8 +117,8 @@ namespace Hook
 	};
 
 
-	bool HookActorReanimate()
-	{
+    auto HookActorReanimate() -> bool
+    {
 		logger::info("Hooking Actor Reanimate"sv);
 
 		ActorReanimateStart::Install();
@@ -168,10 +168,10 @@ namespace Hook
 	private:
 		static void SendWeatherEvent()
 		{
-			auto sky = RE::Sky::GetSingleton();
+            const auto sky = RE::Sky::GetSingleton();
 			if (sky) {
-				auto currentWeather = sky->currentWeather;
-				auto lastWeather = sky->lastWeather;
+                const auto currentWeather = sky->currentWeather;
+                const auto lastWeather = sky->lastWeather;
 				if (currentWeather && lastWeather) {
 					OnWeatherChangeRegSet::GetSingleton()->QueueEvent(lastWeather, currentWeather);
 				}
@@ -179,8 +179,8 @@ namespace Hook
 		}
 	};
 
-	bool HookWeatherChange()
-	{
+    auto HookWeatherChange() -> bool
+    {
 		logger::info("Hooking Weather Change"sv);
 
 		WeatherEvent::Install();
@@ -189,8 +189,8 @@ namespace Hook
 	}
 
 
-	bool HookEvents()
-	{
+    auto HookEvents() -> bool
+    {
 		logger::info("{:*^30}", "HOOKED EVENTS"sv);
 
 		HookActorResurrect();

@@ -1,7 +1,7 @@
 #include "Papyrus/Location.h"
 
 
-RE::BGSLocation* papyrusLocation::GetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSLocation* a_location)
+auto papyrusLocation::GetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSLocation* a_location) -> RE::BGSLocation*
 {
 	if (!a_location) {
 		a_vm->TraceStack("Location is None", a_stackID, Severity::kWarning);
@@ -23,16 +23,18 @@ void papyrusLocation::SetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticF
 }
 
 
-bool papyrusLocation::RegisterFuncs(VM* a_vm)
+auto papyrusLocation::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusLocation - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetParentLocation", "PO3_SKSEFunctions", GetParentLocation);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("SetParentLocation", "PO3_SKSEFunctions", SetParentLocation);
+    a_vm->RegisterFunction("GetParentLocation"sv, Functions, GetParentLocation);
+
+	a_vm->RegisterFunction("SetParentLocation"sv, Functions, SetParentLocation);
 
 	return true;
 }

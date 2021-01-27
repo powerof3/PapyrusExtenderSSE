@@ -11,8 +11,7 @@ namespace papyrusGame
 	template <class T>
 	void GetAllForms(std::vector<T*>& a_vec, const std::vector<RE::BGSKeyword*>& a_keywords)
 	{
-		auto dataHandler = RE::TESDataHandler::GetSingleton();
-		if (dataHandler) {
+		if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 			for (const auto& form : dataHandler->GetFormArray<T>()) {
 				if (!form || !a_keywords.empty() && !form->HasKeywords(a_keywords)) {
 					continue;
@@ -25,8 +24,7 @@ namespace papyrusGame
 	template <class T>
 	void GetAllFormsInMod(const RE::TESFile* a_modInfo, std::vector<T*>& a_vec, const std::vector<RE::BGSKeyword*>& a_keywords)
 	{
-		auto dataHandler = RE::TESDataHandler::GetSingleton();
-		if (dataHandler) {
+		if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 			for (const auto& form : dataHandler->GetFormArray<T>()) {
 				if (!form || !a_modInfo->IsFormInMod(form->formID) || !a_keywords.empty() && !form->HasKeywords(a_keywords)) {
 					continue;

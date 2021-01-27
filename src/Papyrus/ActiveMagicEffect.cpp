@@ -194,9 +194,10 @@ void papyrusActiveMagicEffect::RegisterForQuest(VM* a_vm, StackID a_stackID, RE:
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
-		return;	
+		return;
 	}
 
 	auto start = ScriptEvents::OnQuestStartRegMap::GetSingleton();
@@ -212,7 +213,8 @@ void papyrusActiveMagicEffect::RegisterForQuestStage(VM* a_vm, StackID a_stackID
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -279,7 +281,6 @@ void papyrusActiveMagicEffect::RegisterForWeatherChange(VM* a_vm, StackID a_stac
 	auto regs = HookedEvents::OnWeatherChangeRegSet::GetSingleton();
 	regs->Register(a_activeEffect);
 }
-
 
 
 void papyrusActiveMagicEffect::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -502,7 +503,8 @@ void papyrusActiveMagicEffect::UnregisterForQuest(VM* a_vm, StackID a_stackID, R
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -535,7 +537,8 @@ void papyrusActiveMagicEffect::UnregisterForQuestStage(VM* a_vm, StackID a_stack
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_quest) {
+	}
+	if (!a_quest) {
 		a_vm->TraceStack("Quest is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -617,109 +620,111 @@ void papyrusActiveMagicEffect::UnregisterForWeatherChange(VM* a_vm, StackID a_st
 }
 
 
-bool papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm)
+auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusActiveMagicEffect - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("RegisterForActorKilled", "PO3_Events_AME", RegisterForActorKilled, true);
+	auto constexpr Event_AME = "PO3_Events_AME"sv;
 
-	a_vm->RegisterFunction("RegisterForFECReset", "PO3_Events_AME", RegisterForFECReset, true);
+	a_vm->RegisterFunction("RegisterForActorKilled"sv, Event_AME, RegisterForActorKilled, true);
 
-	a_vm->RegisterFunction("RegisterForActorReanimateStart", "PO3_Events_AME", RegisterForActorReanimateStart, true);
+	a_vm->RegisterFunction("RegisterForFECReset"sv, Event_AME, RegisterForFECReset, true);
 
-	a_vm->RegisterFunction("RegisterForActorReanimateStop", "PO3_Events_AME", RegisterForActorReanimateStop, true);
+	a_vm->RegisterFunction("RegisterForActorReanimateStart"sv, Event_AME, RegisterForActorReanimateStart, true);
 
-	a_vm->RegisterFunction("RegisterForActorResurrected", "PO3_Events_AME", RegisterForActorResurrected, true);
+	a_vm->RegisterFunction("RegisterForActorReanimateStop"sv, Event_AME, RegisterForActorReanimateStop, true);
 
-	a_vm->RegisterFunction("RegisterForBookRead", "PO3_Events_AME", RegisterForBookRead, true);
+	a_vm->RegisterFunction("RegisterForActorResurrected"sv, Event_AME, RegisterForActorResurrected, true);
 
-	a_vm->RegisterFunction("RegisterForCellFullyLoaded", "PO3_Events_AME", RegisterForCellFullyLoaded, true);
+	a_vm->RegisterFunction("RegisterForBookRead"sv, Event_AME, RegisterForBookRead, true);
 
-	a_vm->RegisterFunction("RegisterForCriticalHit", "PO3_Events_AME", RegisterForCriticalHit, true);
+	a_vm->RegisterFunction("RegisterForCellFullyLoaded"sv, Event_AME, RegisterForCellFullyLoaded, true);
 
-	a_vm->RegisterFunction("RegisterForDisarmed", "PO3_Events_AME", RegisterForDisarmed, true);
+	a_vm->RegisterFunction("RegisterForCriticalHit"sv, Event_AME, RegisterForCriticalHit, true);
 
-	a_vm->RegisterFunction("RegisterForDragonSoulGained", "PO3_Events_AME", RegisterForDragonSoulGained, true);
+	a_vm->RegisterFunction("RegisterForDisarmed"sv, Event_AME, RegisterForDisarmed, true);
 
-	a_vm->RegisterFunction("RegisterForItemHarvested", "PO3_Events_AME", RegisterForItemHarvested, true);
+	a_vm->RegisterFunction("RegisterForDragonSoulGained"sv, Event_AME, RegisterForDragonSoulGained, true);
 
-	a_vm->RegisterFunction("RegisterForLevelIncrease", "PO3_Events_AME", RegisterForLevelIncrease, true);
+	a_vm->RegisterFunction("RegisterForItemHarvested"sv, Event_AME, RegisterForItemHarvested, true);
 
-	a_vm->RegisterFunction("RegisterForLocationDiscovery", "PO3_Events_AME", RegisterForLocationDiscovery, true);
+	a_vm->RegisterFunction("RegisterForLevelIncrease"sv, Event_AME, RegisterForLevelIncrease, true);
 
-	a_vm->RegisterFunction("RegisterForObjectGrab", "PO3_Events_AME", RegisterForObjectGrab, true);
-	
-	a_vm->RegisterFunction("RegisterForObjectLoaded", "PO3_Events_AME", RegisterForObjectLoaded, true);
+	a_vm->RegisterFunction("RegisterForLocationDiscovery"sv, Event_AME, RegisterForLocationDiscovery, true);
 
-	a_vm->RegisterFunction("RegisterForQuest", "PO3_Events_AME", RegisterForQuest, true);
+	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_AME, RegisterForObjectGrab, true);
 
-	a_vm->RegisterFunction("RegisterForQuestStage", "PO3_Events_AME", RegisterForQuestStage, true);
+	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_AME, RegisterForObjectLoaded, true);
 
-	a_vm->RegisterFunction("RegisterForShoutAttack", "PO3_Events_AME", RegisterForShoutAttack, true);
+	a_vm->RegisterFunction("RegisterForQuest"sv, Event_AME, RegisterForQuest, true);
 
-	a_vm->RegisterFunction("RegisterForSkillIncrease", "PO3_Events_AME", RegisterForSkillIncrease, true);
-	
-	a_vm->RegisterFunction("RegisterForSoulTrapped", "PO3_Events_AME", RegisterForSoulTrapped, true);
+	a_vm->RegisterFunction("RegisterForQuestStage"sv, Event_AME, RegisterForQuestStage, true);
 
-	a_vm->RegisterFunction("RegisterForSpellLearned", "PO3_Events_AME", RegisterForSpellLearned, true);
-	
-	a_vm->RegisterFunction("RegisterForWeatherChange", "PO3_Events_AME", RegisterForWeatherChange, true);
+	a_vm->RegisterFunction("RegisterForShoutAttack"sv, Event_AME, RegisterForShoutAttack, true);
+
+	a_vm->RegisterFunction("RegisterForSkillIncrease"sv, Event_AME, RegisterForSkillIncrease, true);
+
+	a_vm->RegisterFunction("RegisterForSoulTrapped"sv, Event_AME, RegisterForSoulTrapped, true);
+
+	a_vm->RegisterFunction("RegisterForSpellLearned"sv, Event_AME, RegisterForSpellLearned, true);
+
+	a_vm->RegisterFunction("RegisterForWeatherChange"sv, Event_AME, RegisterForWeatherChange, true);
 
 
-	a_vm->RegisterFunction("UnregisterForActorKilled", "PO3_Events_AME", UnregisterForActorKilled, true);
+	a_vm->RegisterFunction("UnregisterForActorKilled"sv, Event_AME, UnregisterForActorKilled, true);
 
-	a_vm->RegisterFunction("UnregisterForFECReset", "PO3_Events_AME", UnregisterForFECReset, true);
+	a_vm->RegisterFunction("UnregisterForFECReset"sv, Event_AME, UnregisterForFECReset, true);
 
-	a_vm->RegisterFunction("UnregisterForAllFECResets", "PO3_Events_AME", UnregisterForAllFECResets, true);
+	a_vm->RegisterFunction("UnregisterForAllFECResets"sv, Event_AME, UnregisterForAllFECResets, true);
 
-	a_vm->RegisterFunction("UnregisterForActorReanimateStart", "PO3_Events_AME", UnregisterForActorReanimateStart, true);
+	a_vm->RegisterFunction("UnregisterForActorReanimateStart"sv, Event_AME, UnregisterForActorReanimateStart, true);
 
-	a_vm->RegisterFunction("UnregisterForActorReanimateStop", "PO3_Events_AME", UnregisterForActorReanimateStop, true);
+	a_vm->RegisterFunction("UnregisterForActorReanimateStop"sv, Event_AME, UnregisterForActorReanimateStop, true);
 
-	a_vm->RegisterFunction("UnregisterForActorResurrected", "PO3_Events_AME", UnregisterForActorResurrected, true);
-	
-	a_vm->RegisterFunction("UnregisterForBookRead", "PO3_Events_AME", UnregisterForBookRead, true);
+	a_vm->RegisterFunction("UnregisterForActorResurrected"sv, Event_AME, UnregisterForActorResurrected, true);
 
-	a_vm->RegisterFunction("UnregisterForCellFullyLoaded", "PO3_Events_AME", UnregisterForCellFullyLoaded, true);
+	a_vm->RegisterFunction("UnregisterForBookRead"sv, Event_AME, UnregisterForBookRead, true);
 
-	a_vm->RegisterFunction("UnregisterForCriticalHit", "PO3_Events_AME", UnregisterForCriticalHit, true);
+	a_vm->RegisterFunction("UnregisterForCellFullyLoaded"sv, Event_AME, UnregisterForCellFullyLoaded, true);
 
-	a_vm->RegisterFunction("UnregisterForDisarmed", "PO3_Events_AME", UnregisterForDisarmed, true);
+	a_vm->RegisterFunction("UnregisterForCriticalHit"sv, Event_AME, UnregisterForCriticalHit, true);
 
-	a_vm->RegisterFunction("UnregisterForDragonSoulGained", "PO3_Events_AME", UnregisterForDragonSoulGained, true);
+	a_vm->RegisterFunction("UnregisterForDisarmed"sv, Event_AME, UnregisterForDisarmed, true);
 
-	a_vm->RegisterFunction("UnregisterForItemHarvested", "PO3_Events_AME", UnregisterForItemHarvested, true);
+	a_vm->RegisterFunction("UnregisterForDragonSoulGained"sv, Event_AME, UnregisterForDragonSoulGained, true);
 
-	a_vm->RegisterFunction("UnregisterForLevelIncrease", "PO3_Events_AME", UnregisterForLevelIncrease, true);
+	a_vm->RegisterFunction("UnregisterForItemHarvested"sv, Event_AME, UnregisterForItemHarvested, true);
 
-	a_vm->RegisterFunction("UnregisterForLocationDiscovery", "PO3_Events_AME", UnregisterForLocationDiscovery, true);
+	a_vm->RegisterFunction("UnregisterForLevelIncrease"sv, Event_AME, UnregisterForLevelIncrease, true);
 
-	a_vm->RegisterFunction("UnregisterForObjectGrab", "PO3_Events_AME", UnregisterForObjectGrab, true);
+	a_vm->RegisterFunction("UnregisterForLocationDiscovery"sv, Event_AME, UnregisterForLocationDiscovery, true);
 
-	a_vm->RegisterFunction("UnregisterForObjectLoaded", "PO3_Events_AME", UnregisterForObjectLoaded, true);
+	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_AME, UnregisterForObjectGrab, true);
 
-	a_vm->RegisterFunction("UnregisterForAllObjectsLoaded", "PO3_Events_AME", UnregisterForAllObjectsLoaded, true);
+	a_vm->RegisterFunction("UnregisterForObjectLoaded"sv, Event_AME, UnregisterForObjectLoaded, true);
 
-	a_vm->RegisterFunction("UnregisterForQuest", "PO3_Events_AME", UnregisterForQuest, true);
+	a_vm->RegisterFunction("UnregisterForAllObjectsLoaded"sv, Event_AME, UnregisterForAllObjectsLoaded, true);
 
-	a_vm->RegisterFunction("UnregisterForAllQuests", "PO3_Events_AME", UnregisterForAllQuests, true);
+	a_vm->RegisterFunction("UnregisterForQuest"sv, Event_AME, UnregisterForQuest, true);
 
-	a_vm->RegisterFunction("UnregisterForQuestStage", "PO3_Events_AME", UnregisterForQuestStage, true);
+	a_vm->RegisterFunction("UnregisterForAllQuests"sv, Event_AME, UnregisterForAllQuests, true);
 
-	a_vm->RegisterFunction("UnregisterForAllQuestStages", "PO3_Events_AME", UnregisterForAllQuestStages, true);
+	a_vm->RegisterFunction("UnregisterForQuestStage"sv, Event_AME, UnregisterForQuestStage, true);
 
-	a_vm->RegisterFunction("UnregisterForShoutAttack", "PO3_Events_AME", UnregisterForShoutAttack, true);
+	a_vm->RegisterFunction("UnregisterForAllQuestStages"sv, Event_AME, UnregisterForAllQuestStages, true);
 
-	a_vm->RegisterFunction("UnregisterForSkillIncrease", "PO3_Events_AME", UnregisterForSkillIncrease, true);
+	a_vm->RegisterFunction("UnregisterForShoutAttack"sv, Event_AME, UnregisterForShoutAttack, true);
 
-	a_vm->RegisterFunction("UnregisterForSoulTrapped", "PO3_Events_AME", UnregisterForSoulTrapped, true);
+	a_vm->RegisterFunction("UnregisterForSkillIncrease"sv, Event_AME, UnregisterForSkillIncrease, true);
 
-	a_vm->RegisterFunction("UnregisterForSpellLearned", "PO3_Events_AME", UnregisterForSpellLearned, true);
+	a_vm->RegisterFunction("UnregisterForSoulTrapped"sv, Event_AME, UnregisterForSoulTrapped, true);
 
-	a_vm->RegisterFunction("UnregisterForWeatherChange", "PO3_Events_AME", UnregisterForWeatherChange, true);
+	a_vm->RegisterFunction("UnregisterForSpellLearned"sv, Event_AME, UnregisterForSpellLearned, true);
+
+	a_vm->RegisterFunction("UnregisterForWeatherChange"sv, Event_AME, UnregisterForWeatherChange, true);
 
 
 	return true;

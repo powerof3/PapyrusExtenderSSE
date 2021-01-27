@@ -12,7 +12,7 @@ void papyrusHazard::ClearHazardFlag(VM* a_vm, StackID a_stackID, RE::StaticFunct
 }
 
 
-RE::BSFixedString papyrusHazard::GetHazardArt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardArt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> RE::BSFixedString
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -23,7 +23,7 @@ RE::BSFixedString papyrusHazard::GetHazardArt(VM* a_vm, StackID a_stackID, RE::S
 }
 
 
-RE::TESImageSpaceModifier* papyrusHazard::GetHazardIMOD(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardIMOD(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> RE::TESImageSpaceModifier*
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -34,7 +34,7 @@ RE::TESImageSpaceModifier* papyrusHazard::GetHazardIMOD(VM* a_vm, StackID a_stac
 }
 
 
-float papyrusHazard::GetHazardIMODRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardIMODRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> float
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -45,7 +45,7 @@ float papyrusHazard::GetHazardIMODRadius(VM* a_vm, StackID a_stackID, RE::Static
 }
 
 
-RE::BGSImpactDataSet* papyrusHazard::GetHazardIPDS(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardIPDS(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> RE::BGSImpactDataSet*
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -56,7 +56,7 @@ RE::BGSImpactDataSet* papyrusHazard::GetHazardIPDS(VM* a_vm, StackID a_stackID, 
 }
 
 
-float papyrusHazard::GetHazardLifetime(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardLifetime(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> float
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -67,7 +67,7 @@ float papyrusHazard::GetHazardLifetime(VM* a_vm, StackID a_stackID, RE::StaticFu
 }
 
 
-RE::TESObjectLIGH* papyrusHazard::GetHazardLight(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardLight(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> RE::TESObjectLIGH*
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -78,7 +78,7 @@ RE::TESObjectLIGH* papyrusHazard::GetHazardLight(VM* a_vm, StackID a_stackID, RE
 }
 
 
-std::int32_t papyrusHazard::GetHazardLimit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardLimit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> std::int32_t
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -89,7 +89,7 @@ std::int32_t papyrusHazard::GetHazardLimit(VM* a_vm, StackID a_stackID, RE::Stat
 }
 
 
-float papyrusHazard::GetHazardRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> float
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -100,7 +100,7 @@ float papyrusHazard::GetHazardRadius(VM* a_vm, StackID a_stackID, RE::StaticFunc
 }
 
 
-RE::BGSSoundDescriptorForm* papyrusHazard::GetHazardSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> RE::BGSSoundDescriptorForm*
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -111,7 +111,7 @@ RE::BGSSoundDescriptorForm* papyrusHazard::GetHazardSound(VM* a_vm, StackID a_st
 }
 
 
-RE::SpellItem* papyrusHazard::GetHazardSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> RE::SpellItem*
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -122,7 +122,7 @@ RE::SpellItem* papyrusHazard::GetHazardSpell(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-float papyrusHazard::GetHazardTargetInterval(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard)
+auto papyrusHazard::GetHazardTargetInterval(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard) -> float
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -133,7 +133,7 @@ float papyrusHazard::GetHazardTargetInterval(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-bool papyrusHazard::IsHazardFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard, std::uint32_t a_flag)
+auto papyrusHazard::IsHazardFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSHazard* a_hazard, std::uint32_t a_flag) -> bool
 {
 	if (!a_hazard) {
 		a_vm->TraceStack("Hazard is None", a_stackID, Severity::kWarning);
@@ -276,60 +276,62 @@ void papyrusHazard::SetHazardTargetInterval(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
-bool papyrusHazard::RegisterFuncs(VM* a_vm)
+auto papyrusHazard::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusHazard - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("ClearHazardFlag", "PO3_SKSEFunctions", ClearHazardFlag);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetHazardArt", "PO3_SKSEFunctions", GetHazardArt, true);
+    a_vm->RegisterFunction("ClearHazardFlag"sv, Functions, ClearHazardFlag);
 
-	a_vm->RegisterFunction("GetHazardIMOD", "PO3_SKSEFunctions", GetHazardIMOD, true);
+	a_vm->RegisterFunction("GetHazardArt"sv, Functions, GetHazardArt, true);
 
-	a_vm->RegisterFunction("GetHazardIMODRadius", "PO3_SKSEFunctions", GetHazardIMODRadius, true);
+	a_vm->RegisterFunction("GetHazardIMOD"sv, Functions, GetHazardIMOD, true);
 
-	a_vm->RegisterFunction("GetHazardIPDS", "PO3_SKSEFunctions", GetHazardIPDS, true);
+	a_vm->RegisterFunction("GetHazardIMODRadius"sv, Functions, GetHazardIMODRadius, true);
 
-	a_vm->RegisterFunction("GetHazardLifetime", "PO3_SKSEFunctions", GetHazardLifetime, true);
+	a_vm->RegisterFunction("GetHazardIPDS"sv, Functions, GetHazardIPDS, true);
 
-	a_vm->RegisterFunction("GetHazardLight", "PO3_SKSEFunctions", GetHazardLight, true);
+	a_vm->RegisterFunction("GetHazardLifetime"sv, Functions, GetHazardLifetime, true);
 
-	a_vm->RegisterFunction("GetHazardLimit", "PO3_SKSEFunctions", GetHazardLimit, true);
+	a_vm->RegisterFunction("GetHazardLight"sv, Functions, GetHazardLight, true);
 
-	a_vm->RegisterFunction("GetHazardRadius", "PO3_SKSEFunctions", GetHazardRadius, true);
+	a_vm->RegisterFunction("GetHazardLimit"sv, Functions, GetHazardLimit, true);
 
-	a_vm->RegisterFunction("GetHazardSound", "PO3_SKSEFunctions", GetHazardSound, true);
+	a_vm->RegisterFunction("GetHazardRadius"sv, Functions, GetHazardRadius, true);
 
-	a_vm->RegisterFunction("GetHazardSpell", "PO3_SKSEFunctions", GetHazardSpell, true);
+	a_vm->RegisterFunction("GetHazardSound"sv, Functions, GetHazardSound, true);
 
-	a_vm->RegisterFunction("GetHazardTargetInterval", "PO3_SKSEFunctions", GetHazardTargetInterval, true);
+	a_vm->RegisterFunction("GetHazardSpell"sv, Functions, GetHazardSpell, true);
 
-	a_vm->RegisterFunction("IsHazardFlagSet", "PO3_SKSEFunctions", IsHazardFlagSet, true);
+	a_vm->RegisterFunction("GetHazardTargetInterval"sv, Functions, GetHazardTargetInterval, true);
 
-	a_vm->RegisterFunction("SetHazardArt", "PO3_SKSEFunctions", SetHazardArt);
+	a_vm->RegisterFunction("IsHazardFlagSet"sv, Functions, IsHazardFlagSet, true);
 
-	a_vm->RegisterFunction("SetHazardIMOD", "PO3_SKSEFunctions", SetHazardIMOD);
+	a_vm->RegisterFunction("SetHazardArt"sv, Functions, SetHazardArt);
 
-	a_vm->RegisterFunction("SetHazardIMODRadius", "PO3_SKSEFunctions", SetHazardIMODRadius);
+	a_vm->RegisterFunction("SetHazardIMOD"sv, Functions, SetHazardIMOD);
 
-	a_vm->RegisterFunction("SetHazardIPDS", "PO3_SKSEFunctions", SetHazardIPDS);
+	a_vm->RegisterFunction("SetHazardIMODRadius"sv, Functions, SetHazardIMODRadius);
 
-	a_vm->RegisterFunction("SetHazardLifetime", "PO3_SKSEFunctions", SetHazardLifetime);
+	a_vm->RegisterFunction("SetHazardIPDS"sv, Functions, SetHazardIPDS);
 
-	a_vm->RegisterFunction("SetHazardLight", "PO3_SKSEFunctions", SetHazardLight);
+	a_vm->RegisterFunction("SetHazardLifetime"sv, Functions, SetHazardLifetime);
 
-	a_vm->RegisterFunction("SetHazardLimit", "PO3_SKSEFunctions", SetHazardLimit);
+	a_vm->RegisterFunction("SetHazardLight"sv, Functions, SetHazardLight);
 
-	a_vm->RegisterFunction("SetHazardRadius", "PO3_SKSEFunctions", SetHazardRadius);
+	a_vm->RegisterFunction("SetHazardLimit"sv, Functions, SetHazardLimit);
 
-	a_vm->RegisterFunction("SetHazardSound", "PO3_SKSEFunctions", SetHazardSound);
+	a_vm->RegisterFunction("SetHazardRadius"sv, Functions, SetHazardRadius);
 
-	a_vm->RegisterFunction("SetHazardSpell", "PO3_SKSEFunctions", SetHazardSpell);
+	a_vm->RegisterFunction("SetHazardSound"sv, Functions, SetHazardSound);
 
-	a_vm->RegisterFunction("SetHazardTargetInterval", "PO3_SKSEFunctions", SetHazardTargetInterval);
+	a_vm->RegisterFunction("SetHazardSpell"sv, Functions, SetHazardSpell);
+
+	a_vm->RegisterFunction("SetHazardTargetInterval"sv, Functions, SetHazardTargetInterval);
 
 	return true;
 }

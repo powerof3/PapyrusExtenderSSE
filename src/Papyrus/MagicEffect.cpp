@@ -1,7 +1,7 @@
 #include "Papyrus/MagicEffect.h"
 
 
-RE::TESForm* papyrusMagicEffect::GetAssociatedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef)
+auto papyrusMagicEffect::GetAssociatedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef) -> RE::TESForm*
 {
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
@@ -12,7 +12,7 @@ RE::TESForm* papyrusMagicEffect::GetAssociatedForm(VM* a_vm, StackID a_stackID, 
 }
 
 
-std::uint32_t papyrusMagicEffect::GetEffectArchetypeAsInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef)
+auto papyrusMagicEffect::GetEffectArchetypeAsInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef) -> std::uint32_t
 {
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
@@ -23,7 +23,7 @@ std::uint32_t papyrusMagicEffect::GetEffectArchetypeAsInt(VM* a_vm, StackID a_st
 }
 
 
-RE::BSFixedString papyrusMagicEffect::GetEffectArchetypeAsString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef)
+auto papyrusMagicEffect::GetEffectArchetypeAsString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef) -> RE::BSFixedString
 {
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
@@ -34,17 +34,18 @@ RE::BSFixedString papyrusMagicEffect::GetEffectArchetypeAsString(VM* a_vm, Stack
 }
 
 
-RE::BGSSoundDescriptorForm* papyrusMagicEffect::GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef, std::uint32_t a_type)
+auto papyrusMagicEffect::GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef, std::uint32_t a_type) -> RE::BGSSoundDescriptorForm*
 {
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
 		return nullptr;
-	} else if (a_type < 0 || a_type > 6) {
+	}
+	if (a_type > 6) {
 		a_vm->TraceStack("Sound index is invalid", a_stackID, Severity::kWarning);
 		return nullptr;
 	}
 
-	auto soundID = static_cast<RE::MagicSystem::SoundID>(a_type);
+	const auto soundID = static_cast<RE::MagicSystem::SoundID>(a_type);
 	for (const auto& effectSound : a_mgef->effectSounds) {
 		if (effectSound.id == soundID) {
 			return effectSound.sound;
@@ -55,7 +56,7 @@ RE::BGSSoundDescriptorForm* papyrusMagicEffect::GetMagicEffectSound(VM* a_vm, St
 }
 
 
-RE::BSFixedString papyrusMagicEffect::GetPrimaryActorValue(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef)
+auto papyrusMagicEffect::GetPrimaryActorValue(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef) -> RE::BSFixedString
 {
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
@@ -63,10 +64,9 @@ RE::BSFixedString papyrusMagicEffect::GetPrimaryActorValue(VM* a_vm, StackID a_s
 	}
 
 	RE::BSFixedString avStr;
-	
-	auto actorValueList = RE::ActorValueList::GetSingleton();
-	if (actorValueList) {
-		auto actorValue = actorValueList->GetActorValue(a_mgef->data.primaryAV);
+
+	if (auto actorValueList = RE::ActorValueList::GetSingleton(); actorValueList) {
+		const auto actorValue = actorValueList->GetActorValue(a_mgef->data.primaryAV);
 		if (actorValue) {
 			avStr = actorValue->enumName;
 		}
@@ -76,7 +76,7 @@ RE::BSFixedString papyrusMagicEffect::GetPrimaryActorValue(VM* a_vm, StackID a_s
 }
 
 
-RE::BSFixedString papyrusMagicEffect::GetSecondaryActorValue(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef)
+auto papyrusMagicEffect::GetSecondaryActorValue(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EffectSetting* a_mgef) -> RE::BSFixedString
 {
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
@@ -85,9 +85,8 @@ RE::BSFixedString papyrusMagicEffect::GetSecondaryActorValue(VM* a_vm, StackID a
 
 	RE::BSFixedString avStr;
 
-	auto actorValueList = RE::ActorValueList::GetSingleton();
-	if (actorValueList) {
-		auto actorValue = actorValueList->GetActorValue(a_mgef->data.secondaryAV);
+	if (auto actorValueList = RE::ActorValueList::GetSingleton(); actorValueList) {
+		const auto actorValue = actorValueList->GetActorValue(a_mgef->data.secondaryAV);
 		if (actorValue) {
 			avStr = actorValue->enumName;
 		}
@@ -102,15 +101,17 @@ void papyrusMagicEffect::SetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::St
 	if (!a_mgef) {
 		a_vm->TraceStack("MagicEffect is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_sound) {
+	}
+	if (!a_sound) {
 		a_vm->TraceStack("Sound is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (a_type < 0 || a_type > 6) {
+	}
+	if (a_type > 6) {
 		a_vm->TraceStack("Sound index is invalid", a_stackID, Severity::kWarning);
 		return;
 	}
 
-	auto soundID = static_cast<RE::MagicSystem::SoundID>(a_type);
+	const auto soundID = static_cast<RE::MagicSystem::SoundID>(a_type);
 	for (auto& effectSound : a_mgef->effectSounds) {
 		if (effectSound.id == soundID) {
 			effectSound.sound = a_sound;
@@ -120,26 +121,28 @@ void papyrusMagicEffect::SetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-bool papyrusMagicEffect::RegisterFuncs(VM* a_vm)
+auto papyrusMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusMagicEffect - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetAssociatedForm", "PO3_SKSEFunctions", GetAssociatedForm, true);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetEffectArchetypeAsInt", "PO3_SKSEFunctions", GetEffectArchetypeAsInt, true);
+	a_vm->RegisterFunction("GetAssociatedForm"sv, Functions, GetAssociatedForm, true);
 
-	a_vm->RegisterFunction("GetEffectArchetypeAsString", "PO3_SKSEFunctions", GetEffectArchetypeAsString, true);
+	a_vm->RegisterFunction("GetEffectArchetypeAsInt"sv, Functions, GetEffectArchetypeAsInt, true);
 
-	a_vm->RegisterFunction("GetPrimaryActorValue", "PO3_SKSEFunctions", GetPrimaryActorValue, true);
+	a_vm->RegisterFunction("GetEffectArchetypeAsString"sv, Functions, GetEffectArchetypeAsString, true);
 
-	a_vm->RegisterFunction("GetSecondaryActorValue", "PO3_SKSEFunctions", GetSecondaryActorValue, true);
+	a_vm->RegisterFunction("GetPrimaryActorValue"sv, Functions, GetPrimaryActorValue, true);
 
-	a_vm->RegisterFunction("GetMagicEffectSound", "PO3_SKSEFunctions", GetMagicEffectSound);
+	a_vm->RegisterFunction("GetSecondaryActorValue"sv, Functions, GetSecondaryActorValue, true);
 
-	a_vm->RegisterFunction("SetMagicEffectSound", "PO3_SKSEFunctions", SetMagicEffectSound);
+	a_vm->RegisterFunction("GetMagicEffectSound"sv, Functions, GetMagicEffectSound);
+
+	a_vm->RegisterFunction("SetMagicEffectSound"sv, Functions, SetMagicEffectSound);
 
 	return true;
 }

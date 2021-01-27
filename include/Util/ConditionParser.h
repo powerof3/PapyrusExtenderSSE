@@ -34,14 +34,14 @@ namespace Condition
 	};
 
 
-	inline bool isStringValid(const std::string& a_str)
-	{
+	inline auto isStringValid(const std::string& a_str) -> bool
+    {
 		return !a_str.empty() && a_str.find("NONE"sv) == std::string::npos && !STRING::onlySpace(a_str);
 	}
 
 	using ConditionData = std::tuple<OBJECT, FUNC_ID, void*, void*, OP_CODE, float, bool>;
 	using ConditionDataVec = std::vector<ConditionData>;
 
-	ConditionDataVec ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList);
-	std::vector<RE::BSFixedString> BuildConditions(const ConditionDataVec& a_conditions);
+    auto ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList) -> ConditionDataVec;
+    auto BuildConditions(const ConditionDataVec& a_conditions) -> std::vector<RE::BSFixedString>;
 }

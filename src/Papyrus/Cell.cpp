@@ -1,7 +1,7 @@
 #include "Papyrus/Cell.h"
 
 
-RE::BGSLightingTemplate* papyrusCell::GetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectCELL* a_cell)
+auto papyrusCell::GetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectCELL* a_cell) -> RE::BGSLightingTemplate*
 {
 	if (!a_cell) {
 		a_vm->TraceStack("Cell is None", a_stackID, Severity::kWarning);
@@ -17,7 +17,8 @@ void papyrusCell::SetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFun
 	if (!a_cell) {
 		a_vm->TraceStack("Cell is None", a_stackID, Severity::kWarning);
 		return;
-	} else if (!a_lightingTemplate) {
+	}
+	if (!a_lightingTemplate) {
 		a_vm->TraceStack("Lighting Template is None", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -26,26 +27,14 @@ void papyrusCell::SetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFun
 }
 
 
-float papyrusCell::GetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectCELL* a_cell)
+auto papyrusCell::GetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectCELL* a_cell) -> float
 {
 	if (!a_cell) {
 		a_vm->TraceStack("Cell is None", a_stackID, Severity::kWarning);
 		return 0.0f;
 	}
 
-	if (a_cell->IsInteriorCell()) {
-		auto extraNorthMarker = a_cell->extraList.GetByType<RE::ExtraNorthRotation>();
-		if (extraNorthMarker) {
-			return extraNorthMarker->northRot;
-		}
-	} else {
-		auto worldspace = a_cell->worldSpace;
-		if (worldspace) {
-			return worldspace->northRotation;
-		}
-	}
-
-	return 0.0f;
+    return a_cell->GetNorthRotation();
 }
 
 
@@ -60,16 +49,15 @@ void papyrusCell::SetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFu
 		auto extraNorthMarker = a_cell->extraList.GetByType<RE::ExtraNorthRotation>();
 		if (extraNorthMarker) {
 			extraNorthMarker->northRot = a_angle;
-		} 
-		else {
+		} else {
 			extraNorthMarker = new RE::ExtraNorthRotation();
 			if (extraNorthMarker) {
-				a_cell->extraList.Add(extraNorthMarker);
 				extraNorthMarker->northRot = a_angle;
+				a_cell->extraList.Add(extraNorthMarker);
 			}
 		}
 	} else {
-		auto worldspace = a_cell->worldSpace;
+		const auto worldspace = a_cell->worldSpace;
 		if (worldspace) {
 			worldspace->northRotation = a_angle;
 		}
@@ -77,18 +65,22 @@ void papyrusCell::SetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFu
 }
 
 
-
-bool papyrusCell::RegisterFuncs(VM* a_vm)
+auto papyrusCell::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusCell - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetLightingTemplate", "PO3_SKSEFunctions", GetLightingTemplate);
-	a_vm->RegisterFunction("SetLightingTemplate", "PO3_SKSEFunctions", SetLightingTemplate);
-	a_vm->RegisterFunction("GetCellNorthRotation", "PO3_SKSEFunctions", GetCellNorthRotation);
-	a_vm->RegisterFunction("SetCellNorthRotation", "PO3_SKSEFunctions", SetCellNorthRotation);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
+
+	a_vm->RegisterFunction("GetLightingTemplate"sv, Functions, GetLightingTemplate);
+
+    a_vm->RegisterFunction("SetLightingTemplate"sv, Functions, SetLightingTemplate);
+
+    a_vm->RegisterFunction("GetCellNorthRotation"sv, Functions, GetCellNorthRotation);
+
+    a_vm->RegisterFunction("SetCellNorthRotation"sv, Functions, SetCellNorthRotation);
 
 	return true;
 }

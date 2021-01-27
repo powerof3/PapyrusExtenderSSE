@@ -1,12 +1,11 @@
 #include "Papyrus/Game.h"
 
 
-std::vector<RE::Actor*> papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::int32_t a_level)
+auto papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::int32_t a_level) -> std::vector<RE::Actor*>
 {
 	std::vector<RE::Actor*> vec;
 
-	auto processLists = RE::ProcessLists::GetSingleton();
-	if (processLists) {
+	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 		RE::BSTArray<RE::ActorHandle>* arr = nullptr;
 
 		switch (a_level) {
@@ -23,14 +22,14 @@ std::vector<RE::Actor*> papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackI
 			arr = &processLists->lowActorHandles;
 			break;
 		default:
-			arr = nullptr;
 			break;
 		}
 
 		if (arr) {
 			for (auto& actorHandle : *arr) {
 				auto actorPtr = actorHandle.get();
-				if (auto actor = actorPtr.get(); actor) {
+				auto actor = actorPtr.get();
+				if (actor) {
 					vec.push_back(actor);
 				}
 			}
@@ -41,7 +40,7 @@ std::vector<RE::Actor*> papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackI
 }
 
 
-std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantments(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords)
+auto papyrusGame::GetAllEnchantments(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::EnchantmentItem*>
 {
 	std::vector<RE::EnchantmentItem*> vec;
 	GetAllForms<RE::EnchantmentItem>(vec, a_keywords);
@@ -49,7 +48,7 @@ std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantments(VM* a_vm, Stac
 }
 
 
-std::vector<RE::TESRace*> papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords)
+auto papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::TESRace*>
 {
 	std::vector<RE::TESRace*> vec;
 	GetAllForms<RE::TESRace>(vec, a_keywords);
@@ -57,17 +56,16 @@ std::vector<RE::TESRace*> papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, 
 }
 
 
-std::vector<RE::SpellItem*> papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable)
+auto papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable) -> std::vector<RE::SpellItem*>
 {
 	std::vector<RE::SpellItem*> vec;
 
 	if (a_playable) {
-		auto dataHandler = RE::TESDataHandler::GetSingleton();
-		if (dataHandler) {
+		if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 			for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
 				if (book && book->data.flags.all(RE::OBJ_BOOK::Flag::kTeachesSpell)) {
 					auto spell = book->data.teaches.spell;
-					if (!spell || (!a_keywords.empty() && !spell->HasKeywords(a_keywords))) {
+					if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
 						continue;
 					}
 					vec.push_back(spell);
@@ -82,7 +80,7 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackI
 }
 
 
-std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantmentsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords)
+auto papyrusGame::GetAllEnchantmentsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::EnchantmentItem*>
 {
 	std::vector<RE::EnchantmentItem*> vec;
 
@@ -91,22 +89,21 @@ std::vector<RE::EnchantmentItem*> papyrusGame::GetAllEnchantmentsInMod(VM* a_vm,
 		return vec;
 	}
 
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
+	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
+		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (!modInfo) {
-			auto msg = a_name.c_str() + std::string(" is not loaded"sv);
+            const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
-			return vec;
+		} else {
+			GetAllFormsInMod<RE::EnchantmentItem>(modInfo, vec, a_keywords);
 		}
-		GetAllFormsInMod<RE::EnchantmentItem>(modInfo, vec, a_keywords);
 	}
 
 	return vec;
 }
 
 
-std::vector<RE::TESRace*> papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords)
+auto papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::TESRace*>
 {
 	std::vector<RE::TESRace*> vec;
 
@@ -115,22 +112,21 @@ std::vector<RE::TESRace*> papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stac
 		return vec;
 	}
 
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
+	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
+		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (!modInfo) {
-			auto msg = a_name.c_str() + std::string(" is not loaded"sv);
+            const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
-			return vec;
+		} else {
+			GetAllFormsInMod<RE::TESRace>(modInfo, vec, a_keywords);
 		}
-		GetAllFormsInMod<RE::TESRace>(modInfo, vec, a_keywords);
 	}
 
 	return vec;
 }
 
 
-std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable)
+auto papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable) -> std::vector<RE::SpellItem*>
 {
 	std::vector<RE::SpellItem*> vec;
 
@@ -139,11 +135,10 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 		return vec;
 	}
 
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-		const auto modInfo = dataHandler->LookupModByName(a_name.c_str());
+	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
+		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (!modInfo) {
-			auto msg = a_name.c_str() + std::string(" is not loaded"sv);
+            const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
@@ -153,7 +148,7 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 					continue;
 				}
 				auto spell = book->data.teaches.spell;
-				if (!spell || (!a_keywords.empty() && !spell->HasKeywords(a_keywords))) {
+				if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords)) {
 					continue;
 				}
 				vec.push_back(spell);
@@ -167,23 +162,22 @@ std::vector<RE::SpellItem*> papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_s
 }
 
 
-std::vector<RE::TESObjectCELL*> papyrusGame::GetAttachedCells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
+auto papyrusGame::GetAttachedCells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> std::vector<RE::TESObjectCELL*>
 {
 	std::vector<RE::TESObjectCELL*> vec;
 
-	auto TES = RE::TES::GetSingleton();
-	if (TES) {
+	if (const auto TES = RE::TES::GetSingleton(); TES) {
 		auto cell = TES->interiorCell;
 		if (cell) {
 			vec.push_back(cell);
 		} else {
-			auto gridCells = TES->gridCells;
+            const auto gridCells = TES->gridCells;
 			if (gridCells) {
-				auto gridLength = gridCells->length;
+                const auto gridLength = gridCells->length;
 				if (gridLength > 0) {
-					std::uint32_t x = 0;
-					std::uint32_t y = 0;
-					for (x = 0, y = 0; (x < gridLength && y < gridLength); x++, y++) {
+					std::uint32_t x;
+					std::uint32_t y;
+					for (x = 0, y = 0; x < gridLength && y < gridLength; x++, y++) {
 						cell = gridCells->GetCell(x, y);
 						if (cell && cell->IsAttached()) {
 							vec.push_back(cell);
@@ -207,17 +201,16 @@ std::vector<RE::TESObjectCELL*> papyrusGame::GetAttachedCells(VM* a_vm, StackID 
 }
 
 
-std::int32_t papyrusGame::GetGameSettingBool(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_gamesetting)
+auto papyrusGame::GetGameSettingBool(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_gamesetting) -> std::int32_t
 {
 	if (a_gamesetting.empty()) {
 		return -1;
 	}
 
-	auto gameSettingCollection = RE::GameSettingCollection::GetSingleton();
-	if (gameSettingCollection) {
-		auto gameSetting = gameSettingCollection->GetSetting(a_gamesetting.c_str());
-		if (gameSetting && gameSetting->GetType() == RE::Setting::Type::kBool) {
-				return gameSetting->GetBool();
+	if (auto gmstCollection = RE::GameSettingCollection::GetSingleton(); gmstCollection) {
+        const auto gmst = gmstCollection->GetSetting(a_gamesetting.c_str());
+		if (gmst && gmst->GetType() == RE::Setting::Type::kBool) {
+			return gmst->GetBool();
 		}
 	}
 
@@ -225,18 +218,17 @@ std::int32_t papyrusGame::GetGameSettingBool(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
+auto papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> std::vector<float>
 {
 	std::vector<float> vec(3, 0.0f);
 
-	auto player = RE::PlayerCharacter::GetSingleton();
-	if (player) {
-		auto cell = player->GetParentCell();
+	if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
+        const auto cell = player->GetParentCell();
 		if (cell) {
-			auto world = cell->GetHavokWorld();
+			auto world = cell->GetbhkWorld();
 			if (world) {
-				world->LockWorldForRead();
-				auto havokWorld = world->GetWorld2();
+				RE::BSReadLockGuard lock(world->worldLock);
+                const auto havokWorld = world->GetWorld2();
 				if (havokWorld) {
 					float gravity[4];
 					_mm_store_ps(gravity, havokWorld->gravity.quad);
@@ -244,7 +236,6 @@ std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE:
 						vec[i] = gravity[i];
 					}
 				}
-				world->UnlockWorldForRead();
 			}
 		}
 	}
@@ -253,25 +244,21 @@ std::vector<float> papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE:
 }
 
 
-std::int32_t papyrusGame::GetNumActorsInHigh(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
+auto papyrusGame::GetNumActorsInHigh(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> std::int32_t
 {
-	auto processLists = RE::ProcessLists::GetSingleton();
+    const auto processLists = RE::ProcessLists::GetSingleton();
 	return processLists ? processLists->numberHighActors : -1;
 }
 
 
-bool papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name)
+auto papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name) -> bool
 {
 	if (a_name.empty()) {
 		a_vm->TraceStack("Mod name is empty", a_stackID, Severity::kWarning);
 	}
 
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-		auto modInfo = dataHandler->LookupLoadedModByName(a_name.c_str());
-		if (!modInfo) {
-			modInfo = dataHandler->LookupLoadedLightModByName(a_name.c_str());
-		}
+	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
+        const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (modInfo) {
 			return true;
 		}
@@ -281,12 +268,11 @@ bool papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
-bool papyrusGame::IsSurvivalModeActive(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*)
+auto papyrusGame::IsSurvivalModeActive(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> bool
 {
-	auto manager = RE::BGSDefaultObjectManager::GetSingleton();
-	if (manager) {
-		auto survivalGlobal = manager->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECTS::kSurvivalModeToggle);
-		return survivalGlobal ? survivalGlobal->value == 1.0 : false;
+	if (auto manager = RE::BGSDefaultObjectManager::GetSingleton(); manager) {
+        const auto survivalGlobal = manager->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECTS::kSurvivalModeToggle);
+		return survivalGlobal ? survivalGlobal->value == 1.0f : false;
 	}
 	return false;
 }
@@ -294,58 +280,58 @@ bool papyrusGame::IsSurvivalModeActive(VM* a_vm, StackID a_stackID, RE::StaticFu
 
 void papyrusGame::SetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
 {
-	auto player = RE::PlayerCharacter::GetSingleton();
-	if (player) {
-		auto cell = player->GetParentCell();
+	if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
+        const auto cell = player->GetParentCell();
 		if (cell) {
-			auto world = cell->GetHavokWorld();
+			auto world = cell->GetbhkWorld();
 			if (world) {
-				world->LockWorldForWrite();
+				RE::BSWriteLockGuard lock(world->worldLock);
 				auto havokWorld = world->GetWorld2();
 				if (havokWorld) {
 					havokWorld->gravity = RE::hkVector4(a_x, a_y, a_z, 0.0f);
 				}
-				world->UnlockWorldForWrite();
 			}
 		}
 	}
 }
 
 
-bool papyrusGame::RegisterFuncs(VM* a_vm)
+auto papyrusGame::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
 		logger::critical("papyrusGame - couldn't get VMState"sv);
 		return false;
 	}
 
-	a_vm->RegisterFunction("GetActorsByProcessingLevel", "PO3_SKSEFunctions", GetActorsByProcessingLevel);
+	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-	a_vm->RegisterFunction("GetAllEnchantments", "PO3_SKSEFunctions", GetAllEnchantments);
+	a_vm->RegisterFunction("GetActorsByProcessingLevel"sv, Functions, GetActorsByProcessingLevel);
 
-	a_vm->RegisterFunction("GetAllRaces", "PO3_SKSEFunctions", GetAllRaces);
+	a_vm->RegisterFunction("GetAllEnchantments"sv, Functions, GetAllEnchantments);
 
-	a_vm->RegisterFunction("GetAllSpells", "PO3_SKSEFunctions", GetAllSpells);
+	a_vm->RegisterFunction("GetAllRaces"sv, Functions, GetAllRaces);
 
-	a_vm->RegisterFunction("GetAllEnchantmentsInMod", "PO3_SKSEFunctions", GetAllEnchantmentsInMod);
+	a_vm->RegisterFunction("GetAllSpells"sv, Functions, GetAllSpells);
 
-	a_vm->RegisterFunction("GetAllRacesInMod", "PO3_SKSEFunctions", GetAllRacesInMod);
+	a_vm->RegisterFunction("GetAllEnchantmentsInMod"sv, Functions, GetAllEnchantmentsInMod);
 
-	a_vm->RegisterFunction("GetAllSpellsInMod", "PO3_SKSEFunctions", GetAllSpellsInMod);
+	a_vm->RegisterFunction("GetAllRacesInMod"sv, Functions, GetAllRacesInMod);
 
-	a_vm->RegisterFunction("GetAttachedCells", "PO3_SKSEFunctions", GetAttachedCells);
+	a_vm->RegisterFunction("GetAllSpellsInMod"sv, Functions, GetAllSpellsInMod);
 
-	a_vm->RegisterFunction("GetGameSettingBool", "PO3_SKSEFunctions", GetGameSettingBool);
+	a_vm->RegisterFunction("GetAttachedCells"sv, Functions, GetAttachedCells);
 
-	a_vm->RegisterFunction("GetLocalGravity", "PO3_SKSEFunctions", GetLocalGravity);
+	a_vm->RegisterFunction("GetGameSettingBool"sv, Functions, GetGameSettingBool);
 
-	a_vm->RegisterFunction("GetNumActorsInHigh", "PO3_SKSEFunctions", GetNumActorsInHigh);
+	a_vm->RegisterFunction("GetLocalGravity"sv, Functions, GetLocalGravity);
 
-	a_vm->RegisterFunction("IsSurvivalModeActive", "PO3_SKSEFunctions", IsSurvivalModeActive);
+	a_vm->RegisterFunction("GetNumActorsInHigh"sv, Functions, GetNumActorsInHigh);
 
-	a_vm->RegisterFunction("IsPluginFound", "PO3_SKSEFunctions", IsPluginFound);
+	a_vm->RegisterFunction("IsSurvivalModeActive"sv, Functions, IsSurvivalModeActive);
 
-	a_vm->RegisterFunction("SetLocalGravity", "PO3_SKSEFunctions", SetLocalGravity);
+	a_vm->RegisterFunction("IsPluginFound"sv, Functions, IsPluginFound);
+
+	a_vm->RegisterFunction("SetLocalGravity"sv, Functions, SetLocalGravity);
 
 	return true;
 }

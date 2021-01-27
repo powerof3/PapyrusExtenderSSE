@@ -6,6 +6,7 @@ namespace papyrusUtility
 	using VM = RE::BSScript::IVirtualMachine;
 	using StackID = RE::VMStackID;
 	using Severity = RE::BSScript::ErrorLogger::Severity;
+	using RNG = SKSE::RNG;
 
 
 	float GenerateRandomFloat(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, float a_min, float a_max);

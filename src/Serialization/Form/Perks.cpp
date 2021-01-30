@@ -5,7 +5,7 @@ namespace Serialization
 {
 	using namespace Form;
 	
-	Perks* Form::Perks::GetSingleton()
+	Perks* Perks::GetSingleton()
 	{
 		static Perks singleton;
 		return &singleton;
@@ -34,7 +34,7 @@ namespace Serialization
 
 		auto actorbase = a_actor->GetActorBase();
 		if (actorbase) {
-			success = (a_add == kAdd) ? actorbase->AddPerk(a_perk, 1) : actorbase->RemovePerk(a_perk);
+			success = a_add == kAdd ? actorbase->AddPerk(a_perk, 1) : actorbase->RemovePerk(a_perk);
 			if (success) {
 				a_actor->ApplyPerksFromBase();
 			}

@@ -1,7 +1,7 @@
 #include "Papyrus/Game.h"
 
 
-auto papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::int32_t a_level) -> std::vector<RE::Actor*>
+auto papyrusGame::GetActorsByProcessingLevel(VM*, StackID, RE::StaticFunctionTag*, std::int32_t a_level) -> std::vector<RE::Actor*>
 {
 	std::vector<RE::Actor*> vec;
 
@@ -40,7 +40,7 @@ auto papyrusGame::GetActorsByProcessingLevel(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-auto papyrusGame::GetAllEnchantments(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::EnchantmentItem*>
+auto papyrusGame::GetAllEnchantments(VM*, StackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::EnchantmentItem*>
 {
 	std::vector<RE::EnchantmentItem*> vec;
 	GetAllForms<RE::EnchantmentItem>(vec, a_keywords);
@@ -48,7 +48,7 @@ auto papyrusGame::GetAllEnchantments(VM* a_vm, StackID a_stackID, RE::StaticFunc
 }
 
 
-auto papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::TESRace*>
+auto papyrusGame::GetAllRaces(VM*, StackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords) -> std::vector<RE::TESRace*>
 {
 	std::vector<RE::TESRace*> vec;
 	GetAllForms<RE::TESRace>(vec, a_keywords);
@@ -56,7 +56,7 @@ auto papyrusGame::GetAllRaces(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag
 }
 
 
-auto papyrusGame::GetAllSpells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable) -> std::vector<RE::SpellItem*>
+auto papyrusGame::GetAllSpells(VM*, StackID, RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable) -> std::vector<RE::SpellItem*>
 {
 	std::vector<RE::SpellItem*> vec;
 
@@ -162,7 +162,7 @@ auto papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunct
 }
 
 
-auto papyrusGame::GetAttachedCells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> std::vector<RE::TESObjectCELL*>
+auto papyrusGame::GetAttachedCells(VM*, StackID, RE::StaticFunctionTag*) -> std::vector<RE::TESObjectCELL*>
 {
 	std::vector<RE::TESObjectCELL*> vec;
 
@@ -201,7 +201,7 @@ auto papyrusGame::GetAttachedCells(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 }
 
 
-auto papyrusGame::GetGameSettingBool(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_gamesetting) -> std::int32_t
+auto papyrusGame::GetGameSettingBool(VM*, StackID, RE::StaticFunctionTag*, RE::BSFixedString a_gamesetting) -> std::int32_t
 {
 	if (a_gamesetting.empty()) {
 		return -1;
@@ -218,7 +218,7 @@ auto papyrusGame::GetGameSettingBool(VM* a_vm, StackID a_stackID, RE::StaticFunc
 }
 
 
-auto papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> std::vector<float>
+auto papyrusGame::GetLocalGravity(VM*, StackID, RE::StaticFunctionTag*) -> std::vector<float>
 {
 	std::vector<float> vec(3, 0.0f);
 
@@ -244,7 +244,7 @@ auto papyrusGame::GetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 }
 
 
-auto papyrusGame::GetNumActorsInHigh(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> std::int32_t
+auto papyrusGame::GetNumActorsInHigh(VM*, StackID, RE::StaticFunctionTag*) -> std::int32_t
 {
     const auto processLists = RE::ProcessLists::GetSingleton();
 	return processLists ? processLists->numberHighActors : -1;
@@ -268,7 +268,7 @@ auto papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 }
 
 
-auto papyrusGame::IsSurvivalModeActive(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*) -> bool
+auto papyrusGame::IsSurvivalModeActive(VM*, StackID, RE::StaticFunctionTag*) -> bool
 {
 	if (auto manager = RE::BGSDefaultObjectManager::GetSingleton(); manager) {
         const auto survivalGlobal = manager->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECTS::kSurvivalModeToggle);
@@ -278,7 +278,7 @@ auto papyrusGame::IsSurvivalModeActive(VM* a_vm, StackID a_stackID, RE::StaticFu
 }
 
 
-void papyrusGame::SetLocalGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
+void papyrusGame::SetLocalGravity(VM*, StackID, RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
 {
 	if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
         const auto cell = player->GetParentCell();

@@ -96,15 +96,14 @@ void TintFace(RE::Actor* a_actor, const RE::NiColor& a_color)
 void AddOrUpdateColorData(RE::NiAVObject* a_root, const RE::BSFixedString& a_name, const RE::NiColor& a_color)
 {
 	auto data = a_root->GetExtraData<RE::NiIntegerExtraData>(a_name);
-	if (!data) {
+	if (data) {
+		if (a_color != RE::NiColor(data->value)) {
+			data->value = RE::NiColor::ColorToInt(a_color);
+		}
+	} else {
 		auto newData = RE::NiIntegerExtraData::Create(a_name, RE::NiColor::ColorToInt(a_color));
 		if (newData) {
 			a_root->AddExtraData(newData);
-		}
-	} else {
-		auto color = RE::NiColor(data->value);
-		if (a_color != color) {
-			data->value = RE::NiColor::ColorToInt(a_color);
 		}
 	}
 }
@@ -129,7 +128,7 @@ void papyrusActor::BlendColorWithSkinTone(VM* a_vm, StackID a_stackID, RE::Stati
 		return;
 	}
 
-    const auto actorbase = a_actor->GetActorBase();
+	const auto actorbase = a_actor->GetActorBase();
 	if (actorbase) {
 		const float opacity = a_autoCalc ? std::clamp(a_opacity * RE::NiColor::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) : a_opacity;
 		auto newColor = RE::NiColor::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
@@ -230,8 +229,11 @@ void papyrusActor::FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 		}
 	} else if (a_type == 1) {
 		auto root = a_actor->Get3D(false);
+		if (!root) {
+			return;
+		}
 		auto charController = a_actor->GetCharController();
-		if (root && charController) {
+		if (charController) {
 			auto task = SKSE::GetTaskInterface();
 			task->AddTask([root, charController, a_actor, a_enable]() {
 				std::uint32_t unk = 0;
@@ -595,11 +597,13 @@ auto papyrusActor::GetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	if (root) {
 		if (auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_HAIRTINT"sv); data) {
 			auto factory = RE::IFormFactory::GetFormFactoryByType(RE::FormType::ColorForm);
-			auto color = static_cast<RE::BGSColorForm*>(factory->Create());
-			if (color) {
-				color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-				color->color = RE::Color(data->value);
-				return color;
+			if (factory) {
+				auto color = static_cast<RE::BGSColorForm*>(factory->Create());
+				if (color) {
+					color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
+					color->color = RE::Color(data->value);
+					return color;
+				}
 			}
 		}
 	}
@@ -687,19 +691,21 @@ auto papyrusActor::GetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	const auto actorBase = a_actor->GetActorBase();
 	if (actorBase) {
 		auto factory = RE::IFormFactory::GetFormFactoryByType(RE::FormType::ColorForm);
-		auto color = static_cast<RE::BGSColorForm*>(factory->Create());
+		if (factory) {
+			auto color = static_cast<RE::BGSColorForm*>(factory->Create());
 
-		if (color) {
-			color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-			color->color = actorBase->bodyTintColor;
+			if (color) {
+				color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
+				color->color = actorBase->bodyTintColor;
 
-			if (const auto root = a_actor->Get3D(false); root) {
-				if (const auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT"sv); data) {
-					color->color = RE::Color(data->value);
+				if (const auto root = a_actor->Get3D(false); root) {
+					if (const auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT"sv); data) {
+						color->color = RE::Color(data->value);
+					}
 				}
-			}
 
-			return color;
+				return color;
+			}
 		}
 	}
 
@@ -1004,11 +1010,11 @@ void StopAllSkinAlphaShaders_Impl(RE::TESObjectREFR* a_ref)
 	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 		auto handle = a_ref->CreateRefHandle();
 		processLists->GetMagicEffects([&](RE::BSTempEffect& a_tempEffect) {
-			auto shaderEffect = a_tempEffect.As<RE::ShaderReferenceEffect>();
+			const auto shaderEffect = a_tempEffect.As<RE::ShaderReferenceEffect>();
 			if (shaderEffect && shaderEffect->target == handle) {
 				const auto effectData = shaderEffect->effectData;
 				if (effectData && effectData->data.flags.all(Flags::kSkinOnly) && !effectData->holesTexture.textureName.empty()) {
-					shaderEffect->Clear();
+					shaderEffect->finished = true;
 				}
 			}
 			return true;
@@ -1019,8 +1025,6 @@ void StopAllSkinAlphaShaders_Impl(RE::TESObjectREFR* a_ref)
 
 void papyrusActor::RemoveEffectsNotOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::int32_t a_type)
 {
-	using namespace GraphicsReset;
-
 	if (!a_actor) {
 		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
 		return;
@@ -1032,138 +1036,102 @@ void papyrusActor::RemoveEffectsNotOfType(VM* a_vm, StackID a_stackID, RE::Stati
 		return;
 	}
 
-	auto type = static_cast<EFFECT>(a_type);
+	bool result;
+	RESET::ResetData resetData;
 
+	std::tie(result, resetData) = RESET::GetData(root);
+	if (!result) {
+		return;
+	}
+
+	auto type = static_cast<EFFECT>(a_type);
 	auto task = SKSE::GetTaskInterface();
-	task->AddTask([a_actor, type, root]() {
-		auto [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = GetResetData(root);
+	task->AddTask([a_actor, type, root, resetData]() {
+		auto& [toggleData, skinTintData, hairTintData, alphaSkinData, txstFaceData, headpartAlphaVec, txstVec, txstSkinVec, shaderVec] = resetData;
 
 		switch (type) {
 		case EFFECT::kCharred:
 			{
-				if (skinTintData) {
-					ResetSkinTintData(a_actor, root, skinTintData);
-				}
-				if (hairTintData) {
-					ResetHairTintData(a_actor, root, hairTintData);
-				}
-				if (txstFaceData) {
-					ResetFaceTXSTData(a_actor, root, txstFaceData);
-				}
-				if (!txstSkinVec.empty()) {
-					ResetSkinTXSTData(a_actor, root, txstSkinVec);
-				}
+				RESET::HeadPartAlpha(a_actor, root, headpartAlphaVec);
+				RESET::SkinTint(a_actor, root, skinTintData);
+				RESET::HairTint(a_actor, root, hairTintData);
+				RESET::FaceTXST(a_actor, root, txstFaceData);
+				RESET::SkinTXST(a_actor, root, txstSkinVec);
 			}
 			break;
 		case EFFECT::kDrained:
 			{
-				if (toggleData) {
-					ResetToggleData(root, toggleData);
-				}
-				if (skinTintData) {
-					ResetSkinTintData(a_actor, root, skinTintData);
-				}
-				if (hairTintData) {
-					ResetHairTintData(a_actor, root, hairTintData);
-				}
-				if (txstFaceData) {
-					ResetFaceTXSTData(a_actor, root, txstFaceData);
-				}
-				if (!txstSkinVec.empty()) {
-					ResetSkinTXSTData(a_actor, root, txstSkinVec);
-				}
+				RESET::Toggle(root, toggleData);
+				RESET::SkinTint(a_actor, root, skinTintData);
+				RESET::HairTint(a_actor, root, hairTintData);
+				RESET::FaceTXST(a_actor, root, txstFaceData);
+				RESET::SkinTXST(a_actor, root, txstSkinVec);
 			}
 			break;
 		case EFFECT::kPoisoned:
 			{
-				if (toggleData) {
-					ResetToggleData(root, toggleData);
-				}
-				if (alphaData) {
-					ResetAlphaData(root, alphaData);
-				}
-				if (headpartAlphaData) {
-					ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
-				}
-				if (txstFaceData) {
-					ResetFaceTXSTData(a_actor, root, txstFaceData);
-				}
-				if (!txstSkinVec.empty()) {
-					ResetSkinTXSTData(a_actor, root, txstSkinVec);
+				RESET::Toggle(root, toggleData);
+				RESET::SkinAlpha(root, alphaSkinData);
+				RESET::HeadPartAlpha(a_actor, root, headpartAlphaVec);
+				RESET::FaceTXST(a_actor, root, txstFaceData);
+				RESET::SkinTXST(a_actor, root, txstSkinVec);
+
+				if (!a_actor->IsPlayerRef()) {
+					StopAllSkinAlphaShaders_Impl(a_actor);
 				}
 			}
 			break;
 		case EFFECT::kAged:
 			{
-				if (toggleData) {
-					ResetToggleData(root, toggleData);
-				}
-				if (alphaData) {
-					ResetAlphaData(root, alphaData);
-				}
-				if (headpartAlphaData) {
-					ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
+				RESET::Toggle(root, toggleData);
+				RESET::SkinAlpha(root, alphaSkinData);
+				RESET::HeadPartAlpha(a_actor, root, headpartAlphaVec);
+
+				if (!a_actor->IsPlayerRef()) {
+					StopAllSkinAlphaShaders_Impl(a_actor);
 				}
 			}
 			break;
 		case EFFECT::kCharredCreature:
 			{
-				if (!shaderVec.empty()) {
-					ResetShaderData(root, shaderVec);
-				}
+				RESET::MaterialShader(root, shaderVec);
 			}
 			break;
 		default:
 			break;
 		}
 	});
-
-	switch (type) {
-	case EFFECT::kPoisoned:
-	case EFFECT::kAged:
-		{
-			if (!a_actor->IsPlayerRef()) {
-				StopAllSkinAlphaShaders_Impl(a_actor);
-			}
-		}
-		break;
-	default:
-		break;
-	}
 }
 
 
 void SetTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::int32_t a_type, std::string_view a_tgtPath, bool& replaced)
 {
-	using State = RE::BSGeometry::States;
 	using Feature = RE::BSShaderMaterial::Feature;
 	using Texture = RE::BSTextureSet::Texture;
 
 	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-		auto effect = a_geometry->properties[State::kEffect].get();
-		if (effect) {
-			auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect);
-			if (lightingShader) {
-				auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-				if (material && material->textureSet.get()) {
-					std::string sourcePath(material->textureSet->GetTexturePath(Texture::kDiffuse));
+		auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+		auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
+		if (lightingShader) {
+			auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
+			if (material) {
+				if (const auto textureSet = material->textureSet.get(); textureSet) {
+					std::string sourcePath(textureSet->GetTexturePath(Texture::kDiffuse));
 					RE::Util::SanitizeTexturePath(sourcePath);
 
 					if (sourcePath == a_tgtPath) {
-						auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create());
-						if (newMaterial) {
+						if (auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create()); newMaterial) {
 							newMaterial->CopyMembers(material);
 							newMaterial->ClearTextures();
 
 							if (a_type == -1) {
 								newMaterial->OnLoadTextureSet(0, a_txst);
 							} else {
-								auto newTextureSet = RE::BSShaderTextureSet::Create();
-								if (newTextureSet) {
+								if (auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
 									const auto BSTextureType = static_cast<Texture>(a_type);
 									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
 										if (i != BSTextureType) {
-											newTextureSet->SetTexturePath(i, material->textureSet->GetTexturePath(i));
+											newTextureSet->SetTexturePath(i, textureSet->GetTexturePath(i));
 										}
 									}
 									newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
@@ -1172,7 +1140,7 @@ void SetTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::int32_t a
 							}
 
 							lightingShader->SetMaterial(newMaterial, true);
-							lightingShader->InitializeGeometry(a_geometry);
+							//lightingShader->InitializeGeometry(a_geometry);
 							lightingShader->InitializeShader(a_geometry);
 							newMaterial->~BSLightingShaderMaterialBase();
 							RE::free(newMaterial);
@@ -1183,12 +1151,13 @@ void SetTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::int32_t a
 				}
 			}
 		}
+
 		return RE::BSVisit::BSVisitControl::kContinue;
 	});
 }
 
 
-void papyrusActor:: ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::TESObjectARMO* a_armor, RE::BGSTextureSet* a_srcTXST, RE::BGSTextureSet* a_tgtTXST, std::int32_t a_type)
+void papyrusActor::ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::TESObjectARMO* a_armor, RE::BGSTextureSet* a_srcTXST, RE::BGSTextureSet* a_tgtTXST, std::int32_t a_type)
 {
 	using Texture = RE::BSShaderTextureSet::Textures::Texture;
 
@@ -1221,7 +1190,7 @@ void papyrusActor:: ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::Stat
 		bool replaced = false;
 
 		if (const auto armorAddon = a_armor->GetArmorAddon(a_actor->GetRace()); armorAddon) {
-            const auto armorObject = a_actor->VisitArmorAddon(a_armor, armorAddon);
+			const auto armorObject = a_actor->VisitArmorAddon(a_armor, armorAddon);
 			if (armorObject) {
 				SetTXST(armorObject, a_tgtTXST, a_type, targetPath, replaced);
 			}
@@ -1252,49 +1221,45 @@ void papyrusActor:: ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::Stat
 
 void SetSkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vector<RE::BSFixedString>& a_vec, std::int32_t a_type)
 {
-	using State = RE::BSGeometry::States;
 	using Feature = RE::BSShaderMaterial::Feature;
 	using Texture = RE::BSTextureSet::Texture;
 
 	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-		auto effect = a_geometry->properties[State::kEffect].get();
-		if (effect) {
-			auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect);
-			if (lightingShader) {
-				auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-				if (material && material->textureSet.get()) {
+		auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+		auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
+		if (lightingShader) {
+			auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
+			if (material) {
+				if (const auto textureSet = material->textureSet.get(); textureSet) {
 					auto const type = material->GetFeature();
 					if (type == Feature::kFaceGenRGBTint || type == Feature::kFaceGen) {
 						if (a_vec.empty()) {
 							a_vec.reserve(Texture::kTotal);
 							for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-								a_vec.emplace_back(material->textureSet->GetTexturePath(i));
+								a_vec.emplace_back(textureSet->GetTexturePath(i));
 							}
 						}
 
-						auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create());
-						if (newMaterial) {
+						if (auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create()); newMaterial) {
 							newMaterial->CopyMembers(material);
 							newMaterial->ClearTextures();
 
 							if (a_type == -1) {
 								if (type == Feature::kFaceGen) {
-									auto newTextureSet = RE::BSShaderTextureSet::Create();
-									if (newTextureSet) {
+									if (auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
 										for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
 											if (i != Texture::kMultilayer) {
 												newTextureSet->SetTexturePath(i, a_txst->GetTexturePath(i));
 											}
 										}
-										newTextureSet->SetTexturePath(Texture::kMultilayer, material->textureSet->GetTexturePath(Texture::kMultilayer));
+										newTextureSet->SetTexturePath(Texture::kMultilayer, textureSet->GetTexturePath(Texture::kMultilayer));
 										newMaterial->OnLoadTextureSet(0, newTextureSet);
 									}
 								} else {
 									newMaterial->OnLoadTextureSet(0, a_txst);
 								}
 							} else {
-								auto newTextureSet = RE::BSShaderTextureSet::Create();
-								if (newTextureSet) {
+								if (auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
 									const auto BSTextureType = static_cast<Texture>(a_type);
 									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
 										if (i != BSTextureType) {
@@ -1307,7 +1272,7 @@ void SetSkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vecto
 							}
 
 							lightingShader->SetMaterial(newMaterial, true);
-							lightingShader->InitializeGeometry(a_geometry);
+							//lightingShader->InitializeGeometry(a_geometry);
 							lightingShader->InitializeShader(a_geometry);
 							newMaterial->~BSLightingShaderMaterialBase();
 							RE::free(newMaterial);
@@ -1316,6 +1281,7 @@ void SetSkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vecto
 				}
 			}
 		}
+
 		return RE::BSVisit::BSVisitControl::kContinue;
 	});
 }
@@ -1350,13 +1316,13 @@ void papyrusActor::ReplaceFaceTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 			std::vector<RE::BSFixedString> vec;
 			SetSkinTXST(faceObject, txst, vec, a_type);
 
-			if (!vec.empty()) {
-				if (auto root = a_actor->Get3D(false); root) {
-					if (auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_FACETXST"sv); !data) {
-						auto newData = RE::NiStringsExtraData::Create("PO3_FACETXST"sv, vec);
-						if (newData) {
-							root->AddExtraData(newData);
-						}
+			auto root = a_actor->Get3D(false);
+			if (!vec.empty() && root) {
+				auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_FACETXST"sv);
+				if (!data) {
+					auto newData = RE::NiStringsExtraData::Create("PO3_FACETXST"sv, vec);
+					if (newData) {
+						root->AddExtraData(newData);
 					}
 				}
 			}
@@ -1439,8 +1405,6 @@ void papyrusActor::ReplaceSkinTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 
 auto papyrusActor::ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_folderName) -> bool
 {
-	using namespace GraphicsReset;
-
 	if (!a_actor) {
 		a_vm->TraceStack("Actor is None ", a_stackID, Severity::kWarning);
 		return false;
@@ -1452,49 +1416,45 @@ auto papyrusActor::ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		return false;
 	}
 
-	auto resetData = GetResetData(root);
+	bool result = true;
+	RESET::ResetData resetData;
 
-	const auto& [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = resetData;
-	if (!toggleData && !alphaData && !headpartAlphaData && !skinTintData && !hairTintData && !txstFaceData && txstVec.empty() && txstSkinVec.empty() && shaderVec.empty()) {
+	std::tie(result, resetData) = RESET::GetData(root);
+	if (!result) {
 		return false;
 	}
 
 	auto task = SKSE::GetTaskInterface();
 	task->AddTask([a_actor, a_folderName, root, resetData]() {
-		const auto& [toggleData, skinTintData, hairTintData, alphaData, headpartAlphaData, txstFaceData, txstVec, txstSkinVec, shaderVec] = resetData;
-		if (toggleData) {
-			ResetToggleData(root, toggleData);
+		auto& [toggleData, skinTintData, hairTintData, skinAlphaData, txstFaceData, headpartAlphaVec, txstVec, txstSkinVec, shaderVec] = resetData;
+
+		RESET::Toggle(root, toggleData);
+
+		RESET::SkinAlpha(root, skinAlphaData);
+
+		RESET::HeadPartAlpha(a_actor, root, headpartAlphaVec);
+
+		RESET::SkinTint(a_actor, root, skinTintData);
+
+		RESET::HairTint(a_actor, root, hairTintData);
+
+		RESET::FaceTXST(a_actor, root, txstFaceData);
+
+		RESET::SkinTXST(a_actor, root, txstSkinVec);
+
+		if (!a_folderName.empty()) {
+			RESET::TXST(a_actor, root, a_folderName, txstVec);
 		}
-		if (alphaData) {
-			ResetAlphaData(root, alphaData);
-		}
-		if (headpartAlphaData) {
-			ResetHeadPartAlphaData(a_actor, root, headpartAlphaData);
-		}
-		if (skinTintData) {
-			ResetSkinTintData(a_actor, root, skinTintData);
-		}
-		if (hairTintData) {
-			ResetHairTintData(a_actor, root, hairTintData);
-		}
-		if (txstFaceData) {
-			ResetFaceTXSTData(a_actor, root, txstFaceData);
-		}
-		if (!txstSkinVec.empty()) {
-			ResetSkinTXSTData(a_actor, root, txstSkinVec);
-		}
-		if (!txstVec.empty() && !a_folderName.empty()) {
-			ResetTXSTData(a_actor, root, a_folderName, txstVec);
-		}
-		if (!shaderVec.empty()) {
-			ResetShaderData(root, shaderVec);
-		}
+
+		RESET::MaterialShader(root, shaderVec);
 	});
 
-	if (!a_actor->IsPlayerRef()) {
-		auto processLists = RE::ProcessLists::GetSingleton();
-		if (processLists) {
+
+	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+		if (!a_actor->IsPlayerRef()) {
 			processLists->StopAllShaders(*a_actor);
+		} else {
+			StopAllSkinAlphaShaders_Impl(a_actor);
 		}
 	}
 
@@ -1528,7 +1488,7 @@ void papyrusActor::SetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFun
 		currentProcess->SetRefraction(a_refraction);
 
 		const float invisibility = a_actor->GetActorValue(RE::ActorValue::kInvisibility);
-		if (invisibility < 0.0f || (invisibility <= 1.0f && invisibility <= 0.0f) || !a_actor->IsPlayerRef()) {
+		if (invisibility < 0.0f || invisibility <= 1.0f && invisibility <= 0.0f || !a_actor->IsPlayerRef()) {
 			if (a_refraction <= 0.0f) {
 				a_actor->SetRefraction(false, a_refraction);
 				a_actor->UpdateAlpha();
@@ -1561,6 +1521,7 @@ void papyrusActor::SetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	auto root = a_actor->Get3D(false);
 	if (!root) {
 		a_vm->TraceStack(VMError::no_3D(a_actor).c_str(), a_stackID, Severity::kWarning);
+		return;
 	}
 
 	auto task = SKSE::GetTaskInterface();
@@ -1595,18 +1556,15 @@ void papyrusActor::SetHeadPartAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunct
 		if (auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_type)); object) {
 			object->UpdateMaterialAlpha(a_alpha, false);
 
-			auto data = root->GetExtraData<RE::NiIntegersExtraData>("PO3_HEADPARTALPHA"sv);
-			if (!data) {
-				if (a_alpha == 0.0f) {
-					std::vector<std::int32_t> vec;
-					vec.push_back(a_type);
-					auto newData = RE::NiIntegersExtraData::Create("PO3_HEADPARTALPHA"sv, vec);
-					if (newData) {
+			const auto name = "PO3_HEADPART - " + std::to_string(a_type);
+			if (a_alpha == 1.0f) {
+				root->RemoveExtraData(name);
+			} else {
+				if (auto data = root->GetExtraData<RE::NiIntegerExtraData>(name); !data) {
+					if (auto newData = RE::NiIntegerExtraData::Create(name, a_type); newData) {
 						root->AddExtraData(newData);
 					}
 				}
-			} else {
-				a_alpha == 0.0f ? data->Insert(a_type) : data->Remove(a_type);
 			}
 		}
 	});
@@ -1689,20 +1647,17 @@ void papyrusActor::SetSkinAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	auto root = a_actor->Get3D(false);
 	if (!root) {
 		a_vm->TraceStack(VMError::no_3D(a_actor).c_str(), a_stackID, Severity::kWarning);
+		return;
 	}
 
 	auto task = SKSE::GetTaskInterface();
 	task->AddTask([root, a_alpha]() {
 		root->UpdateMaterialAlpha(a_alpha, true);
 
-		auto data = root->GetExtraData<RE::NiFloatExtraData>("PO3_ALPHA"sv);
-		if (data) {
-			if (a_alpha == 1.0f) {
-				root->RemoveExtraData(data);
-			}
-		} else {
-			auto newData = RE::NiFloatExtraData::Create("PO3_ALPHA"sv, a_alpha);
-			if (newData) {
+		if (a_alpha == 1.0f) {
+			root->RemoveExtraData("PO3_SKINALPHA"sv);
+		} else if (const auto data = root->GetExtraData<RE::NiBooleanExtraData>("PO3_SKINALPHA"sv); !data) {
+			if (const auto newData = RE::NiBooleanExtraData::Create("PO3_SKINALPHA"sv, true); newData) {
 				root->AddExtraData(newData);
 			}
 		}
@@ -1732,7 +1687,7 @@ void papyrusActor::SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 		TintFace(a_actor, a_color->color);
 		root->UpdateBodyTint(a_color->color);
 
-	    AddOrUpdateColorData(root, "PO3_SKINTINT"sv, a_color->color);
+		AddOrUpdateColorData(root, "PO3_SKINTINT"sv, a_color->color);
 	});
 }
 
@@ -1744,9 +1699,9 @@ void papyrusActor::SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 		return;
 	}
 
-    const auto process = a_actor->currentProcess;
+	const auto process = a_actor->currentProcess;
 	if (process) {
-        const auto middleHigh = process->middleHigh;
+		const auto middleHigh = process->middleHigh;
 		if (middleHigh) {
 			middleHigh->soulTrapped = a_trapped;
 		}

@@ -512,7 +512,7 @@ auto papyrusObjectReference::GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::
 			}
 		}
 	}
-    if (auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingLinkedRefIDs>(); missingIDs) {
+	if (auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingLinkedRefIDs>(); missingIDs) {
 		for (auto& entry : missingIDs->entries) {
 			if (a_keyword && entry.keyword == a_keyword) {
 				if (auto form = RE::TESForm::LookupByID(entry.linkedRefID); form) {
@@ -580,7 +580,7 @@ void GetMaterialType_Impl(RE::bhkWorldObject* a_body, std::vector<RE::BSFixedStr
 
 		auto& materialMap = papyrusObjectReference::materialMap;
 
-        const auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
+		const auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
 		if (hkpBody) {
 			if (const auto hkpShape = hkpBody->GetShape(); hkpShape) {
 				switch (hkpShape->type) {
@@ -663,7 +663,7 @@ auto papyrusObjectReference::GetMotionType(VM* a_vm, StackID a_stackID, RE::Stat
 		return motionType;
 	}
 
-    const auto root = a_ref->Get3D();
+	const auto root = a_ref->Get3D();
 	if (!root) {
 		a_vm->TraceStack(VMError::no_3D(a_ref).c_str(), a_stackID, Severity::kWarning);
 		return motionType;
@@ -874,7 +874,7 @@ auto papyrusObjectReference::HasNiExtraData(VM* a_vm, StackID a_stackID, RE::Sta
 		return false;
 	}
 
-	auto root = a_ref->Get3D();
+    const auto root = a_ref->Get3D();
 	if (!root) {
 		a_vm->TraceStack(VMError::no_3D(a_ref).c_str(), a_stackID, Severity::kWarning);
 		return false;
@@ -977,7 +977,7 @@ void papyrusObjectReference::ReplaceKeywordOnRef(VM* a_vm, StackID a_stackID, RE
 		std::uint32_t removeIndex = 0;
 		bool found = false;
 
-	    if (keywordForm->keywords) {
+		if (keywordForm->keywords) {
 			for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 				const auto keyword = keywordForm->keywords[i];
 				if (keyword) {
@@ -1059,7 +1059,7 @@ void papyrusObjectReference::ScaleObject3D(VM* a_vm, StackID a_stackID, RE::Stat
 				RE::NiUpdateData updateData = { 0.0f, RE::NiUpdateData::Flag::kNone };
 				object->Update(updateData);
 			});
-            const auto node = object->AsNode();
+			const auto node = object->AsNode();
 			if (node) {
 				RE::BSVisit::TraverseScenegraphCollision(node, [&](RE::NiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 					const auto colObject = static_cast<RE::bhkNiCollisionObject*>(a_col);
@@ -1280,16 +1280,16 @@ void papyrusObjectReference::SetMaterialType(VM* a_vm, StackID a_stackID, RE::St
 }
 
 
-void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, std::string_view a_path, std::int32_t a_textureType, std::vector<std::vector<RE::BSFixedString>>& a_vec, bool a_noWeapons, bool a_noAlpha, bool a_isActor)
+void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, std::string_view a_path, std::int32_t a_textureType, std::vector<RE::BSFixedString>& a_vec, bool a_noWeapons, bool a_noAlpha, bool a_isActor)
 {
 	RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
 		using State = RE::BSGeometry::States;
 		using Feature = RE::BSShaderMaterial::Feature;
 		using Texture = RE::BSTextureSet::Texture;
-		using Flag = RE::BSShaderProperty::EShaderPropertyFlag8;
+		using Flags = RE::BSShaderProperty::EShaderPropertyFlag8;
 		using VertexFlags = RE::NiSkinPartition::Vertex::Flags;
 
-		const bool hasNormals = (RE::NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::kNormal) == VertexFlags::kNormal;
+		const bool hasNormals = a_geometry->HasVertexFlag(VertexFlags::kNormal);
 		if (!hasNormals) {
 			return RE::BSVisit::BSVisitControl::kContinue;
 		}
@@ -1302,78 +1302,76 @@ void SetShaderType_Impl(RE::NiAVObject* a_object, RE::BSGeometry* a_template, st
 			return RE::BSVisit::BSVisitControl::kContinue;
 		}
 
-		auto effect = a_geometry->properties[State::kEffect].get();
-		auto tempEffect = a_template->properties[State::kEffect].get();
+		auto effect = a_geometry->properties[State::kEffect];
+		auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 
-		if (effect && tempEffect) {
-			auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect);
-			auto tempLightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(tempEffect);
+		auto tempEffect = a_template->properties[State::kEffect];
+		auto tempLightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(tempEffect.get());
 
-			if (lightingShader && tempLightingShader) {
-				auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-				auto tempMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempLightingShader->material);
+		if (lightingShader && tempLightingShader) {
+			auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
+			auto tempMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempLightingShader->material);
 
-				if (material && tempMaterial && material->textureSet.get() && tempMaterial->textureSet.get()) {
-					std::string sourceDiffuse(material->textureSet->GetTexturePath(Texture::kDiffuse));
+			if (material && tempMaterial) {
+				const auto textureSet = material->textureSet.get();
+				const auto tempTextureSet = tempMaterial->textureSet.get();
+
+				if (textureSet && tempTextureSet) {
+					std::string sourceDiffuse(textureSet->GetTexturePath(Texture::kDiffuse));
 					RE::Util::SanitizeTexturePath(sourceDiffuse);
-					if (!a_path.empty()) {
-						if (sourceDiffuse.find(a_path) == std::string::npos) {
-							return RE::BSVisit::BSVisitControl::kContinue;
-						}
-					}
-					const auto origFeature = material->GetFeature();
-					if (origFeature == Feature::kEye) {  //disabled until flag reset is fixed
+					if (!a_path.empty() && sourceDiffuse.find(a_path) == std::string::npos) {
 						return RE::BSVisit::BSVisitControl::kContinue;
 					}
-					if (origFeature != tempMaterial->GetFeature()) {
-						auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempMaterial->Create());
-						if (newMaterial) {
-							std::string newDiffuse(tempMaterial->textureSet->GetTexturePath(Texture::kDiffuse));
-							RE::Util::SanitizeTexturePath(newDiffuse);
 
-							std::string oldDiffuse = material->textureSet->GetTexturePath(Texture::kDiffuse);
-							if (a_vec.empty() || !a_vec.back().empty() && a_vec.back().front() != oldDiffuse.c_str()) {
-								std::vector<RE::BSFixedString> resetData;
-								resetData.reserve(15);
+					const auto oldFeature = material->GetFeature();
+					const auto oldFlags = lightingShader->flags.get();
+					const auto oldEmissiveColor = lightingShader->emissiveColor ? RE::NiColor::ColorToString(*lightingShader->emissiveColor) : "000000";
+					const auto oldEmissiveMult = lightingShader->emissiveMult;
 
-								for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
-									resetData.emplace_back(material->textureSet->GetTexturePath(i));
-								}
-								resetData.emplace_back(std::to_string(to_underlying(*lightingShader->flags)));
-								resetData.emplace_back(RE::NiColor::ColorToString(*lightingShader->emissiveColor));
-								resetData.emplace_back(std::to_string(lightingShader->emissiveMult));
-								resetData.emplace_back(std::to_string(to_underlying(tempMaterial->GetFeature())));
-								resetData.emplace_back(std::to_string(to_underlying(origFeature)));
-								resetData.emplace_back(RE::Util::GetTextureName(newDiffuse));
-								resetData.emplace_back(RE::Util::GetTextureName(oldDiffuse));
+					const auto newFeature = tempMaterial->GetFeature();
 
-								a_vec.push_back(resetData);
+					if (oldFeature != newFeature) {
+
+						if (auto data = lightingShader->GetExtraData<RE::NiStringsExtraData>("PO3_ORIGINALSHADER"sv); !data) {
+							std::vector<RE::BSFixedString> resetData;
+							resetData.reserve(12);
+							for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
+								resetData.emplace_back(textureSet->GetTexturePath(i)); //0-8
 							}
+							resetData.emplace_back(std::to_string(to_underlying(oldFeature))); //9
+							resetData.emplace_back(std::to_string(to_underlying(oldFlags))); //10
+							resetData.emplace_back(oldEmissiveColor); //11
+							resetData.emplace_back(std::to_string(oldEmissiveMult)); //12
 
-							newMaterial->CopyMembers(tempMaterial);
+							auto newData = RE::NiStringsExtraData::Create("PO3_ORIGINALSHADER"sv, resetData);
+							if (newData && lightingShader->AddExtraData(newData)) {
+							    a_vec.push_back(a_geometry->name);
+							}
+						}
+
+					    if (auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempMaterial->Create()); newMaterial) {
+							
+					        newMaterial->CopyMembers(tempMaterial);
 							newMaterial->ClearTextures();
 
 							if (a_textureType != -1) {
-								auto newTextureSet = RE::BSShaderTextureSet::Create();
-								if (newTextureSet) {
+								if (auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
 									const auto BSTextureType = static_cast<Texture>(a_textureType);
 									for (auto i = Texture::kDiffuse; i < Texture::kTotal; ++i) {
 										if (i != BSTextureType) {
-											newTextureSet->SetTexturePath(i, tempMaterial->textureSet->GetTexturePath(i));
+											newTextureSet->SetTexturePath(i, tempTextureSet->GetTexturePath(i));
 										}
 									}
-									newTextureSet->SetTexturePath(BSTextureType, material->textureSet->GetTexturePath(BSTextureType));
+									newTextureSet->SetTexturePath(BSTextureType, textureSet->GetTexturePath(BSTextureType));
 									newMaterial->OnLoadTextureSet(0, newTextureSet);
 								}
 							}
 
-							lightingShader->SetMaterial(newMaterial, true);
-							lightingShader->InitializeGeometry(a_geometry);
-							lightingShader->InitializeShader(a_geometry);
 							lightingShader->CopyMembers(tempLightingShader);
+							lightingShader->SetFlags(Flags::kSkinned, a_geometry->HasVertexFlag(VertexFlags::kSkinned));
 
-							const bool isSkinned = (RE::NiSkinPartition::GetVertexFlags(a_geometry->vertexDesc) & VertexFlags::kSkinned) == VertexFlags::kSkinned;
-							lightingShader->SetFlags(Flag::kSkinned, isSkinned);
+							lightingShader->SetMaterial(newMaterial, true);
+					        lightingShader->InitializeShader(a_geometry);
 
 							newMaterial->~BSLightingShaderMaterialBase();
 							RE::free(newMaterial);
@@ -1426,19 +1424,17 @@ void papyrusObjectReference::SetShaderType(VM* a_vm, StackID a_stackID, RE::Stat
 		task->AddTask([root, template_root, feature, sourcePath, a_textureType, a_noWeapons, a_noAlpha, isActor]() {
 			const auto template_geo = template_root->GetFirstGeometryOfShaderType(feature);
 			if (template_geo) {
-				std::vector<std::vector<RE::BSFixedString>> vec;
+				std::vector<RE::BSFixedString> vec;
 				SetShaderType_Impl(root, template_geo, sourcePath, a_textureType, vec, a_noWeapons, a_noAlpha, isActor);
 
 				if (!vec.empty()) {
-					for (auto& _vec : vec) {
-						std::string textureName(_vec[12].c_str());
-						std::string name = "PO3_SHADER | " + textureName + " | " + _vec.back().c_str();
-						auto data = root->GetExtraData<RE::NiStringsExtraData>(name.c_str());
-						if (!data) {
-							auto newData = RE::NiStringsExtraData::Create(name, _vec);
-							if (newData) {
-								root->AddExtraData(newData);
-							}
+				    auto name = std::string("PO3_SHADER | "sv);
+					name.append(std::to_string(to_underlying(feature)));
+
+					if (auto data = root->GetExtraData<RE::NiStringsExtraData>(name); !data) {
+						auto newData = RE::NiStringsExtraData::Create(name, vec);
+						if (newData) {
+							root->AddExtraData(newData);
 						}
 					}
 				}
@@ -1463,7 +1459,7 @@ void papyrusObjectReference::SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, 
 		return;
 	}
 
-    const auto actorbase = a_actor->GetActorBase();
+	const auto actorbase = a_actor->GetActorBase();
 	auto root = a_bodyparts->Get3D()->AsFadeNode();
 
 	if (actorbase && root) {
@@ -1509,7 +1505,7 @@ void papyrusObjectReference::StopArtObject(VM* a_vm, StackID a_stackID, RE::Stat
 	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 		auto handle = a_ref->CreateRefHandle();
 		processLists->GetMagicEffects([&](RE::BSTempEffect& a_tempEffect) {
-            const auto modelEffect = a_tempEffect.As<RE::ModelReferenceEffect>();
+			const auto modelEffect = a_tempEffect.As<RE::ModelReferenceEffect>();
 			if (modelEffect && modelEffect->target == handle && modelEffect->artObject == a_art) {
 				modelEffect->finished = true;
 			}
@@ -1532,26 +1528,23 @@ void papyrusObjectReference::ToggleChildNode(VM* a_vm, StackID a_stackID, RE::St
 		return;
 	}
 
-	auto object = root->GetObjectByName(a_nodeName);
-	if (object) {
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, object, a_nodeName, a_disable]() {
+	auto task = SKSE::GetTaskInterface();
+	task->AddTask([root, a_nodeName, a_disable]() {
+		auto object = root->GetObjectByName(a_nodeName);
+		if (object) {
 			object->ToggleNode(a_disable);
-			auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE"sv);
-			if (!data) {
-				if (a_disable) {
-					std::vector<RE::BSFixedString> vec;
-					vec.push_back(a_nodeName);
-					auto newData = RE::NiStringsExtraData::Create("PO3_TOGGLE"sv, vec);
-					if (newData) {
-						root->AddExtraData(newData);
-					}
-				}
-			} else {
+
+			if (auto data = root->GetExtraData<RE::NiStringsExtraData>("PO3_TOGGLE"sv); data) {
 				a_disable ? data->Insert(a_nodeName) : data->Remove(a_nodeName);
+			} else if (a_disable) {
+				std::vector<RE::BSFixedString> vec;
+				vec.push_back(a_nodeName);
+				if (const auto newData = RE::NiStringsExtraData::Create("PO3_TOGGLE"sv, vec); newData) {
+					root->AddExtraData(newData);
+				}
 			}
-		});
-	}
+		}
+	});
 }
 
 
@@ -1583,7 +1576,7 @@ void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID,
 				if (current3DRoot && art) {
 					auto newObject = current3DRoot->GetObjectByName(a_toNode);
 					if (!newObject) {
-                        const std::string error = "Node '" + std::string(a_toNode.c_str()) + "' doesn't exist on " + VMError::to_id(a_ref);
+						const std::string error = "Node '" + std::string(a_toNode.c_str()) + "' doesn't exist on " + VMError::to_id(a_ref);
 						a_vm->TraceStack(error.c_str(), a_stackID, Severity::kWarning);
 						return false;
 					}
@@ -1593,8 +1586,8 @@ void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID,
 							auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv);
 							if (attachTData) {
 								constexpr auto namedNode = "NamedNode&"sv;
-                                const auto oldNodeStr = namedNode.data() + std::string(modelEffect->hitEffectArtData.nodeName);
-                                const auto newNodeStr = namedNode.data() + std::string(a_toNode);
+								const auto oldNodeStr = namedNode.data() + std::string(modelEffect->hitEffectArtData.nodeName);
+								const auto newNodeStr = namedNode.data() + std::string(a_toNode);
 								attachTData->Remove(oldNodeStr);
 								attachTData->Insert(newNodeStr);
 							}
@@ -1604,9 +1597,9 @@ void papyrusObjectReference::UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID,
 										nodes->local.translate = { a_translate[0], a_translate[1], a_translate[2] };
 									}
 									if (!a_rotate.empty() && a_rotate.size() == 3) {
-                                        const auto aX = RE::degToRad(a_rotate[0]);
-                                        const auto aY = RE::degToRad(a_rotate[1]);
-                                        const auto aZ = RE::degToRad(a_rotate[2]);
+										const auto aX = RE::degToRad(a_rotate[0]);
+										const auto aY = RE::degToRad(a_rotate[1]);
+										const auto aZ = RE::degToRad(a_rotate[2]);
 										nodes->local.rotate.SetEulerAnglesXYZ(aX, aY, aZ);
 									}
 									nodes->local.scale *= a_scale;
@@ -1637,7 +1630,7 @@ auto papyrusObjectReference::RegisterFuncs(VM* a_vm) -> bool
 
 	auto constexpr Functions = "PO3_SKSEFunctions"sv;
 
-    a_vm->RegisterFunction("AddAllItemsToArray"sv, Functions, AddAllItemsToArray);
+	a_vm->RegisterFunction("AddAllItemsToArray"sv, Functions, AddAllItemsToArray);
 
 	a_vm->RegisterFunction("AddAllItemsToList"sv, Functions, AddAllItemsToList);
 

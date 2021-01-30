@@ -8,7 +8,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForActorKilled(Form akForm) global native
 	
 	Event OnActorKilled(Actor akVictim, Actor akKiller)
-	EndEvent
+	endEvent
 	
 ;ACTOR REANIMATE
 ;start fires when actor is reanimated and stop when the reanimate effect is dispelled
@@ -20,10 +20,10 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForActorReanimateStop(Form akForm) global native
 	
 	Event OnActorReanimateStart(Actor akTarget, Actor akCaster)
-	EndEvent
+	endEvent
 	
 	Event OnActorReanimateStop(Actor akTarget, Actor akCaster)
-	EndEvent		
+	endEvent		
 	
 ;ACTOR RESURRECT
 ;fires when the target has been resurrected via script or console command
@@ -32,7 +32,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForActorResurrected(Form akForm) global native
 	
 	Event OnActorResurrected(Actor akTarget, bool abResetInventory)
-	EndEvent
+	endEvent
 	
 ;BOOKS READ
 	
@@ -40,7 +40,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForBookRead(Form akForm) global native
 	
 	Event OnBookRead(Book akBook)
-	EndEvent
+	endEvent
 
 ;CELL FULLY LOADED
 ;Can fire multiple times in exteriors, for each cell that is fully loaded.
@@ -49,7 +49,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForCellFullyLoaded(Form akForm) global native
 	
 	Event OnCellFullyLoaded(Cell akCell)
-	EndEvent
+	endEvent
 	
 ;CRITICAL HIT
 ;Player only event?
@@ -58,7 +58,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForCriticalHit(Form akForm) global native
 	
 	Event OnCriticalHit(Actor akAggressor, Weapon akWeapon, book abSneakHit)
-	EndEvent
+	endEvent
 	
 ;DISARMED
 	
@@ -66,7 +66,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForDisarmed(Form akForm) global native
 	
 	Event OnDisarmed(Actor akSource, Weapon akTarget)
-	EndEvent
+	endEvent
 	
 ;DRAGON SOUL ABSORBED
 	
@@ -74,7 +74,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForDragonSoulGained(Form akForm) global native
 	
 	Event OnDragonSoulGained(float afSouls)
-	EndEvent
+	endEvent
 	
 ;ITEM HARVESTED
 ;Player only event
@@ -83,7 +83,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForItemHarvested(Form akForm) global native
 	
 	Event OnItemHarvested(Form akProduce)
-	EndEvent
+	endEvent
 	
 ;LEVEL INCREASE
 	
@@ -91,7 +91,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForLevelIncrease(Form akForm) global native
 	
 	Event OnLevelIncrease(int aiLevel)
-	EndEvent
+	endEvent
 	
 ;LOCATION DISCOVERY
 	
@@ -99,7 +99,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForLocationDiscovery(Form akForm) global native
 	
 	Event OnLocationDiscovery(String asRegionName, String asWorldspaceName)
-	EndEvent
+	endEvent
 		
 ;OBJECT GRAB/RELEASE
 ;Doesn't work with telekinesis and when the player grabs the same object in a row
@@ -108,10 +108,10 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForObjectGrab(Form akForm) global native
 	
 	Event OnObjectGrab(ObjectReference akObjectRef)
-	EndEvent
+	endEvent
 	
 	Event OnObjectRelease(ObjectReference akObjectRef)
-	EndEvent	
+	endEvent	
 		
 ;OBJECT LOADED/UNLOADED
 ;Not all objects fire this event. It is somewhat inconsistent.
@@ -121,10 +121,10 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForAllObjectsLoaded(Form akForm) global native
 		
 	Event OnObjectLoaded(ObjectReference akRef, int aiFormType)
-	EndEvent
+	endEvent
 	
 	Event OnObjectUnloaded(ObjectReference akRef, int aiFormType)
-	EndEvent	
+	endEvent	
 	
 ;QUEST START/STOP
 
@@ -133,10 +133,10 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForAllQuests(Form akForm) global native
 	
 	Event OnQuestStart(Quest akQuest)
-	EndEvent
+	endEvent
 	
 	Event OnQuestStop(Quest akQuest)
-	EndEvent
+	endEvent
 	
 ;QUEST STAGE CHANGE
 
@@ -145,7 +145,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForAllQuestStages(Form akForm) global native
 	
 	Event OnQuestStageChange(Quest akQuest, Int aiNewStage)
-	EndEvent
+	endEvent
 	
 ;SHOUT ATTACK
 ;Player only event
@@ -154,7 +154,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForShoutAttack(Form akForm) global native
 	
 	Event OnShoutAttack(Shout akShout)
-	EndEvent
+	endEvent
 	
 ;SKILL INCREASE
 
@@ -162,7 +162,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForSkillIncrease(Form akForm) global native
 	
 	Event OnSkillIncrease(String asSkill)
-	EndEvent
+	endEvent
 	
 ;SOUL TRAP
 ;Event will fire after OnDying/OnDeath
@@ -171,7 +171,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForSoulTrapped(Form akForm) global native
 		
 	Event OnSoulTrapped(Actor akVictim, Actor akKiller)
-	EndEvent
+	endEvent
 	
 ;SPELL LEARNED
 
@@ -179,7 +179,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForSpellLearned(Form akForm) global native
 		
 	Event OnSpellLearned(Spell akSpell)
-	EndEvent
+	endEvent
 	
 ;WEATHER CHANGE
 
@@ -187,7 +187,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForWeatherChange(Form akForm) global native
 		
 	Event OnWeatherChange(Weather akOldWeather, Weather akNewWeather)
-	EndEvent
+	endEvent
 	
 ;FEC - RESET ACTOR EFFECTS
 
@@ -196,5 +196,5 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForAllFECResets(Form akForm) global native
 		
 	Event OnFECReset(Actor akActor, int aiType, bool abReset3D)
-	EndEvent
+	endEvent
 	

@@ -145,7 +145,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;If true, autoLuminance calculates skin tone relative luminance. The opacity value is then used as a multiplier on top of that, final value is clamped to 0-1
 	;If false, only opacity will be used. Recommend to use autoluminance because colors will not blend well for all skin tones using flat values. 
 	Function BlendColorWithSkinTone(Actor akActor, ColorForm akColor, int aiBlendMode, bool abAutoLuminance, float afOpacity) global native
-	
+		
 	;Decapitates living and dead actors. Living actors will not die when this is called!
 	Function DecapitateActor(Actor akActor) global native
 
@@ -1125,17 +1125,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;-----------------------------------------------------------------------------------------------------------	
 ;SPELL
 ;-----------------------------------------------------------------------------------------------------------	
-	;to get ConditionItemObject / function IDs / OPCodes
-	;https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/FormComponents/Components/TESCondition.h
-	
-	;ConditionItemObject | Function ID | parameter 1 | parameter 2 | OPCode | float | ANDOR
-	;param1/param2 didn't work for two conditions (GetGlobal and HasMagicEffectKeyword) - needs more testing
-	;conditions which have no parameters (eg. IsSneaking) work
-	
-	;Subject	| HasMagicEffectKeyword	| MagicInvisibility		| NONE | == | 0.0 | AND
-	;0 			| 699					| 0001EA6F ~ Skyrim.esm | NONE | 0  | 0.0 | AND		
-	
-	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native
+	;--------
+	;GETTERS
+	;--------
 	
 	;/	SPELL TYPES
 		Spell = 0
@@ -1150,6 +1142,25 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Returns spell type. -1 if spell is None
 	int Function GetSpellType(Spell akSpell) global native
+		
+	;--------
+	;SETTERS
+	;--------
+	
+	;to get ConditionItemObject / function IDs
+	;https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/FormComponents/Components/TESCondition.h
+	
+	;ConditionItemObject | Function ID | parameter 1 | parameter 2 | OPCode | float | ANDOR
+	;param1/param2 didn't work for two conditions (GetGlobal and HasMagicEffectKeyword) - needs more testing
+	;conditions which have no parameters (eg. IsSneaking) work
+	
+	;Subject	| HasMagicEffectKeyword	| MagicInvisibility		| NONE | == | 0.0 | AND
+	;0 			| 699					| 0001EA6F ~ Skyrim.esm | NONE | == | 0.0 | AND		
+	
+	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native	
+	
+	;Clears all magic effects attached to spell (and returns if successful). Casting spells with empty effects will crash the game!!
+	bool Function RemoveAllMagicEffectsFromSpell(Spell akSpell) global native
 	
 	;Removes magic effect from spell that matches magnitude/area/duration/cost.
 	Function RemoveMagicEffectFromSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native

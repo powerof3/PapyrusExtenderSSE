@@ -52,10 +52,9 @@ namespace Serialization
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
 			logger::error("Failed to open serialization record!"sv);
 			return false;
-		} else {
-			return Save(a_intfc, a_add);
 		}
-	}
+        return Save(a_intfc, a_add);
+    }
 
 
 	bool Base::Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_add)

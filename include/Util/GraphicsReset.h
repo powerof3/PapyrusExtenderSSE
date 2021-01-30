@@ -1,60 +1,48 @@
 #pragma once
 
 
-namespace GraphicsReset
+namespace RESET
 {
 	using Feature = RE::BSShaderMaterial::Feature;
+	using HeadPartType = RE::BGSHeadPart::HeadPartType;
 	using Flag = RE::BSShaderProperty::EShaderPropertyFlag;
 	using Flag8 = RE::BSShaderProperty::EShaderPropertyFlag8;
 	using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
 	using State = RE::BSGeometry::States;
-	using Texture = RE::BSTextureSet::Texture;		
+	using Texture = RE::BSTextureSet::Texture;
 	using VertexFlags = RE::NiSkinPartition::Vertex::Flags;
 
-	enum TYPE : std::uint32_t
-	{
-		kToggle = 0,
-		kTintSkin,
-		kTintHair,
-		kAlpha,
-		kAlphaHDPT,
-		kTXSTFace,
-		kTXST,
-		kTXSTSkin,
-		kShader
-	};
-	using ResetData = std::tuple<RE::NiStringsExtraData*, RE::NiIntegersExtraData*, RE::NiIntegersExtraData*, RE::NiFloatExtraData*, RE::NiIntegersExtraData*, RE::NiStringsExtraData*, std::vector<RE::NiStringsExtraData*>, std::vector<RE::NiStringsExtraData*>, std::vector<RE::NiStringsExtraData*>>;
+	using ResetData = std::tuple<
+		RE::NiStringsExtraData*,
+		RE::NiIntegerExtraData*,
+		RE::NiIntegerExtraData*,
+		RE::NiBooleanExtraData*,
+		RE::NiStringsExtraData*,
+		std::vector<RE::NiIntegerExtraData*>,
+		std::vector<RE::NiStringsExtraData*>,
+		std::vector<RE::NiStringsExtraData*>,
+		std::vector<RE::NiStringsExtraData*>>;
 
-	enum SHADER_TYPE : std::uint32_t
-	{
-		kTexture = 0,
-		kFlags,
-		kEmissive,
-		kEmissiveMult,
-		kFeature,
-		kFeatureOrig,
-		kDiffuse,
-	};
-	using ShaderData = std::tuple<RE::BSShaderTextureSet*, Flag, RE::NiColor, float, Feature, Feature, std::string>;
+	using ShaderData = std::tuple<RE::BSShaderTextureSet*, Feature, std::uint64_t, RE::NiColor, float>;
 
 
-	ResetData GetResetData(RE::NiAVObject* a_object);
+	std::pair<bool, ResetData> GetData(RE::NiAVObject* a_object);
 
-	void ResetToggleData(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);
+	void Toggle(RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);
 
-	void ResetAlphaData(RE::NiAVObject* a_root, RE::NiFloatExtraData* a_data);
+	void SkinAlpha(RE::NiAVObject* a_root, RE::NiBooleanExtraData* a_data);
 
-	void ResetHeadPartAlphaData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiIntegersExtraData* a_data);
+	void HeadPartAlpha(RE::Actor* a_actor, RE::NiAVObject* a_root, const std::vector<RE::NiIntegerExtraData*>& a_data);
 
-	void ResetSkinTintData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiIntegersExtraData* a_data);
+	void SkinTint(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiIntegerExtraData* a_data);
 
-	void ResetHairTintData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiIntegersExtraData* a_data);
+	void HairTint(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiIntegerExtraData* a_data);
 
-	void ResetFaceTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);
+	void FaceTXST(RE::Actor* a_actor, RE::NiAVObject* a_root, RE::NiStringsExtraData* a_data);
 
-	void ResetTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, const RE::BSFixedString& a_folderName, const std::vector<RE::NiStringsExtraData*>& a_vec);
+	void TXST(RE::Actor* a_actor, RE::NiAVObject* a_root, const RE::BSFixedString& a_folderName, const std::vector<RE::NiStringsExtraData*>& a_vec);
 
-	void ResetSkinTXSTData(RE::Actor* a_actor, RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec);
+	void SkinTXST(RE::Actor* a_actor, RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec);
 
-	void ResetShaderData(RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec);
+	void MaterialShader(RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec);
 }

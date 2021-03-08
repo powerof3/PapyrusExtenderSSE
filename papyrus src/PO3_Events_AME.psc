@@ -189,6 +189,17 @@ Scriptname PO3_Events_AME  Hidden
 	Event OnWeatherChange(Weather akOldWeather, Weather akNewWeather)
 	EndEvent
 	
+;MAGIC EFFECT APPLY
+;Filter takes in a matching magic effect, a keyword, or a formlist containing keywords.
+;bApplied will return if the magic effect was applied or not, unlike vanilla event which fires for everything.
+
+	Function RegisterForMagicEffectApplyEx(ActiveMagicEffect akActiveEffect, Form akEffectFilter, bool abMatch) global native	
+	Function UnregisterForMagicEffectApplyEx(ActiveMagicEffect akActiveEffect, Form akEffectFilter, bool abMatch) global native
+	Function UnregisterForAllMagicEffectApplyEx(ActiveMagicEffect akActiveEffect) global native
+		
+	Event OnMagicEffectApplyEx(ObjectReference akCaster, MagicEffect akEffect, Form akSource, bool abApplied)
+	EndEvent
+	
 ;FEC - RESET ACTOR EFFECTS
 
 	Function RegisterForFECReset(ActiveMagicEffect akActiveEffect, int aiType) global native	

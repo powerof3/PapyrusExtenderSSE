@@ -42,12 +42,6 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets all targets of the actor, if in combat
 	Actor[] Function GetCombatTargets(Actor akActor) global native
 	
-	;FEC function
-	;returns effect type, effect skill level, and projectile type, of the highest magnitude effect present on the actor
-	;permanent - SUN, ACID, FIRE, FROST, SHOCK, DRAIN
-	;temporary - POISON, FEAR
-	int[] Function GetDeathEffectType(Actor akActor, int type) global native
-	
 	;Gets current hair color on actor. Fails if hair headpart doesn't exist
 	ColorForm Function GetHairColor(Actor akActor) global native
 	
@@ -232,6 +226,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Sets the flag used by the game to determine soul trapped NPCs
 	Function SetSoulTrapped(Actor akActor, bool abTrapped) global native
 	
+	;Toggles any hair wigs (geometry with hair shader) found on slots Hair/LongHair
+	Function ToggleHairWigs(Actor akActor, bool abDisable) global native
+	
 	;/	ARMOR TYPE
 		Light = 0
 		Heavy = 1
@@ -399,6 +396,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Set particle shader texture
 	Function SetParticleShaderTexture(EffectShader akEffectShader, String asTextureName) global native
+	
+;----------------------------------------------------------------------------------------------------------	
+;FEC
+;----------------------------------------------------------------------------------------------------------
+	
+	;FEC function
+	;returns effect type, effect skill level, and projectile type, of the highest magnitude effect present on the actor
+	;permanent - SUN, ACID, FIRE, FROST, SHOCK, DRAIN
+	;temporary - POISON, FEAR
+	int[] Function GetDeathEffectType(Actor akActor, int type) global native
 		
 ;----------------------------------------------------------------------------------------------------------	
 ;FORM
@@ -408,15 +415,22 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;-------
 	
-	;Returns whether the form is temporary (ie. has a formID beginning with FF).
-	bool Function IsGeneratedForm(Form akForm) global native
+	;evakluates condition lists for spells/potions/enchantments/mgefs and returns if they can be fullfilled
+	bool Function EvaluateConditionList(Form akForm, ObjectReference akActionRef, ObjectReference akTargetRef) global native
 	
-	;Adds keyword to form. Fails if the form doesn't accept keywords.
-	Function AddKeywordToForm(Form akForm, Keyword akKeyword) global native
+	;Builds a list of conditions present on the form. Index is for spells/other forms that have lists with conditions
+	;Some conditions may be skipped (conditions that require non player references, overly complex conditions involving packages/aliases)
+	String[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
+	
+	;Returns whether the form is temporary (ie. has a formID beginning with FF).
+	bool Function IsGeneratedForm(Form akForm) global native	
 	
 	;-------
 	;SETTERS
 	;-------
+	
+	;Adds keyword to form. Fails if the form doesn't accept keywords.
+	Function AddKeywordToForm(Form akForm, Keyword akKeyword) global native
 	
 	;Replaces given keyword with new one on form. Only lasts for a single gaming session. [ported from DienesTools].
 	Function ReplaceKeywordOnForm(Form akForm, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
@@ -958,8 +972,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Sets effectshader duration. Internal duration is set when the effectshader begins and does not change with time.
 	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float afTime, bool abAbsolute) global native
 		
-	;Sets linked ref
-	Function SetLinkedRef(ObjectReference akRef, ObjectReference akTargetRef, Keyword akKeyword) global native
+	;Sets linked ref. Pass None into akTargetRef to unset the linked ref.
+	Function SetLinkedRef(ObjectReference akRef, ObjectReference akTargetRef, Keyword akKeyword = None) global native
 	
 	;Sets havok material type. Use oldMaterial string to select what material you want to change from to (eg. from stone to wood), and nodeName to apply it to the specific node. 
 	;If both are empty, every collision material will be set.
@@ -1147,23 +1161,24 @@ Scriptname PO3_SKSEFunctions Hidden
 	;SETTERS
 	;--------
 	
-	;to get ConditionItemObject / function IDs
-	;https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/FormComponents/Components/TESCondition.h
-	
 	;ConditionItemObject | Function ID | parameter 1 | parameter 2 | OPCode | float | ANDOR
-	;param1/param2 didn't work for two conditions (GetGlobal and HasMagicEffectKeyword) - needs more testing
-	;conditions which have no parameters (eg. IsSneaking) work
+
+	;conditions which have no parameters (eg. IsSneaking) / take in forms (GetIsRace) work
+	;conditions which accept int/float/strings are skipped
 	
-	;Subject	| HasMagicEffectKeyword	| MagicInvisibility		| NONE | == | 0.0 | AND
-	;0 			| 699					| 0001EA6F ~ Skyrim.esm | NONE | == | 0.0 | AND		
+	;Subject	| HasMagicEffectKeyword	| MagicInvisibility		| NONE | == | 0.0 | AND - in game
+	;Subject 	| HasMagicEffectKeyword	| 0001EA6F ~ Skyrim.esm | NONE | == | 0.0 | AND	- in papyrus	
 	
 	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native	
 	
-	;Clears all magic effects attached to spell (and returns if successful). Casting spells with empty effects will crash the game!!
-	bool Function RemoveAllMagicEffectsFromSpell(Spell akSpell) global native
+	;Adds effectitem from spell to target spell, at given index. Same as above function, but less verbose, and preserves all conditions.
+	Function AddEffectItemToSpell(Spell akSpell, Spell akSpellToCopyFrom, int aiIndex) global native	
 	
 	;Removes magic effect from spell that matches magnitude/area/duration/cost.
 	Function RemoveMagicEffectFromSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native
+	
+	;Removes effectitem from spell that matches spell at index.
+	Function RemoveEffectItemFromSpell(Spell akSpell, Spell akSpellToMatchFrom, int aiIndex) global native
 			
 ;----------------------------------------------------------------------------------------------------------	
 ;STRINGS

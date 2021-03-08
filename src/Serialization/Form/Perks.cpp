@@ -47,7 +47,7 @@ namespace Serialization
 	bool Perks::PapyrusApply(RE::Actor* a_actor, RE::BGSPerk* a_perk, std::uint32_t a_add)
 	{
 		if (Apply(a_actor, a_perk, a_add)) {
-			if (a_actor->formID >= 0xFF000000) {
+			if (a_actor->IsDynamicForm()) {
 				logger::warn("Cannot serialize temporary objects - [0x{:08X}] {}", a_actor->formID, a_actor->GetName());
 				return true;
 			}

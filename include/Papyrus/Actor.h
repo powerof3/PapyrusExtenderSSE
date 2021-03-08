@@ -7,6 +7,8 @@ namespace papyrusActor
 	using StackID = RE::VMStackID;
 	using Severity = RE::BSScript::ErrorLogger::Severity;
 
+	using Biped = RE::BIPED_OBJECT;
+
 	namespace DEATH_TYPE
 	{
 		enum PERMANENT : std::uint32_t
@@ -53,6 +55,7 @@ namespace papyrusActor
 
 
 	inline constexpr RE::FormID SoulTrapHitArtID = 0x000531AE;
+	inline constexpr std::array<Biped, 3> headSlots = { Biped::kHair, Biped::kLongHair, Biped::kCirclet};
 
 
 	bool AddBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSPerk* a_perk);
@@ -158,6 +161,8 @@ namespace papyrusActor
 	void SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BGSColorForm* a_color);
 
 	void SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, bool a_trapped);
+
+	void ToggleHairWigs(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, bool a_disable);
 
 	void UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_armorType, std::vector<std::uint32_t> a_slotsToSkip);
 

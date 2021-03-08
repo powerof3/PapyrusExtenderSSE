@@ -1,6 +1,7 @@
 #include "Papyrus/Form.h"
 
 #include "Serialization/Form/Keywords.h"
+#include "Util/ConditionParser.h"
 
 
 void papyrusForm::AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::BGSKeyword* a_add)
@@ -15,6 +16,24 @@ void papyrusForm::AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 	}
 
 	Form::Keywords::GetSingleton()->PapyrusApply(a_form, a_add, Form::kAdd);
+}
+
+
+auto papyrusForm::GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form) -> std::vector<RE::BSFixedString>
+{
+	std::vector<RE::BSFixedString> a_vec;
+	
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return a_vec;
+	}
+	auto condition = Condition::GetCondition(*a_form);
+	if (!condition) {
+		a_vm->TraceStack("Form does not have a condition stack", a_stackID, Severity::kWarning);
+		return a_vec;
+	}
+	
+	return Condition::BuildConditions(condition);
 }
 
 
@@ -714,6 +733,8 @@ auto papyrusForm::RegisterFuncs(VM* a_vm) -> bool
 	auto constexpr Event_Form = "PO3_Events_Form"sv;
 
 	a_vm->RegisterFunction("AddKeywordToForm"sv, Functions, AddKeywordToForm);
+
+	a_vm->RegisterFunction("GetConditionList"sv, Functions, GetConditionList);
 
 	a_vm->RegisterFunction("IsGeneratedForm"sv, Functions, IsGeneratedForm, true);
 

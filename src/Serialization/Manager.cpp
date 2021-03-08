@@ -181,6 +181,11 @@ namespace Serialization
 			logger::critical("Failed to save WeatherChange regs!"sv);
 		}
 
+		auto magicEffect = OnMagicEffectApplyRegMap::GetSingleton();
+		if (!magicEffect->Save(a_intfc, kMagicEffectApply, kSerializationVersion)) {
+			logger::critical("Failed to save Magic Effect Apply regs!"sv);
+		}
+
 		//FEC events
 		auto actorEffectReset = OnFECResetRegMap::GetSingleton();
 		if (!actorEffectReset->Save(a_intfc, kFECReset, kSerializationVersion)) {
@@ -465,6 +470,15 @@ namespace Serialization
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
 						logger::critical("Failed to load WeatherChange regs!"sv);
+					}
+				}
+				break;
+			case kMagicEffectApply:
+				{
+					auto regs = OnMagicEffectApplyRegMap::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						logger::critical("Failed to load MagicEffectApply regs!"sv);
 					}
 				}
 				break;

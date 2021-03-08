@@ -157,6 +157,23 @@ void papyrusActiveMagicEffect::RegisterForLocationDiscovery(VM* a_vm, StackID a_
 }
 
 
+void papyrusActiveMagicEffect::RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect, RE::TESForm* a_effectFilter, bool a_match)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+	if (!a_effectFilter) {
+		a_vm->TraceStack("Effect Filter is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
+	regs->Register(a_activeEffect, key);
+}
+
+
 void papyrusActiveMagicEffect::RegisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
@@ -451,6 +468,35 @@ void papyrusActiveMagicEffect::UnregisterForLocationDiscovery(VM* a_vm, StackID 
 }
 
 
+void papyrusActiveMagicEffect::UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect, RE::TESForm* a_effectFilter, bool a_match)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+	if (!a_effectFilter) {
+		a_vm->TraceStack("Effect Filter is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
+	regs->Unregister(a_activeEffect, key);
+}
+
+
+void papyrusActiveMagicEffect::UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
+	regs->UnregisterAll(a_activeEffect);
+}
+
+
 void papyrusActiveMagicEffect::UnregisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
@@ -655,6 +701,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("RegisterForLocationDiscovery"sv, Event_AME, RegisterForLocationDiscovery, true);
 
+	a_vm->RegisterFunction("RegisterForMagicEffectApplyEx"sv, Event_AME, RegisterForMagicEffectApplyEx, true);
+
 	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_AME, RegisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_AME, RegisterForObjectLoaded, true);
@@ -701,6 +749,10 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("UnregisterForLevelIncrease"sv, Event_AME, UnregisterForLevelIncrease, true);
 
 	a_vm->RegisterFunction("UnregisterForLocationDiscovery"sv, Event_AME, UnregisterForLocationDiscovery, true);
+
+	a_vm->RegisterFunction("UnregisterForMagicEffectApplyEx"sv, Event_AME, UnregisterForMagicEffectApplyEx, true);
+
+	a_vm->RegisterFunction("UnregisterForAllMagicEffectApplyEx"sv, Event_AME, UnregisterForAllMagicEffectApplyEx, true);
 
 	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_AME, UnregisterForObjectGrab, true);
 

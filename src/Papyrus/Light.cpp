@@ -8,14 +8,12 @@ auto papyrusLight::GetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunction
 		return nullptr;
 	}
 
-	auto factory = RE::IFormFactory::GetFormFactoryByType(RE::FormType::ColorForm);
-	if (factory) {
-		auto color = static_cast<RE::BGSColorForm*>(factory->Create());
-		if (color) {
-			color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-			color->color = a_light->data.color;
-			return color;
-		}
+	auto factory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>();
+	auto color = factory->Create();
+	if (color) {
+		color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
+		color->color = a_light->data.color;
+		return color;
 	}
 
 	return nullptr;

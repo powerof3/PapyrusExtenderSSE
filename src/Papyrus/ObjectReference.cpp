@@ -69,34 +69,26 @@ void IterateOverAttachedCells(RE::TES* TES, const RE::NiPoint3& a_origin, float 
 {
 	auto cell = TES->interiorCell;
 	if (cell) {
-		cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& ref) {
-			if (!a_callback(ref)) {
-				return false;
-			}
-			return true;
+		cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
+            return a_callback(a_ref);
 		});
 	} else {
 		const auto gridCells = TES->gridCells;
 		if (gridCells) {
 			const auto gridLength = gridCells->length;
 			if (gridLength > 0) {
-				std::uint32_t x;
-				std::uint32_t y;
 				const float yPlus = a_origin.y + a_radius;
 				const float yMinus = a_origin.y - a_radius;
 				const float xPlus = a_origin.x + a_radius;
 				const float xMinus = a_origin.x - a_radius;
 
-				for (x = 0, y = 0; x < gridLength && y < gridLength; x++, y++) {
+			    for (std::uint32_t x = 0, y = 0; x < gridLength && y < gridLength; x++, y++) {
 					cell = gridCells->GetCell(x, y);
 					if (cell && cell->IsAttached()) {
 						const auto cellCoords = cell->GetCoordinates();
-						if (cellCoords && (cellCoords->worldX < xPlus && cellCoords->worldX + 4096.0f > xMinus && cellCoords->worldY < yPlus && cellCoords->worldY + 4096.0f > yMinus)) {
+						if (cellCoords && (cellCoords->worldX < xPlus && (cellCoords->worldX + 4096.0f) > xMinus && cellCoords->worldY < yPlus && (cellCoords->worldY + 4096.0f) > yMinus)) {
 							cell->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
-								if (!a_callback(a_ref)) {
-									return false;
-								}
-								return true;
+                                return a_callback(a_ref);
 							});
 						}
 					}
@@ -122,7 +114,8 @@ auto papyrusObjectReference::FindAllReferencesOfFormType(VM* a_vm, StackID a_sta
 		const auto squaredRadius = a_radius * a_radius;
 
 		IterateOverAttachedCells(TES, originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
-			if (const auto form = a_ref.GetBaseObject(); form && form->Is(formType)) {
+			auto base = a_ref.GetBaseObject();
+			if (formType == RE::FormType::None || base && base->Is(formType)) {
 				vec.push_back(&a_ref);
 			}
 			return true;
@@ -134,7 +127,8 @@ auto papyrusObjectReference::FindAllReferencesOfFormType(VM* a_vm, StackID a_sta
 				const auto skyCell = worldSpace->GetOrCreateSkyCell();
 				if (skyCell) {
 					skyCell->ForEachReferenceInRange(originPos, squaredRadius, [&](RE::TESObjectREFR& a_ref) {
-						if (const auto form = a_ref.GetBaseObject(); form && form->Is(formType)) {
+						auto base = a_ref.GetBaseObject();
+					    if (formType == RE::FormType::None || base && base->Is(formType)) {
 							vec.push_back(&a_ref);
 						}
 						return true;
@@ -503,7 +497,7 @@ auto papyrusObjectReference::GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::
 
 	if (auto data = a_ref->extraList.GetByType<RE::ExtraLinkedRefChildren>(); data) {
 		for (auto& child : data->linkedChildren) {
-			if (a_keyword && child.keyword == a_keyword) {
+			if (!a_keyword || a_keyword && child.keyword == a_keyword) {
 				auto refPtr = child.refr.get();
 				auto ref = refPtr.get();
 				if (ref) {
@@ -514,7 +508,7 @@ auto papyrusObjectReference::GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::
 	}
 	if (auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingLinkedRefIDs>(); missingIDs) {
 		for (auto& entry : missingIDs->entries) {
-			if (a_keyword && entry.keyword == a_keyword) {
+			if (!a_keyword || a_keyword && entry.keyword == a_keyword) {
 				if (auto form = RE::TESForm::LookupByID(entry.linkedRefID); form) {
 					auto ref = form->AsReference();
 					if (ref) {
@@ -1154,14 +1148,6 @@ void papyrusObjectReference::SetLinkedRef(VM* a_vm, StackID a_stackID, RE::Stati
 {
 	if (!a_ref) {
 		a_vm->TraceStack("Object Reference is None", a_stackID, Severity::kWarning);
-		return;
-	}
-	if (!a_targetRef) {
-		a_vm->TraceStack("Target Object Reference is None", a_stackID, Severity::kWarning);
-		return;
-	}
-	if (!a_keyword) {
-		a_vm->TraceStack("Keyword Reference is None", a_stackID, Severity::kWarning);
 		return;
 	}
 

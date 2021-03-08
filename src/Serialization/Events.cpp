@@ -272,6 +272,17 @@ namespace Serialization
 		OnWeatherChangeRegSet::OnWeatherChangeRegSet() :
 			Base("OnWeatherChanged"sv)
 		{}
+
+
+		OnMagicEffectApplyRegMap* OnMagicEffectApplyRegMap::GetSingleton()
+		{
+			static OnMagicEffectApplyRegMap singleton;
+			return &singleton;
+		}
+
+		OnMagicEffectApplyRegMap::OnMagicEffectApplyRegMap() :
+			Base("OnMagicEffectApplyEx"sv)
+		{}
 	}
 
 

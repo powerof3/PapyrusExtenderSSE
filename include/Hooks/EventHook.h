@@ -9,6 +9,8 @@ namespace Hook
 
 	bool HookWeatherChange();
 
+	bool HookMagicEffectApply();
+
 
 	bool HookEvents();
 }

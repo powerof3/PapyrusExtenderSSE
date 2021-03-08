@@ -6,12 +6,11 @@
 namespace Condition
 {
 	using PARAM_TYPE = RE::SCRIPT_PARAM_TYPE;
-
 	using PARAMS = std::pair<std::optional<PARAM_TYPE>, std::optional<PARAM_TYPE>>;
 
 
-    auto GetFuncType(FUNC_ID a_funcID) -> PARAMS
-    {
+	auto GetFuncType(FUNC_ID a_funcID) -> PARAMS
+	{
 		PARAMS paramPair;
 
 		switch (a_funcID) {
@@ -510,7 +509,7 @@ namespace Condition
 			paramPair = { PARAM_TYPE::kCastingSource, std::nullopt };
 			break;
 		case FUNC_ID::kGetEventData:
-			paramPair = { PARAM_TYPE::kEventFunction, PARAM_TYPE::kEventFunctionData };	 // third parameter in xEdit but who cares, we're skipping this
+			paramPair = { PARAM_TYPE::kEventFunction, PARAM_TYPE::kEventFunctionData };  // third parameter in xEdit but who cares, we're skipping this
 			break;
 		case FUNC_ID::kIsCloserToAThanB:
 			paramPair = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kObjectRef };
@@ -569,8 +568,8 @@ namespace Condition
 	}
 
 
-    auto ParseVoidParams(const std::string& a_str, void*& a_param, std::optional<PARAM_TYPE> a_type) -> bool
-    {
+	auto ParseVoidParams(const std::string& a_str, void*& a_param, std::optional<PARAM_TYPE> a_type) -> bool
+	{
 		bool result = false;
 
 		if (!a_type.has_value()) {
@@ -586,7 +585,7 @@ namespace Condition
 					result = true;
 				} else {
 					if (STRING::is_only_digit(a_str)) {
-                        const auto formID = std::stoul(a_str);
+						const auto formID = std::stoul(a_str);
 						if (formID == 14) {
 							a_param = RE::PlayerCharacter::GetSingleton();
 							result = true;
@@ -627,10 +626,10 @@ namespace Condition
 		case PARAM_TYPE::kBGSScene:
 		case PARAM_TYPE::kKnowableForm:
 			{
-                auto split_param = STRING::split(a_str, " ~ ");
+				auto split_param = STRING::split(a_str, " ~ ");
 
-                const auto formID = std::stoul(split_param.at(kFormID), nullptr, 16);
-                const auto esp = split_param.at(kESP);
+				const auto formID = std::stoul(split_param.at(kFormID), nullptr, 16);
+				const auto esp = split_param.at(kESP);
 
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
 				if (dataHandler) {
@@ -648,22 +647,171 @@ namespace Condition
 		return result;
 	}
 
+	auto ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList) -> ConditionDataVec
+	{
+		ConditionDataVec dataVec;
 
-    auto BuildVoidParams(std::string& a_str, void* a_param, std::optional<PARAM_TYPE> a_type) -> bool
-    {
+		for (auto& condition : a_conditionList) {
+			ConditionData data;
+			auto& [conditionItem, functionID, param1, param2, operationCode, floatVal, operatorVal] = data;
+
+			PARAMS paramPair = { std::nullopt, std::nullopt };
+
+			auto split_condition = STRING::split(condition.c_str(), " | ");
+			//conditionItemObject
+			try {
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kConditionItemObject)));
+				if (STRING::is_only_digit(str)) {
+					conditionItem = static_cast<OBJECT>(std::stoul(str));
+				} else {
+					frozen::string obj(str.data(), str.size());
+					conditionItem = static_cast<OBJECT>(MAP::conditionObj_reverse.at(obj));
+				}
+				if (conditionItem == OBJECT::kRef || conditionItem == OBJECT::kLinkedRef || conditionItem == OBJECT::kQuestAlias || conditionItem == OBJECT::kPackData || conditionItem == OBJECT::kEventData) {
+					continue;
+				}
+			} catch (...) {
+				continue;
+			}
+			//functionID
+			try {
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kFunctionID)));
+				if (STRING::is_only_digit(str)) {
+					functionID = static_cast<FUNC_ID>(std::stoul(str));
+				} else {
+					frozen::string funcID(str.data(), str.size());
+					functionID = static_cast<FUNC_ID>(MAP::funcID_reverse.at(funcID));
+				}
+				paramPair = GetFuncType(functionID);
+			} catch (...) {
+				continue;
+			}
+			//param1
+			try {
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kParam1)));
+				if (isStringValid(str)) {
+					auto result = ParseVoidParams(str, param1, paramPair.first);
+					if (!result) {
+						continue;
+					}
+				}
+			} catch (...) {
+				continue;
+			}
+			//param2
+			try {
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kParam2)));
+				if (isStringValid(str)) {
+					auto result = ParseVoidParams(str, param2, paramPair.second);
+					if (!result) {
+						continue;
+					}
+				}
+			} catch (...) {
+				continue;
+			}
+			//OPCode
+			try {
+				using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
+
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kOPCode)));
+				if (STRING::is_only_digit(str)) {
+					operationCode = static_cast<OPCODE>(std::stoul(str));
+				} else {
+					frozen::string opCode(str.data(), str.size());
+					operationCode = static_cast<OPCODE>(MAP::opCode_reverse.at(opCode));
+				}
+			} catch (...) {
+				continue;
+			}
+			//float
+			try {
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kFloat)));
+				floatVal = std::stof(str);
+			} catch (...) {
+				continue;
+			}
+			//operator
+			try {
+				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kANDOR)));
+				operatorVal = str.find("OR"sv) != std::string::npos;
+			} catch (...) {
+				continue;
+			}
+
+			dataVec.push_back(data);
+		}
+
+		return dataVec;
+	}
+
+
+	auto BuildVoidParams(std::string& a_str, void* a_param, std::optional<PARAM_TYPE> a_type) -> bool
+	{
 		if (!a_type.has_value()) {
 			a_str += "NONE"sv;
 			return true;
 		}
 
+		bool result = false;
+
 		switch (a_type.value()) {
+		case PARAM_TYPE::kInt:
+			{
+				auto integer = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
+				a_str += std::to_string(integer);
+
+				result = true;
+			}
+			break;
+		case PARAM_TYPE::kFloat:
+			{
+				auto num = *reinterpret_cast<float*>(&a_param);
+				a_str += std::to_string(num);
+
+				result = true;
+			}
+			break;
+		case PARAM_TYPE::kChar:
+			{
+				auto string = *static_cast<RE::BSFixedString*>(a_param);
+				a_str += string;
+
+				result = true;
+			}
+			break;
+		case PARAM_TYPE::kSex:
+			{
+				auto sex = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
+				a_str += sex == 0 ? "Male" : "Female";
+
+				result = true;
+			}
+			break;
+		case PARAM_TYPE::kActorValue:
+			{
+				auto av = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
+
+				auto avList = RE::ActorValueList::GetSingleton();
+				if (avList) {
+					auto info = avList->GetActorValue(static_cast<RE::ActorValue>(av));
+					if (info) {
+						a_str += info->enumName;
+					}
+				}
+
+				result = true;
+			}
+			break;
 		case PARAM_TYPE::kObjectRef:
 		case PARAM_TYPE::kActor:
 			{
 				auto player = reinterpret_cast<RE::PlayerCharacter*>(a_param);
-				a_str += player ? "Player"sv : "NONE"sv;
-				return true;
+				a_str += player ? "PlayerRef"sv : "NONE"sv;
+
+				result = true;
 			}
+			break;
 		case PARAM_TYPE::kEquipType:
 		case PARAM_TYPE::kInventoryObject:
 		case PARAM_TYPE::kInvObjectOrFormList:
@@ -698,161 +846,81 @@ namespace Condition
 			{
 				auto form = reinterpret_cast<RE::TESForm*>(a_param);
 				if (form) {
-                    const auto formID = std::to_string(form->GetFormID()).erase(0, 1);
+					std::stringstream sstream;
+					sstream << "0x" << std::uppercase << std::hex << form->GetFormID();
+					const auto formID = sstream.str();
 					a_str += formID;
 					a_str.append(" ~ "sv);
 					auto owner = form->sourceFiles.array->front();
 					a_str.append(owner ? owner->fileName : "Skyrim.esm"sv);
+
+					result = true;
 				} else {
 					a_str.append("NONE"sv);
 				}
-				return true;
 			}
+			break;
 		default:
 			break;
 		}
 
-		return false;
+		return result;
 	}
 
-
-    auto ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList) -> ConditionDataVec
-    {
-		ConditionDataVec dataVec;
-
-		for (auto& condition : a_conditionList) {
-			ConditionData data;
-			auto& [conditionItem, functionID, param1, param2, opCode, floatVal, operatorVal] = data;
-
-			PARAMS paramPair = { std::nullopt, std::nullopt };
-
-			auto split_condition = STRING::split(condition.c_str(), " | ");
-			//conditionItemObject
-			try {
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kConditionItemObject)));
-				if (str == "Subject"sv) {
-					conditionItem = OBJECT::kSelf;
-				} else if (str == "Target"sv) {
-					conditionItem = OBJECT::kTarget;
-				} else if (str == "Combat Target"sv) {
-					conditionItem = OBJECT::kCombatTarget;
-				} else if (str == "Linked Reference"sv) {
-					conditionItem = OBJECT::kLinkedRef;
-				} else if (str == "Quest Alias"sv) {
-					conditionItem = OBJECT::kQuestAlias;
-				} else if (str == "Package Data"sv) {
-					conditionItem = OBJECT::kPackData;
-				} else if (str == "Event Data"sv) {
-					conditionItem = OBJECT::kEventData;
-				} else if (str == "Player"sv) {
-					conditionItem = OBJECT::kCommandTarget;
-				} else {
-					conditionItem = static_cast<OBJECT>(std::stoul(str));
-				}
-				if (conditionItem == OBJECT::kLinkedRef || conditionItem == OBJECT::kQuestAlias || conditionItem == OBJECT::kPackData || conditionItem == OBJECT::kEventData) {
-					continue;
-				}
-			} catch (...) {
-				continue;
-			}
-			//functionID
-			try {
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kFunctionID)));
-				functionID = static_cast<FUNC_ID>(std::stoul(str));
-				paramPair = GetFuncType(functionID);
-			} catch (...) {
-				continue;
-			}
-			//param1
-			try {
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kParam1)));
-				if (isStringValid(str)) {
-					auto result = ParseVoidParams(str, param1, paramPair.first);
-					if (!result) {
-						continue;
-					}
-				}
-			} catch (...) {
-				continue;
-			}
-			//param2
-			try {
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kParam2)));
-				if (isStringValid(str)) {
-					auto result = ParseVoidParams(str, param2, paramPair.second);
-					if (!result) {
-						continue;
-					}
-				}
-			} catch (...) {
-				continue;
-			}
-			//OPCode
-			try {
-				using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
-
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kOPCode)));
-				if (str == "=="sv) {
-					opCode = OPCODE::kEqualTo;
-				} else if (str == "!="sv) {
-					opCode = OPCODE::kNotEqualTo;
-				} else if (str == ">="sv) {
-					opCode = OPCODE::kGreaterThanOrEqualTo;
-				} else if (str == "<="sv) {
-					opCode = OPCODE::kLessThanOrEqualTo;
-				} else if (str == "<"sv) {
-					opCode = OPCODE::kLessThan;
-				} else if (str == ">"sv) {
-					opCode = OPCODE::kGreaterThan;
-				} else {
-					opCode = static_cast<OPCODE>(std::stoul(str));
-				}
-			} catch (...) {
-				continue;
-			}
-			//float
-			try {
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kFloat)));
-				floatVal = std::stof(str);
-			} catch (...) {
-				continue;
-			}
-			//operator
-			try {
-				auto str = STRING::trim(split_condition.at(to_underlying(TYPE::kANDOR)));
-				operatorVal = str.find("OR"sv) != std::string::npos ? true : false;
-			} catch (...) {
-				continue;
-			}
-
-			dataVec.push_back(data);
-		}
-
-		return dataVec;
-	}
-
-
-    auto BuildConditions(const ConditionDataVec& a_conditions) -> std::vector<RE::BSFixedString>
-    {
+	auto BuildConditions(RE::TESCondition* a_conditions) -> std::vector<RE::BSFixedString>
+	{
 		using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
 
-		std::vector<RE::BSFixedString> vec;
-		vec.reserve(a_conditions.size());
+		ConditionDataVec conditionVec;
 
-        for (auto& [conditionItem, functionID, param1, param2, opCode, floatVal, operatorVal] : a_conditions) {
+		if (a_conditions) {
+			auto tmp = a_conditions->head;
+			while (tmp != nullptr) {
+				ConditionData conditionData{
+					*tmp->data.object,
+					*tmp->data.functionData.function,
+					tmp->data.functionData.params[0],
+					tmp->data.functionData.params[1],
+					tmp->data.flags.opCode,
+					tmp->data.comparisonValue.f,
+					tmp->data.flags.isOR
+				};
+				conditionVec.emplace_back(conditionData);
+				tmp = tmp->next;
+			}
+		}
+
+		if (conditionVec.empty()) {
+			return std::vector<RE::BSFixedString>();
+		}
+
+		std::vector<RE::BSFixedString> vec;
+		vec.reserve(conditionVec.size());
+
+		for (auto& [conditionItem, functionID, param1, param2, operationCode, floatVal, operatorVal] : conditionVec) {
 			std::string condition;
 			//condition
-			condition += std::to_string(static_cast<std::uint32_t>(conditionItem));
+			auto condItem = static_cast<std::uint32_t>(conditionItem);
+			try {
+				condition += MAP::conditionObj.at(condItem).data();
+			} catch (...) {
+				condition += std::to_string(condItem);
+			}
 			condition.append(" | "sv);
 			//functionID
-			condition += std::to_string(static_cast<std::uint32_t>(functionID));
-            const auto paramPair = GetFuncType(functionID);
+			auto funcID = static_cast<std::uint32_t>(functionID);
+			try {
+				condition += MAP::funcID.at(funcID).data();
+			} catch (...) {
+				condition += std::to_string(funcID);
+			}
+			const auto paramPair = GetFuncType(functionID);
 			//param1
 			condition.append(" | "sv);
 			try {
 				if (!BuildVoidParams(condition, param1, paramPair.first)) {
 					continue;
-				}	
+				}
 			} catch (...) {
 				condition.append("NONE"sv);
 			}
@@ -861,43 +929,56 @@ namespace Condition
 			try {
 				if (!BuildVoidParams(condition, param2, paramPair.second)) {
 					continue;
-				}	
+				}
 			} catch (...) {
 				condition.append("NONE"sv);
 			}
 			condition.append(" | "sv);
 			//opCode
-			std::string opCodeStr;
-			switch (opCode) {
-			case OPCODE::kEqualTo:
-				opCodeStr = "=="sv;
-				break;
-			case OPCODE::kNotEqualTo:
-				opCodeStr = "!="sv;
-				break;
-			case OPCODE::kGreaterThan:
-				opCodeStr = ">"sv;
-				break;
-			case OPCODE::kGreaterThanOrEqualTo:
-				opCodeStr = ">="sv;
-				break;
-			case OPCODE::kLessThan:
-				opCodeStr = "<"sv;
-				break;
-			case OPCODE::kLessThanOrEqualTo:
-				opCodeStr = "<="sv;
-				break;
+			auto opCode = static_cast<std::uint32_t>(operationCode);
+			try {
+				condition += MAP::opCode.at(opCode).data();
+			} catch (...) {
+				condition += std::to_string(opCode);
 			}
-			condition += opCodeStr;
 			condition.append(" | "sv);
 			//floatVal
-			condition += std::to_string(floatVal);
+			condition += std::to_string(std::roundf(floatVal));
+			condition.append(" | "sv);
 			//ANDOR
-			condition.append(operatorVal ? "AND"sv : "OR"sv);
+			condition.append(operatorVal ? "OR"sv : "AND"sv);
 
 			vec.emplace_back(condition.c_str());
 		}
 
 		return vec;
+	}
+
+
+	auto GetCondition(RE::TESForm& a_form, std::int32_t a_index) -> RE::TESCondition*
+	{
+		RE::TESCondition* condition = nullptr;
+
+		switch (a_form.GetFormType()) {
+		case RE::FormType::MagicEffect:
+			{
+				auto effect = a_form.As<RE::EffectSetting>();
+				condition = effect ? &effect->conditions : nullptr;
+			}
+			break;
+		case RE::FormType::Spell:
+		case RE::FormType::Enchantment:
+		case RE::FormType::Ingredient:
+		case RE::FormType::AlchemyItem:
+		case RE::FormType::Scroll:
+			{
+				auto magicItem = a_form.As<RE::MagicItem>();
+				condition = magicItem && a_index < magicItem->effects.size() ? &magicItem->effects[a_index]->conditions : nullptr;
+			}
+			break;
+		default:
+			break;
+		}
+		return condition;
 	}
 }

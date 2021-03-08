@@ -465,6 +465,25 @@ namespace Serialization
 			OnWeatherChangeRegSet& operator=(const OnWeatherChangeRegSet&) = delete;
 			OnWeatherChangeRegSet& operator=(OnWeatherChangeRegSet&&) = delete;
 		};
+
+
+		class OnMagicEffectApplyRegMap : public SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, bool>
+		{
+		public:
+			using Base = SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, bool>;
+
+
+			static OnMagicEffectApplyRegMap* GetSingleton();
+
+		private:
+			OnMagicEffectApplyRegMap();
+			OnMagicEffectApplyRegMap(const OnMagicEffectApplyRegMap&) = delete;
+			OnMagicEffectApplyRegMap(OnMagicEffectApplyRegMap&&) = delete;
+			~OnMagicEffectApplyRegMap() = default;
+
+			OnMagicEffectApplyRegMap& operator=(const OnMagicEffectApplyRegMap&) = delete;
+			OnMagicEffectApplyRegMap& operator=(OnMagicEffectApplyRegMap&&) = delete;
+		};
 	}
 
 

@@ -40,6 +40,7 @@ namespace Serialization
 		kActorReanimateStart = 'RSTA',
 		kActorReanimateStop = 'REND',
 		kWeatherChange = 'WEAT',
+		kMagicEffectApply = 'MGEF',
 
 		kFECReset = 'FECR'
 	};

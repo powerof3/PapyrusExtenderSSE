@@ -19,20 +19,85 @@ void papyrusForm::AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 }
 
 
-auto papyrusForm::GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form) -> std::vector<RE::BSFixedString>
+auto papyrusForm::EvaluateConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::TESObjectREFR* a_actionRef, RE::TESObjectREFR* a_target) -> bool
+{
+	if (!a_form) {
+		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
+		return false;
+	}
+	if (!a_actionRef) {
+		a_vm->TraceStack("Source is None", a_stackID, Severity::kWarning);
+		return false;
+	}
+	if (!a_target) {
+		a_vm->TraceStack("Target is None", a_stackID, Severity::kWarning);
+		return false;
+	}
+
+	bool result = false;
+
+	switch (a_form->GetFormType()) {
+	case RE::FormType::Spell:
+	case RE::FormType::Enchantment:
+	case RE::FormType::Ingredient:
+	case RE::FormType::AlchemyItem:
+	case RE::FormType::Scroll:
+		{
+			auto magicItem = a_form->As<RE::MagicItem>();
+			if (magicItem) {
+				for (auto& effect : magicItem->effects) {
+					if (result) {
+						break;
+					}
+					
+					if (effect) {
+						bool effectValid = false;
+						bool mgefValid = false;
+						
+						effectValid = effect->conditions.IsTrue(a_actionRef, a_target);
+						
+						auto baseEffect = effect->baseEffect;
+						mgefValid = baseEffect && baseEffect->conditions.IsTrue(a_actionRef, a_target);
+						
+						if (effectValid && mgefValid) {
+							result = true;
+						}
+					}
+				}
+			}
+		}
+		break;
+	case RE::FormType::MagicEffect:
+		{
+			auto effect = a_form->As<RE::EffectSetting>();
+			if (effect && effect->conditions.IsTrue(a_actionRef, a_target)) {
+				result = true;
+			}
+		}
+		break;
+	default:
+		result = true;
+		break;
+	}
+
+	return result;
+}
+
+
+auto papyrusForm::GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, std::uint32_t a_index) -> std::vector<RE::BSFixedString>
 {
 	std::vector<RE::BSFixedString> a_vec;
-	
+
 	if (!a_form) {
 		a_vm->TraceStack("Form is None", a_stackID, Severity::kWarning);
 		return a_vec;
 	}
-	auto condition = Condition::GetCondition(*a_form);
+	auto condition = Condition::GetCondition(*a_form, a_index);
 	if (!condition) {
 		a_vm->TraceStack("Form does not have a condition stack", a_stackID, Severity::kWarning);
 		return a_vec;
 	}
-	
+
 	return Condition::BuildConditions(condition);
 }
 
@@ -733,6 +798,8 @@ auto papyrusForm::RegisterFuncs(VM* a_vm) -> bool
 	auto constexpr Event_Form = "PO3_Events_Form"sv;
 
 	a_vm->RegisterFunction("AddKeywordToForm"sv, Functions, AddKeywordToForm);
+
+	a_vm->RegisterFunction("EvaluateConditionList"sv, Functions, EvaluateConditionList);
 
 	a_vm->RegisterFunction("GetConditionList"sv, Functions, GetConditionList);
 

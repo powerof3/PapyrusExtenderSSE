@@ -10,7 +10,7 @@ namespace papyrusObjectReference
 	inline constexpr float PI = static_cast<float>(3.1415926535897932);
 
 	using MAT = RE::MATERIAL_ID;	
-	inline constexpr frozen::map<MAT, std::string_view, 88> materialMap = {
+	inline constexpr frozen::map<MAT, frozen::string, 88> materialMap = {
 		{ MAT::kNone, "None" },
 		{ MAT::kStoneBroken, "StoneBroken" },
 		{ MAT::kBlockBlade1Hand, "BlockBlade1Hand" },

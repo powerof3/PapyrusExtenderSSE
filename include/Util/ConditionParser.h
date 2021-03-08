@@ -1,8 +1,5 @@
 #pragma once
 
-#include <boost/assign.hpp>
-#include <boost/bimap.hpp>
-
 
 namespace Condition
 {

@@ -211,9 +211,10 @@ namespace Hook
 				auto baseEffect = effect ? effect->baseEffect : nullptr;
 
 				auto caster = a_data->caster;
+				auto magicItem = a_data->magicItem;
 
-				if (target && baseEffect && caster) {
-					OnMagicEffectApplyRegMap::GetSingleton()->QueueEvent(target, baseEffect, caster, baseEffect, result);
+				if (target && baseEffect && caster && magicItem) {
+					OnMagicEffectApplyRegMap::GetSingleton()->QueueEvent(target, baseEffect, caster, baseEffect, magicItem, result);
 				}
 			}
 			return result;

@@ -467,10 +467,10 @@ namespace Serialization
 		};
 
 
-		class OnMagicEffectApplyRegMap : public SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, bool>
+		class OnMagicEffectApplyRegMap : public SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool>
 		{
 		public:
-			using Base = SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, bool>;
+			using Base = SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool>;
 
 
 			static OnMagicEffectApplyRegMap* GetSingleton();

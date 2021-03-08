@@ -13,11 +13,11 @@ namespace papyrusForm
 
 	void AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::BGSKeyword* a_add);
 
-	auto GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form) -> std::vector<RE::BSFixedString>;
+	bool EvaluateConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::TESObjectREFR* a_actionRef, RE::TESObjectREFR* a_target);
+
+	std::vector<RE::BSFixedString> GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, std::uint32_t a_index);
 
 	bool IsGeneratedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form);
-
-	bool MarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, std::int32_t a_slot);
 
 	bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form, RE::BGSKeyword* a_remove);
 

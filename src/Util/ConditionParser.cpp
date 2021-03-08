@@ -1,7 +1,5 @@
 #include "Util/ConditionParser.h"
 
-#include "RE/Obscript/CommandTable.h"
-
 
 namespace Condition
 {

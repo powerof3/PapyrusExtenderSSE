@@ -953,7 +953,7 @@ namespace Condition
 	}
 
 
-	auto GetCondition(RE::TESForm& a_form, std::int32_t a_index) -> RE::TESCondition*
+	auto GetCondition(RE::TESForm& a_form, std::uint32_t a_index) -> RE::TESCondition*
 	{
 		RE::TESCondition* condition = nullptr;
 

@@ -196,9 +196,13 @@ auto papyrusSpell::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("AddMagicEffectToSpell"sv, Functions, AddMagicEffectToSpell);
 
+	a_vm->RegisterFunction("AddEffectItemToSpell"sv, Functions, AddEffectItemToSpell);
+
 	a_vm->RegisterFunction("GetSpellType"sv, Functions, GetSpellType);
 
 	a_vm->RegisterFunction("RemoveMagicEffectFromSpell"sv, Functions, RemoveMagicEffectFromSpell);
+
+	a_vm->RegisterFunction("RemoveEffectItemFromSpell"sv, Functions, RemoveEffectItemFromSpell);
 
 	return true;
 }

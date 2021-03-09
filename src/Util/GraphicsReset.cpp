@@ -20,12 +20,12 @@ namespace RESET
 		}
 
 		bool success = false;
+		auto& [toggle, tintSkin, tintHair, alphaSkin, TXSTFace, alphaHDPT, TXST, TXSTSkin, shader] = resetData;
 
 		stl::span<RE::NiExtraData*> span(a_object->extra, a_object->extraDataSize);
 		for (auto& extraData : span) {
 			if (extraData) {
 				if (std::string name(extraData->name); !name.empty()) {
-					auto& [toggle, tintSkin, tintHair, alphaSkin, TXSTFace, alphaHDPT, TXST, TXSTSkin, shader] = resetData;
 
 					switch (const_hash(name.c_str())) {
 					case const_hash("PO3_TOGGLE"):

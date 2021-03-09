@@ -894,7 +894,7 @@ namespace Condition
 	using ConditionData = std::tuple<OBJECT, FUNC_ID, void*, void*, OP_CODE, float, bool>;
 	using ConditionDataVec = std::vector<ConditionData>;
 
-	auto GetCondition(RE::TESForm& a_form, std::int32_t a_index) -> RE::TESCondition*;
+	auto GetCondition(RE::TESForm& a_form, std::uint32_t a_index) -> RE::TESCondition*;
 
 	auto ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList) -> ConditionDataVec;
 	auto BuildConditions(RE::TESCondition* a_conditions) -> std::vector<RE::BSFixedString>;

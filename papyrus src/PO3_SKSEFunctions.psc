@@ -21,7 +21,7 @@ Scriptname PO3_SKSEFunctions Hidden
 		Dead = 2
 		Unconscious = 3
 		Reanimate = 4
-		Recycle" = 5
+		Recycle = 5
 		Restrained = 6
 		EssentialDown = 7
 		Bleedout = 8

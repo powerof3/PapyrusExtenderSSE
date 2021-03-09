@@ -218,19 +218,21 @@ void papyrusActor::FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 		}
 		auto charController = a_actor->GetCharController();
 		if (charController) {
-			if (a_enable) {
+			if (a_enable) { //freeze
+				charController->flags.set(Flags::kNotPushable);
 				charController->flags.reset(Flags::kRecordHits);
-				charController->flags.set(Flags::kHitDamage);
-				charController->flags.set(Flags::kHitFlags);
-			} else {
-				charController->flags.set(Flags::kRecordHits);
-				charController->flags.reset(Flags::kHitDamage);
 				charController->flags.reset(Flags::kHitFlags);
+				charController->flags.reset(Flags::kHitDamage);
+			} else { //unfreeze
+				charController->flags.reset(Flags::kNotPushable);
+				charController->flags.set(Flags::kRecordHits);
+				charController->flags.set(Flags::kHitFlags);
+				charController->flags.set(Flags::kHitDamage);
 			}
 			charController->SetLinearVelocityImpl(0.0);
 		}
 		if (a_enable) {
-			a_actor->boolBits.reset(BOOL_BITS::kProcessMe);
+			a_actor->boolBits.reset(BOOL_BITS::kProcessMe); //disable AI last
 		}
 	} else if (a_type == 1) {
 		auto charController = a_actor->GetCharController();
@@ -414,6 +416,7 @@ auto papyrusActor::GetCombatTargets(VM* a_vm, StackID a_stackID, RE::StaticFunct
 auto papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_type) -> std::vector<std::int32_t>
 {
 	using FLAG = RE::EffectSetting::EffectSettingData::Flag;
+	using AE_FLAG = RE::ActiveEffect::Flag;
 	using CAST_TYPE = RE::MagicSystem::CastingType;
 
 	namespace FLOAT = SKSE::UTIL::FLOAT;
@@ -439,7 +442,7 @@ auto papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_stackID, RE::StaticFun
 	deathEffectMap effectMap;
 
 	for (auto& activeEffect : *activeEffects) {
-		if (activeEffect && activeEffect->flags.none(RE::ActiveEffect::Flag::kInactive) && activeEffect->flags.none(RE::ActiveEffect::Flag::kDispelled)) {
+		if (activeEffect && activeEffect->flags.none(AE_FLAG::kInactive) && activeEffect->flags.none(AE_FLAG::kDispelled)) {
 			auto mgef = activeEffect->GetBaseObject();
 			if (mgef && mgef->data.flags.all(FLAG::kHostile) && mgef->data.flags.all(FLAG::kDetrimental)) {
 				if (a_type == 0) {

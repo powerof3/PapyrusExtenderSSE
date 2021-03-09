@@ -145,6 +145,23 @@ void papyrusAlias::RegisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE:
 }
 
 
+void papyrusAlias::RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias, RE::TESForm* a_effectFilter, bool a_match)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+	if (!a_effectFilter) {
+		a_vm->TraceStack("Effect Filter is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
+	regs->Register(a_alias, key);
+}
+
+
 void papyrusAlias::RegisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 {
 	if (!a_alias) {
@@ -415,6 +432,35 @@ void papyrusAlias::UnregisterForLocationDiscovery(VM* a_vm, StackID a_stackID, R
 }
 
 
+void papyrusAlias::UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias, RE::TESForm* a_effectFilter, bool a_match)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+	if (!a_effectFilter) {
+		a_vm->TraceStack("Effect Filter is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
+	regs->Unregister(a_alias, key);
+}
+
+
+void papyrusAlias::UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
+	regs->UnregisterAll(a_alias);
+}
+
+
 void papyrusAlias::UnregisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 {
 	if (!a_alias) {
@@ -617,6 +663,8 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("RegisterForLocationDiscovery"sv, Event_Alias, RegisterForLocationDiscovery, true);
 
+	a_vm->RegisterFunction("RegisterForMagicEffectApplyEx"sv, Event_Alias, RegisterForMagicEffectApplyEx, true);
+
 	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_Alias, RegisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_Alias, RegisterForObjectLoaded, true);
@@ -659,6 +707,10 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("UnregisterForLevelIncrease"sv, Event_Alias, UnregisterForLevelIncrease, true);
 
 	a_vm->RegisterFunction("UnregisterForLocationDiscovery"sv, Event_Alias, UnregisterForLocationDiscovery, true);
+
+	a_vm->RegisterFunction("UnregisterForMagicEffectApplyEx"sv, Event_Alias, UnregisterForMagicEffectApplyEx, true);
+
+	a_vm->RegisterFunction("UnregisterForAllMagicEffectApplyEx"sv, Event_Alias, UnregisterForAllMagicEffectApplyEx, true);
 
 	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_Alias, UnregisterForObjectGrab, true);
 

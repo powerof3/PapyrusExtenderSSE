@@ -92,7 +92,7 @@ auto papyrusGame::GetAllEnchantmentsInMod(VM* a_vm, StackID a_stackID, RE::Stati
 	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (!modInfo) {
-            const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
+			const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 		} else {
 			GetAllFormsInMod<RE::EnchantmentItem>(modInfo, vec, a_keywords);
@@ -115,7 +115,7 @@ auto papyrusGame::GetAllRacesInMod(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (!modInfo) {
-            const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
+			const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 		} else {
 			GetAllFormsInMod<RE::TESRace>(modInfo, vec, a_keywords);
@@ -138,7 +138,7 @@ auto papyrusGame::GetAllSpellsInMod(VM* a_vm, StackID a_stackID, RE::StaticFunct
 	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (!modInfo) {
-            const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
+			const auto msg = a_name.c_str() + std::string(" is not loaded"sv);
 			a_vm->TraceStack(msg.c_str(), a_stackID, Severity::kWarning);
 			return vec;
 		}
@@ -171,9 +171,9 @@ auto papyrusGame::GetAttachedCells(VM*, StackID, RE::StaticFunctionTag*) -> std:
 		if (cell) {
 			vec.push_back(cell);
 		} else {
-            const auto gridCells = TES->gridCells;
+			const auto gridCells = TES->gridCells;
 			if (gridCells) {
-                const auto gridLength = gridCells->length;
+				const auto gridLength = gridCells->length;
 				if (gridLength > 0) {
 					std::uint32_t x;
 					std::uint32_t y;
@@ -208,7 +208,7 @@ auto papyrusGame::GetGameSettingBool(VM*, StackID, RE::StaticFunctionTag*, RE::B
 	}
 
 	if (auto gmstCollection = RE::GameSettingCollection::GetSingleton(); gmstCollection) {
-        const auto gmst = gmstCollection->GetSetting(a_gamesetting.c_str());
+		const auto gmst = gmstCollection->GetSetting(a_gamesetting.c_str());
 		if (gmst && gmst->GetType() == RE::Setting::Type::kBool) {
 			return gmst->GetBool();
 		}
@@ -223,18 +223,15 @@ auto papyrusGame::GetLocalGravity(VM*, StackID, RE::StaticFunctionTag*) -> std::
 	std::vector<float> vec(3, 0.0f);
 
 	if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
-        const auto cell = player->GetParentCell();
-		if (cell) {
-			auto world = cell->GetbhkWorld();
-			if (world) {
-				RE::BSReadLockGuard lock(world->worldLock);
-                const auto havokWorld = world->GetWorld2();
-				if (havokWorld) {
-					float gravity[4];
-					_mm_store_ps(gravity, havokWorld->gravity.quad);
-					for (std::size_t i = 0; i < 3; ++i) {
-						vec[i] = gravity[i];
-					}
+		if (const auto world = player->GetbhkWorld(); world) {
+			RE::BSReadLockGuard lock(world->worldLock);
+
+			const auto havokWorld = world->GetWorld2();
+			if (havokWorld) {
+				float gravity[4];
+				_mm_store_ps(gravity, havokWorld->gravity.quad);
+				for (std::size_t i = 0; i < 3; ++i) {
+					vec[i] = gravity[i];
 				}
 			}
 		}
@@ -246,7 +243,7 @@ auto papyrusGame::GetLocalGravity(VM*, StackID, RE::StaticFunctionTag*) -> std::
 
 auto papyrusGame::GetNumActorsInHigh(VM*, StackID, RE::StaticFunctionTag*) -> std::int32_t
 {
-    const auto processLists = RE::ProcessLists::GetSingleton();
+	const auto processLists = RE::ProcessLists::GetSingleton();
 	return processLists ? processLists->numberHighActors : -1;
 }
 
@@ -258,7 +255,7 @@ auto papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	}
 
 	if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
-        const auto modInfo = dataHandler->LookupModByName(a_name);
+		const auto modInfo = dataHandler->LookupModByName(a_name);
 		if (modInfo) {
 			return true;
 		}
@@ -271,7 +268,7 @@ auto papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 auto papyrusGame::IsSurvivalModeActive(VM*, StackID, RE::StaticFunctionTag*) -> bool
 {
 	if (auto manager = RE::BGSDefaultObjectManager::GetSingleton(); manager) {
-        const auto survivalGlobal = manager->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECTS::kSurvivalModeToggle);
+		const auto survivalGlobal = manager->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECTS::kSurvivalModeToggle);
 		return survivalGlobal ? survivalGlobal->value == 1.0f : false;
 	}
 	return false;
@@ -281,15 +278,12 @@ auto papyrusGame::IsSurvivalModeActive(VM*, StackID, RE::StaticFunctionTag*) -> 
 void papyrusGame::SetLocalGravity(VM*, StackID, RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
 {
 	if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
-        const auto cell = player->GetParentCell();
-		if (cell) {
-			auto world = cell->GetbhkWorld();
-			if (world) {
-				RE::BSWriteLockGuard lock(world->worldLock);
-				auto havokWorld = world->GetWorld2();
-				if (havokWorld) {
-					havokWorld->gravity = RE::hkVector4(a_x, a_y, a_z, 0.0f);
-				}
+		if (const auto world = player->GetbhkWorld(); world) {
+			RE::BSWriteLockGuard lock(world->worldLock);
+			
+			auto havokWorld = world->GetWorld2();
+			if (havokWorld) {
+				havokWorld->gravity = RE::hkVector4(a_x, a_y, a_z, 0.0f);
 			}
 		}
 	}

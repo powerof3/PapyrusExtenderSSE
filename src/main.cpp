@@ -11,7 +11,9 @@ void DumpScriptCommands()
 	
 	auto scriptCommands = RE::SCRIPT_FUNCTION::GetFirstScriptCommand();
 	for (std::uint16_t i = 0; i < RE::SCRIPT_FUNCTION::Commands::kScriptCommandsEnd; ++i) {
-		logger::info("{} : {} : {}", scriptCommands[i].functionName, scriptCommands[i].params ? scriptCommands[i].params->paramName : "NONE", scriptCommands[i].params ? to_underlying(scriptCommands[i].params->paramType.get()) : 0);
+		if (scriptCommands[i].editorFilter) {
+			logger::info("{}", scriptCommands[i].functionName);
+		}
 	}
 }
 
@@ -77,7 +79,7 @@ extern "C" DLLEXPORT bool APIENTRY SKSEPlugin_Load(const SKSE::LoadInterface* a_
 		logger::info("po3_PapyrusExtender loaded"sv);
 
 		SKSE::Init(a_skse);
-		SKSE::AllocTrampoline(1 << 6);
+		SKSE::AllocTrampoline(115);
 
 		Papyrus::Functions::Register();
 

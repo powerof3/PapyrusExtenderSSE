@@ -199,8 +199,8 @@ void papyrusForm::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
-	regs->Register(a_form);
+	/*auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
+	regs->Register(a_form);*/
 }
 
 
@@ -211,8 +211,8 @@ void papyrusForm::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE:
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
-	regs->Register(a_form);
+	/*auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
+	regs->Register(a_form);*/
 }
 
 
@@ -223,8 +223,8 @@ void papyrusForm::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::S
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
-	regs->Register(a_form);
+	/*auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
+	regs->Register(a_form);*/
 }
 
 
@@ -493,8 +493,8 @@ void papyrusForm::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, 
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
-	regs->Unregister(a_form);
+	/*auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
+	regs->Unregister(a_form);*/
 }
 
 
@@ -505,8 +505,8 @@ void papyrusForm::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, R
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
-	regs->Unregister(a_form);
+	/*auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
+	regs->Unregister(a_form);*/
 }
 
 
@@ -517,8 +517,8 @@ void papyrusForm::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE:
 		return;
 	}
 
-	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
-	regs->Unregister(a_form);
+	/*auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
+	regs->Unregister(a_form);*/
 }
 
 

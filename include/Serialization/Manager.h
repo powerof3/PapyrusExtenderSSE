@@ -41,6 +41,8 @@ namespace Serialization
 		kActorReanimateStop = 'REND',
 		kWeatherChange = 'WEAT',
 		kMagicEffectApply = 'MGEF',
+		kWeaponHit = 'WHIT',
+		kMagicHit = 'MHIT',
 
 		kFECReset = 'FECR'
 	};

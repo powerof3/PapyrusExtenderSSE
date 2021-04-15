@@ -186,6 +186,16 @@ namespace Serialization
 			logger::critical("Failed to save Magic Effect Apply regs!"sv);
 		}
 
+		auto weaponHit = OnWeaponHitRegSet::GetSingleton();
+		if (!weaponHit->Save(a_intfc, kWeaponHit, kSerializationVersion)) {
+			logger::critical("Failed to save Weapon Hit Apply regs!"sv);
+		}
+
+		auto magicHit = OnMagicHitRegSet::GetSingleton();
+		if (!magicHit->Save(a_intfc, kMagicHit, kSerializationVersion)) {
+			logger::critical("Failed to save Magic Hit Apply regs!"sv);
+		}
+
 		//FEC events
 		auto actorEffectReset = OnFECResetRegMap::GetSingleton();
 		if (!actorEffectReset->Save(a_intfc, kFECReset, kSerializationVersion)) {
@@ -479,6 +489,24 @@ namespace Serialization
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
 						logger::critical("Failed to load MagicEffectApply regs!"sv);
+					}
+				}
+				break;
+			case kWeaponHit:
+				{
+					auto regs = OnWeaponHitRegSet::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						logger::critical("Failed to load Weapon Hit regs!"sv);
+					}
+				}
+				break;
+			case kMagicHit:
+				{
+					auto regs = OnMagicHitRegSet::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						logger::critical("Failed to load Magic Hit regs!"sv);
 					}
 				}
 				break;

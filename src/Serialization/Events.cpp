@@ -283,6 +283,28 @@ namespace Serialization
 		OnMagicEffectApplyRegMap::OnMagicEffectApplyRegMap() :
 			Base("OnMagicEffectApplyEx"sv)
 		{}
+
+
+		OnWeaponHitRegSet* OnWeaponHitRegSet::GetSingleton()
+		{
+			static OnWeaponHitRegSet singleton;
+			return &singleton;
+		}
+
+		OnWeaponHitRegSet::OnWeaponHitRegSet() :
+			Base("OnWeaponHit"sv)
+		{}
+
+
+		OnMagicHitRegSet* OnMagicHitRegSet::GetSingleton()
+		{
+			static OnMagicHitRegSet singleton;
+			return &singleton;
+		}
+
+		OnMagicHitRegSet::OnMagicHitRegSet() :
+			Base("OnMagicHit"sv)
+		{}
 	}
 
 

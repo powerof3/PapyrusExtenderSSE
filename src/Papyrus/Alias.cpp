@@ -20,8 +20,14 @@ void papyrusAlias::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, R
 		return;
 	}
 
+	auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+	if (!refAlias) {
+		a_vm->TraceStack("Alias is not a reference alias", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
-	regs->Register(a_alias);
+	regs->Register(refAlias);
 }
 
 
@@ -32,8 +38,14 @@ void papyrusAlias::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE
 		return;
 	}
 
+	auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+	if (!refAlias) {
+		a_vm->TraceStack("Alias is not a reference alias", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
-	regs->Register(a_alias);
+	regs->Register(refAlias);
 }
 
 
@@ -44,8 +56,14 @@ void papyrusAlias::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::
 		return;
 	}
 
+	auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+	if (!refAlias) {
+		a_vm->TraceStack("Alias is not a reference alias", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
-	regs->Register(a_alias);
+	regs->Register(refAlias);
 }
 
 
@@ -159,6 +177,18 @@ void papyrusAlias::RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE
 	auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
 	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
 	regs->Register(a_alias, key);
+}
+
+
+void papyrusAlias::RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnMagicHitRegSet::GetSingleton();
+	regs->Register(a_alias);
 }
 
 
@@ -288,6 +318,18 @@ void papyrusAlias::RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::Sta
 }
 
 
+void papyrusAlias::RegisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeaponHitRegSet::GetSingleton();
+	regs->Register(a_alias);
+}
+
+
 void papyrusAlias::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 {
 	if (!a_alias) {
@@ -307,8 +349,14 @@ void papyrusAlias::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID,
 		return;
 	}
 
+	auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+	if (!refAlias) {
+		a_vm->TraceStack("Alias is not a reference alias", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	auto regs = HookedEvents::OnActorReanimateStartRegSet::GetSingleton();
-	regs->Unregister(a_alias);
+	regs->Unregister(refAlias);
 }
 
 
@@ -319,8 +367,14 @@ void papyrusAlias::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, 
 		return;
 	}
 
+	auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+	if (!refAlias) {
+		a_vm->TraceStack("Alias is not a reference alias", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	auto regs = HookedEvents::OnActorReanimateStopRegSet::GetSingleton();
-	regs->Unregister(a_alias);
+	regs->Unregister(refAlias);
 }
 
 
@@ -331,8 +385,14 @@ void papyrusAlias::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE
 		return;
 	}
 
+	auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+	if (!refAlias) {
+		a_vm->TraceStack("Alias is not a reference alias", a_stackID, Severity::kWarning);
+		return;
+	}
+
 	auto regs = HookedEvents::OnActorResurrectRegSet::GetSingleton();
-	regs->Unregister(a_alias);
+	regs->Unregister(refAlias);
 }
 
 
@@ -458,6 +518,18 @@ void papyrusAlias::UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackI
 
 	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
 	regs->UnregisterAll(a_alias);
+}
+
+
+void papyrusAlias::UnregisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnMagicHitRegSet::GetSingleton();
+	regs->Unregister(a_alias);
 }
 
 
@@ -630,6 +702,19 @@ void papyrusAlias::UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::S
 }
 
 
+void papyrusAlias::UnregisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeaponHitRegSet::GetSingleton();
+	regs->Unregister(a_alias);
+}
+
+
+
 auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
@@ -665,6 +750,8 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("RegisterForMagicEffectApplyEx"sv, Event_Alias, RegisterForMagicEffectApplyEx, true);
 
+	a_vm->RegisterFunction("RegisterForMagicHit"sv, Event_Alias, RegisterForMagicHit, true);
+
 	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_Alias, RegisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_Alias, RegisterForObjectLoaded, true);
@@ -682,6 +769,8 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("RegisterForSpellLearned"sv, Event_Alias, RegisterForSpellLearned, true);
 
 	a_vm->RegisterFunction("RegisterForWeatherChange"sv, Event_Alias, RegisterForWeatherChange, true);
+
+	a_vm->RegisterFunction("RegisterForWeaponHit"sv, Event_Alias, RegisterForWeaponHit, true);
 
 
 	a_vm->RegisterFunction("UnregisterForActorKilled"sv, Event_Alias, UnregisterForActorKilled, true);
@@ -712,6 +801,8 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("UnregisterForAllMagicEffectApplyEx"sv, Event_Alias, UnregisterForAllMagicEffectApplyEx, true);
 
+	a_vm->RegisterFunction("UnregisterFoMagicHit"sv, Event_Alias, UnregisterForMagicHit, true);
+
 	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_Alias, UnregisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("UnregisterForObjectLoaded"sv, Event_Alias, UnregisterForObjectLoaded, true);
@@ -735,6 +826,8 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("UnregisterForSpellLearned"sv, Event_Alias, UnregisterForSpellLearned, true);
 
 	a_vm->RegisterFunction("UnregisterForWeatherChange"sv, Event_Alias, UnregisterForWeatherChange, true);
+
+	a_vm->RegisterFunction("UnregisterForWeaponHit"sv, Event_Alias, UnregisterForWeaponHit, true);
 
 	return true;
 }

@@ -391,10 +391,10 @@ namespace Serialization
 
 	namespace HookedEvents
 	{
-		class OnActorResurrectRegSet : public SKSE::RegistrationSet<const RE::Actor*, bool>
+		class OnActorResurrectRegSet : public SKSE::RegistrationSetUnique<const RE::Actor*, bool>
 		{
 		public:
-			using Base = SKSE::RegistrationSet<const RE::Actor*, bool>;
+			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, bool>;
 
 
 			static OnActorResurrectRegSet* GetSingleton();
@@ -410,10 +410,10 @@ namespace Serialization
 		};
 
 
-		class OnActorReanimateStartRegSet : public SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>
+		class OnActorReanimateStartRegSet : public SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*>
 		{
 		public:
-			using Base = SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>;
+			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*>;
 
 
 			static OnActorReanimateStartRegSet* GetSingleton();
@@ -429,10 +429,10 @@ namespace Serialization
 		};
 
 
-		class OnActorReanimateStopRegSet : public SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>
+		class OnActorReanimateStopRegSet : public SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*>
 		{
 		public:
-			using Base = SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>;
+			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*>;
 
 
 			static OnActorReanimateStopRegSet* GetSingleton();
@@ -483,6 +483,44 @@ namespace Serialization
 
 			OnMagicEffectApplyRegMap& operator=(const OnMagicEffectApplyRegMap&) = delete;
 			OnMagicEffectApplyRegMap& operator=(OnMagicEffectApplyRegMap&&) = delete;
+		};
+
+
+		class OnWeaponHitRegSet : public SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t>
+		{
+		public:
+			using Base = SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t>;
+
+
+			static OnWeaponHitRegSet* GetSingleton();
+
+		private:
+			OnWeaponHitRegSet();
+			OnWeaponHitRegSet(const OnWeaponHitRegSet&) = delete;
+			OnWeaponHitRegSet(OnWeaponHitRegSet&&) = delete;
+			~OnWeaponHitRegSet() = default;
+
+			OnWeaponHitRegSet& operator=(const OnWeaponHitRegSet&) = delete;
+			OnWeaponHitRegSet& operator=(OnWeaponHitRegSet&&) = delete;
+		};
+
+
+		class OnMagicHitRegSet : public SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>
+		{
+		public:
+			using Base = SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>;
+
+
+			static OnMagicHitRegSet* GetSingleton();
+
+		private:
+			OnMagicHitRegSet();
+			OnMagicHitRegSet(const OnMagicHitRegSet&) = delete;
+			OnMagicHitRegSet(OnMagicHitRegSet&&) = delete;
+			~OnMagicHitRegSet() = default;
+
+			OnMagicHitRegSet& operator=(const OnMagicHitRegSet&) = delete;
+			OnMagicHitRegSet& operator=(OnMagicHitRegSet&&) = delete;
 		};
 	}
 

@@ -239,17 +239,16 @@ void papyrusActor::FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 		if (charController) {
 			auto task = SKSE::GetTaskInterface();
 			task->AddTask([root, charController, a_actor, a_enable]() {
-				std::uint32_t unk = 0;
+				std::uint32_t filterInfo = 0;
+				charController->GetCollisionFilterInfo(filterInfo);
 				if (a_enable) {
 					a_actor->boolBits.set(BOOL_BITS::kParalyzed);
-					const auto flags = *(charController->Unk_08(&unk) + 1);
-					root->UpdateRigidBodySettings(32, flags);
+					root->UpdateRigidBodySettings(32, filterInfo + 1);
 					root->SetRigidConstraints(true);
 				} else {
 					a_actor->boolBits.reset(BOOL_BITS::kParalyzed);
 					root->SetRigidConstraints(false);
-					const auto flags = *charController->Unk_08(&unk);
-					root->UpdateRigidBodySettings(32, flags >> 16);
+					root->UpdateRigidBodySettings(32, filterInfo >> 16);
 				}
 			});
 		}

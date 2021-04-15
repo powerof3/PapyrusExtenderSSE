@@ -38,7 +38,7 @@ auto papyrusEffectShader::GetEffectShaderTotalCount(VM* a_vm, StackID a_stackID,
 		processLists->GetMagicEffects([&](RE::BSTempEffect& a_tempEffect) {
 			const auto shaderEffect = a_tempEffect.As<RE::ShaderReferenceEffect>();
 			if (shaderEffect && shaderEffect->effectData == a_effectShader) {
-				if (!a_active || a_active && !shaderEffect->finished) {
+				if (!a_active || !shaderEffect->finished) {
 					count++;
 				}
 			}

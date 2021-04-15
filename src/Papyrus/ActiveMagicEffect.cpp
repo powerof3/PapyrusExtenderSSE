@@ -25,7 +25,7 @@ void papyrusActiveMagicEffect::RegisterForFECReset(VM* a_vm, StackID a_stackID, 
 }
 
 
-void papyrusActiveMagicEffect::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+void papyrusActiveMagicEffect::RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
@@ -37,7 +37,7 @@ void papyrusActiveMagicEffect::RegisterForActorReanimateStart(VM* a_vm, StackID 
 }
 
 
-void papyrusActiveMagicEffect::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+void papyrusActiveMagicEffect::RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
@@ -49,7 +49,7 @@ void papyrusActiveMagicEffect::RegisterForActorReanimateStop(VM* a_vm, StackID a
 }
 
 
-void papyrusActiveMagicEffect::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+void papyrusActiveMagicEffect::RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
@@ -171,6 +171,18 @@ void papyrusActiveMagicEffect::RegisterForMagicEffectApplyEx(VM* a_vm, StackID a
 	auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
 	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
 	regs->Register(a_activeEffect, key);
+}
+
+
+void papyrusActiveMagicEffect::RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnMagicHitRegSet::GetSingleton();
+	regs->Register(a_activeEffect);
 }
 
 
@@ -300,6 +312,18 @@ void papyrusActiveMagicEffect::RegisterForWeatherChange(VM* a_vm, StackID a_stac
 }
 
 
+void papyrusActiveMagicEffect::RegisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeaponHitRegSet::GetSingleton();
+	regs->Register(a_activeEffect);
+}
+
+
 void papyrusActiveMagicEffect::UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
@@ -336,7 +360,7 @@ void papyrusActiveMagicEffect::UnregisterForAllFECResets(VM* a_vm, StackID a_sta
 }
 
 
-void papyrusActiveMagicEffect::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+void papyrusActiveMagicEffect::UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
@@ -348,7 +372,7 @@ void papyrusActiveMagicEffect::UnregisterForActorReanimateStart(VM* a_vm, StackI
 }
 
 
-void papyrusActiveMagicEffect::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+void papyrusActiveMagicEffect::UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
@@ -360,7 +384,7 @@ void papyrusActiveMagicEffect::UnregisterForActorReanimateStop(VM* a_vm, StackID
 }
 
 
-void papyrusActiveMagicEffect::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+void papyrusActiveMagicEffect::UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 {
 	if (!a_activeEffect) {
 		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
@@ -494,6 +518,18 @@ void papyrusActiveMagicEffect::UnregisterForAllMagicEffectApplyEx(VM* a_vm, Stac
 
 	auto regs = HookedEvents::OnMagicEffectApplyRegMap::GetSingleton();
 	regs->UnregisterAll(a_activeEffect);
+}
+
+
+void papyrusActiveMagicEffect::UnregisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnMagicHitRegSet::GetSingleton();
+	regs->Unregister(a_activeEffect);
 }
 
 
@@ -666,6 +702,18 @@ void papyrusActiveMagicEffect::UnregisterForWeatherChange(VM* a_vm, StackID a_st
 }
 
 
+void papyrusActiveMagicEffect::UnregisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnWeaponHitRegSet::GetSingleton();
+	regs->Unregister(a_activeEffect);
+}
+
+
 auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
@@ -703,6 +751,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("RegisterForMagicEffectApplyEx"sv, Event_AME, RegisterForMagicEffectApplyEx, true);
 
+	a_vm->RegisterFunction("RegisterForMagicHit"sv, Event_AME, RegisterForMagicHit, true);
+
 	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_AME, RegisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_AME, RegisterForObjectLoaded, true);
@@ -720,6 +770,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("RegisterForSpellLearned"sv, Event_AME, RegisterForSpellLearned, true);
 
 	a_vm->RegisterFunction("RegisterForWeatherChange"sv, Event_AME, RegisterForWeatherChange, true);
+	
+	a_vm->RegisterFunction("RegisterForWeaponHit"sv, Event_AME, RegisterForWeaponHit, true);
 
 
 	a_vm->RegisterFunction("UnregisterForActorKilled"sv, Event_AME, UnregisterForActorKilled, true);
@@ -754,6 +806,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("UnregisterForAllMagicEffectApplyEx"sv, Event_AME, UnregisterForAllMagicEffectApplyEx, true);
 
+	a_vm->RegisterFunction("UnregisterForMagicHit"sv, Event_AME, UnregisterForMagicHit, true);
+
 	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_AME, UnregisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("UnregisterForObjectLoaded"sv, Event_AME, UnregisterForObjectLoaded, true);
@@ -777,6 +831,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("UnregisterForSpellLearned"sv, Event_AME, UnregisterForSpellLearned, true);
 
 	a_vm->RegisterFunction("UnregisterForWeatherChange"sv, Event_AME, UnregisterForWeatherChange, true);
+
+	a_vm->RegisterFunction("UnregisterForWeaponHit"sv, Event_AME, UnregisterForWeaponHit, true);
 
 
 	return true;

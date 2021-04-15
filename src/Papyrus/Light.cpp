@@ -172,7 +172,8 @@ void papyrusLight::SetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 		a_vm->TraceStack("Light is None", a_stackID, Severity::kWarning);
 		return;
 	}
-	if (a_rgb.empty()) {
+	
+	if (a_rgb.size() != 3) {
 		a_vm->TraceStack("RGB array is empty", a_stackID, Severity::kWarning);
 		return;
 	}
@@ -191,8 +192,7 @@ void papyrusLight::SetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::Stat
 		return;
 	}
 
-	const auto a_light = a_lightObject->As<RE::TESObjectLIGH>();
-	if (!a_light) {
+	if (!a_lightObject->As<RE::TESObjectLIGH>()) {
 		a_vm->TraceStack("Object is not a Light form", a_stackID, Severity::kWarning);
 		return;
 	}

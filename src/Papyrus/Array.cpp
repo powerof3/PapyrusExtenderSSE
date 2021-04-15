@@ -50,7 +50,7 @@ auto papyrusArray::GetSortedActorNameArray(VM*, StackID, RE::StaticFunctionTag*,
 {
 	std::unordered_map<std::string, size_t> nameMap;
 
-	bool noKeyword = !a_keyword ? true : false;
+	bool noKeyword = !a_keyword;
 	bool hasKeyword = false;
 
 	if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {

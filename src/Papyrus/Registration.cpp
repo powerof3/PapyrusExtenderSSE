@@ -9,6 +9,7 @@
 #include "Papyrus/Cell.h"
 #include "Papyrus/Debug.h"
 #include "Papyrus/EffectShader.h"
+#include "Papyrus/Enchantment.h"
 #include "Papyrus/Events.h"
 #include "Papyrus/ExtendedObjectTypes.h"
 #include "Papyrus/Form.h"
@@ -65,6 +66,9 @@ namespace Papyrus
 
 		papyrus->Register(papyrusEffectShader::RegisterFuncs);
 		logger::info("Registered effect shader functions"sv);
+
+		papyrus->Register(papyrusEnchantment::RegisterFuncs);
+		logger::info("Registered enchantment functions"sv);
 
 		papyrus->Register(papyrusForm::RegisterFuncs);
 		logger::info("Registered form functions"sv);

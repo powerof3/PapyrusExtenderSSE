@@ -72,6 +72,9 @@
     <ClCompile Include="src\Papyrus\EffectShader.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
+    <ClCompile Include="src\Papyrus\Enchantment.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
     <ClCompile Include="src\Papyrus\Events.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
@@ -186,6 +189,9 @@
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\EffectShader.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\Enchantment.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\Events.h">

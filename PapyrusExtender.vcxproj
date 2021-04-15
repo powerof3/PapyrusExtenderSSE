@@ -61,7 +61,7 @@
     <PreLinkEventUseInBuild>true</PreLinkEventUseInBuild>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\CommonLibRuleSet.ruleset</CodeAnalysisRuleSet>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
@@ -142,6 +142,7 @@
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
       <AdditionalOptions>/experimental:external /external:anglebrackets /external:W0 /Zc:externConstexpr /Zc:ternary /Zc:throwingNew /Zc:noexceptTypes /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>
@@ -167,6 +168,7 @@
     <ClCompile Include="src\Hooks\EventHook.cpp" />
     <ClCompile Include="src\Papyrus\ActiveMagicEffect.cpp" />
     <ClCompile Include="src\Papyrus\Alias.cpp" />
+    <ClCompile Include="src\Papyrus\Enchantment.cpp" />
     <ClCompile Include="src\Papyrus\Events.cpp" />
     <ClCompile Include="src\Papyrus\ExtendedObjectTypes.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -211,6 +213,7 @@
     <ClInclude Include="include\Hooks\EventHook.h" />
     <ClInclude Include="include\Papyrus\ActiveMagicEffect.h" />
     <ClInclude Include="include\Papyrus\Alias.h" />
+    <ClInclude Include="include\Papyrus\Enchantment.h" />
     <ClInclude Include="include\Papyrus\Events.h" />
     <ClInclude Include="include\Papyrus\ExtendedObjectTypes.h" />
     <ClInclude Include="include\Papyrus\Actor.h" />

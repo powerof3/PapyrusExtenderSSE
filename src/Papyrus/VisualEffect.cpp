@@ -31,7 +31,7 @@ auto papyrusVisualEffect::GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, RE
 		processLists->GetMagicEffects([&](RE::BSTempEffect& a_tempEffect) {
 			const auto modelEffect = a_tempEffect.As<RE::ModelReferenceEffect>();
 			if (modelEffect && modelEffect->artObject == art) {
-				if (!a_active || a_active && !modelEffect->finished) {
+				if (!a_active || !modelEffect->finished) {
 					count++;
 				}
 			}

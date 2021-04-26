@@ -82,12 +82,12 @@ namespace ScriptEvents
 			return EventResult::kContinue;
 		}
 
-		if (auto object = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_event->formID); object) {
-			const auto base = object->GetBaseObject();
-			if (base) {
-				auto baseType = base->GetFormType();
-				a_event->loaded ? OnObjectLoadedRegMap::GetSingleton()->QueueEvent(baseType, object, baseType) : OnObjectUnloadedRegMap::GetSingleton()->QueueEvent(baseType, object, baseType);
-			}
+		const auto object = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_event->formID);
+		const auto base = object ? object->GetBaseObject() : nullptr;
+
+		if (base) {
+			auto baseType = base->GetFormType();
+			a_event->loaded ? OnObjectLoadedRegMap::GetSingleton()->QueueEvent(baseType, object, baseType) : OnObjectUnloadedRegMap::GetSingleton()->QueueEvent(baseType, object, baseType);
 		}
 
 		return EventResult::kContinue;

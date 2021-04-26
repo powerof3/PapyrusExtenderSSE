@@ -77,7 +77,7 @@ auto papyrusEnchantment::GetEnchantmentType(VM* a_vm, StackID a_stackID, RE::Sta
 
 
 
-void papyrusEnchantment::AddEffectItemToEnchantment(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EnchantmentItem* a_enchantment, RE::EnchantmentItem* a_copyEnchantment, std::uint32_t a_index)
+void papyrusEnchantment::AddEffectItemToEnchantment(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EnchantmentItem* a_enchantment, RE::EnchantmentItem* a_copyEnchantment, std::uint32_t a_index, float a_cost)
 {
 	if (!a_enchantment) {
 		a_vm->TraceStack("Enchantment is None", a_stackID, Severity::kWarning);
@@ -108,7 +108,7 @@ void papyrusEnchantment::AddEffectItemToEnchantment(VM* a_vm, StackID a_stackID,
 			effect->effectItem.area = copyEffect->effectItem.area;
 			effect->effectItem.duration = copyEffect->effectItem.duration;
 			effect->baseEffect = copyEffect->baseEffect;
-			effect->cost = copyEffect->cost;
+			effect->cost = a_cost == -1.0f ? copyEffect->cost : a_cost;
 			effect->conditions = copyEffect->conditions;
 
 			auto head = copyEffect->conditions.head;

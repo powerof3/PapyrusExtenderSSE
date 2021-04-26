@@ -218,12 +218,12 @@ void papyrusActor::FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 		}
 		auto charController = a_actor->GetCharController();
 		if (charController) {
-			if (a_enable) { //freeze
+			if (a_enable) {  //freeze
 				charController->flags.set(Flags::kNotPushable);
 				charController->flags.reset(Flags::kRecordHits);
 				charController->flags.reset(Flags::kHitFlags);
 				charController->flags.reset(Flags::kHitDamage);
-			} else { //unfreeze
+			} else {  //unfreeze
 				charController->flags.reset(Flags::kNotPushable);
 				charController->flags.set(Flags::kRecordHits);
 				charController->flags.set(Flags::kHitFlags);
@@ -232,7 +232,7 @@ void papyrusActor::FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 			charController->SetLinearVelocityImpl(0.0);
 		}
 		if (a_enable) {
-			a_actor->boolBits.reset(BOOL_BITS::kProcessMe); //disable AI last
+			a_actor->boolBits.reset(BOOL_BITS::kProcessMe);  //disable AI last
 		}
 	} else if (a_type == 1) {
 		auto charController = a_actor->GetCharController();
@@ -296,14 +296,10 @@ auto papyrusActor::GetActorAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunction
 		return 1.0f;
 	}
 
-	if (const auto currentProcess = a_actor->currentProcess; currentProcess) {
-		const auto middleProcess = currentProcess->middleHigh;
-		if (middleProcess) {
-			return middleProcess->alphaMult;
-		}
-	}
+	const auto process = a_actor->currentProcess;
+	const auto middleProcess = process ? process->middleHigh : nullptr;
 
-	return 1.0f;
+	return middleProcess ? middleProcess->alphaMult : 1.0f;
 }
 
 
@@ -314,14 +310,10 @@ auto papyrusActor::GetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFun
 		return 1.0f;
 	}
 
-	if (const auto currentProcess = a_actor->currentProcess; currentProcess) {
-		const auto middleProcess = currentProcess->middleHigh;
-		if (middleProcess) {
-			return middleProcess->scriptRefractPower;
-		}
-	}
+	const auto process = a_actor->currentProcess;
+	const auto middleProcess = process ? process->middleHigh : nullptr;
 
-	return 1.0f;
+	return middleProcess ? middleProcess->scriptRefractPower : 1.0f;
 }
 
 
@@ -373,8 +365,8 @@ auto papyrusActor::GetCombatAllies(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 		return vec;
 	}
 
-	for (auto& allyData : combatGroup->allies) {
-		auto allyPtr = allyData.allyHandle.get();
+	for (auto& memberData : combatGroup->members) {
+		auto allyPtr = memberData.handle.get();
 		auto ally = allyPtr.get();
 		if (ally) {
 			vec.push_back(ally);
@@ -418,7 +410,7 @@ auto papyrusActor::GetDeathEffectType(VM* a_vm, StackID a_stackID, RE::StaticFun
 	using AE_FLAG = RE::ActiveEffect::Flag;
 	using CAST_TYPE = RE::MagicSystem::CastingType;
 
-	namespace FLOAT = SKSE::UTIL::FLOAT;
+	namespace FLOAT = SKSE::FLOAT;
 
 	std::vector<std::int32_t> vec;
 	vec.resize(3, -1);
@@ -597,27 +589,20 @@ auto papyrusActor::GetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	}
 
 	const auto root = a_actor->Get3D(false);
-	if (root) {
-		if (auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_HAIRTINT"sv); data) {
-			auto factory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>();
-			auto color = factory->Create();
-			if (color) {
-				color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-				color->color = RE::Color(data->value);
-				return color;
-			}
+	auto data = root ? root->GetExtraData<RE::NiIntegerExtraData>("PO3_HAIRTINT"sv) : nullptr;
+
+	if (data) {
+		auto factory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>();
+		auto color = factory->Create();
+		if (color) {
+			color->color = RE::Color(data->value);
+			return color;
 		}
 	}
 
 	const auto actorbase = a_actor->GetActorBase();
-	if (actorbase) {
-		const auto headData = actorbase->headRelatedData;
-		if (headData) {
-			return headData->hairColor;
-		}
-	}
-
-	return nullptr;
+	const auto headData = actorbase ? actorbase->headRelatedData : nullptr;
+	return headData ? headData->hairColor : nullptr;
 }
 
 
@@ -630,12 +615,9 @@ auto papyrusActor::GetHeadPartTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 		return nullptr;
 	}
 
-	auto actorBase = a_actor->GetActorBase();
-	if (!actorBase) {
-		return nullptr;
-	}
-
-	const auto headpart = actorBase->GetCurrentHeadPartByType(static_cast<HeadPartType>(a_type));
+	const auto actorBase = a_actor->GetActorBase();
+	const auto headpart = actorBase ? actorBase->GetCurrentHeadPartByType(static_cast<HeadPartType>(a_type)) : nullptr;
+	
 	return headpart ? headpart->textureSet : nullptr;
 }
 
@@ -690,21 +672,19 @@ auto papyrusActor::GetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 	}
 
 	const auto actorBase = a_actor->GetActorBase();
-	if (actorBase) {
-		auto factory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>();
-		auto color = factory->Create();
-		if (color) {
-			color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-			color->color = actorBase->bodyTintColor;
+	const auto factory = actorBase ? RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>() : nullptr;
+	const auto color = factory ? factory->Create() : nullptr;
 
-			if (const auto root = a_actor->Get3D(false); root) {
-				if (const auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT"sv); data) {
-					color->color = RE::Color(data->value);
-				}
+	if (color) {
+		color->color = actorBase->bodyTintColor;
+
+		if (const auto root = a_actor->Get3D(false); root) {
+			if (const auto data = root->GetExtraData<RE::NiIntegerExtraData>("PO3_SKINTINT"sv); data) {
+				color->color = RE::Color(data->value);
 			}
-
-			return color;
 		}
+
+		return color;
 	}
 
 	return nullptr;
@@ -786,8 +766,9 @@ auto papyrusActor::HasDeferredKill(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 	}
 
 	const auto currentProcess = a_actor->currentProcess;
-	const auto middleHighProcess = currentProcess ? currentProcess->middleHigh : nullptr;
-	return middleHighProcess && middleHighProcess->inDeferredKill;
+	const auto middleProcess = currentProcess ? currentProcess->middleHigh : nullptr;
+
+	return middleProcess && middleProcess->inDeferredKill;
 }
 
 
@@ -861,7 +842,7 @@ auto papyrusActor::IsQuadruped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTa
 	}
 
 	const auto charController = a_actor->GetCharController();
-	return charController ? charController->flags.all(RE::CHARACTER_FLAGS::kQuadruped) : false;
+	return charController && charController->flags.all(RE::CHARACTER_FLAGS::kQuadruped);
 }
 
 
@@ -876,11 +857,9 @@ auto papyrusActor::IsSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunction
 	}
 
 	const auto currentProcess = a_actor->currentProcess;
-	if (currentProcess) {
-		const auto middleHighProcess = currentProcess->middleHigh;
-		if (middleHighProcess && middleHighProcess->soulTrapped) {
-			return true;
-		}
+	const auto middleProcess = currentProcess ? currentProcess->middleHigh : nullptr;
+	if (middleProcess && middleProcess->soulTrapped) {
+		return true;
 	}
 
 	bool isBeingSoulTrapped = false;
@@ -1581,14 +1560,13 @@ void papyrusActor::SetHeadPartTextureSet(VM* a_vm, StackID a_stackID, RE::Static
 		return;
 	}
 
-	auto actorBase = a_actor->GetActorBase();
-	if (actorBase) {
-		const auto headpart = actorBase->GetCurrentHeadPartByType(static_cast<HeadPartType>(a_type));
-		if (headpart) {
-			headpart->textureSet = a_txst;
-		} else {
-			a_vm->TraceStack("Could not find matching headpart", a_stackID, Severity::kWarning);
-		}
+	const auto actorBase = a_actor->GetActorBase();
+	const auto headpart = actorBase ? actorBase->GetCurrentHeadPartByType(static_cast<HeadPartType>(a_type)) : nullptr;
+
+	if (headpart) {
+		headpart->textureSet = a_txst;
+	} else {
+		a_vm->TraceStack("Could not find matching headpart", a_stackID, Severity::kWarning);
 	}
 }
 
@@ -1600,12 +1578,9 @@ void papyrusActor::SetLinearVelocity(VM* a_vm, StackID a_stackID, RE::StaticFunc
 		return;
 	}
 
-	auto currentProcess = a_actor->currentProcess;
-	if (currentProcess) {
-		auto charProxy = static_cast<RE::bhkCharProxyController*>(currentProcess->GetCharController());
-		if (charProxy) {
-			charProxy->SetLinearVelocityImpl(RE::hkVector4(a_x * 0.0142875f, a_y * 0.0142875f, a_z * 0.0142875f, 0.0f));
-		}
+	const auto charProxy = static_cast<RE::bhkCharProxyController*>(a_actor->GetCharController());
+	if (charProxy) {
+		charProxy->SetLinearVelocityImpl(RE::hkVector4(a_x * 0.0142875f, a_y * 0.0142875f, a_z * 0.0142875f, 0.0f));
 	}
 }
 
@@ -1617,15 +1592,12 @@ void papyrusActor::SetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticF
 		return;
 	}
 
-	auto currentProcess = a_actor->currentProcess;
-	if (currentProcess) {
-		auto charProxy = static_cast<RE::bhkCharProxyController*>(currentProcess->GetCharController());
-		if (charProxy) {
-			charProxy->SetLinearVelocityImpl(0.0);
+	const auto charProxy = static_cast<RE::bhkCharProxyController*>(a_actor->GetCharController());
+	if (charProxy) {
+		charProxy->SetLinearVelocityImpl(0.0f);
 
-			a_disableGravityOnGround ? charProxy->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) : charProxy->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
-			charProxy->gravity = a_value;
-		}
+		a_disableGravityOnGround ? charProxy->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) : charProxy->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+		charProxy->gravity = a_value;
 	}
 }
 
@@ -1693,11 +1665,10 @@ void papyrusActor::SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctio
 	}
 
 	const auto process = a_actor->currentProcess;
-	if (process) {
-		const auto middleHigh = process->middleHigh;
-		if (middleHigh) {
-			middleHigh->soulTrapped = a_trapped;
-		}
+	const auto middleProcess = process ? process->middleHigh : nullptr;
+
+	if (middleProcess) {
+		middleProcess->soulTrapped = a_trapped;
 	}
 }
 

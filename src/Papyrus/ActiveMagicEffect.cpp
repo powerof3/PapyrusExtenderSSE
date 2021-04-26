@@ -218,6 +218,18 @@ void papyrusActiveMagicEffect::RegisterForObjectLoaded(VM* a_vm, StackID a_stack
 }
 
 
+void papyrusActiveMagicEffect::RegisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnProjectileHitRegSet::GetSingleton();
+	regs->Register(a_activeEffect);
+}
+
+
 void papyrusActiveMagicEffect::RegisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect, RE::TESQuest* a_quest)
 {
 	if (!a_activeEffect) {
@@ -580,6 +592,18 @@ void papyrusActiveMagicEffect::UnregisterForAllObjectsLoaded(VM* a_vm, StackID a
 }
 
 
+void papyrusActiveMagicEffect::UnregisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+{
+	if (!a_activeEffect) {
+		a_vm->TraceStack("Active Effect is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnProjectileHitRegSet::GetSingleton();
+	regs->Unregister(a_activeEffect);
+}
+
+
 void papyrusActiveMagicEffect::UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect, RE::TESQuest* a_quest)
 {
 	if (!a_activeEffect) {
@@ -759,6 +783,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("RegisterForQuest"sv, Event_AME, RegisterForQuest, true);
 
+	a_vm->RegisterFunction("RegisterForProjectileHit"sv, Event_AME, RegisterForProjectileHit, true);
+
 	a_vm->RegisterFunction("RegisterForQuestStage"sv, Event_AME, RegisterForQuestStage, true);
 
 	a_vm->RegisterFunction("RegisterForShoutAttack"sv, Event_AME, RegisterForShoutAttack, true);
@@ -813,6 +839,8 @@ auto papyrusActiveMagicEffect::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("UnregisterForObjectLoaded"sv, Event_AME, UnregisterForObjectLoaded, true);
 
 	a_vm->RegisterFunction("UnregisterForAllObjectsLoaded"sv, Event_AME, UnregisterForAllObjectsLoaded, true);
+
+	a_vm->RegisterFunction("UnregisterForProjectileHit"sv, Event_AME, UnregisterForProjectileHit, true);
 
 	a_vm->RegisterFunction("UnregisterForQuest"sv, Event_AME, UnregisterForQuest, true);
 

@@ -85,6 +85,35 @@ auto papyrusArray::GetSortedActorNameArray(VM*, StackID, RE::StaticFunctionTag*,
 }
 
 
+auto papyrusArray::GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*, std::vector<RE::TESNPC*> a_npcs, RE::BSFixedString a_pronoun) -> std::vector<RE::BSFixedString>
+{
+	std::vector<RE::BSFixedString> names;
+
+	if (a_npcs.empty()) {
+		return names;
+	}
+
+	std::unordered_map<std::string, size_t> nameMap;
+
+	for (auto& npc : a_npcs) {
+		if (npc) {
+			++nameMap[npc->GetName()];
+		}
+	}
+
+	for (const auto& [name, count] : nameMap) {
+		std::string fullName = count > 1 ? std::to_string(count) + " " + name + a_pronoun.c_str() : name;
+		names.emplace_back(fullName);
+	}
+
+	std::sort(names.begin(), names.end(), [](const auto& a_lhs, const auto& a_rhs) {
+		return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
+	});
+
+	return names;
+}
+
+
 auto papyrusArray::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
@@ -96,13 +125,15 @@ auto papyrusArray::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("AddActorToArray"sv, Functions, AddActorToArray);
 
-    a_vm->RegisterFunction("AddStringToArray"sv, Functions, AddStringToArray);
+	a_vm->RegisterFunction("AddStringToArray"sv, Functions, AddStringToArray);
 
-    a_vm->RegisterFunction("ArrayStringCount"sv, Functions, ArrayStringCount);
+	a_vm->RegisterFunction("ArrayStringCount"sv, Functions, ArrayStringCount);
 
-    a_vm->RegisterFunction("SortArrayString"sv, Functions, SortArrayString);
+	a_vm->RegisterFunction("SortArrayString"sv, Functions, SortArrayString);
 
-    a_vm->RegisterFunction("GetSortedActorNameArray"sv, Functions, GetSortedActorNameArray);
+	a_vm->RegisterFunction("GetSortedActorNameArray"sv, Functions, GetSortedActorNameArray);
+
+	a_vm->RegisterFunction("GetSortedNPCNames"sv, Functions, GetSortedNPCNames);
 
 	return true;
 }

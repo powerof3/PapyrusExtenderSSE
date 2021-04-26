@@ -22,6 +22,8 @@ namespace papyrusArray
 
 	std::vector<RE::BSFixedString> GetSortedActorNameArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSKeyword* a_keyword, RE::BSFixedString a_pronoun, bool a_invert);
 
+	std::vector<RE::BSFixedString> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*, std::vector<RE::TESNPC*> a_npcs, RE::BSFixedString a_pronoun);
+
 
 	bool RegisterFuncs(VM* a_vm);
 }

@@ -196,6 +196,11 @@ namespace Serialization
 			logger::critical("Failed to save Magic Hit Apply regs!"sv);
 		}
 
+		auto projectileHit = OnProjectileHitRegSet::GetSingleton();
+		if (!projectileHit->Save(a_intfc, kProjectileHit, kSerializationVersion)) {
+			logger::critical("Failed to save Projectile Hit Apply regs!"sv);
+		}
+
 		//FEC events
 		auto actorEffectReset = OnFECResetRegMap::GetSingleton();
 		if (!actorEffectReset->Save(a_intfc, kFECReset, kSerializationVersion)) {
@@ -507,6 +512,15 @@ namespace Serialization
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
 						logger::critical("Failed to load Magic Hit regs!"sv);
+					}
+				}
+				break;
+			case kProjectileHit:
+				{
+					auto regs = OnProjectileHitRegSet::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						logger::critical("Failed to load Projectile Hit regs!"sv);
 					}
 				}
 				break;

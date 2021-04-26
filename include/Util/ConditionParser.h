@@ -3,7 +3,7 @@
 
 namespace Condition
 {
-	namespace STRING = SKSE::UTIL::STRING;
+	namespace STRING = SKSE::STRING;
 
 	using FUNC_ID = RE::FUNCTION_DATA::FunctionID;
 	using OBJECT = RE::CONDITIONITEMOBJECT;

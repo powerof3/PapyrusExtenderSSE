@@ -2,7 +2,7 @@ Scriptname PO3_Events_Form  Hidden
 
 ;EVENTS SHOULD BE CALLED ON A FORM
 
-;ACTOR KILL
+;ACTOR KILL [DEPRECATED - use alias or active effect]
 	
 	Function RegisterForActorKilled(Form akForm) global native	
 	Function UnregisterForActorKilled(Form akForm) global native
@@ -10,8 +10,7 @@ Scriptname PO3_Events_Form  Hidden
 	Event OnActorKilled(Actor akVictim, Actor akKiller)
 	endEvent
 	
-;ACTOR REANIMATE
-;start fires when actor is reanimated and stop when the reanimate effect is dispelled
+;ACTOR REANIMATE [DEPRECATED - use alias or active effect]
 	
 	Function RegisterForActorReanimateStart(Form akForm) global native	
 	Function UnregisterForActorReanimateStart(Form akForm) global native
@@ -25,8 +24,7 @@ Scriptname PO3_Events_Form  Hidden
 	Event OnActorReanimateStop(Actor akTarget, Actor akCaster)
 	endEvent		
 	
-;ACTOR RESURRECT
-;fires when the target has been resurrected via script or console command
+;ACTOR RESURRECT [DEPRECATED - use alias or active effect]
 	
 	Function RegisterForActorResurrected(Form akForm) global native	
 	Function UnregisterForActorResurrected(Form akForm) global native
@@ -57,7 +55,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function RegisterForCriticalHit(Form akForm) global native	
 	Function UnregisterForCriticalHit(Form akForm) global native
 	
-	Event OnCriticalHit(Actor akAggressor, Weapon akWeapon, book abSneakHit)
+	Event OnCriticalHit(Actor akAggressor, Weapon akWeapon, bool abSneakHit)
 	endEvent
 	
 ;DISARMED

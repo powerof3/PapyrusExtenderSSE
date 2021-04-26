@@ -173,7 +173,7 @@ namespace Hook
 		static bool MagicTargetApply(RE::MagicTarget* a_this, RE::MagicTarget::CreationData* a_data)
 		{
 			auto result = _MagicTargetApply(a_this, a_data);
-			
+
 			auto target = a_this->GetTargetStatsObject();
 			auto effect = a_data ? a_data->effect : nullptr;
 			auto baseEffect = effect ? effect->baseEffect : nullptr;
@@ -181,7 +181,7 @@ namespace Hook
 			if (target && baseEffect) {
 				OnMagicEffectApplyRegMap::GetSingleton()->QueueEvent(target, baseEffect, a_data->caster, baseEffect, a_data->magicItem, result);
 			}
-			
+
 			return result;
 		}
 		static inline REL::Relocation<decltype(MagicTargetApply)> _MagicTargetApply;
@@ -234,14 +234,15 @@ namespace Hook
 
 		static void SendHitEvent_Projectile(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
 		{
-			auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
-			if (projectile && projectile->data.types.all(RE::BGSProjectileData::Type::kArrow)) {
-				if (auto aggressor = a_event.cause.get(); aggressor) {
-					
-					auto target = a_event.target.get();
-					auto source = RE::TESForm::LookupByID(a_event.source);
+			if (auto aggressor = a_event.cause.get(); aggressor) {
+				auto target = a_event.target.get();
+				auto source = RE::TESForm::LookupByID(a_event.source);				
+				auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
+				
+				if (projectile && projectile->data.types.all(RE::BGSProjectileData::Type::kArrow)) {
 					OnWeaponHitRegSet::GetSingleton()->QueueEvent(aggressor, target, source, projectile, 0);
-				}
+				}				
+				OnProjectileHitRegSet::GetSingleton()->QueueEvent(aggressor, target, source, projectile);
 			}
 			_SendHitEvent_Projectile(a_source, a_event);
 		}

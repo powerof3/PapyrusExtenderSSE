@@ -224,7 +224,7 @@ namespace RESET
 
 	void TXST(RE::Actor* a_actor, RE::NiAVObject* a_root, const RE::BSFixedString& a_folderName, const std::vector<RE::NiStringsExtraData*>& a_vec)
 	{
-		using namespace SKSE::UTIL::STRING;
+		using namespace SKSE::STRING;
 
 		if (a_vec.empty()) {
 			return;
@@ -274,7 +274,7 @@ namespace RESET
 
 	void SkinTXST(RE::Actor* a_actor, RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec)
 	{
-		using namespace SKSE::UTIL;
+		using namespace SKSE::STRING;
 
 		if (a_vec.empty()) {
 			return;
@@ -286,7 +286,7 @@ namespace RESET
 				auto a_slot = Slot::kNone;
 				if (!slotMaskstr.empty()) {
 					try {
-						a_slot = STRING::to_num<Slot>(slotMaskstr);
+						a_slot = to_num<Slot>(slotMaskstr);
 					} catch (...) {
 					}
 				}
@@ -315,7 +315,7 @@ namespace RESET
 
 	auto GetOriginalShaders(RE::NiStringsExtraData* a_data) -> std::pair<bool, ShaderData>
 	{
-		using namespace SKSE::UTIL::STRING;
+		using namespace SKSE::STRING;
 
 		ShaderData shaderData;
 		bool result = true;
@@ -412,8 +412,6 @@ namespace RESET
 
 	void MaterialShader(RE::NiAVObject* a_root, const std::vector<RE::NiStringsExtraData*>& a_vec)
 	{
-		using namespace SKSE::UTIL::STRING;
-
 		if (a_vec.empty()) {
 			return;
 		}

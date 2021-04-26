@@ -57,7 +57,7 @@ Scriptname PO3_Events_Alias  Hidden
 	Function RegisterForCriticalHit(Alias akAlias) global native	
 	Function UnregisterForCriticalHit(Alias akAlias) global native
 	
-	Event OnCriticalHit(Actor akAggressor, Weapon akWeapon, book abSneakHit)
+	Event OnCriticalHit(Actor akAggressor, Weapon akWeapon, bool abSneakHit)
 	EndEvent
 	
 ;DISARMED
@@ -200,3 +200,55 @@ Scriptname PO3_Events_Alias  Hidden
 	Event OnMagicEffectApplyEx(ObjectReference akCaster, MagicEffect akEffect, Form akSource, bool abApplied)
 	EndEvent
 	
+;ON WEAPON HIT
+;Event OnHit except weapons only AND the aggressor recieves this event for each target hit by it
+;Statics have no hit flags - 0
+	
+	;/ FLAGS - use SKSE's LogicalAnd to check if flag is set
+			
+		kBlocked = 1,
+		kBlockWithWeapon = 2,
+		kBlockCandidate = 4,
+		kCritical = 8,
+		kCriticalOnDeath = 16,
+		kFatal = 32,
+		kDismemberLimb = 64,
+		kExplodeLimb = 128,
+		kCrippleLimb = 256,
+		kDisarm = 512,
+		kDisableWeapon = 1024,
+		kSneakAttack = 2048,
+		kIgnoreCritical = 4096,
+		kPredictDamage = 8192,
+		kPredictBaseDamage = 16384,
+		kBash = 32768,
+		kTimedBash = 65536,
+		kPowerAttack = 131072,
+		kMeleeAttack = 262144,
+		kRicochet = 524288,
+		kExplosion = 1048576
+	/;
+
+	Function RegisterForWeaponHit(ReferenceAlias akRefAlias) global native	
+	Function UnregisterForWeaponHit(ReferenceAlias akRefAlias) global native
+		
+	Event OnWeaponHit(ObjectReference akTarget, Form akSource, Projectile akProjectile, Int aiHitFlagMask)
+	EndEvent
+	
+;ON MAGIC HIT
+;Event OnHit except for magic AND the aggressor recieves this event for each target hit by it
+
+	Function RegisterForMagicHit(ReferenceAlias akRefAlias) global native	
+	Function UnregisterForMagicHit(ReferenceAlias akRefAlias) global native
+		
+	Event OnMagicHit(ObjectReference akTarget, Form akSource, Projectile akProjectile)
+	EndEvent
+
+;ON PROJECTILE HIT
+;Event OnHit except for projectiles AND the aggressor recieves this event for each target hit by it
+
+	Function RegisterForProjectileHit(ReferenceAlias akRefAlias) global native	
+	Function UnregisterForProjectileHit(ReferenceAlias akRefAlias) global native
+		
+	Event OnProjectileHit(ObjectReference akTarget, Form akSource, Projectile akProjectile)
+	EndEvent	

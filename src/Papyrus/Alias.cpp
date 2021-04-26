@@ -224,6 +224,18 @@ void papyrusAlias::RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::Stat
 }
 
 
+void papyrusAlias::RegisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnProjectileHitRegSet::GetSingleton();
+	regs->Register(a_alias);
+}
+
+
 void papyrusAlias::RegisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias, RE::TESQuest* a_quest)
 {
 	if (!a_alias) {
@@ -580,6 +592,18 @@ void papyrusAlias::UnregisterForAllObjectsLoaded(VM* a_vm, StackID a_stackID, RE
 }
 
 
+void papyrusAlias::UnregisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+{
+	if (!a_alias) {
+		a_vm->TraceStack("Reference Alias is None", a_stackID, Severity::kWarning);
+		return;
+	}
+
+	auto regs = HookedEvents::OnProjectileHitRegSet::GetSingleton();
+	regs->Unregister(a_alias);
+}
+
+
 void papyrusAlias::UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias, RE::TESQuest* a_quest)
 {
 	if (!a_alias) {
@@ -714,7 +738,6 @@ void papyrusAlias::UnregisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::Stati
 }
 
 
-
 auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 {
 	if (!a_vm) {
@@ -755,6 +778,8 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("RegisterForObjectGrab"sv, Event_Alias, RegisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("RegisterForObjectLoaded"sv, Event_Alias, RegisterForObjectLoaded, true);
+
+	a_vm->RegisterFunction("RegisterForProjectileHit"sv, Event_Alias, RegisterForProjectileHit, true);
 
 	a_vm->RegisterFunction("RegisterForQuest"sv, Event_Alias, RegisterForQuest, true);
 
@@ -801,13 +826,15 @@ auto papyrusAlias::RegisterFuncs(VM* a_vm) -> bool
 
 	a_vm->RegisterFunction("UnregisterForAllMagicEffectApplyEx"sv, Event_Alias, UnregisterForAllMagicEffectApplyEx, true);
 
-	a_vm->RegisterFunction("UnregisterFoMagicHit"sv, Event_Alias, UnregisterForMagicHit, true);
+	a_vm->RegisterFunction("UnregisterForMagicHit"sv, Event_Alias, UnregisterForMagicHit, true);
 
 	a_vm->RegisterFunction("UnregisterForObjectGrab"sv, Event_Alias, UnregisterForObjectGrab, true);
 
 	a_vm->RegisterFunction("UnregisterForObjectLoaded"sv, Event_Alias, UnregisterForObjectLoaded, true);
 
 	a_vm->RegisterFunction("UnregisterForAllObjectsLoaded"sv, Event_Alias, UnregisterForAllObjectsLoaded, true);
+
+	a_vm->RegisterFunction("UnregisterForProjectileHit"sv, Event_Alias, UnregisterForProjectileHit, true);
 
 	a_vm->RegisterFunction("UnregisterForQuest"sv, Event_Alias, UnregisterForQuest, true);
 

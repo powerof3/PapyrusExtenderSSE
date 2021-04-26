@@ -277,8 +277,11 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Alphabetically sorts and returns truncated sring array.
 	String[] Function SortArrayString(String[] asStrings) global native	
 	
-	;Gets sorted string array of all the actors in the area, sorted alphabetically. Generic actors are merged (ie. 3 Whiterun Guard(s)). Filter keyword optional
+	;Gets name array of all the actors in the area, sorted alphabetically. Generic actors are merged (ie. 3 Whiterun Guard(s)). Filter keyword optional
 	String[] Function GetSortedActorNameArray(Keyword akKeyword, String asPlural = "(s)", bool abInvertKeyword) global native	
+	
+	;Gets name array of NPCs, sorted alphabetically. Generic actors are merged (ie. 3 Whiterun Guard(s)).
+	String[] Function GetSortedNPCNames(ActorBase[] aiActorBases, String asPlural = "(s)") global native	
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;CELL
@@ -396,6 +399,36 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Set particle shader texture
 	Function SetParticleShaderTexture(EffectShader akEffectShader, String asTextureName) global native
+	
+;-----------------------------------------------------------------------------------------------------------	
+;ENCHANTMENT - see SPELL
+;-----------------------------------------------------------------------------------------------------------	
+	;--------
+	;GETTERS
+	;--------
+	
+	;/	ENCHANTMENT TYPES
+		Enchantment = 6,
+		StaffEnchantment = 12
+	/;
+	
+	;Returns enchantment type. -1 if  is None
+	int Function GetEnchantmentType(Enchantment akEnchantment) global native
+		
+	;--------
+	;SETTERS
+	;--------
+	
+	Function AddMagicEffectToEnchantment(Enchantment akEnchantment, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native	
+	
+	;Adds effectitem from Enchantment to target Enchantment, at given index. Same as above function, but less verbose, and preserves all conditions. Optional cost argument.
+	Function AddEffectItemToEnchantment(Enchantment akEnchantment, Enchantment akEnchantmentToCopyFrom, int aiIndex, float afCost = -1.0) global native	
+	
+	;Removes magic effect from Enchantment that matches magnitude/area/duration/cost.
+	Function RemoveMagicEffectFromEnchantment(Enchantment akEnchantment, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native
+	
+	;Removes effectitem from Enchantment that matches Enchantment at index.
+	Function RemoveEffectItemFromEnchantment(Enchantment akEnchantment, Enchantment akEnchantmentToMatchFrom, int aiIndex) global native
 	
 ;----------------------------------------------------------------------------------------------------------	
 ;FEC
@@ -780,13 +813,13 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;--------
 		
-	;Finds all references of form type in loaded cells, from ref.
+	;Finds all references of form type in loaded cells, within radius from ref. If afRadius is 0, it will get all references from all attached cells
 	ObjectReference[] Function FindAllReferencesOfFormType(ObjectReference akRef, int formType, float afRadius) global native
 	
-	;Find all references with keyword in loaded cells, from ref.
+	;Find all references with keyword in loaded cells, within radius from ref. If afRadius is 0, it will get all references from all attached cells
 	ObjectReference[] Function FindAllReferencesWithKeyword(ObjectReference akRef, Form keywordOrList, float afRadius, bool abMatchAll) global native
 	
-	;Find all references matching base form/in formlist, from ref.
+	;Find all references matching base form/in formlist, within radius from ref. If afRadius is 0, it will get all references from all attached cells
 	ObjectReference[] Function FindAllReferencesOfType(ObjectReference akRef, Form akFormOrList, float afRadius) global native
 	
 	;Gets the first item in inventory that exists in formlist.
@@ -794,6 +827,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets activate children - see IsActivateChild
 	ObjectReference[] Function GetActivateChildren(ObjectReference akRef) global native
+	
+	;Gets current gamebryo animation
+	String Function GetActiveGamebryoAnimation(ObjectReference akRef) global native
 	
 	;Gets actor responsible for object.
 	Actor Function GetActorCause(ObjectReference akRef) global native
@@ -918,6 +954,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets random actor near ref (without returning the reference itself).
 	Actor Function GetRandomActorFromRef(ObjectReference akRef, float afRadius, bool abIgnorePlayer) global native
+	
+	;Gets quest items in this ref's inventory, if any
+	Form[] Function GetQuestItems(ObjectReference akRef) global native
 		
 	;Returns the size of the stored soul in a soulgem objectreference
 	int Function GetStoredSoulSize(ObjectReference akRef) global native
@@ -937,7 +976,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Is a quest object?
 	bool Function IsQuestItem(ObjectReference akRef) global native
 	
-	;Is a VIP (object that is needed by quest)?
+	;Is a VIP (actor that is needed by quest)?
 	bool Function IsVIP(ObjectReference akRef) global native
 	
 	;-------
@@ -962,9 +1001,15 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Wrapper function for ReplaceKeywordOnForm.
 	Function ReplaceKeywordOnRef(ObjectReference akRef, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
 	
+	;Plays debug shader on the reference, with normalised RGBA color (or fully white if empty)
+	Function PlayDebugShader(ObjectReference akRef, float[] afRGBA) global native
+	
 	;Scales node & collision (bhkBoxShape, bhkSphereShape). Entire nif will be scaled if string is empty. Collision has to be directly attached to named nodes.
 	;Adds "PO3_SCALE" niextradata to root node.
 	Function ScaleObject3D(ObjectReference akRef, String asNodeName, float afScale) global native
+	
+	;Sets the base object of this reference and reloads 3D
+	Function SetBaseObject(ObjectReference akRef, Form akBaseObject) global native
 	
 	;Sets the door as the new linked door
 	bool Function SetDoorDestination(ObjectReference akRef, ObjectReference akDoor) global native
@@ -1172,7 +1217,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native	
 	
 	;Adds effectitem from spell to target spell, at given index. Same as above function, but less verbose, and preserves all conditions.
-	Function AddEffectItemToSpell(Spell akSpell, Spell akSpellToCopyFrom, int aiIndex) global native	
+	Function AddEffectItemToSpell(Spell akSpell, Spell akSpellToCopyFrom, int aiIndex, float afCost = -1.0) global native	
 	
 	;Removes magic effect from spell that matches magnitude/area/duration/cost.
 	Function RemoveMagicEffectFromSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native

@@ -43,6 +43,7 @@ namespace Serialization
 		kMagicEffectApply = 'MGEF',
 		kWeaponHit = 'WHIT',
 		kMagicHit = 'MHIT',
+		kProjectileHit = 'PHIT',
 
 		kFECReset = 'FECR'
 	};

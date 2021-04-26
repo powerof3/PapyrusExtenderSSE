@@ -522,6 +522,25 @@ namespace Serialization
 			OnMagicHitRegSet& operator=(const OnMagicHitRegSet&) = delete;
 			OnMagicHitRegSet& operator=(OnMagicHitRegSet&&) = delete;
 		};
+
+
+		class OnProjectileHitRegSet : public SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>
+		{
+		public:
+			using Base = SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>;
+
+
+			static OnProjectileHitRegSet* GetSingleton();
+
+		private:
+			OnProjectileHitRegSet();
+			OnProjectileHitRegSet(const OnProjectileHitRegSet&) = delete;
+			OnProjectileHitRegSet(OnProjectileHitRegSet&&) = delete;
+			~OnProjectileHitRegSet() = default;
+
+			OnProjectileHitRegSet& operator=(const OnProjectileHitRegSet&) = delete;
+			OnProjectileHitRegSet& operator=(OnProjectileHitRegSet&&) = delete;
+		};
 	}
 
 

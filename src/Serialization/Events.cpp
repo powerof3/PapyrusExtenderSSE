@@ -305,6 +305,17 @@ namespace Serialization
 		OnMagicHitRegSet::OnMagicHitRegSet() :
 			Base("OnMagicHit"sv)
 		{}
+
+
+		OnProjectileHitRegSet* OnProjectileHitRegSet::GetSingleton()
+		{
+			static OnProjectileHitRegSet singleton;
+			return &singleton;
+		}
+
+		OnProjectileHitRegSet::OnProjectileHitRegSet() :
+			Base("OnProjectileHit"sv)
+		{}
 	}
 
 

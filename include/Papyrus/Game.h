@@ -57,6 +57,8 @@ namespace papyrusGame
 
 	std::int32_t GetNumActorsInHigh(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*);
 
+	std::vector<std::int32_t> GetPapyrusExtenderVersion(VM*, StackID, RE::StaticFunctionTag*);
+
 	bool IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name);
 
 	bool IsSurvivalModeActive(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*);

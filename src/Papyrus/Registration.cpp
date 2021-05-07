@@ -6,6 +6,7 @@
 #include "Papyrus/Alias.h"
 #include "Papyrus/ArmorAddon.h"
 #include "Papyrus/Array.h"
+#include "Papyrus/Book.h"
 #include "Papyrus/Cell.h"
 #include "Papyrus/Debug.h"
 #include "Papyrus/EffectShader.h"
@@ -57,6 +58,9 @@ namespace Papyrus
 
 		papyrus->Register(papyrusArray::RegisterFuncs);
 		logger::info("Registered array functions"sv);
+
+		papyrus->Register(papyrusBook::RegisterFuncs);
+		logger::info("Registered book functions"sv);
 
 		papyrus->Register(papyrusCell::RegisterFuncs);
 		logger::info("Registered cell functions"sv);

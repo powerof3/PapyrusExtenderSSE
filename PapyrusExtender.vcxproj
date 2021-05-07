@@ -168,6 +168,7 @@
     <ClCompile Include="src\Hooks\EventHook.cpp" />
     <ClCompile Include="src\Papyrus\ActiveMagicEffect.cpp" />
     <ClCompile Include="src\Papyrus\Alias.cpp" />
+    <ClCompile Include="src\Papyrus\Book.cpp" />
     <ClCompile Include="src\Papyrus\Enchantment.cpp" />
     <ClCompile Include="src\Papyrus\Events.cpp" />
     <ClCompile Include="src\Papyrus\ExtendedObjectTypes.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="include\Hooks\EventHook.h" />
     <ClInclude Include="include\Papyrus\ActiveMagicEffect.h" />
     <ClInclude Include="include\Papyrus\Alias.h" />
+    <ClInclude Include="include\Papyrus\Book.h" />
     <ClInclude Include="include\Papyrus\Enchantment.h" />
     <ClInclude Include="include\Papyrus\Events.h" />
     <ClInclude Include="include\Papyrus\ExtendedObjectTypes.h" />

@@ -1,4 +1,5 @@
 #include "Papyrus/Game.h"
+#include "Version.h"
 
 
 auto papyrusGame::GetActorsByProcessingLevel(VM*, StackID, RE::StaticFunctionTag*, std::int32_t a_level) -> std::vector<RE::Actor*>
@@ -172,27 +173,20 @@ auto papyrusGame::GetAttachedCells(VM*, StackID, RE::StaticFunctionTag*) -> std:
 			vec.push_back(cell);
 		} else {
 			const auto gridCells = TES->gridCells;
-			if (gridCells) {
-				const auto gridLength = gridCells->length;
-				if (gridLength > 0) {
-					std::uint32_t x;
-					std::uint32_t y;
-					for (x = 0, y = 0; x < gridLength && y < gridLength; x++, y++) {
+			const auto gridLength = gridCells ? gridCells->length : 0;
+			if (gridLength > 0) {
+				std::uint32_t x = 0;
+				do {
+					std::uint32_t y = 0;
+					do {
 						cell = gridCells->GetCell(x, y);
 						if (cell && cell->IsAttached()) {
 							vec.push_back(cell);
 						}
-					}
-				}
-			}
-		}
-		if (vec.empty()) {
-			auto worldSpace = TES->worldSpace;
-			if (worldSpace) {
-				cell = worldSpace->GetOrCreateSkyCell();
-				if (cell) {
-					vec.push_back(cell);
-				}
+						++y;
+					} while (y < gridLength);
+					++x;
+				} while (x < gridLength);
 			}
 		}
 	}
@@ -248,6 +242,12 @@ auto papyrusGame::GetNumActorsInHigh(VM*, StackID, RE::StaticFunctionTag*) -> st
 }
 
 
+auto papyrusGame::GetPapyrusExtenderVersion(VM*, StackID, RE::StaticFunctionTag*) -> std::vector<std::int32_t>
+{
+	return { P3PE_VERSION_MAJOR, P3PE_VERSION_MINOR, P3PE_VERSION_PATCH };
+}
+
+
 auto papyrusGame::IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name) -> bool
 {
 	if (a_name.empty()) {
@@ -280,7 +280,7 @@ void papyrusGame::SetLocalGravity(VM*, StackID, RE::StaticFunctionTag*, float a_
 	if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
 		if (const auto world = player->GetbhkWorld(); world) {
 			RE::BSWriteLockGuard lock(world->worldLock);
-			
+
 			auto havokWorld = world->GetWorld2();
 			if (havokWorld) {
 				havokWorld->gravity = RE::hkVector4(a_x, a_y, a_z, 0.0f);
@@ -320,6 +320,8 @@ auto papyrusGame::RegisterFuncs(VM* a_vm) -> bool
 	a_vm->RegisterFunction("GetLocalGravity"sv, Functions, GetLocalGravity);
 
 	a_vm->RegisterFunction("GetNumActorsInHigh"sv, Functions, GetNumActorsInHigh);
+
+	a_vm->RegisterFunction("GetPapyrusExtenderVersion"sv, Functions, GetPapyrusExtenderVersion, true);
 
 	a_vm->RegisterFunction("IsSurvivalModeActive"sv, Functions, IsSurvivalModeActive);
 

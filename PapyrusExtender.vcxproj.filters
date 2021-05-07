@@ -63,6 +63,9 @@
     <ClCompile Include="src\Papyrus\Array.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
+    <ClCompile Include="src\Papyrus\Book.cpp">
+      <Filter>src\Papyrus</Filter>
+    </ClCompile>
     <ClCompile Include="src\Papyrus\Cell.cpp">
       <Filter>src\Papyrus</Filter>
     </ClCompile>
@@ -180,6 +183,9 @@
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\Array.h">
+      <Filter>include\Papyrus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Papyrus\Book.h">
       <Filter>include\Papyrus</Filter>
     </ClInclude>
     <ClInclude Include="include\Papyrus\Cell.h">

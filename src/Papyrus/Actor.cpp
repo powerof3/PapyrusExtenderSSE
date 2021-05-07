@@ -44,7 +44,7 @@ auto papyrusActor::AddBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionT
 			if (actorEffects->AddSpell(a_spell)) {
 				const auto combatController = a_actor->combatController;
 				if (combatController) {
-					combatController->data10->unk1C4 = 1;
+					combatController->inventoryController->unk1C4 = 1;
 				}
 				if (actorbase->IsPlayer() || a_spell->GetSpellType() == RE::MagicSystem::SpellType::kLeveledSpell) {
 					RE::SpellsLearned::SendEvent(a_spell);
@@ -964,7 +964,7 @@ auto papyrusActor::RemoveBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFuncti
 			}
 			const auto combatController = a_actor->combatController;
 			if (combatController) {
-				combatController->data10->unk1C4 = 1;
+				combatController->inventoryController->unk1C4 = 1;
 			}
 			a_actor->RemoveSelectedSpell(a_spell);
 			return actorEffects->RemoveSpell(a_spell);

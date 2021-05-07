@@ -91,8 +91,7 @@ auto papyrusObjectReference::FindAllReferencesOfFormType(VM* a_vm, StackID a_sta
 		TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
 			auto base = a_ref.GetBaseObject();
 			if (formType == RE::FormType::None || a_ref.Is(formType) || base && base->Is(formType)) {
-				auto ref = &a_ref;
-				vec.push_back(ref);
+				vec.push_back(&a_ref);
 			}
 			return true;
 		});
@@ -116,7 +115,7 @@ auto papyrusObjectReference::FindAllReferencesOfType(VM* a_vm, StackID a_stackID
 		const auto list = a_formOrList->As<RE::BGSListForm>();
 
 		TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
-			if (const auto base = a_ref.GetBaseObject(); base) {
+			if (auto base = a_ref.GetBaseObject(); base) {
 				if (list && list->HasForm(base) || a_formOrList == base) {
 					vec.push_back(&a_ref);
 				}
@@ -147,7 +146,7 @@ auto papyrusObjectReference::FindAllReferencesWithKeyword(VM* a_vm, StackID a_st
 			a_vm->TraceStack("FormOrList parameter has invalid formtype", a_stackID, Severity::kWarning);
 			return vec;
 		}
-		
+
 		TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
 			bool success = false;
 			if (list) {
@@ -1066,6 +1065,10 @@ void papyrusObjectReference::SetBaseObject(VM* a_vm, StackID a_stackID, RE::Stat
 {
 	if (!a_ref) {
 		a_vm->TraceStack("Object Reference is None", a_stackID, Severity::kWarning);
+		return;
+	}
+	if (!a_ref->Is3DLoaded()) {
+		a_vm->TraceStack(VMError::no_3D(a_ref).c_str(), a_stackID, Severity::kWarning);
 		return;
 	}
 	if (!a_base) {

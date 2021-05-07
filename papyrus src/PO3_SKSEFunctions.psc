@@ -284,6 +284,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	String[] Function GetSortedNPCNames(ActorBase[] aiActorBases, String asPlural = "(s)") global native	
 	
 ;----------------------------------------------------------------------------------------------------------	
+;BOOK
+;----------------------------------------------------------------------------------------------------------
+	
+	;Clears read flag (and writes it to the save).
+	Function ClearReadFlag(Book akBook) global native
+	
+	;Sets read flag (and writes it to the save).
+	Function SetReadFlag(Book akBook) global native
+	
+;----------------------------------------------------------------------------------------------------------	
 ;CELL
 ;----------------------------------------------------------------------------------------------------------
 	
@@ -1122,6 +1132,13 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets package type. Returns -1 if package is none
 	int Function GetPackageType(Package akPackage) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;PAPYRUS EXTENDER
+;----------------------------------------------------------------------------------------------------------
+
+	;returns current version as int array (major,minor,patch / 4,3,7)
+	int[] Function GetPapyrusExtenderVersion() global native
 		
 ;----------------------------------------------------------------------------------------------------------
 ;PROJECTILES

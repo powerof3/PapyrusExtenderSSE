@@ -1,34 +1,66 @@
+#include "Hooks/EventHook.h"
 #include "Papyrus/Registration.h"
 #include "Serialization/Manager.h"
-#include "Hooks/EventHook.h"
 
 #include "Version.h"
 
 
-void DumpScriptCommands()
+static auto DetectOldVersion() -> std::vector<std::string>
 {
-	logger::info("");
-	
-	auto scriptCommands = RE::SCRIPT_FUNCTION::GetFirstScriptCommand();
-	for (std::uint16_t i = 0; i < RE::SCRIPT_FUNCTION::Commands::kScriptCommandsEnd; ++i) {
-		if (scriptCommands[i].editorFilter) {
-			logger::info("{}", scriptCommands[i].functionName);
-		}
+	std::vector<std::string> vec;
+
+	const auto papyrusExtender64Handle = GetModuleHandle("po3_papyrusextender64");
+
+	std::string message;
+	std::string info;
+
+	if (papyrusExtender64Handle != nullptr) {
+		logger::error("Outdated Papyrus Extender64 version detected");
+
+		info = "Papyrus Extender - Plugin Conflict";
+
+		message = R"(An outdated Papyrus Extender plugin has been found. This may cause script errors and CTDs with the latest version. 
+
+Please remove po3_papyrusextender64.dll (and PO3_SKSEFunctions.pex) from any mods that include this plugin, such as "Diziet's Player Home Bath Undressing for SkyrimSE")";
 	}
+
+	if (!message.empty() && !info.empty()) {
+		message += R"(
+
+
+Click Ok to continue, or Cancel to quit the game)";
+		vec.push_back(message);
+		vec.push_back(info);
+	}
+
+	return vec;
 }
 
 
 void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
-	if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
-		
-		Papyrus::Events::RegisterScriptEvents();
+	switch (a_msg->type) {
+	case SKSE::MessagingInterface::kPostLoad:
+		{
+			auto vec = DetectOldVersion();
+			if (!vec.empty() && vec.size() == 2) {
+				auto id = MessageBoxA(nullptr, vec[0].c_str(), vec[1].c_str(), MB_OKCANCEL);
+				if (id == 2) {
+					std::_Exit(EXIT_FAILURE);
+				}
+			}
+		}
+		break;
+	case SKSE::MessagingInterface::kDataLoaded:
+		{
+			Papyrus::Events::RegisterScriptEvents();
+			Papyrus::Events::RegisterStoryEvents();
 
-		Papyrus::Events::RegisterStoryEvents();
-
-		Hook::HookEvents();
-
-		//DumpScriptCommands();
+			Hook::HookEvents();
+		}
+		break;
+	default:
+		break;
 	}
 }
 

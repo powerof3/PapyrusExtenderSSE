@@ -23,6 +23,7 @@ AlwaysBreakBeforeMultilineStrings: 'true'
 AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
+BitFieldColonSpacing: After
 BraceWrapping:
     AfterCaseLabel: 'true'
     AfterClass: 'true'
@@ -62,12 +63,12 @@ IndentCaseBlocks: 'true'
 IndentCaseLabels: 'false'
 IndentExternBlock: Indent
 IndentGotoLabels: 'false'
-IndentPPDirectives: None
+IndentPPDirectives: AfterHash
 IndentWidth: 4
 IndentWrappedFunctionNames: 'true'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
-MaxEmptyLinesToKeep: 2
+MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 PointerAlignment: Left
 ReflowComments : 'false'
@@ -92,7 +93,7 @@ SpacesInConditionalStatement: 'false'
 SpacesInContainerLiterals: 'true'
 SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
-Standard: c++17
+Standard: Latest
 TabWidth: 4
 UseCRLF: 'true'
 UseTab: AlignWithSpaces

@@ -1,0 +1,14 @@
+{
+  "name": "papyrusextender",
+  "version-string": "4.4.0",
+  "description": "Papyrus Function Library",
+  "homepage": "https://github.com/powerof3/PapyrusExtenderSSE",
+  "license": "MIT",
+  "dependencies": [
+    "boost-algorithm",
+    "boost-stl-interfaces",
+    "frozen",
+    "spdlog",
+    "xbyak"
+  ]
+}

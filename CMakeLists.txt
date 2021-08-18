@@ -17,7 +17,7 @@ set_from_environment(VCPKG_ROOT)
 
 if (DEFINED VCPKG_ROOT)
 	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-	set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
+	set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 else ()
 	message(
 		WARNING
@@ -26,13 +26,13 @@ else ()
 endif ()
 
 set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
 
 # ---- Project ----
 
 project(
 	po3_PapyrusExtender
-	VERSION 4.4.0
+	VERSION 4.5.0
 	LANGUAGES CXX
 )
 
@@ -79,7 +79,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
 set(Boost_USE_STATIC_LIBS ON)
-
 
 # ---- Dependencies ----
 
@@ -141,7 +140,7 @@ target_link_libraries(
 	PRIVATE
 		Boost::headers
 		CommonLibSSE::CommonLibSSE
-		frozen::frozen-headers
+		frozen::frozen
 		spdlog::spdlog
 		xbyak::xbyak
 )

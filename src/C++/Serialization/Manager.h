@@ -44,11 +44,99 @@ namespace Serialization
 		kMagicHit = 'MHIT',
 		kProjectileHit = 'PHIT',
 
-		kFECReset = 'FECR'
-	};
+		kFECReset = 'FECR',
 
-	std::string DecodeTypeCode(std::uint32_t a_typeCode);
+		kTargetHide = 'TGHI',
+		kTargetAlert = 'TGAL',
+		kSourceHide = 'SRHI',
+		kSourceAlert = 'SRAL'
+	};
 
 	void SaveCallback(SKSE::SerializationInterface* a_intfc);
 	void LoadCallback(SKSE::SerializationInterface* a_intfc);
+	void RevertCallback(SKSE::SerializationInterface* a_intfc);
+
+	template <class T>
+	inline void SAVE_FORMS(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version0, std::uint32_t a_version1)
+	{
+		const auto regs = T::GetSingleton();
+		if (!regs->GetFormSet(1).empty()) {
+			if (!regs->Save(a_intfc, a_version0, kSerializationVersion, 1)) {
+				logger::critical("{} : Failed to save regs!"sv, typeid(T).name());
+				regs->Clear(1);
+			}
+		}
+		if (!regs->GetFormSet(0).empty()) {
+			if (!regs->Save(a_intfc, a_version1, kSerializationVersion, 0)) {
+				logger::critical("{} : Failed to save regs!"sv, typeid(T).name());
+				regs->Clear(0);
+			}
+		}
+	}
+
+	template <class T>
+	inline void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
+	{
+		const auto regs = T::GetSingleton();
+		if (!regs->Save(a_intfc, a_version, kSerializationVersion)) {
+			logger::critical("Failed to save {} regs!"sv, typeid(T).name());
+		}
+	}
+
+	template <class T>
+	inline void LOAD_FORMS(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
+	{
+		const auto regs = T::GetSingleton();
+		if (!regs->Load(a_intfc, a_index)) {
+			logger::critical("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
+		} else {
+			regs->Load(a_intfc, a_index);
+		}
+	}
+
+	template <class T>
+	inline void LOAD(SKSE::SerializationInterface* a_intfc)
+	{
+		const auto regs = T::GetSingleton();
+		if (!regs->Load(a_intfc)) {
+			logger::critical("Failed to load {} regs!"sv, typeid(T).name());
+		}
+	}
+
+	template <class T>
+	inline void REVERT(SKSE::SerializationInterface* a_intfc)
+	{
+		const auto regs = T::GetSingleton();
+		regs->Revert(a_intfc);
+	}
+
+	template <class T>
+	inline void FORM_DELETE(RE::FormID a_formID)
+	{
+		const auto regs = T::GetSingleton();
+		regs->Remove(a_formID);
+	}
+
+	namespace FormDeletion
+	{
+		using EventResult = RE::BSEventNotifyControl;
+		
+		class EventHandler : public RE::BSTEventSink<RE::TESFormDeleteEvent>
+		{
+		public:
+			static EventHandler* GetSingleton();
+
+			virtual EventResult ProcessEvent(const RE::TESFormDeleteEvent* a_event, RE::BSTEventSource<RE::TESFormDeleteEvent>*) override;
+		private:
+			EventHandler() = default;
+			EventHandler(const EventHandler&) = delete;
+			EventHandler(EventHandler&&) = delete;
+			virtual ~EventHandler() = default;
+
+			EventHandler& operator=(const EventHandler&) = delete;
+			EventHandler& operator=(EventHandler&&) = delete;
+		};
+
+		void Register();
+	}
 }

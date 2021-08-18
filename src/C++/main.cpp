@@ -1,5 +1,5 @@
-#include "Hooks/EventHook.h"
-#include "Papyrus/Registration.h"
+#include "Game/Manager.h"
+#include "Papyrus/Papyrus.h"
 #include "Serialization/Manager.h"
 
 static std::vector<std::string> DetectOldVersion()
@@ -49,10 +49,8 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
-			Papyrus::Events::RegisterScriptEvents();
-			Papyrus::Events::RegisterStoryEvents();
-
-			Hook::HookEvents();
+			Events::Register();
+			Serialization::FormDeletion::Register();
 		}
 		break;
 	default:
@@ -76,7 +74,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	log->flush_on(spdlog::level::info);
 
 	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("[%H:%M:%S] [%l] %v"s);
+	spdlog::set_pattern("%v"s);
 
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
 
@@ -103,22 +101,25 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("loaded");
 
 	SKSE::Init(a_skse);
-	SKSE::AllocTrampoline(115);
+	SKSE::AllocTrampoline(150);
 
 	const auto papyrus = SKSE::GetPapyrusInterface();
-	papyrus->Register(Papyrus::Script::Register);
+	papyrus->Register(Papyrus::Bind);
 
 	const auto serialization = SKSE::GetSerializationInterface();
 	serialization->SetUniqueID(Serialization::kPapyrusExtender);
 	serialization->SetSaveCallback(Serialization::SaveCallback);
 	serialization->SetLoadCallback(Serialization::LoadCallback);
+	serialization->SetRevertCallback(Serialization::RevertCallback);
+
+	Events::Hook();
+	Detection::Hook();
 
 	const auto messaging = SKSE::GetMessagingInterface();
 	messaging->RegisterListener(OnInit);
 
 	return true;
 }
-
 
 extern "C" DLLEXPORT const char* APIENTRY GetPluginVersion()
 {

@@ -1,15 +1,19 @@
 #pragma once
 
-namespace Serialization
+namespace Events
 {
-	namespace ScriptEvents
+	namespace Script
 	{
 		class OnCellFullyLoadedRegSet : public SKSE::RegistrationSet<const RE::TESObjectCELL*>
 		{
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESObjectCELL*>;
 
-			static OnCellFullyLoadedRegSet* GetSingleton();
+			static OnCellFullyLoadedRegSet* GetSingleton()
+			{
+				static OnCellFullyLoadedRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnCellFullyLoadedRegSet();
@@ -26,7 +30,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationMap<const RE::TESQuest*>;
 
-			static OnQuestStartRegMap* GetSingleton();
+			static OnQuestStartRegMap* GetSingleton()
+			{
+				static OnQuestStartRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnQuestStartRegMap();
@@ -43,7 +51,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationMap<const RE::TESQuest*>;
 
-			static OnQuestStopRegMap* GetSingleton();
+			static OnQuestStopRegMap* GetSingleton()
+			{
+				static OnQuestStopRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnQuestStopRegMap();
@@ -60,7 +72,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationMap<const RE::TESQuest*, std::uint32_t>;
 
-			static OnQuestStageRegMap* GetSingleton();
+			static OnQuestStageRegMap* GetSingleton()
+			{
+				static OnQuestStageRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnQuestStageRegMap();
@@ -77,7 +93,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationMap<const RE::TESObjectREFR*, RE::FormType>;
 
-			static OnObjectLoadedRegMap* GetSingleton();
+			static OnObjectLoadedRegMap* GetSingleton()
+			{
+				static OnObjectLoadedRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnObjectLoadedRegMap();
@@ -94,7 +114,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationMap<const RE::TESObjectREFR*, RE::FormType>;
 
-			static OnObjectUnloadedRegMap* GetSingleton();
+			static OnObjectUnloadedRegMap* GetSingleton()
+			{
+				static OnObjectUnloadedRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnObjectUnloadedRegMap();
@@ -111,7 +135,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESObjectREFR*>;
 
-			static OnGrabRegSet* GetSingleton();
+			static OnGrabRegSet* GetSingleton()
+			{
+				static OnGrabRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnGrabRegSet();
@@ -128,7 +156,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESObjectREFR*>;
 
-			static OnReleaseRegSet* GetSingleton();
+			static OnReleaseRegSet* GetSingleton()
+			{
+				static OnReleaseRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnReleaseRegSet();
@@ -141,14 +173,18 @@ namespace Serialization
 		};
 	}
 
-	namespace StoryEvents
+	namespace Story
 	{
 		class OnActorKillRegSet : public SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>
 		{
 		public:
 			using Base = SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>;
 
-			static OnActorKillRegSet* GetSingleton();
+			static OnActorKillRegSet* GetSingleton()
+			{
+				static OnActorKillRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnActorKillRegSet();
@@ -165,7 +201,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESObjectBOOK*>;
 
-			static OnBooksReadRegSet* GetSingleton();
+			static OnBooksReadRegSet* GetSingleton()
+			{
+				static OnBooksReadRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnBooksReadRegSet();
@@ -182,7 +222,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::Actor*, const RE::TESObjectWEAP*, bool>;
 
-			static OnCriticalHitRegSet* GetSingleton();
+			static OnCriticalHitRegSet* GetSingleton()
+			{
+				static OnCriticalHitRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnCriticalHitRegSet();
@@ -199,7 +243,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>;
 
-			static OnDisarmedRegSet* GetSingleton();
+			static OnDisarmedRegSet* GetSingleton()
+			{
+				static OnDisarmedRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnDisarmedRegSet();
@@ -216,7 +264,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<float>;
 
-			static OnDragonSoulsGainedRegSet* GetSingleton();
+			static OnDragonSoulsGainedRegSet* GetSingleton()
+			{
+				static OnDragonSoulsGainedRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnDragonSoulsGainedRegSet();
@@ -233,7 +285,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESForm*>;
 
-			static OnItemHarvestedRegSet* GetSingleton();
+			static OnItemHarvestedRegSet* GetSingleton()
+			{
+				static OnItemHarvestedRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnItemHarvestedRegSet();
@@ -250,7 +306,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<std::uint32_t>;
 
-			static OnLevelIncreaseRegSet* GetSingleton();
+			static OnLevelIncreaseRegSet* GetSingleton()
+			{
+				static OnLevelIncreaseRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnLevelIncreaseRegSet();
@@ -267,7 +327,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<RE::BSFixedString, RE::BSFixedString>;
 
-			static OnLocationDiscoveryRegSet* GetSingleton();
+			static OnLocationDiscoveryRegSet* GetSingleton()
+			{
+				static OnLocationDiscoveryRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnLocationDiscoveryRegSet();
@@ -284,7 +348,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESShout*>;
 
-			static OnShoutAttackRegSet* GetSingleton();
+			static OnShoutAttackRegSet* GetSingleton()
+			{
+				static OnShoutAttackRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnShoutAttackRegSet();
@@ -301,7 +369,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<RE::BSFixedString>;
 
-			static OnSkillIncreaseRegSet* GetSingleton();
+			static OnSkillIncreaseRegSet* GetSingleton()
+			{
+				static OnSkillIncreaseRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnSkillIncreaseRegSet();
@@ -318,7 +390,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>;
 
-			static OnSoulsTrappedRegSet* GetSingleton();
+			static OnSoulsTrappedRegSet* GetSingleton()
+			{
+				static OnSoulsTrappedRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnSoulsTrappedRegSet();
@@ -335,7 +411,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::SpellItem*>;
 
-			static OnSpellsLearnedRegSet* GetSingleton();
+			static OnSpellsLearnedRegSet* GetSingleton()
+			{
+				static OnSpellsLearnedRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnSpellsLearnedRegSet();
@@ -348,14 +428,18 @@ namespace Serialization
 		};
 	}
 
-	namespace HookedEvents
+	namespace Game
 	{
 		class OnActorResurrectRegSet : public SKSE::RegistrationSetUnique<const RE::Actor*, bool>
 		{
 		public:
 			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, bool>;
 
-			static OnActorResurrectRegSet* GetSingleton();
+			static OnActorResurrectRegSet* GetSingleton()
+			{
+				static OnActorResurrectRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnActorResurrectRegSet();
@@ -372,7 +456,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*>;
 
-			static OnActorReanimateStartRegSet* GetSingleton();
+			static OnActorReanimateStartRegSet* GetSingleton()
+			{
+				static OnActorReanimateStartRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnActorReanimateStartRegSet();
@@ -389,7 +477,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*>;
 
-			static OnActorReanimateStopRegSet* GetSingleton();
+			static OnActorReanimateStopRegSet* GetSingleton()
+			{
+				static OnActorReanimateStopRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnActorReanimateStopRegSet();
@@ -406,7 +498,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*>;
 
-			static OnWeatherChangeRegSet* GetSingleton();
+			static OnWeatherChangeRegSet* GetSingleton()
+			{
+				static OnWeatherChangeRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnWeatherChangeRegSet();
@@ -423,7 +519,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool>;
 
-			static OnMagicEffectApplyRegMap* GetSingleton();
+			static OnMagicEffectApplyRegMap* GetSingleton()
+			{
+				static OnMagicEffectApplyRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnMagicEffectApplyRegMap();
@@ -440,7 +540,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t>;
 
-			static OnWeaponHitRegSet* GetSingleton();
+			static OnWeaponHitRegSet* GetSingleton()
+			{
+				static OnWeaponHitRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnWeaponHitRegSet();
@@ -457,7 +561,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>;
 
-			static OnMagicHitRegSet* GetSingleton();
+			static OnMagicHitRegSet* GetSingleton()
+			{
+				static OnMagicHitRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnMagicHitRegSet();
@@ -474,7 +582,11 @@ namespace Serialization
 		public:
 			using Base = SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>;
 
-			static OnProjectileHitRegSet* GetSingleton();
+			static OnProjectileHitRegSet* GetSingleton()
+			{
+				static OnProjectileHitRegSet singleton;
+				return &singleton;
+			}
 
 		private:
 			OnProjectileHitRegSet();
@@ -487,14 +599,18 @@ namespace Serialization
 		};
 	}
 
-	namespace FECEvents
+	namespace FEC
 	{
 		class OnFECResetRegMap : public SKSE::RegistrationMap<const RE::Actor*, std::uint32_t, bool>
 		{
 		public:
 			using Base = SKSE::RegistrationMap<const RE::Actor*, std::uint32_t, bool>;
 
-			static OnFECResetRegMap* GetSingleton();
+			static OnFECResetRegMap* GetSingleton()
+			{
+				static OnFECResetRegMap singleton;
+				return &singleton;
+			}
 
 		private:
 			OnFECResetRegMap();

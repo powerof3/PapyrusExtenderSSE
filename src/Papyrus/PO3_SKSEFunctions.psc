@@ -1,5 +1,12 @@
 Scriptname PO3_SKSEFunctions Hidden 
 
+;----------------------------------------------------------------------------------------------------------
+;ACTIVE EFFECT
+;----------------------------------------------------------------------------------------------------------
+	
+	;returns whether the activeEffect has script attached. If scriptName is empty, it will return if the activeEffect has any non-base scripts attached
+	bool Function IsScriptAttachedToActiveEffect(ActiveMagicEffect akActiveEffect, String asScriptName) global native
+
 ;----------------------------------------------------------------------------------------------------------	
 ;ACTORS 
 ;----------------------------------------------------------------------------------------------------------
@@ -28,13 +35,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	/;
 	
 	;Gets actor state 
-	int Function GetActorState(Actor thisActor) global native
+	int Function GetActorState(Actor akActor) global native
 	
 	;Gets actor soul size
-	int Function GetActorSoulSize(Actor thisActor) global native
+	int Function GetActorSoulSize(Actor akActor) global native
+	
+	;Gets actor value modifier. 0 - permanent, 1 - temporary, 2 - damage
+	float Function GetActorValueModifier(Actor akActor, int aiModifier, String asActorValue) global native
 	
 	;Gets actor critical stage
-	int Function GetCriticalStage(Actor thisActor) global native
+	int Function GetCriticalStage(Actor akActor) global native
 		
 	;Gets all allies of the actor, if in combat
 	Actor[] Function GetCombatAllies(Actor akActor) global native
@@ -188,7 +198,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function ResetActor3D(Actor akActor, String asFolderName) global native
 	
 	;0.0 disables refraction, 1.0 is max refraction
-	Function SetActorRefraction(Actor thisActor, float afRefraction) global native
+	Function SetActorRefraction(Actor akActor, float afRefraction) global native
 	
 	;Sets hair color on actor. Changes may persist throughout gaming session, even when reloading previous saves.
 	Function SetHairColor(Actor akActor, ColorForm akColor) global native
@@ -230,11 +240,32 @@ Scriptname PO3_SKSEFunctions Hidden
 ;ACTORBASE
 ;----------------------------------------------------------------------------------------------------------
 
+	;-------
+	;GETTERS
+	;-------
+	
+	;Gets npc death item
+	LeveledItem Function GetDeathItem(Actorbase akBase) global native
+	
 	;Get actorbase perk at nth index
 	Perk Function GetNthPerk(Actorbase akBase, int aiIndex) global native
 	
 	;Get total actorbase perk count
 	int Function GetPerkCount(Actorbase akBase) global native
+	
+	;-------
+	;SETTERS
+	;-------
+	
+	;Sets npc death item. Can be None.
+	Function SetDeathItem(Actorbase akBase, LeveledItem akLeveledItem) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;ALIAS
+;----------------------------------------------------------------------------------------------------------
+	
+	;returns whether the form has script attached. If scriptName is empty, it will return if the alias has any non-base scripts attached
+	bool Function IsScriptAttachedToAlias(Alias akAlias, String asScriptName) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;ARMOR/ADDONS
@@ -300,6 +331,36 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Adds all functional spells (ie. spells that can be learned from spell books, and not all 2000+ spells like psb)
 	Function GivePlayerSpellBook() global native
+
+;----------------------------------------------------------------------------------------------------------	
+;DETECTION
+;----------------------------------------------------------------------------------------------------------
+	
+	;Returns whether other NPCs can detect this actor. 
+	;0 -  can't be detected, 1 - normal, 2 -  will always be detected
+	Int Function CanActorBeDetected(Actor akActor) global native
+
+	;Returns whether this actor can detect other NPCs. 
+	;0 - can never detect, 1- normal, 2 - will always detect others
+	Int Function CanActorDetect(Actor akActor) global native
+
+	;Force this actor to be detected by other NPCs (actor is always visible).
+	Function ForceActorDetection(Actor akActor) global native
+
+	;Force this actor to always detect their targets
+	Function ForceActorDetecting(Actor akActor) global native
+	
+	;Prevent this actor from being detected by other NPCs (actor is hidden).
+	Function PreventActorDetection(Actor akActor) global native
+
+	;Prevent this actor from detecting other NPCs (actor is blind)
+	Function PreventActorDetecting(Actor akActor) global native
+
+	;Resets detection state
+	Function ResetActorDetection(Actor akActor) global native
+
+	;Resets detecting state
+	Function ResetActorDetecting(Actor akActor) global native
 		
 ;----------------------------------------------------------------------------------------------------------	
 ;EFFECTSHADER
@@ -475,6 +536,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Is record flag set?
 	bool Function IsRecordFlagSet(Form akForm, int aiFlag) global native
+	
+	;returns whether the form has script attached. If scriptName is empty, it will return if the form has any non-base scripts attached
+	bool Function IsScriptAttachedToForm(Form akForm, String asScriptName) global native
 	
 	;Set record flag
 	Function SetRecordFlag(Form akForm, int aiFlag) global native
@@ -999,6 +1063,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets quest items in this ref's inventory, if any
 	Form[] Function GetQuestItems(ObjectReference akRef, bool abNoEquipped = false, bool abNoFavorited = false) global native
+	
+	;Get all aliases containing this ref
+	Alias[] Function GetRefAliases(ObjectReference akRef) global native
 		
 	;Returns the size of the stored soul in a soulgem objectreference
 	int Function GetStoredSoulSize(ObjectReference akRef) global native
@@ -1112,7 +1179,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;PACKAGES
 ;----------------------------------------------------------------------------------------------------------
 
+	;-------
 	;GETTERS
+	;-------
 	
 	;/	PACKAGE TYPES
 		Find = 0
@@ -1161,6 +1230,19 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets package type. Returns -1 if package is none
 	int Function GetPackageType(Package akPackage) global native
+	
+	;Gets all idles on this package
+	Idle[] Function GetPackageIdles(Package akPackage) global native
+	
+	;-------
+	;SETTERS
+	;-------
+	
+	;Adds idle to the end of the package idle stack, creating it if needed.
+	Function AddPackageIdle(Package akPackage, Idle akIdle) global native
+	
+	;Removes idle from package
+	Function RemovePackageIdle(Package akPackage, Idle akIdle) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;PAPYRUS EXTENDER
@@ -1299,6 +1381,12 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Removes effectitem from spell that matches spell at index.
 	Function RemoveEffectItemFromSpell(Spell akSpell, Spell akSpellToMatchFrom, int aiIndex) global native
+	
+	;Sets casting type of spell (and all attached magic effects)
+	Function SetSpellCastingType(Spell akSpell, int aiType) global native
+	
+	;Sets delivery type of spell (and all attached magic effects)
+	Function SetSpellDeliveryType(Spell akSpell, int aiType) global native
 			
 ;----------------------------------------------------------------------------------------------------------	
 ;STRINGS
@@ -1307,8 +1395,15 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Converts string to hex value if valid
 	String Function IntToString(int aiValue, bool abHex) global native
 	
-	;Converts strng to int. Returns -1 for out of bound values.
+	;Converts string to int. Returns -1 for out of bound values.
 	int Function StringToInt(String asString) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;UI
+;----------------------------------------------------------------------------------------------------------
+	
+	;Gets the objectreference of the currently opened container in container menu
+	ObjectReference Function GetMenuContainer() global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;UTILITY

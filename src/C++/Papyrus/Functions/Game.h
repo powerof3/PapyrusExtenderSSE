@@ -105,10 +105,10 @@ namespace Papyrus::Game
 			}
 
 			return result;
-		} else {
-			return forms::get_all<RE::SpellItem>(a_keywords);
 		}
-	}
+
+	    return forms::get_all<RE::SpellItem>(a_keywords);
+    }
 
 	inline std::vector<RE::EnchantmentItem*> GetAllEnchantmentsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords)
 	{
@@ -157,10 +157,10 @@ namespace Papyrus::Game
 			}
 
 			return result;
-		} else {
-			return forms::get_in_mod<RE::SpellItem>(modInfo, a_keywords);
 		}
-	}
+
+	    return forms::get_in_mod<RE::SpellItem>(modInfo, a_keywords);
+    }
 
 	inline std::vector<RE::TESObjectCELL*> GetAttachedCells(RE::StaticFunctionTag*)
 	{
@@ -217,7 +217,7 @@ namespace Papyrus::Game
 			RE::BSReadLockGuard locker(world->worldLock);
 
 			if (const auto havokWorld = world->GetWorld2(); havokWorld) {
-				std::array<float, 4> gravity;
+				std::array<float, 4> gravity{};
 				_mm_store_ps(gravity.data(), havokWorld->gravity.quad);
 				for (std::size_t i = 0; i < 3; ++i) {
 					result[i] = gravity[i];
@@ -276,7 +276,7 @@ namespace Papyrus::Game
 		}
 	}
 
-	void Bind(VM& a_vm)
+    inline void Bind(VM& a_vm)
 	{
 		BIND(GetActorsByProcessingLevel);
 		BIND(GetAllEnchantments);

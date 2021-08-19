@@ -67,8 +67,7 @@ namespace Papyrus::Package
 			return;
 		}
 
-		auto& idleCollection = a_package->idleCollection;
-		if (idleCollection) {
+        if (auto& idleCollection = a_package->idleCollection; idleCollection) {
 			idleCollection->RemoveIdle(a_idle);
 		}
 	}	

@@ -626,7 +626,7 @@ namespace CONDITION
 		case PARAM_TYPE::kBGSScene:
 		case PARAM_TYPE::kKnowableForm:
 			{
-				auto split_param = string::split(a_str, " ~ ");
+                const auto split_param = string::split(a_str, " ~ ");
 
 				const auto formID = std::stoul(split_param.at(kFormID), nullptr, 16);
 				const auto esp = split_param.at(kESP);
@@ -756,7 +756,7 @@ namespace CONDITION
 		switch (a_type.value()) {
 		case PARAM_TYPE::kInt:
 			{
-				auto integer = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
+                const auto integer = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
 				a_str += std::to_string(integer);
 
 				result = true;
@@ -764,7 +764,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kFloat:
 			{
-				auto num = *reinterpret_cast<float*>(&a_param);
+                const auto num = *reinterpret_cast<float*>(&a_param);
 				a_str += std::to_string(num);
 
 				result = true;
@@ -772,7 +772,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kChar:
 			{
-				auto string = *static_cast<RE::BSFixedString*>(a_param);
+                const auto string = *static_cast<RE::BSFixedString*>(a_param);
 				a_str += string;
 
 				result = true;
@@ -780,7 +780,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kSex:
 			{
-				auto sex = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
+                const auto sex = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
 				a_str += sex == 0 ? "Male" : "Female";
 
 				result = true;
@@ -790,8 +790,8 @@ namespace CONDITION
 			{
 				auto av = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
 
-				auto avList = RE::ActorValueList::GetSingleton();
-				auto info = avList ? avList->GetActorValue(static_cast<RE::ActorValue>(av)) : nullptr;
+                const auto avList = RE::ActorValueList::GetSingleton();
+                const auto info = avList ? avList->GetActorValue(static_cast<RE::ActorValue>(av)) : nullptr;
 
 				if (info) {
 					a_str += info->enumName;
@@ -803,7 +803,7 @@ namespace CONDITION
 		case PARAM_TYPE::kObjectRef:
 		case PARAM_TYPE::kActor:
 			{
-				auto player = reinterpret_cast<RE::PlayerCharacter*>(a_param);
+                const auto player = static_cast<RE::PlayerCharacter*>(a_param);
 				a_str += player ? "PlayerRef"sv : "NONE"sv;
 
 				result = true;
@@ -841,14 +841,14 @@ namespace CONDITION
 		case PARAM_TYPE::kBGSScene:
 		case PARAM_TYPE::kKnowableForm:
 			{
-				auto form = reinterpret_cast<RE::TESForm*>(a_param);
+                const auto form = static_cast<RE::TESForm*>(a_param);
 				if (form) {
 					std::stringstream sstream;
 					sstream << "0x" << std::uppercase << std::hex << form->GetFormID();
 					const auto formID = sstream.str();
 					a_str += formID;
 					a_str.append(" ~ "sv);
-					auto owner = form->sourceFiles.array->front();
+                    const auto owner = form->sourceFiles.array->front();
 					a_str.append(owner ? owner->fileName : "Skyrim.esm"sv);
 
 					result = true;
@@ -958,7 +958,7 @@ namespace CONDITION
 		switch (a_form.GetFormType()) {
 		case RE::FormType::MagicEffect:
 			{
-				auto effect = a_form.As<RE::EffectSetting>();
+                const auto effect = a_form.As<RE::EffectSetting>();
 				condition = effect ? &effect->conditions : nullptr;
 			}
 			break;
@@ -968,7 +968,7 @@ namespace CONDITION
 		case RE::FormType::AlchemyItem:
 		case RE::FormType::Scroll:
 			{
-				auto magicItem = a_form.As<RE::MagicItem>();
+                const auto magicItem = a_form.As<RE::MagicItem>();
 				condition = magicItem && a_index < magicItem->effects.size() ? &magicItem->effects[a_index]->conditions : nullptr;
 			}
 			break;

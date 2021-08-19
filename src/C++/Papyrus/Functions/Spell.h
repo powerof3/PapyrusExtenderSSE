@@ -9,7 +9,7 @@ namespace Papyrus::Spell
 		std::uint32_t a_area,
 		std::uint32_t a_dur,
 		float a_cost,
-		std::vector<RE::BSFixedString> a_conditionList)
+        std::vector<RE::BSFixedString> a_conditionList)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -28,7 +28,7 @@ namespace Papyrus::Spell
 			return;
 		}
 
-		auto result = MAGIC::add_magic_effect(
+        const auto result = MAGIC::add_magic_effect(
 			a_spell, a_mgef, a_mag, a_area, a_dur, a_cost,
 			a_conditionList);
 		if (result == MAGIC::RESULT::kFailParse) {
@@ -128,14 +128,14 @@ namespace Papyrus::Spell
 			return;
 		}
 
-		auto type = static_cast<RE::MagicSystem::CastingType>(a_type);
+        const auto type = static_cast<RE::MagicSystem::CastingType>(a_type);
 		if (a_spell->GetCastingType() == type) {
 			return;
 		}
 
 		a_spell->data.castingType = type;
-		for (auto& effect : a_spell->effects) {
-			if (auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
+		for (const auto& effect : a_spell->effects) {
+			if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
 				baseEffect->data.castingType = type;
 			}
 		}
@@ -150,14 +150,14 @@ namespace Papyrus::Spell
 			return;
 		}
 
-		auto type = static_cast<RE::MagicSystem::Delivery>(a_type);
+        const auto type = static_cast<RE::MagicSystem::Delivery>(a_type);
 		if (a_spell->GetDelivery() == type) {
 			return;
 		}
 
 		a_spell->data.delivery = type;
-		for (auto& effect : a_spell->effects) {
-			if (auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
+		for (const auto& effect : a_spell->effects) {
+			if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
 				baseEffect->data.delivery = type;
 			}
 		}

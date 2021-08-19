@@ -46,8 +46,7 @@ namespace Papyrus::Actor
 		const auto actorEffects = actorbase ? actorbase->GetSpellList() : nullptr;
 
 		if (actorEffects && actorEffects->AddSpell(a_spell)) {
-			const auto combatController = a_actor->combatController;
-			if (combatController) {
+			if (const auto combatController = a_actor->combatController; combatController && combatController->inventoryController) {
 				combatController->inventoryController->unk1C4 = 1;
 			}
 			if (actorbase->IsPlayer() || a_spell->GetSpellType() == RE::MagicSystem::SpellType::kLeveledSpell) {
@@ -236,7 +235,7 @@ namespace Papyrus::Actor
 				a_actor->boolBits.reset(BOOL_BITS::kProcessMe);  //disable AI last
 			}
 		} else if (a_type == 1) {
-			if (auto charController = a_actor->GetCharController(); charController) {
+			if (const auto charController = a_actor->GetCharController(); charController) {
 				auto task = SKSE::GetTaskInterface();
 				task->AddTask([root, charController, a_actor, a_enable]() {
 					std::uint32_t filterInfo = 0;
@@ -294,7 +293,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		for (auto& activeEffect : *activeEffects) {
+		for (const auto& activeEffect : *activeEffects) {
 			if (auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr; mgef) {
 				if (!a_inactive && (activeEffect->flags.all(AE::kInactive) || activeEffect->flags.all(AE::kDispelled))) {
 					continue;
@@ -332,7 +331,7 @@ namespace Papyrus::Actor
 		return middleProcess ? middleProcess->scriptRefractPower : 1.0f;
 	}
 
-	std::int32_t GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+    inline std::int32_t GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -373,7 +372,7 @@ namespace Papyrus::Actor
                    0.0f;
 	}
 
-	std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+    inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -577,9 +576,8 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const auto activeEffects = a_actor->GetActiveEffectList();
-		if (activeEffects) {
-			return std::any_of(activeEffects->begin(), activeEffects->end(), [&](auto const& ae) {
+        if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
 			});
 		}
@@ -613,9 +611,8 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const auto activeEffects = a_actor->GetActiveEffectList();
-		if (activeEffects) {
-			return std::any_of(activeEffects->begin(), activeEffects->end(), [&](auto const& ae) {
+        if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				const auto mgef = ae ? ae->GetBaseObject() : nullptr;
 				return mgef && MAGIC::get_archetype_as_string(mgef->GetArchetype()) == a_archetype;
 			});
@@ -689,7 +686,7 @@ namespace Papyrus::Actor
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_actor->GetHandle();
-			processLists->GetModelEffects([&](RE::ModelReferenceEffect& a_modelEffect) {
+			processLists->GetModelEffects([&](const RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.target == handle) {
 					if (const auto modelArt = a_modelEffect.artObject; modelArt && modelArt->GetFormID() == SoulTrapHitArtID) {
 						isBeingSoulTrapped = true;
@@ -791,9 +788,8 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const auto activeEffects = a_actor->GetActiveEffectList();
-		if (activeEffects) {
-			for (auto& activeEffect : *activeEffects) {
+        if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+			for (const auto& activeEffect : *activeEffects) {
 				if (activeEffect && activeEffect->spell == a_spell) {
 					activeEffect->Dispel(true);
 				}
@@ -804,8 +800,7 @@ namespace Papyrus::Actor
 		const auto actorEffects = actorbase ? actorbase->actorEffects : nullptr;
 
 		if (actorEffects && actorEffects->GetIndex(a_spell).has_value()) {
-			const auto combatController = a_actor->combatController;
-			if (combatController) {
+			if (const auto combatController = a_actor->combatController; combatController && combatController->inventoryController) {
 				combatController->inventoryController->unk1C4 = 1;
 			}
 			a_actor->RemoveSelectedSpell(a_spell);
@@ -860,10 +855,10 @@ namespace Papyrus::Actor
 				});
 			}
 
-			auto root = a_actor->Get3D(false);
+            const auto root = a_actor->Get3D(false);
 			if (replaced && root) {
 				auto armorID = std::to_string(a_armor->formID);
-				auto name = "PO3_TXST - " + armorID;
+                const auto name = "PO3_TXST - " + armorID;
 
 				const auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
 				if (!data) {
@@ -909,7 +904,7 @@ namespace Papyrus::Actor
 					std::vector<RE::BSFixedString> result;
 					SET::SkinTXST(faceObject, txst, result, a_type);
 
-					auto root = a_actor->Get3D(false);
+                    const auto root = a_actor->Get3D(false);
 					if (!result.empty() && root) {
 						SET::add_data_if_none<RE::NiStringsExtraData>(root, EXTRA::FACE_TXST, result);
 					}
@@ -942,12 +937,13 @@ namespace Papyrus::Actor
 		if (isFemale && !a_femaleTXST) {
 			a_vm->TraceStack("Female TextureSet is None", a_stackID);
 			return;
-		} else if (!isFemale && !a_maleTXST) {
-			a_vm->TraceStack("Male TextureSet is None", a_stackID);
-			return;
 		}
+        if (!isFemale && !a_maleTXST) {
+            a_vm->TraceStack("Male TextureSet is None", a_stackID);
+            return;
+        }
 
-		SET::ArmorSkinTXST(a_actor,
+        SET::ArmorSkinTXST(a_actor,
 			isFemale ? a_femaleTXST : a_maleTXST,
 			static_cast<BipedSlot>(a_slot), a_type);
 	}

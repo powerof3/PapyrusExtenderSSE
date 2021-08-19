@@ -9,7 +9,7 @@ namespace Papyrus::Potion
 		std::uint32_t a_area,
 		std::uint32_t a_dur,
 		float a_cost,
-		std::vector<RE::BSFixedString> a_conditionList)
+        std::vector<RE::BSFixedString> a_conditionList)
 	{
 		if (!a_potion) {
 			a_vm->TraceStack("Potion is None", a_stackID);

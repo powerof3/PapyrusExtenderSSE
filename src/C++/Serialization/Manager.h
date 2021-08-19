@@ -55,27 +55,26 @@ namespace Serialization
 	void SaveCallback(SKSE::SerializationInterface* a_intfc);
 	void LoadCallback(SKSE::SerializationInterface* a_intfc);
 	void RevertCallback(SKSE::SerializationInterface* a_intfc);
+	void FormDeleteCallback(RE::VMHandle a_handle);
 
 	template <class T>
-	inline void SAVE_FORMS(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version0, std::uint32_t a_version1)
+	void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version1, std::uint32_t a_version0)
 	{
 		const auto regs = T::GetSingleton();
 		if (!regs->GetFormSet(1).empty()) {
-			if (!regs->Save(a_intfc, a_version0, kSerializationVersion, 1)) {
-				logger::critical("{} : Failed to save regs!"sv, typeid(T).name());
-				regs->Clear(1);
+			if (!regs->Save(a_intfc, a_version1, kSerializationVersion, 1)) {
+				
 			}
 		}
 		if (!regs->GetFormSet(0).empty()) {
-			if (!regs->Save(a_intfc, a_version1, kSerializationVersion, 0)) {
-				logger::critical("{} : Failed to save regs!"sv, typeid(T).name());
-				regs->Clear(0);
+			if (!regs->Save(a_intfc, a_version0, kSerializationVersion, 0)) {
+				logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 0);
 			}
 		}
 	}
 
 	template <class T>
-	inline void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
+	void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
 	{
 		const auto regs = T::GetSingleton();
 		if (!regs->Save(a_intfc, a_version, kSerializationVersion)) {
@@ -84,18 +83,16 @@ namespace Serialization
 	}
 
 	template <class T>
-	inline void LOAD_FORMS(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
+	void LOAD(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		const auto regs = T::GetSingleton();
 		if (!regs->Load(a_intfc, a_index)) {
 			logger::critical("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
-		} else {
-			regs->Load(a_intfc, a_index);
 		}
 	}
 
 	template <class T>
-	inline void LOAD(SKSE::SerializationInterface* a_intfc)
+	void LOAD(SKSE::SerializationInterface* a_intfc)
 	{
 		const auto regs = T::GetSingleton();
 		if (!regs->Load(a_intfc)) {
@@ -104,29 +101,43 @@ namespace Serialization
 	}
 
 	template <class T>
-	inline void REVERT(SKSE::SerializationInterface* a_intfc)
+	void REVERT(SKSE::SerializationInterface* a_intfc)
 	{
 		const auto regs = T::GetSingleton();
 		regs->Revert(a_intfc);
 	}
 
 	template <class T>
-	inline void FORM_DELETE(RE::FormID a_formID)
+	void FORM_DELETE(RE::FormID a_formID)
 	{
 		const auto regs = T::GetSingleton();
 		regs->Remove(a_formID);
 	}
 
+	template <class T>
+	void FORM_DELETE(RE::VMHandle a_handle)
+	{
+		const auto regs = T::GetSingleton();
+		if constexpr (std::disjunction_v<
+						  typename std::is_base_of<SKSE::Impl::RegistrationMapBase, T>::type,
+						  typename std::is_base_of<SKSE::Impl::RegistrationMapUniqueBase, T>::type>) {
+			regs->UnregisterAll(a_handle);
+		} else {
+			regs->Unregister(a_handle);
+		}
+	}
+
 	namespace FormDeletion
 	{
 		using EventResult = RE::BSEventNotifyControl;
-		
+
 		class EventHandler : public RE::BSTEventSink<RE::TESFormDeleteEvent>
 		{
 		public:
 			static EventHandler* GetSingleton();
 
-			virtual EventResult ProcessEvent(const RE::TESFormDeleteEvent* a_event, RE::BSTEventSource<RE::TESFormDeleteEvent>*) override;
+			EventResult ProcessEvent(const RE::TESFormDeleteEvent* a_event, RE::BSTEventSource<RE::TESFormDeleteEvent>*) override;
+
 		private:
 			EventHandler() = default;
 			EventHandler(const EventHandler&) = delete;

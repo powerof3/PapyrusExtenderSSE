@@ -9,7 +9,7 @@ public:
 		_lock()
 	{
 	}
-	FormSetPairBase(const FormSetPairBase& a_rhs) :
+    FormSetPairBase(const FormSetPairBase& a_rhs) :
 		_pair(),
 		_lock()
 	{
@@ -17,7 +17,7 @@ public:
 		_pair = a_rhs._pair;
 		a_rhs._lock.unlock();
 	}
-	FormSetPairBase(FormSetPairBase&& a_rhs) :
+    FormSetPairBase(FormSetPairBase&& a_rhs) :
 		_pair(),
 		_lock()
 	{
@@ -26,7 +26,8 @@ public:
 		a_rhs._pair.first.clear();
 		a_rhs._pair.second.clear();
 	}
-	~FormSetPairBase() = default;
+
+    ~FormSetPairBase() = default;
 
 	FormSetPairBase& operator=(const FormSetPairBase& a_rhs)
 	{
@@ -64,60 +65,49 @@ public:
 		return *this;
 	}
 
-	inline std::set<T>& GetFormSet(std::uint32_t a_index)
+	std::set<T>& GetFormSet(std::uint32_t a_index)
 	{
 		return a_index == 1 ? _pair.first :
                               _pair.second;
 	}
-	inline void Add(T a_data, std::uint32_t a_index)
+	void Add(T a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
 
 		auto& otherDataSet = GetFormSet(!a_index);
-		const auto it = std::ranges::find(otherDataSet, a_data);
+		auto it = std::ranges::find(otherDataSet, a_data);
 		if (it != otherDataSet.end()) {
 			otherDataSet.erase(it);
 		}
 
 		GetFormSet(a_index).insert(a_data);
 	}
-	inline void Remove(T a_data, std::uint32_t a_set)
+	void Remove(T a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
 
-		auto& formSet = GetFormSet(a_set);
-		const auto it = formSet.find(a_data);
+		auto& formSet = GetFormSet(a_index);
+		auto it = formSet.find(a_data);
 		if (it != formSet.end()) {
 			formSet.erase(it);
 		}
 	}
-	inline bool Contains(T a_data, std::uint32_t a_index)
+	bool Contains(T a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
-
-		auto& formSet = GetFormSet(a_index);
-		return formSet.contains(a_data);
+		return GetFormSet(a_index).contains(a_data);
 	}
-
-	inline void Clear()
+	void Clear()
 	{
 		Locker locker(_lock);
-
 		_pair.first.clear();
 		_pair.second.clear();
 	}
-	inline void Clear(std::uint32_t a_index)
+	void Clear(std::uint32_t a_index)
 	{
 		Locker locker(_lock);
-
-		auto& formSet = GetFormSet(a_index);
-		formSet.clear();
+		GetFormSet(a_index).clear();
 	}
-
-	virtual bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) = 0;
-	virtual bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
-	virtual bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
-	virtual void Remove(RE::FormID a_formID) = 0;
 	void Revert(SKSE::SerializationInterface*)
 	{
 		Clear();
@@ -135,12 +125,9 @@ using FormData = std::pair<RE::FormID, RE::FormID>;
 template <class F, class D>
 class FormDataSetPair : public FormSetPairBase<FormData>
 {
-private:
-	using super = FormSetPairBase;
-
 public:
 	FormDataSetPair() :
-		super()
+		FormSetPairBase()
 	{}
 
 	FormDataSetPair(const FormDataSetPair&) = default;
@@ -150,20 +137,7 @@ public:
 	FormDataSetPair& operator=(const FormDataSetPair&) = default;
 	FormDataSetPair& operator=(FormDataSetPair&&) = default;
 
-	inline void Load(std::uint32_t a_index)
-	{
-		Locker locker(_lock);
-
-		auto& dataSet = GetFormSet(a_index);
-		for (const auto& [formID, dataID] : dataSet) {
-			const auto form = RE::TESForm::LookupByID<F>(formID);
-			const auto data = RE::TESForm::LookupByID<D>(dataID);
-			if (form && data) {
-				Process(form, data, a_index);
-			}
-		}
-	}
-	inline bool Add(F* a_form, D* a_data)
+	bool Add(F* a_form, D* a_data)
 	{
 		if (Process(a_form, a_data, 1)) {
 			FormSetPairBase::Add({ a_form->GetFormID(), a_form->GetFormID() }, 1);
@@ -171,7 +145,7 @@ public:
 		}
 		return false;
 	}
-	inline bool Remove(F* a_form, D* a_data)
+	bool Remove(F* a_form, D* a_data)
 	{
 		if (Process(a_form, a_data, 0)) {
 			FormSetPairBase::Add({ a_form->GetFormID(), a_form->GetFormID() }, 0);
@@ -180,7 +154,7 @@ public:
 		return false;
 	}
 
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) override
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index)
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
 			logger::error("Failed to open serialization record!"sv);
@@ -189,64 +163,77 @@ public:
 
 		return Save(a_intfc, a_index);
 	}
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
 		Locker locker(_lock);
 
 		auto& dataSet = GetFormSet(a_index);
-		auto size = static_cast<std::uint32_t>(dataSet.size());
-		a_intfc->WriteRecordData(size);
+		const std::size_t numRegs = dataSet.size();
+		if (!a_intfc->WriteRecordData(numRegs)) {
+			logger::error("Failed to save number of regs ({})", numRegs);
+			return false;
+		}
 
 		for (const auto& [formID, dataID] : dataSet) {
-			a_intfc->WriteRecordData(formID);
-			a_intfc->WriteRecordData(dataID);
+			if (!a_intfc->WriteRecordData(formID)) {
+				logger::error("Failed to save formID ({:X})", formID);
+				return false;			    
+			}
+			if (!a_intfc->WriteRecordData(dataID)) {
+				logger::error("Failed to save dataID ({:X})", dataID);
+				return false;
+			}
 		}
 
 		return true;
 	}
-	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
+	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
-		std::uint32_t size;
-		a_intfc->ReadRecordData(size);
+		std::size_t numRegs;
+		a_intfc->ReadRecordData(numRegs);
 
 		Locker locker(_lock);
 
 		auto& dataSet = GetFormSet(a_index);
 		dataSet.clear();
 
-		for (std::uint32_t i = 0; i < size; i++) {
-			RE::FormID formID;
+		RE::FormID formID;
+		RE::FormID dataID;
+	    for (std::size_t i = 0; i < numRegs; i++) {
 			a_intfc->ReadRecordData(formID);
 			if (!a_intfc->ResolveFormID(formID, formID)) {
-				logger::error("{} : {} : Failed to resolve formID {}"sv, a_index, i, formID);
+				logger::warn("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
 				continue;
 			}
-
-			RE::FormID dataID;
 			a_intfc->ReadRecordData(dataID);
 			if (!a_intfc->ResolveFormID(dataID, dataID)) {
-				logger::error("{} : {} : Failed to resolve dataID {}"sv, a_index, i, dataID);
+				logger::warn("{} : {} : Failed to resolve dataID {:X}"sv, a_index, i, dataID);
 				continue;
 			}
-
 			dataSet.insert({ formID, dataID });
+		}
+
+		for (const auto& [fID, dID] : dataSet) {
+			const auto form = RE::TESForm::LookupByID<F>(fID);
+			const auto data = RE::TESForm::LookupByID<D>(dID);
+			if (form && data) {
+				Process(form, data, a_index);
+			}
 		}
 
 		return true;
 	}
-	void Remove(RE::FormID a_formID) override
+	void Remove(RE::FormID a_formID)
 	{
 		Locker locker(_lock);
 
 		for (std::uint32_t i = 0; i < 2; i++) {
 			auto& dataSet = GetFormSet(i);
-			const auto it = std::ranges::find_if(dataSet,
-				[&a_formID](const auto& formData) { return formData.first == a_formID; });
-			if (it != dataSet.end()) {
-				dataSet.erase(it);
-			}
+			std::erase_if(dataSet, [a_formID](const auto& formData) {
+				return formData.first == a_formID;
+			});
 		}
 	}
 
@@ -257,12 +244,9 @@ private:
 template <class F>
 class FormSetPair : public FormSetPairBase<RE::FormID>
 {
-private:
-	using super = FormSetPairBase;
-
 public:
 	FormSetPair() :
-		super()
+		FormSetPairBase()
 	{}
 
 	FormSetPair(const FormSetPair&) = default;
@@ -272,24 +256,24 @@ public:
 	FormSetPair& operator=(const FormSetPair&) = default;
 	FormSetPair& operator=(FormSetPair&&) = default;
 
-	inline void Add(F* a_form, std::uint32_t a_index)
+	void Add(F* a_form, std::uint32_t a_index)
 	{
 		return FormSetPairBase::Add(a_form->GetFormID(), a_index);
 	}
-	inline void Remove(F* a_form, std::uint32_t a_index)
+	void Remove(F* a_form, std::uint32_t a_index)
 	{
 		return FormSetPairBase::Remove(a_form->GetFormID(), a_index);
 	}
-	inline void Remove(F* a_form)
+	void Remove(F* a_form)
 	{
 		return Remove(a_form->GetFormID());
 	}
-	inline bool Contains(F* a_form, std::uint32_t a_index)
+	bool Contains(F* a_form, std::uint32_t a_index)
 	{
 		return FormSetPairBase::Contains(a_form->GetFormID(), a_index);
 	}
 
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) override
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index)
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
 			logger::error("Failed to open serialization record!"sv);
@@ -297,54 +281,58 @@ public:
 		}
 		return Save(a_intfc, a_index);
 	}
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
 		Locker locker(_lock);
 
-		auto& formSet = GetFormSet(a_index);
-		auto size = static_cast<std::uint32_t>(formSet.size());
-		a_intfc->WriteRecordData(size);
+		const auto& formSet = GetFormSet(a_index);
+		const std::size_t numRegs = formSet.size();
+		if (!a_intfc->WriteRecordData(numRegs)) {
+			logger::error("Failed to save number of regs ({})", numRegs);
+			return false;
+		}
 
 		for (const auto& formID : formSet) {
-			a_intfc->WriteRecordData(formID);
+			if (!a_intfc->WriteRecordData(formID)) {
+				logger::error("Failed to save reg ({:X})", formID);
+				return false;
+			}
 		}
 
 		return true;
 	}
-	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
+	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
-		std::uint32_t size;
-		a_intfc->ReadRecordData(size);
+		std::size_t numRegs;
+		a_intfc->ReadRecordData(numRegs);
 
 		Locker locker(_lock);
-
 		auto& formSet = GetFormSet(a_index);
 		formSet.clear();
 
-		for (std::uint32_t i = 0; i < size; i++) {
-			RE::FormID formID;
+		RE::FormID formID;
+	    for (std::size_t i = 0; i < numRegs; i++) {
 			a_intfc->ReadRecordData(formID);
 			if (!a_intfc->ResolveFormID(formID, formID)) {
-				logger::error("{} : Failed to resolve formID {}"sv, i, formID);
-				continue;
+				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
+			} else {
+				formSet.insert(formID);
 			}
-			formSet.insert(formID);
 		}
 
 		return true;
 	}
-	void Remove(RE::FormID a_formID) override
+	void Remove(RE::FormID a_formID)
 	{
 		Locker locker(_lock);
 
 		for (std::uint32_t i = 0; i < 2; i++) {
 			auto& formSet = GetFormSet(i);
-			const auto it = std::ranges::find(formSet, a_formID);
-			if (it != formSet.end()) {
-				formSet.erase(it);
-			}
+			std::erase_if(formSet, [a_formID](const auto& ID) {
+				return ID == a_formID;
+			});
 		}
 	}
 };

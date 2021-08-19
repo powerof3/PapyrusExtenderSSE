@@ -113,7 +113,7 @@ namespace MAGIC
 	{
         const auto copyEffect = a_copyItem->effects[a_index];
 		if (copyEffect && copyEffect->baseEffect) {
-			auto it = std::ranges::find_if(a_item->effects,
+            const auto it = std::ranges::find_if(a_item->effects,
 				[&](const auto& effect) { return effect && detail::effect_is_match(effect,
 															   copyEffect->baseEffect,
 															   copyEffect->effectItem.magnitude,

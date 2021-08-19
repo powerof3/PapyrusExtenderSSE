@@ -84,7 +84,7 @@ namespace Papyrus::FEC
 		using deathEffectMap = std::map<std::uint32_t, std::vector<std::pair<RE::EffectSetting*, float>>>;  // [type, [mgef, mag]]
 		deathEffectMap effectMap;
 
-		for (auto& activeEffect : *activeEffects) {
+		for (const auto& activeEffect : *activeEffects) {
 			const auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr;
 			if (mgef && mgef->data.flags.all(FLAG::kHostile) && mgef->data.flags.all(FLAG::kDetrimental)) {
 				if (a_type == 0) {
@@ -117,7 +117,7 @@ namespace Papyrus::FEC
 		}
 
 		if (effectPair.first == DEATH_TYPE::kNone && !effectMap.empty()) {
-			const auto mag_cmp = [](const auto& a_lhs, const auto& a_rhs) {
+			constexpr auto mag_cmp = [](const auto& a_lhs, const auto& a_rhs) {
 				return numeric::definitely_less_than(a_lhs.second, a_rhs.second);
 			};
 

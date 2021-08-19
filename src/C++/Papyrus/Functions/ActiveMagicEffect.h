@@ -11,7 +11,7 @@ namespace Papyrus::ActiveMagicEffect
 {
 	inline bool IsScriptAttachedToActiveEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::ActiveEffect* a_activeEffect,
-		const RE::BSFixedString a_scriptName)
+		RE::BSFixedString a_scriptName)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -180,7 +180,7 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+        const auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
 		const auto regs = OnMagicEffectApplyRegMap::GetSingleton();
 		regs->Register(a_activeEffect, key);
 	}
@@ -221,10 +221,10 @@ namespace Papyrus::ActiveMagicEffect
 
 		const auto formType = static_cast<RE::FormType>(a_formType);
 
-		auto load = OnObjectLoadedRegMap::GetSingleton();
+        const auto load = OnObjectLoadedRegMap::GetSingleton();
 		load->Register(a_activeEffect, formType);
 
-		auto unload = OnObjectUnloadedRegMap::GetSingleton();
+        const auto unload = OnObjectUnloadedRegMap::GetSingleton();
 		unload->Register(a_activeEffect, formType);
 	}
 
@@ -250,10 +250,10 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto start = OnQuestStartRegMap::GetSingleton();
+        const auto start = OnQuestStartRegMap::GetSingleton();
 		start->Register(a_activeEffect, a_quest->GetFormID());
 
-		auto stop = OnQuestStopRegMap::GetSingleton();
+        const auto stop = OnQuestStopRegMap::GetSingleton();
 		stop->Register(a_activeEffect, a_quest->GetFormID());
 	}
 
@@ -510,7 +510,7 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+        const auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
 		const auto regs = OnMagicEffectApplyRegMap::GetSingleton();
 		regs->Unregister(a_activeEffect, key);
 	}
@@ -544,10 +544,10 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto grab = OnGrabRegSet::GetSingleton();
+        const auto grab = OnGrabRegSet::GetSingleton();
 		grab->Unregister(a_activeEffect);
 
-		auto release = OnReleaseRegSet::GetSingleton();
+        const auto release = OnReleaseRegSet::GetSingleton();
 		release->Unregister(a_activeEffect);
 	}
 
@@ -562,10 +562,10 @@ namespace Papyrus::ActiveMagicEffect
 
 		auto formType = static_cast<RE::FormType>(a_formType);
 
-		auto load = OnObjectLoadedRegMap::GetSingleton();
+        const auto load = OnObjectLoadedRegMap::GetSingleton();
 		load->Unregister(a_activeEffect, formType);
 
-		auto unload = OnObjectUnloadedRegMap::GetSingleton();
+        const auto unload = OnObjectUnloadedRegMap::GetSingleton();
 		unload->Unregister(a_activeEffect, formType);
 	}
 
@@ -576,10 +576,10 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto load = OnObjectLoadedRegMap::GetSingleton();
+        const auto load = OnObjectLoadedRegMap::GetSingleton();
 		load->UnregisterAll(a_activeEffect);
 
-		auto unload = OnObjectUnloadedRegMap::GetSingleton();
+        const auto unload = OnObjectUnloadedRegMap::GetSingleton();
 		unload->UnregisterAll(a_activeEffect);
 	}
 
@@ -607,10 +607,10 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto start = OnQuestStartRegMap::GetSingleton();
+        const auto start = OnQuestStartRegMap::GetSingleton();
 		start->Unregister(a_activeEffect, a_quest->GetFormID());
 
-		auto stop = OnQuestStartRegMap::GetSingleton();
+        const auto stop = OnQuestStartRegMap::GetSingleton();
 		stop->Unregister(a_activeEffect, a_quest->GetFormID());
 	}
 
@@ -621,10 +621,10 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto start = OnQuestStartRegMap::GetSingleton();
+        const auto start = OnQuestStartRegMap::GetSingleton();
 		start->UnregisterAll(a_activeEffect);
 
-		auto stop = OnQuestStartRegMap::GetSingleton();
+        const auto stop = OnQuestStartRegMap::GetSingleton();
 		stop->UnregisterAll(a_activeEffect);
 	}
 

@@ -2,9 +2,7 @@
 
 namespace Papyrus::Array
 {
-	inline bool AddActorToArray(VM*, StackID, RE::StaticFunctionTag*, 
-		RE::Actor* a_actor, 
-		RE::reference_array<RE::Actor*> a_actors)
+	inline bool AddActorToArray(RE::StaticFunctionTag*,  RE::Actor* a_actor,  RE::reference_array<RE::Actor*> a_actors)
 	{
         const auto it = std::ranges::find(a_actors, nullptr);
 		if (it != a_actors.end()) {
@@ -14,9 +12,7 @@ namespace Papyrus::Array
 		return false;
 	}
 
-	inline bool AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, 
-		RE::BSFixedString a_string, 
-		RE::reference_array<RE::BSFixedString> a_strings)
+	inline bool AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, RE::reference_array<RE::BSFixedString> a_strings)
 	{
         const auto it = std::ranges::find(a_strings, "");
 		if (it != a_strings.end()) {
@@ -26,14 +22,12 @@ namespace Papyrus::Array
 		return false;
 	}
 
-	inline std::uint32_t ArrayStringCount(VM*, StackID, RE::StaticFunctionTag*, 
-		RE::BSFixedString a_string, 
-		RE::reference_array<RE::BSFixedString> a_strings)
+	inline std::uint32_t ArrayStringCount(RE::StaticFunctionTag*, RE::BSFixedString a_string, RE::reference_array<RE::BSFixedString> a_strings)
 	{
 		return static_cast<std::uint32_t>(std::ranges::count(a_strings, a_string));
 	}
 
-	inline std::vector<RE::BSFixedString> SortArrayString(VM*, StackID, RE::StaticFunctionTag*, RE::reference_array<RE::BSFixedString> a_strings)
+	inline std::vector<RE::BSFixedString> SortArrayString(RE::StaticFunctionTag*, const RE::reference_array<RE::BSFixedString> a_strings)
 	{
 		std::vector<RE::BSFixedString> strings(a_strings);
 		strings.erase(std::ranges::remove_if(strings, [](const RE::BSFixedString& str) {
@@ -46,16 +40,16 @@ namespace Papyrus::Array
 		return strings;
 	}
 
-	inline std::vector<RE::BSFixedString> GetSortedActorNames(VM*, StackID, RE::StaticFunctionTag*, 
+	inline std::vector<RE::BSFixedString> GetSortedActorNames(RE::StaticFunctionTag*, 
 		const RE::BGSKeyword* a_keyword,
-		RE::BSFixedString a_pronoun, 
+        RE::BSFixedString a_pronoun, 
 		bool a_invert)
 	{
 		std::unordered_map<std::string, size_t> nameMap;
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			bool hasKeyword = false;
-			bool noKeyword = !a_keyword;
+            const bool noKeyword = !a_keyword;
 
 			for (const auto& handle : processLists->highActorHandles) {
 				if (const auto actor = handle.get(); actor) {
@@ -85,8 +79,8 @@ namespace Papyrus::Array
 		return names;
 	}
 
-	inline std::vector<RE::BSFixedString> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*, 
-		std::vector<RE::TESNPC*> a_npcs, 
+	inline std::vector<RE::BSFixedString> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*,
+        const std::vector<RE::TESNPC*> a_npcs, 
 		RE::BSFixedString a_pronoun)
 	{
 		std::vector<RE::BSFixedString> names;
@@ -96,7 +90,7 @@ namespace Papyrus::Array
 		}
 
 		std::unordered_map<std::string, size_t> nameMap;
-		for (auto& npc : a_npcs) {
+		for (const auto& npc : a_npcs) {
 			if (!npc) {
 				continue;
 			}

@@ -38,8 +38,8 @@ namespace SCRIPT
 			return false;
 		}
 
-		const auto check_script = [&](const RE::TESForm* a_form) {
-			auto handle = policy->GetHandleForObject(static_cast<RE::VMTypeID>(a_form->GetFormType()), a_form);
+		const auto check_script = [&](const RE::TESForm* b_form) {
+            const auto handle = policy->GetHandleForObject(static_cast<RE::VMTypeID>(b_form->GetFormType()), b_form);
 			if (handle == policy->EmptyHandle()) {
 				return false;
 			}
@@ -58,9 +58,9 @@ namespace SCRIPT
 		}
 
 		return result;
-	};
+	}
 
-	bool is_script_attached(const RE::BGSBaseAlias* a_alias, const RE::BSFixedString& a_scriptName)
+    bool is_script_attached(const RE::BGSBaseAlias* a_alias, const RE::BSFixedString& a_scriptName)
 	{
 		const auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 		if (!vm) {
@@ -78,9 +78,9 @@ namespace SCRIPT
 		}
 		
 		return detail::check_script(*vm, handle, a_scriptName);
-	};
+	}
 
-	bool is_script_attached(const RE::ActiveEffect* a_activeEffect, const RE::BSFixedString& a_scriptName)
+    bool is_script_attached(const RE::ActiveEffect* a_activeEffect, const RE::BSFixedString& a_scriptName)
 	{
 		const auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 		if (!vm) {
@@ -98,5 +98,5 @@ namespace SCRIPT
 		}
 
 		return detail::check_script(*vm, handle, a_scriptName);
-	};
+	}
 }

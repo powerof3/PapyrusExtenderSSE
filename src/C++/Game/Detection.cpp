@@ -31,4 +31,4 @@ namespace Detection
 
 		logger::info("Installing detection hook");
 	}
-};
+}

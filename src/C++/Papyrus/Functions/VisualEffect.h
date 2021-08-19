@@ -30,7 +30,7 @@ namespace Papyrus::VisualEffect
 		}
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			processLists->GetModelEffects([&](RE::ModelReferenceEffect& a_modelEffect) {
+			processLists->GetModelEffects([&](const RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.artObject == art && !a_active || !a_modelEffect.finished) {
 					count++;
 				}

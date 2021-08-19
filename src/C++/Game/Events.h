@@ -6,7 +6,7 @@ namespace Events
 {
 	namespace Script
 	{
-		class EventHandler :
+		class EventHandler final :
 			public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>,
 			public RE::BSTEventSink<RE::TESQuestStartStopEvent>,
 			public RE::BSTEventSink<RE::TESQuestStageEvent>,
@@ -63,7 +63,7 @@ namespace Events
 
 	namespace Story
 	{
-		class EventHandler :
+		class EventHandler final :
 			public RE::BSTEventSink<RE::ActorKill::Event>,
 			public RE::BSTEventSink<RE::BooksRead::Event>,
 			public RE::BSTEventSink<RE::CriticalHit::Event>,

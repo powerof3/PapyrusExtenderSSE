@@ -6,7 +6,7 @@ namespace Papyrus::ObjectReference
 {
 	namespace inv_util
 	{
-		bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+        inline bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 		{
 			if (a_noEquipped && a_entry->IsWorn()) {
 				return false;
@@ -176,7 +176,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto projectedUVParams = RE::NiColorA(
+        const auto projectedUVParams = RE::NiColorA(
 			a_shader->directionalData.falloffScale,
 			a_shader->directionalData.falloffBias,
 			1.0f / a_shader->directionalData.noiseUVScale,
@@ -246,10 +246,10 @@ namespace Papyrus::ObjectReference
 		if (const auto TES = RE::TES::GetSingleton(); TES) {
 			const auto list = a_formOrList->As<RE::BGSListForm>();
 
-			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& a_ref) {
-				if (const auto base = a_ref.GetBaseObject(); base) {
+			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
+				if (const auto base = b_ref.GetBaseObject(); base) {
 					if (list && list->HasForm(base) || a_formOrList == base) {
-						result.push_back(&a_ref);
+						result.push_back(&b_ref);
 					}
 				}
 				return true;
@@ -281,15 +281,15 @@ namespace Papyrus::ObjectReference
 				return result;
 			}
 
-			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& a_ref) {
+			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
 				bool success = false;
 				if (list) {
-					success = a_ref.HasKeywords(list, a_matchAll);
+					success = b_ref.HasKeywords(list, a_matchAll);
 				} else if (keyword) {
-					success = a_ref.HasKeyword(keyword);
+					success = b_ref.HasKeyword(keyword);
 				}
 				if (success) {
-					result.push_back(&a_ref);
+					result.push_back(&b_ref);
 				}
 				return true;
 			});
@@ -333,7 +333,7 @@ namespace Papyrus::ObjectReference
 		const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>();
 		if (refChildren) {
 			auto& children = refChildren->children;
-			for (auto& child : children) {
+			for (const auto& child : children) {
 				if (child) {
 					const auto ref = child->activateRef.get();
 					if (ref) {
@@ -411,7 +411,7 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->GetModelEffects([&](RE::ModelReferenceEffect& a_modelEffect) {
+			processLists->GetModelEffects([&](const RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.target == handle) {
 					if (const auto art = a_modelEffect.artObject; art) {
 						result.push_back(art);
@@ -435,7 +435,7 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->GetShaderEffects([&](RE::ShaderReferenceEffect& a_shaderEffect) {
+			processLists->GetShaderEffects([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
 				if (a_shaderEffect.target == handle) {
 					if (const auto shader = a_shaderEffect.effectData; shader) {
 						result.push_back(shader);
@@ -515,9 +515,9 @@ namespace Papyrus::ObjectReference
 			return time;
 		}
 
-		if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->GetShaderEffects([&](RE::ShaderReferenceEffect& a_shaderEffect) {
+			processLists->GetShaderEffects([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
 				if (a_shaderEffect.target == handle && a_shaderEffect.effectData == a_effectShader) {
 					time = a_shaderEffect.lifetime;
 					return false;
@@ -542,11 +542,10 @@ namespace Papyrus::ObjectReference
 		if (teleportData) {
 			const auto doorPtr = teleportData->linkedDoor.get();
 			return doorPtr.get();
-		} else {
-			a_vm->TraceForm(a_ref, "is not a load door", a_stackID);
-			return nullptr;
 		}
-	}
+
+        return nullptr;
+    }
 
 	inline std::vector<RE::TESObjectREFR*> GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
@@ -603,7 +602,7 @@ namespace Papyrus::ObjectReference
 		const auto activeEffects = magicTarget ? magicTarget->GetActiveEffectList() : nullptr;
 
 		if (activeEffects) {
-			for (auto& activeEffect : *activeEffects) {
+			for (const auto& activeEffect : *activeEffects) {
 				const auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr;
 				if (mgef && mgef == a_mgef) {
 					result.push_back(activeEffect->spell);
@@ -633,7 +632,7 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
-		const auto get_material_type = [&](RE::bhkWorldObject* a_body, std::vector<RE::BSFixedString>& result) {
+		const auto get_material_type = [&](RE::bhkWorldObject* a_body) {
 			if (!a_body) {
 				return;
 			}
@@ -649,7 +648,7 @@ namespace Papyrus::ObjectReference
 					const auto shapeData = compressedShape ? compressedShape->data.get() : nullptr;
 
 					if (shapeData) {
-						for (auto& meshMaterial : shapeData->meshMaterials) {
+						for (const auto& meshMaterial : shapeData->meshMaterials) {
 							result.emplace_back(MATERIAL::get_material(meshMaterial.materialID));
 						}
 					}
@@ -669,11 +668,11 @@ namespace Papyrus::ObjectReference
 				const auto node = root->GetObjectByName(a_nodeName);
 				const auto col = node ? static_cast<RE::bhkNiCollisionObject*>(node->collisionObject.get()) : nullptr;
 				if (col) {
-					get_material_type(col->body.get(), result);
+					get_material_type(col->body.get());
 				}
 			} else {
-				RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-					get_material_type(a_col->body.get(), result);
+				RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+					get_material_type(a_col->body.get());
 
 					return RE::BSVisit::BSVisitControl::kStop;
 				});
@@ -704,7 +703,7 @@ namespace Papyrus::ObjectReference
 		if (world) {
 			RE::BSReadLockGuard locker(world->worldLock);
 
-			RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+			RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 				const auto body = a_col->body.get();
 				const auto hkpRigidBody = body ? static_cast<RE::hkpRigidBody*>(body->referencedObject.get()) : nullptr;
 				if (hkpRigidBody) {
@@ -840,7 +839,7 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->GetModelEffects([&](RE::ModelReferenceEffect& a_modelEffect) {
+			processLists->GetModelEffects([&](const RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.target == handle && a_modelEffect.artObject == a_art) {
 					if (!a_active || !a_modelEffect.finished) {
 						count++;
@@ -871,7 +870,7 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->GetShaderEffects([&](RE::ShaderReferenceEffect& a_shaderEffect) {
+			processLists->GetShaderEffects([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
 				if (a_shaderEffect.target == handle && a_shaderEffect.effectData == a_effectShader) {
 					if (!a_active || !a_shaderEffect.finished) {
 						count++;
@@ -960,7 +959,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		const auto find_nearest_vertex = [&](RE::TESObjectREFR* a_ref) {
+		const auto find_nearest_vertex = [&]() {
 			std::optional<RE::NiPoint3> pos = std::nullopt;
 
 			const auto cell = a_ref->GetParentCell();
@@ -968,15 +967,15 @@ namespace Papyrus::ObjectReference
 				return pos;
 			}
 
-			auto& navMeshes = *cell->navMeshes;
+			auto& [navMeshes] = *cell->navMeshes;
 			auto shortestDistance = std::numeric_limits<float>::max();
 
-			for (auto& navMesh : navMeshes.navMeshes) {
-				for (auto& vertex : navMesh->vertices) {
-					const auto linearDistance = a_ref->GetPosition().GetDistance(vertex.location);
+			for (const auto& navMesh : navMeshes) {
+				for (auto& [location] : navMesh->vertices) {
+					const auto linearDistance = a_ref->GetPosition().GetDistance(location);
 					if (linearDistance < shortestDistance) {
 						shortestDistance = linearDistance;
-						pos.emplace(vertex.location);
+						pos.emplace(location);
 					}
 				}
 			}
@@ -984,7 +983,7 @@ namespace Papyrus::ObjectReference
 			return pos;
 		};
 
-		const auto nearestVertex = find_nearest_vertex(a_ref);
+		const auto nearestVertex = find_nearest_vertex();
 		if (!nearestVertex.has_value()) {
 			a_vm->TraceForm(a_ref, "does not have a valid navmesh position", a_stackID);
 			return;
@@ -1108,7 +1107,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		const auto scale_collision = [&](RE::bhkWorldObject* a_body, float a_scale) {
+		const auto scale_collision = [&](RE::bhkWorldObject* a_body) {
 			if (!a_body) {
 				return;
 			}
@@ -1120,7 +1119,7 @@ namespace Papyrus::ObjectReference
 				switch (hkpShape->type) {
 				case RE::hkpShapeType::kBox:
 					{
-						auto boxShape = const_cast<RE::hkpBoxShape*>(static_cast<const RE::hkpBoxShape*>(hkpShape));
+                        const auto boxShape = const_cast<RE::hkpBoxShape*>(static_cast<const RE::hkpBoxShape*>(hkpShape));
 						if (boxShape) {
 							boxShape->halfExtents = boxShape->halfExtents * RE::hkVector4(a_scale);
 						}
@@ -1128,7 +1127,7 @@ namespace Papyrus::ObjectReference
 					break;
 				case RE::hkpShapeType::kSphere:
 					{
-						auto sphereShape = const_cast<RE::hkpSphereShape*>(static_cast<const RE::hkpSphereShape*>(hkpShape));
+                        const auto sphereShape = const_cast<RE::hkpSphereShape*>(static_cast<const RE::hkpSphereShape*>(hkpShape));
 						if (sphereShape) {
 							sphereShape->radius *= a_scale;
 						}
@@ -1136,7 +1135,7 @@ namespace Papyrus::ObjectReference
 					break;
 				case RE::hkpShapeType::kCapsule:
 					{
-						auto capsuleShape = const_cast<RE::hkpCapsuleShape*>(static_cast<const RE::hkpCapsuleShape*>(hkpShape));
+                        const auto capsuleShape = const_cast<RE::hkpCapsuleShape*>(static_cast<const RE::hkpCapsuleShape*>(hkpShape));
 						if (capsuleShape) {
 							const float radius = capsuleShape->radius * a_scale;
 
@@ -1169,14 +1168,14 @@ namespace Papyrus::ObjectReference
 					RE::BSWriteLockGuard locker(world->worldLock);
 
 					if (const auto node = object->AsNode(); node) {
-						RE::BSVisit::TraverseScenegraphCollision(node, [&](RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-							scale_collision(a_col->body.get(), a_scale);
+						RE::BSVisit::TraverseScenegraphCollision(node, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+							scale_collision(a_col->body.get());
 
 							return RE::BSVisit::BSVisitControl::kContinue;
 						});
 					} else {
 						if (const auto col = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get()); col) {
-							scale_collision(col->body.get(), a_scale);
+							scale_collision(col->body.get());
 						}
 					}
 				}
@@ -1196,8 +1195,8 @@ namespace Papyrus::ObjectReference
 			if (world) {
 				RE::BSWriteLockGuard locker(world->worldLock);
 
-				RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-					scale_collision(a_col->body.get(), a_scale);
+				RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+					scale_collision(a_col->body.get());
 
 					return RE::BSVisit::BSVisitControl::kContinue;
 				});
@@ -1277,7 +1276,8 @@ namespace Papyrus::ObjectReference
 			teleportData->linkedDoor = a_door->CreateRefHandle();
 			return true;
 		}
-		return false;
+
+	    return false;
 	}
 
 	inline void SetLinkedRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1297,7 +1297,7 @@ namespace Papyrus::ObjectReference
 		RE::TESObjectREFR* a_ref,
 		RE::BSFixedString a_newMaterialType,
 		RE::BSFixedString a_oldMaterialType,
-		RE::BSFixedString a_nodeName)
+        RE::BSFixedString a_nodeName)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1329,7 +1329,7 @@ namespace Papyrus::ObjectReference
 			}
 		}
 
-		const auto set_material_type = [&](RE::bhkWorldObject* a_body, RE::MATERIAL_ID newID, RE::MATERIAL_ID oldID) {
+		const auto set_material_type = [&](RE::bhkWorldObject* a_body) {
 			if (!a_body) {
 				return;
 			}
@@ -1372,11 +1372,11 @@ namespace Papyrus::ObjectReference
 					const auto object = root->GetObjectByName(a_nodeName);
 					const auto colObject = object ? static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get()) : nullptr;
 					if (colObject) {
-						set_material_type(colObject->body.get(), newID, oldID);
+						set_material_type(colObject->body.get());
 					}
 				} else {
-					RE::BSVisit::TraverseScenegraphCollision(root, [&](RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-						set_material_type(a_col->body.get(), newID, oldID);
+					RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
+						set_material_type(a_col->body.get());
 
 						return RE::BSVisit::BSVisitControl::kContinue;
 					});
@@ -1539,17 +1539,10 @@ namespace Papyrus::ObjectReference
 		});
 	}
 
-	void set_character_bumper(std::uintptr_t a_controller, RE::Actor* a_actor)
-	{
-		using func_t = decltype(&set_character_bumper);
-		REL::Relocation<func_t> func{ REL::ID(41806) };
-		return func(a_controller, a_actor);
-	}
-
 	inline void UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		const RE::BGSArtObject* a_art,
-		RE::BSFixedString a_toNode,
+        RE::BSFixedString a_toNode,
 		std::vector<float> a_translate,
 		std::vector<float> a_rotate,
 		float a_scale)
@@ -1569,7 +1562,7 @@ namespace Papyrus::ObjectReference
 
 		RE::ModelReferenceEffect* hitEffect = nullptr;
 
-		if (auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
 			processLists->GetModelEffects([&](RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.target == handle && a_modelEffect.artObject == a_art) {
@@ -1583,8 +1576,8 @@ namespace Papyrus::ObjectReference
 		const auto art = hitEffect ? hitEffect->hitEffectArtData.attachedArt.get() : nullptr;
 
 		if (art) {
-			RE::NiMatrix3 rotate;
-			RE::NiPoint3 rot{ RE::deg_to_rad(a_rotate[0]), RE::deg_to_rad(a_rotate[1]), RE::deg_to_rad(a_rotate[2]) };
+			RE::NiMatrix3 rotate{};
+            const RE::NiPoint3 rot{ RE::deg_to_rad(a_rotate[0]), RE::deg_to_rad(a_rotate[1]), RE::deg_to_rad(a_rotate[2]) };
 			rotate.SetEulerAnglesXYZ(rot);
 
 			RE::NiTransform transform;
@@ -1600,7 +1593,7 @@ namespace Papyrus::ObjectReference
 					const auto newNode = newObj ? newObj->AsNode() : nullptr;
 
 					if (newNode) {
-						if (auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData) {
+						if (const auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData) {
 							const std::string namedNode(MAGIC::namedNode);
 							const auto oldNodeStr{ namedNode + hitEffect->hitEffectArtData.nodeName.c_str() };
 							const auto newNodeStr{ namedNode + a_toNode.c_str() };
@@ -1616,7 +1609,7 @@ namespace Papyrus::ObjectReference
 				}
 
 				for (const auto& nodesPtr : art->children) {
-					if (auto nodes = nodesPtr.get(); nodes) {
+					if (const auto nodes = nodesPtr.get(); nodes) {
 						nodes->local = transform;
 					}
 				}

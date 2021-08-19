@@ -17,7 +17,7 @@ namespace Serialization
 
 		std::string sig;
 		sig.resize(SIZE);
-		char* iter = reinterpret_cast<char*>(&a_typeCode);
+        const char* iter = reinterpret_cast<char*>(&a_typeCode);
 		for (std::size_t i = 0, j = SIZE - 2; i < SIZE - 1; ++i, --j) {
 			sig[j] = iter[i];
 		}
@@ -27,8 +27,8 @@ namespace Serialization
 
 	void SaveCallback(SKSE::SerializationInterface* a_intfc)
 	{
-		SAVE_FORMS<PerkManager>(a_intfc, kAddPerks, kRemovePerks);
-		SAVE_FORMS<KeywordManager>(a_intfc, kAddKeywords, kRemoveKeywords);
+		SAVE<PerkManager>(a_intfc, kAddPerks, kRemovePerks);
+		SAVE<KeywordManager>(a_intfc, kAddKeywords, kRemoveKeywords);
 
 		SAVE<OnCellFullyLoadedRegSet>(a_intfc, kOnCellFullyLoaded);
 		SAVE<OnQuestStartRegMap>(a_intfc, kQuestStart);
@@ -63,8 +63,8 @@ namespace Serialization
 
 		SAVE<OnFECResetRegMap>(a_intfc, kFECReset);
 
-		SAVE_FORMS<Detection::TargetManager>(a_intfc, kTargetHide, kTargetAlert);
-		SAVE_FORMS<Detection::SourceManager>(a_intfc, kSourceHide, kSourceAlert);
+		SAVE<Detection::TargetManager>(a_intfc, kTargetHide, kTargetAlert);
+		SAVE<Detection::SourceManager>(a_intfc, kSourceHide, kSourceAlert);
 
 		logger::info("Finished saving data"sv);
 	}
@@ -81,16 +81,16 @@ namespace Serialization
 			}
 			switch (type) {
 			case kAddPerks:
-				LOAD_FORMS<PerkManager>(a_intfc, Form::kAdd);
+				LOAD<PerkManager>(a_intfc, Form::kAdd);
 				break;
 			case kRemovePerks:
-				LOAD_FORMS<PerkManager>(a_intfc, Form::kRemove);
+				LOAD<PerkManager>(a_intfc, Form::kRemove);
 				break;
 			case kAddKeywords:
-				LOAD_FORMS<KeywordManager>(a_intfc, Form::kAdd);
+				LOAD<KeywordManager>(a_intfc, Form::kAdd);
 				break;
 			case kRemoveKeywords:
-				LOAD_FORMS<KeywordManager>(a_intfc, Form::kRemove);
+				LOAD<KeywordManager>(a_intfc, Form::kRemove);
 				break;
 			case kOnCellFullyLoaded:
 				LOAD<OnCellFullyLoadedRegSet>(a_intfc);
@@ -180,16 +180,16 @@ namespace Serialization
 				LOAD<OnFECResetRegMap>(a_intfc);
 				break;
 			case kTargetHide:
-				LOAD_FORMS<Detection::TargetManager>(a_intfc, Detection::kHide);
+				LOAD<Detection::TargetManager>(a_intfc, Detection::kHide);
 				break;
 			case kTargetAlert:
-				LOAD_FORMS<Detection::TargetManager>(a_intfc, Detection::kAlert);
+				LOAD<Detection::TargetManager>(a_intfc, Detection::kAlert);
 				break;
 			case kSourceHide:
-				LOAD_FORMS<Detection::SourceManager>(a_intfc, Detection::kHide);
+				LOAD<Detection::SourceManager>(a_intfc, Detection::kHide);
 				break;
 			case kSourceAlert:
-				LOAD_FORMS<Detection::SourceManager>(a_intfc, Detection::kAlert);
+				LOAD<Detection::SourceManager>(a_intfc, Detection::kAlert);
 				break;
 			default:
 				logger::critical("Unrecognized record type ({})!"sv, DecodeTypeCode(type));
@@ -244,7 +244,44 @@ namespace Serialization
 		logger::info("Finished reverting data"sv);
 	}
 
-	namespace FormDeletion
+    void FormDeleteCallback(RE::VMHandle a_handle)
+	{
+		FORM_DELETE<OnCellFullyLoadedRegSet>(a_handle);
+		FORM_DELETE<OnQuestStartRegMap>(a_handle);
+		FORM_DELETE<OnQuestStopRegMap>(a_handle);
+		FORM_DELETE<OnQuestStageRegMap>(a_handle);
+		FORM_DELETE<OnObjectLoadedRegMap>(a_handle);
+		FORM_DELETE<OnObjectUnloadedRegMap>(a_handle);
+		FORM_DELETE<OnGrabRegSet>(a_handle);
+		FORM_DELETE<OnReleaseRegSet>(a_handle);
+		FORM_DELETE<OnGrabRegSet>(a_handle);
+
+		FORM_DELETE<OnActorKillRegSet>(a_handle);
+		FORM_DELETE<OnBooksReadRegSet>(a_handle);
+		FORM_DELETE<OnCriticalHitRegSet>(a_handle);
+		FORM_DELETE<OnDisarmedRegSet>(a_handle);
+		FORM_DELETE<OnDragonSoulsGainedRegSet>(a_handle);
+		FORM_DELETE<OnItemHarvestedRegSet>(a_handle);
+		FORM_DELETE<OnLevelIncreaseRegSet>(a_handle);
+		FORM_DELETE<OnLocationDiscoveryRegSet>(a_handle);
+		FORM_DELETE<OnSkillIncreaseRegSet>(a_handle);
+		FORM_DELETE<OnShoutAttackRegSet>(a_handle);
+		FORM_DELETE<OnSoulsTrappedRegSet>(a_handle);
+		FORM_DELETE<OnSpellsLearnedRegSet>(a_handle);
+
+		FORM_DELETE<OnActorResurrectRegSet>(a_handle);
+		FORM_DELETE<OnActorReanimateStartRegSet>(a_handle);
+		FORM_DELETE<OnActorReanimateStopRegSet>(a_handle);
+		FORM_DELETE<OnWeatherChangeRegSet>(a_handle);
+		FORM_DELETE<OnMagicEffectApplyRegMap>(a_handle);
+		FORM_DELETE<OnWeaponHitRegSet>(a_handle);
+		FORM_DELETE<OnMagicHitRegSet>(a_handle);
+		FORM_DELETE<OnProjectileHitRegSet>(a_handle);
+
+		FORM_DELETE<OnFECResetRegMap>(a_handle);
+	}
+
+    namespace FormDeletion
 	{
 		EventHandler* EventHandler::GetSingleton()
 		{

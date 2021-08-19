@@ -27,6 +27,7 @@
 #include "Functions/Sound.h"
 #include "Functions/Spell.h"
 #include "Functions/Strings.h"
+#include "Functions/UI.h"
 #include "Functions/Utility.h"
 #include "Functions/VisualEffect.h"
 #include "Functions/Weather.h"
@@ -43,67 +44,69 @@ namespace Papyrus
 
 		logger::info("{:*^30}", "FUNCTIONS"sv);
 
-		Papyrus::ObjectTypes::Bind(*a_vm);
+        ObjectTypes::Bind(*a_vm);
 
-		Papyrus::ActiveMagicEffect::Bind(*a_vm);
+        ActiveMagicEffect::Bind(*a_vm);
 
-		Papyrus::Actor::Bind(*a_vm);
+        Actor::Bind(*a_vm);
 
-		Papyrus::ActorBase::Bind(*a_vm);
+        ActorBase::Bind(*a_vm);
 
-		Papyrus::ArmorAddon::Bind(*a_vm);
+        ArmorAddon::Bind(*a_vm);
 
-		Papyrus::Alias::Bind(*a_vm);
+        Alias::Bind(*a_vm);
 
-		Papyrus::Array::Bind(*a_vm);
+        Array::Bind(*a_vm);
 
-		Papyrus::Book::Bind(*a_vm);
+        Book::Bind(*a_vm);
 
-		Papyrus::Cell::Bind(*a_vm);
+        Cell::Bind(*a_vm);
 
-		Papyrus::Debug::Bind(*a_vm);
+        Debug::Bind(*a_vm);
 
-		Papyrus::EffectShader::Bind(*a_vm);
+        EffectShader::Bind(*a_vm);
 
-		Papyrus::Enchantment::Bind(*a_vm);
+        Enchantment::Bind(*a_vm);
 
-		Papyrus::Form::Bind(*a_vm);
+        Form::Bind(*a_vm);
 
-		Papyrus::FEC::Bind(*a_vm);
+        FEC::Bind(*a_vm);
 
-		Papyrus::Furniture::Bind(*a_vm);
+        Furniture::Bind(*a_vm);
 
-		Papyrus::Game::Bind(*a_vm);
+        Game::Bind(*a_vm);
 
-		Papyrus::Hazard::Bind(*a_vm);
+        Hazard::Bind(*a_vm);
 
-		Papyrus::Light::Bind(*a_vm);
+        Light::Bind(*a_vm);
 
-		Papyrus::Location::Bind(*a_vm);
+        Location::Bind(*a_vm);
 
-		Papyrus::MagicEffect::Bind(*a_vm);
+        MagicEffect::Bind(*a_vm);
 
-		Papyrus::ObjectReference::Bind(*a_vm);
+        ObjectReference::Bind(*a_vm);
 
-		Papyrus::Package::Bind(*a_vm);
+        Package::Bind(*a_vm);
 
-		Papyrus::Potion::Bind(*a_vm);
+        Potion::Bind(*a_vm);
 
-		Papyrus::Projectile::Bind(*a_vm);
+        Projectile::Bind(*a_vm);
 
-		Papyrus::Scroll::Bind(*a_vm);
+        Scroll::Bind(*a_vm);
 
-		Papyrus::Sound::Bind(*a_vm);
+        Sound::Bind(*a_vm);
 
-		Papyrus::Spell::Bind(*a_vm);
+        Spell::Bind(*a_vm);
 
-		Papyrus::Strings::Bind(*a_vm);
+        Strings::Bind(*a_vm);
 
-		Papyrus::Utility::Bind(*a_vm);
+		UI::Bind(*a_vm);
 
-		Papyrus::VisualEffect::Bind(*a_vm);
+        Utility::Bind(*a_vm);
 
-		Papyrus::Weather::Bind(*a_vm);
+        VisualEffect::Bind(*a_vm);
+
+        Weather::Bind(*a_vm);
 
 		return true;
 	}

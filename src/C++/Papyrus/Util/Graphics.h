@@ -381,7 +381,7 @@ namespace SET
 	void update_color_data(RE::NiAVObject* a_root, const RE::BSFixedString& a_name, const RE::NiColor& a_color);
 
 	template <class T, typename D>
-	inline void add_data_if_none(RE::NiAVObject* a_root, std::string_view a_type, D a_data)
+    void add_data_if_none(RE::NiAVObject* a_root, std::string_view a_type, D a_data)
 	{
 		if (const auto data = a_root->GetExtraData<T>(a_type); !data) {
 			const auto newData = T::Create(a_type, a_data);

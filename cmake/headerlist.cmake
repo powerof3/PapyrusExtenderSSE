@@ -32,6 +32,7 @@ set(headers ${headers}
 	src/C++/Papyrus/Functions/Sound.h
 	src/C++/Papyrus/Functions/Spell.h
 	src/C++/Papyrus/Functions/Strings.h
+	src/C++/Papyrus/Functions/UI.h
 	src/C++/Papyrus/Functions/Utility.h
 	src/C++/Papyrus/Functions/VisualEffect.h
 	src/C++/Papyrus/Functions/Weather.h

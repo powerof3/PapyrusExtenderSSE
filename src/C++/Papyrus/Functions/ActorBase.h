@@ -28,12 +28,12 @@ namespace Papyrus::ActorBase
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
-			return 0;
+			return nullptr;
 		}
 
 		if (a_index >= a_actorbase->perkCount) {
 			a_vm->TraceForm(a_actorbase, "Invalid perk index", a_stackID);
-			return 0;
+			return nullptr;
 		}
 
 		return a_actorbase->perks[a_index].perk;

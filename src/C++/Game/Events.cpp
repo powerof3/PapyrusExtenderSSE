@@ -211,13 +211,13 @@ namespace Events
 				return EventResult::kContinue;
 			}
 
-			const auto actorValueList = RE::ActorValueList::GetSingleton();
-			const auto actorValueInfo = actorValueList ?
-                                            actorValueList->GetActorValue(a_event->actorValue) :
-                                            nullptr;
+			const auto avList = RE::ActorValueList::GetSingleton();
+			const auto avInfo = avList ?
+                                    avList->GetActorValue(a_event->actorValue) :
+                                    nullptr;
 
-			if (actorValueList) {
-				OnSkillIncreaseRegSet::GetSingleton()->QueueEvent(actorValueInfo->enumName);
+			if (avInfo) {
+				OnSkillIncreaseRegSet::GetSingleton()->QueueEvent(avInfo->enumName);
 			}
 
 			return EventResult::kContinue;
@@ -285,20 +285,22 @@ namespace Events
 					if (a_this->flags.none(RE::ActiveEffect::Flag::kDispelled)) {  //effect can get dispelled in original func
 
 						const auto zombiePtr = a_this->commandedActor.get();
-						auto zombie = zombiePtr.get();
-
+						const auto zombie = zombiePtr.get();
 						if (!zombie) {
 							return;
 						}
 
 						if (zombie->boolBits.all(RE::Actor::BOOL_BITS::kParalyzed)) {
-							auto root = zombie->Get3D(false);
-							auto charController = zombie->GetCharController();
+							const auto root = zombie->Get3D(false);
+							const auto charController = zombie->GetCharController();
 							if (root && charController) {
 								zombie->boolBits.reset(RE::Actor::BOOL_BITS::kParalyzed);
+
 								root->SetRigidConstraints(false);
+
 								std::uint32_t filterInfo = 0;
 								charController->GetCollisionFilterInfo(filterInfo);
+
 								root->UpdateRigidBodySettings(32, filterInfo >> 16);
 							}
 						}
@@ -352,11 +354,11 @@ namespace Events
 			{
 				static bool thunk(RE::MagicTarget* a_this, RE::MagicTarget::CreationData* a_data)
 				{
-					auto result = func(a_this, a_data);
+					const auto result = func(a_this, a_data);
 
-					auto target = a_this->GetTargetStatsObject();
-					auto effect = a_data ? a_data->effect : nullptr;
-					auto baseEffect = effect ? effect->baseEffect : nullptr;
+					const auto target = a_this->GetTargetStatsObject();
+					const auto effect = a_data ? a_data->effect : nullptr;
+					const auto baseEffect = effect ? effect->baseEffect : nullptr;
 
 					if (target && baseEffect) {
 						OnMagicEffectApplyRegMap::GetSingleton()->QueueEvent(target, baseEffect, a_data->caster, baseEffect, a_data->magicItem, result);
@@ -380,12 +382,14 @@ namespace Events
 			{
 				static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
 				{
-					if (auto aggressor = a_event.cause.get(); aggressor) {
-						auto target = a_event.target.get();
-						auto source = RE::TESForm::LookupByID(a_event.source);
-						auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
+					if (const auto aggressor = a_event.cause.get(); aggressor) {
+						const auto target = a_event.target.get();
+						const auto source = RE::TESForm::LookupByID(a_event.source);
+						const auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
+
 						OnMagicHitRegSet::GetSingleton()->QueueEvent(aggressor, target, source, projectile);
 					}
+
 					func(a_source, a_event);
 				}
 				static inline REL::Relocation<decltype(&thunk)> func;
@@ -417,6 +421,7 @@ namespace Events
 							const auto hitTarget = a_target.get();
 							const auto source = RE::TESForm::LookupByID(a_source);
 							const auto flags = stl::to_underlying(a_data.flags);
+
 							OnWeaponHitRegSet::GetSingleton()->QueueEvent(aggressor, hitTarget, source, nullptr, flags);
 						}
 

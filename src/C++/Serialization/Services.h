@@ -11,7 +11,7 @@ namespace Form
 	};
 }
 
-class KeywordManager : public FormDataSetPair<RE::TESForm, RE::BGSKeyword>
+class KeywordManager final : public FormDataSetPair<RE::TESForm, RE::BGSKeyword>
 {
 public:
 	static KeywordManager* GetSingleton()
@@ -23,8 +23,7 @@ public:
 private:
 	bool Process(RE::TESForm* a_form, RE::BGSKeyword* a_data, std::uint32_t a_index) override
 	{
-		const auto keywordForm = a_form->As<RE::BGSKeywordForm>();
-		if (keywordForm) {
+		if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 			return a_index == Form::kAdd ?
                        keywordForm->AddKeyword(a_data) :
                        keywordForm->RemoveKeyword(a_data);
@@ -43,7 +42,7 @@ protected:
 	KeywordManager& operator=(KeywordManager&&) = delete;
 };
 
-class PerkManager : public FormDataSetPair<RE::Actor, RE::BGSPerk>
+class PerkManager final : public FormDataSetPair<RE::Actor, RE::BGSPerk>
 {
 public:
 	static PerkManager* GetSingleton()
@@ -53,13 +52,12 @@ public:
 	}
 
 private:
-	bool Process(RE::Actor* a_form, RE::BGSPerk* a_data, std::uint32_t a_set) override
+	bool Process(RE::Actor* a_form, RE::BGSPerk* a_data, std::uint32_t a_index) override
 	{
 		bool success = false;
 
-		const auto actorbase = a_form->GetActorBase();
-		if (actorbase) {
-			success = a_set == Form::kAdd ?
+        if (const auto actorbase = a_form->GetActorBase(); actorbase) {
+			success = a_index == Form::kAdd ?
                           actorbase->AddPerk(a_data, 1) :
                           actorbase->RemovePerk(a_data);
 			if (success) {
@@ -89,7 +87,7 @@ namespace Detection
 	};
 
 	//target
-	class TargetManager : public FormSetPair<RE::Actor>
+	class TargetManager final : public FormSetPair<RE::Actor>
 	{
 	public:
 		static TargetManager* GetSingleton()
@@ -109,7 +107,7 @@ namespace Detection
 	};
 
 	//searcher
-	class SourceManager : public FormSetPair<RE::Actor>
+	class SourceManager final : public FormSetPair<RE::Actor>
 	{
 	public:
 		static SourceManager* GetSingleton()

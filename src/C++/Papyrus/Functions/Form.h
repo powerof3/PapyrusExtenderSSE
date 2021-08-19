@@ -68,19 +68,17 @@ namespace Papyrus::Form
 		case RE::FormType::Scroll:
 			{
 				if (const auto magicItem = a_form->As<RE::MagicItem>(); magicItem) {
-					for (auto& effect : magicItem->effects) {
+					for (const auto& effect : magicItem->effects) {
 						if (result) {
 							break;
 						}
 
 						if (effect) {
-							bool effectValid = false;
-							bool mgefValid = false;
 
-							effectValid = effect->conditions.IsTrue(a_actionRef, a_target);
+                            const bool effectValid = effect->conditions.IsTrue(a_actionRef, a_target);
 
-							auto baseEffect = effect->baseEffect;
-							mgefValid = baseEffect && baseEffect->conditions.IsTrue(a_actionRef, a_target);
+                            const auto baseEffect = effect->baseEffect;
+                            const bool mgefValid = baseEffect && baseEffect->conditions.IsTrue(a_actionRef, a_target);
 
 							if (effectValid && mgefValid) {
 								result = true;
@@ -155,21 +153,21 @@ namespace Papyrus::Form
 	{
 		namespace item
 		{
-			void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
+            inline void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
 			{
 				using func_t = decltype(&favorite);
 				REL::Relocation<func_t> func{ REL::ID(15858) };
 				return func(a_changes, a_entryData, a_list);
 			}
 
-			void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
+            inline void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
 			{
 				using func_t = decltype(&unfavorite);
 				REL::Relocation<func_t> func{ REL::ID(15859) };
 				return func(a_changes, a_entryData, a_list);
 			}
 
-			RE::ExtraDataList* get_hotkeyed(RE::InventoryEntryData* a_changes)
+            inline RE::ExtraDataList* get_hotkeyed(RE::InventoryEntryData* a_changes)
 			{
 				if (a_changes->extraLists) {
 					for (const auto& xList : *a_changes->extraLists) {
@@ -185,14 +183,14 @@ namespace Papyrus::Form
 
 		namespace magic
 		{
-			void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
+            inline void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
 			{
 				using func_t = decltype(&favorite);
 				REL::Relocation<func_t> func{ REL::ID(51121) };
 				return func(a_magicFavorites, a_form);
 			}
 
-			void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
+            inline void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
 			{
 				using func_t = decltype(&unfavorite);
 				REL::Relocation<func_t> func{ REL::ID(51122) };
@@ -248,7 +246,7 @@ namespace Papyrus::Form
 
 	inline bool IsScriptAttachedToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESForm* a_form,
-		const RE::BSFixedString a_scriptName)
+		RE::BSFixedString a_scriptName)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -295,10 +293,10 @@ namespace Papyrus::Form
 		}
 
 		if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
-			std::uint32_t removeIndex = 0;
-			bool found = false;
-			if (keywordForm->keywords) {
-				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
+            if (keywordForm->keywords) {
+                bool found = false;
+                std::uint32_t removeIndex = 0;
+                for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 					const auto keyword = keywordForm->keywords[i];
 					if (keyword) {
 						if (keyword == a_add) {
@@ -372,7 +370,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnActorKillRegSet::GetSingleton();
+		const auto regs = OnActorKillRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -383,7 +381,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnFECResetRegMap::GetSingleton();
+		const auto regs = OnFECResetRegMap::GetSingleton();
 		regs->Register(a_form, a_type);
 	}
 
@@ -394,7 +392,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnBooksReadRegSet::GetSingleton();
+		const auto regs = OnBooksReadRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -405,7 +403,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnCellFullyLoadedRegSet::GetSingleton();
+		const auto regs = OnCellFullyLoadedRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -416,7 +414,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnCriticalHitRegSet::GetSingleton();
+		const auto regs = OnCriticalHitRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -427,7 +425,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnDisarmedRegSet::GetSingleton();
+		const auto regs = OnDisarmedRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -438,7 +436,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
+		const auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -449,7 +447,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnItemHarvestedRegSet::GetSingleton();
+		const auto regs = OnItemHarvestedRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -460,7 +458,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnLevelIncreaseRegSet::GetSingleton();
+		const auto regs = OnLevelIncreaseRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -471,7 +469,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnLocationDiscoveryRegSet::GetSingleton();
+		const auto regs = OnLocationDiscoveryRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -540,7 +538,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnQuestStageRegMap::GetSingleton();
+		const auto regs = OnQuestStageRegMap::GetSingleton();
 		regs->Register(a_form, a_quest->GetFormID());
 	}
 
@@ -551,7 +549,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnShoutAttackRegSet::GetSingleton();
+		const auto regs = OnShoutAttackRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -562,7 +560,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnSkillIncreaseRegSet::GetSingleton();
+		const auto regs = OnSkillIncreaseRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -573,7 +571,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnSoulsTrappedRegSet::GetSingleton();
+		const auto regs = OnSoulsTrappedRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -584,7 +582,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnSpellsLearnedRegSet::GetSingleton();
+		const auto regs = OnSpellsLearnedRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -595,7 +593,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnWeatherChangeRegSet::GetSingleton();
+		const auto regs = OnWeatherChangeRegSet::GetSingleton();
 		regs->Register(a_form);
 	}
 
@@ -606,7 +604,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnActorKillRegSet::GetSingleton();
+		const auto regs = OnActorKillRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -619,7 +617,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnFECResetRegMap::GetSingleton();
+		const auto regs = OnFECResetRegMap::GetSingleton();
 		regs->Unregister(a_form, a_type);
 	}
 
@@ -630,7 +628,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnFECResetRegMap::GetSingleton();
+		const auto regs = OnFECResetRegMap::GetSingleton();
 		regs->UnregisterAll(a_form);
 	}
 
@@ -641,7 +639,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnBooksReadRegSet::GetSingleton();
+		const auto regs = OnBooksReadRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -652,7 +650,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnCellFullyLoadedRegSet::GetSingleton();
+		const auto regs = OnCellFullyLoadedRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -663,7 +661,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnCriticalHitRegSet::GetSingleton();
+		const auto regs = OnCriticalHitRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -674,7 +672,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnDisarmedRegSet::GetSingleton();
+		const auto regs = OnDisarmedRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -685,7 +683,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
+		const auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -696,7 +694,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnItemHarvestedRegSet::GetSingleton();
+		const auto regs = OnItemHarvestedRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -707,7 +705,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnLevelIncreaseRegSet::GetSingleton();
+		const auto regs = OnLevelIncreaseRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -718,7 +716,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnLocationDiscoveryRegSet::GetSingleton();
+		const auto regs = OnLocationDiscoveryRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -815,7 +813,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnQuestStageRegMap::GetSingleton();
+		const auto regs = OnQuestStageRegMap::GetSingleton();
 		regs->Unregister(a_form, a_quest->GetFormID());
 	}
 
@@ -826,7 +824,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnQuestStageRegMap::GetSingleton();
+		const auto regs = OnQuestStageRegMap::GetSingleton();
 		regs->UnregisterAll(a_form);
 	}
 
@@ -837,7 +835,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnShoutAttackRegSet::GetSingleton();
+		const auto regs = OnShoutAttackRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -848,7 +846,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnShoutAttackRegSet::GetSingleton();
+		const auto regs = OnShoutAttackRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -859,7 +857,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnSoulsTrappedRegSet::GetSingleton();
+		const auto regs = OnSoulsTrappedRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -870,7 +868,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnSpellsLearnedRegSet::GetSingleton();
+		const auto regs = OnSpellsLearnedRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 
@@ -881,7 +879,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto regs = OnWeatherChangeRegSet::GetSingleton();
+		const auto regs = OnWeatherChangeRegSet::GetSingleton();
 		regs->Unregister(a_form);
 	}
 

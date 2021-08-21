@@ -6,7 +6,7 @@ static std::vector<std::string> DetectOldVersion()
 {
 	std::vector<std::string> vec;
 
-	const auto papyrusExtender64Handle = GetModuleHandle("po3_papyrusextender64");
+	const auto papyrusExtender64Handle = GetModuleHandleA("po3_papyrusextender64");
 
 	std::string message;
 	std::string info;

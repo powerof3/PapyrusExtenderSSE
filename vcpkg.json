@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
+    "boost-algorithm",
     "frozen",
     "spdlog",
     "xbyak"

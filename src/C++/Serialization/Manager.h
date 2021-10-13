@@ -4,7 +4,7 @@ namespace Serialization
 {
 	enum : std::uint32_t
 	{
-		kSerializationVersion = 2,
+		kSerializationVersion = 3,
 
 		kPapyrusExtender = 'P3PE',
 
@@ -60,7 +60,7 @@ namespace Serialization
 	template <class T>
 	void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version1, std::uint32_t a_version0)
 	{
-		const auto regs = T::GetSingleton();
+	    const auto regs = T::GetSingleton();
 		if (!regs->GetFormSet(1).empty()) {
 			if (!regs->Save(a_intfc, a_version1, kSerializationVersion, 1)) {
 				
@@ -76,7 +76,7 @@ namespace Serialization
 	template <class T>
 	void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
 	{
-		const auto regs = T::GetSingleton();
+	    const auto regs = T::GetSingleton();
 		if (!regs->Save(a_intfc, a_version, kSerializationVersion)) {
 			logger::critical("Failed to save {} regs!"sv, typeid(T).name());
 		}
@@ -85,7 +85,7 @@ namespace Serialization
 	template <class T>
 	void LOAD(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
-		const auto regs = T::GetSingleton();
+	    const auto regs = T::GetSingleton();
 		if (!regs->Load(a_intfc, a_index)) {
 			logger::critical("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
 		}
@@ -94,7 +94,7 @@ namespace Serialization
 	template <class T>
 	void LOAD(SKSE::SerializationInterface* a_intfc)
 	{
-		const auto regs = T::GetSingleton();
+	    const auto regs = T::GetSingleton();
 		if (!regs->Load(a_intfc)) {
 			logger::critical("Failed to load {} regs!"sv, typeid(T).name());
 		}

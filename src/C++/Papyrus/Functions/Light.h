@@ -202,12 +202,10 @@ namespace Papyrus::Light
 			return;
 		}
 
-		const auto xLightData = a_lightObject->extraList.GetByType<RE::ExtraLightData>();
-		if (xLightData) {
+		if (const auto xLightData = a_lightObject->extraList.GetByType<RE::ExtraLightData>(); xLightData) {
 			xLightData->data.shadowDepthBias = a_depthBias;
 		} else {
-			auto newLightData = new RE::ExtraLightData();
-			if (newLightData) {
+			if (const auto newLightData = new RE::ExtraLightData(); newLightData) {
 				newLightData->data.shadowDepthBias = a_depthBias;
 				a_lightObject->extraList.Add(newLightData);
 			}

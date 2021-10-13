@@ -44,4 +44,5 @@ set(headers ${headers}
 	src/C++/Serialization/Manager.h
 	src/C++/Serialization/Services.h
 	src/C++/Serialization/Registration/FormSetPair.h
+	src/C++/Serialization/Registration/MagicRegSet.h
 )

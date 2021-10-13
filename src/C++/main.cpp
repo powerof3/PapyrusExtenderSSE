@@ -51,6 +51,9 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 		{
 			Events::Register();
 			Serialization::FormDeletion::Register();
+
+			Events::Hook();
+			Detection::Hook();
 		}
 		break;
 	default:
@@ -112,9 +115,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	serialization->SetLoadCallback(Serialization::LoadCallback);
 	serialization->SetRevertCallback(Serialization::RevertCallback);
 	serialization->SetFormDeleteCallback(Serialization::FormDeleteCallback);
-
-	Events::Hook();
-	Detection::Hook();
 
 	const auto messaging = SKSE::GetMessagingInterface();
 	messaging->RegisterListener(OnInit);

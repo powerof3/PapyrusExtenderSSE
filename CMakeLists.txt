@@ -34,7 +34,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 
 project(
 	po3_PapyrusExtender
-	VERSION 4.5.0
+	VERSION 4.5.1
 	LANGUAGES CXX
 )
 

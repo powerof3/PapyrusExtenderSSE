@@ -82,6 +82,24 @@ namespace Papyrus::Game
 		return forms::get_all<RE::EnchantmentItem>(a_keywords);
 	}
 
+	inline std::vector<RE::TESForm*> GetAllForms(RE::StaticFunctionTag*, std::int32_t a_formType, std::vector<RE::BGSKeyword*> a_keywords)
+	{
+		std::vector<RE::TESForm*> result;
+
+		const auto formType = static_cast<RE::FormType>(a_formType);
+
+		if (const auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
+			for (const auto& form : dataHandler->GetFormArray(formType)) {
+				if (!form || !a_keywords.empty() && !form->HasKeywords(a_keywords, false)) {
+					continue;
+				}
+				result.push_back(form);
+			}
+		}
+
+		return result;
+	}
+
 	inline std::vector<RE::TESRace*> GetAllRaces(RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords)
 	{
 		return forms::get_all<RE::TESRace>(a_keywords);
@@ -107,8 +125,8 @@ namespace Papyrus::Game
 			return result;
 		}
 
-	    return forms::get_all<RE::SpellItem>(a_keywords);
-    }
+		return forms::get_all<RE::SpellItem>(a_keywords);
+	}
 
 	inline std::vector<RE::EnchantmentItem*> GetAllEnchantmentsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords)
 	{
@@ -118,6 +136,27 @@ namespace Papyrus::Game
 		return modInfo ?
                    forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
                    std::vector<RE::EnchantmentItem*>();
+	}
+
+	inline std::vector<RE::TESForm*> GetAllFormsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::int32_t a_formType, std::vector<RE::BGSKeyword*> a_keywords)
+	{
+		const auto dataHandler = RE::TESDataHandler::GetSingleton();
+		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
+
+		std::vector<RE::TESForm*> result;
+
+		if (modInfo) {
+			const auto formType = static_cast<RE::FormType>(a_formType);
+
+			for (const auto& form : dataHandler->GetFormArray(formType)) {
+				if (!form || !modInfo->IsFormInMod(form->formID) || !a_keywords.empty() && !form->HasKeywords(a_keywords, false)) {
+					continue;
+				}
+				result.push_back(form);
+			}
+		}
+
+		return result;
 	}
 
 	inline std::vector<RE::TESRace*> GetAllRacesInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords)
@@ -141,7 +180,7 @@ namespace Papyrus::Game
 		if (!modInfo) {
 			return std::vector<RE::SpellItem*>();
 		}
-		
+
 		if (a_playable) {
 			std::vector<RE::SpellItem*> result;
 
@@ -159,8 +198,8 @@ namespace Papyrus::Game
 			return result;
 		}
 
-	    return forms::get_in_mod<RE::SpellItem>(modInfo, a_keywords);
-    }
+		return forms::get_in_mod<RE::SpellItem>(modInfo, a_keywords);
+	}
 
 	inline std::vector<RE::TESObjectCELL*> GetAttachedCells(RE::StaticFunctionTag*)
 	{
@@ -276,13 +315,15 @@ namespace Papyrus::Game
 		}
 	}
 
-    inline void Bind(VM& a_vm)
+	inline void Bind(VM& a_vm)
 	{
 		BIND(GetActorsByProcessingLevel);
 		BIND(GetAllEnchantments);
+		BIND(GetAllForms);
 		BIND(GetAllRaces);
 		BIND(GetAllSpells);
 		BIND(GetAllEnchantmentsInMod);
+		BIND(GetAllFormsInMod);
 		BIND(GetAllRacesInMod);
 		BIND(GetAllSpellsInMod);
 		BIND(GetAttachedCells);

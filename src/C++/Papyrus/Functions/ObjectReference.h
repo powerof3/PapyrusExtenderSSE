@@ -6,7 +6,7 @@ namespace Papyrus::ObjectReference
 {
 	namespace inv_util
 	{
-        inline bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+		inline bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 		{
 			if (a_noEquipped && a_entry->IsWorn()) {
 				return false;
@@ -140,7 +140,7 @@ namespace Papyrus::ObjectReference
 	inline void AddKeywordToRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		RE::BGSKeyword* a_keyword)
-	{	
+	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
 			return;
@@ -176,7 +176,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-        const auto projectedUVParams = RE::NiColorA(
+		const auto projectedUVParams = RE::NiColorA(
 			a_shader->directionalData.falloffScale,
 			a_shader->directionalData.falloffBias,
 			1.0f / a_shader->directionalData.noiseUVScale,
@@ -544,8 +544,8 @@ namespace Papyrus::ObjectReference
 			return doorPtr.get();
 		}
 
-        return nullptr;
-    }
+		return nullptr;
+	}
 
 	inline std::vector<RE::TESObjectREFR*> GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
@@ -900,7 +900,21 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-		return a_ref->HasQuestObject();
+		if (const auto xAliases = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>(); xAliases) {
+			RE::BSReadLockGuard locker(xAliases->lock);
+
+			for (const auto& aliasData : xAliases->aliases) {
+				const auto alias = aliasData ? aliasData->alias : nullptr;
+
+				if (alias && alias->IsQuestObject()) {
+					return true;
+				}
+			}
+
+			return false;
+		} else {
+			return a_ref->HasQuestObject();
+		}
 	}
 
 	inline bool IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
@@ -1119,7 +1133,7 @@ namespace Papyrus::ObjectReference
 				switch (hkpShape->type) {
 				case RE::hkpShapeType::kBox:
 					{
-                        const auto boxShape = const_cast<RE::hkpBoxShape*>(static_cast<const RE::hkpBoxShape*>(hkpShape));
+						const auto boxShape = const_cast<RE::hkpBoxShape*>(static_cast<const RE::hkpBoxShape*>(hkpShape));
 						if (boxShape) {
 							boxShape->halfExtents = boxShape->halfExtents * RE::hkVector4(a_scale);
 						}
@@ -1127,7 +1141,7 @@ namespace Papyrus::ObjectReference
 					break;
 				case RE::hkpShapeType::kSphere:
 					{
-                        const auto sphereShape = const_cast<RE::hkpSphereShape*>(static_cast<const RE::hkpSphereShape*>(hkpShape));
+						const auto sphereShape = const_cast<RE::hkpSphereShape*>(static_cast<const RE::hkpSphereShape*>(hkpShape));
 						if (sphereShape) {
 							sphereShape->radius *= a_scale;
 						}
@@ -1135,7 +1149,7 @@ namespace Papyrus::ObjectReference
 					break;
 				case RE::hkpShapeType::kCapsule:
 					{
-                        const auto capsuleShape = const_cast<RE::hkpCapsuleShape*>(static_cast<const RE::hkpCapsuleShape*>(hkpShape));
+						const auto capsuleShape = const_cast<RE::hkpCapsuleShape*>(static_cast<const RE::hkpCapsuleShape*>(hkpShape));
 						if (capsuleShape) {
 							const float radius = capsuleShape->radius * a_scale;
 
@@ -1277,7 +1291,7 @@ namespace Papyrus::ObjectReference
 			return true;
 		}
 
-	    return false;
+		return false;
 	}
 
 	inline void SetLinkedRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1297,7 +1311,7 @@ namespace Papyrus::ObjectReference
 		RE::TESObjectREFR* a_ref,
 		RE::BSFixedString a_newMaterialType,
 		RE::BSFixedString a_oldMaterialType,
-        RE::BSFixedString a_nodeName)
+		RE::BSFixedString a_nodeName)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1542,7 +1556,7 @@ namespace Papyrus::ObjectReference
 	inline void UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		const RE::BGSArtObject* a_art,
-        RE::BSFixedString a_toNode,
+		RE::BSFixedString a_toNode,
 		std::vector<float> a_translate,
 		std::vector<float> a_rotate,
 		float a_scale)
@@ -1577,7 +1591,7 @@ namespace Papyrus::ObjectReference
 
 		if (art) {
 			RE::NiMatrix3 rotate{};
-            const RE::NiPoint3 rot{ RE::deg_to_rad(a_rotate[0]), RE::deg_to_rad(a_rotate[1]), RE::deg_to_rad(a_rotate[2]) };
+			const RE::NiPoint3 rot{ RE::deg_to_rad(a_rotate[0]), RE::deg_to_rad(a_rotate[1]), RE::deg_to_rad(a_rotate[2]) };
 			rotate.SetEulerAnglesXYZ(rot);
 
 			RE::NiTransform transform;

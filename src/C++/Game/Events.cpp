@@ -232,7 +232,7 @@ namespace Events
 			const auto trapper = a_event->trapper;
 			const auto target = a_event->target;
 
-			if (target) {
+			if (trapper && target) {
 				OnSoulsTrappedRegSet::GetSingleton()->QueueEvent(target, trapper);
 			}
 
@@ -354,14 +354,15 @@ namespace Events
 			{
 				static bool thunk(RE::MagicTarget* a_this, RE::MagicTarget::CreationData* a_data)
 				{
-					const auto result = func(a_this, a_data);
+					auto result = func(a_this, a_data);
 
-					const auto target = a_this->GetTargetStatsObject();
-					const auto effect = a_data ? a_data->effect : nullptr;
-					const auto baseEffect = effect ? effect->baseEffect : nullptr;
-
-					if (target && baseEffect) {
-						OnMagicEffectApplyRegMap::GetSingleton()->QueueEvent(target, baseEffect, a_data->caster, baseEffect, a_data->magicItem, result);
+					const auto target = a_this ? a_this->GetTargetStatsObject() : nullptr;
+					if (target && a_data) {
+						const auto effect = a_data->effect;
+						const auto baseEffect = effect ? effect->baseEffect : nullptr;
+						if (baseEffect) {
+							OnMagicEffectApplyRegMap::GetSingleton()->QueueEvent(target, baseEffect, a_data->caster, baseEffect, a_data->magicItem, result);
+						}
 					}
 
 					return result;

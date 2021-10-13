@@ -56,73 +56,86 @@ private:
 	{
 		bool success = false;
 
-        if (const auto actorbase = a_form->GetActorBase(); actorbase) {
+		if (const auto actorbase = a_form->GetActorBase(); actorbase) {
 			success = a_index == Form::kAdd ?
-                          actorbase->AddPerk(a_data, 1) :
+                          actorbase->AddPerk(a_data, 0) :
                           actorbase->RemovePerk(a_data);
 			if (success) {
-				a_form->ApplyPerksFromBase();
+				for (auto& perkEntry : a_data->perkEntries) {
+					if (perkEntry) {
+						a_index == Form::kAdd ?
+                            perkEntry->ApplyPerkEntry(a_form) :
+                            perkEntry->RemovePerkEntry(a_form);
+					}
+				}				
+				a_form->OnArmorActorValueChanged();		
+				auto invChanges = a_form->GetInventoryChanges();
+				if (invChanges) {
+					invChanges->armorWeight = invChanges->totalWeight;
+					invChanges->totalWeight = -1.0f;
+					a_form->equippedWeight = -1.0f;
+				}
 			}
 		}
 
 		return success;
 	}
 
-protected:
-	PerkManager() = default;
-	PerkManager(const PerkManager&) = delete;
-	PerkManager(PerkManager&&) = delete;
-	~PerkManager() = default;
-
-	PerkManager& operator=(const PerkManager&) = delete;
-	PerkManager& operator=(PerkManager&&) = delete;
-};
-
-namespace Detection
-{
-	enum : std::uint32_t
-	{
-		kAlert = 0,
-		kHide = 1,
-	};
-
-	//target
-	class TargetManager final : public FormSetPair<RE::Actor>
-	{
-	public:
-		static TargetManager* GetSingleton()
-		{
-			static TargetManager singleton;
-			return &singleton;
-		}
-
 	protected:
-		TargetManager() = default;
-		TargetManager(const TargetManager&) = delete;
-		TargetManager(TargetManager&&) = delete;
-		~TargetManager() = default;
+		PerkManager() = default;
+		PerkManager(const PerkManager&) = delete;
+		PerkManager(PerkManager &&) = delete;
+		~PerkManager() = default;
 
-		TargetManager& operator=(const TargetManager&) = delete;
-		TargetManager& operator=(TargetManager&&) = delete;
+		PerkManager& operator=(const PerkManager&) = delete;
+		PerkManager& operator=(PerkManager&&) = delete;
 	};
 
-	//searcher
-	class SourceManager final : public FormSetPair<RE::Actor>
+	namespace Detection
 	{
-	public:
-		static SourceManager* GetSingleton()
+		enum : std::uint32_t
 		{
-			static SourceManager singleton;
-			return &singleton;
-		}
+			kAlert = 0,
+			kHide = 1,
+		};
 
-	protected:
-		SourceManager() = default;
-		SourceManager(const SourceManager&) = delete;
-		SourceManager(SourceManager&&) = delete;
-		~SourceManager() = default;
+		//target
+		class TargetManager final : public FormSetPair<RE::Actor>
+		{
+		public:
+			static TargetManager* GetSingleton()
+			{
+				static TargetManager singleton;
+				return &singleton;
+			}
 
-		SourceManager& operator=(const SourceManager&) = delete;
-		SourceManager& operator=(SourceManager&&) = delete;
-	};
-}
+		protected:
+			TargetManager() = default;
+			TargetManager(const TargetManager&) = delete;
+			TargetManager(TargetManager&&) = delete;
+			~TargetManager() = default;
+
+			TargetManager& operator=(const TargetManager&) = delete;
+			TargetManager& operator=(TargetManager&&) = delete;
+		};
+
+		//searcher
+		class SourceManager final : public FormSetPair<RE::Actor>
+		{
+		public:
+			static SourceManager* GetSingleton()
+			{
+				static SourceManager singleton;
+				return &singleton;
+			}
+
+		protected:
+			SourceManager() = default;
+			SourceManager(const SourceManager&) = delete;
+			SourceManager(SourceManager&&) = delete;
+			~SourceManager() = default;
+
+			SourceManager& operator=(const SourceManager&) = delete;
+			SourceManager& operator=(SourceManager&&) = delete;
+		};
+	}

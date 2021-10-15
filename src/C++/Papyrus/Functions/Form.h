@@ -25,7 +25,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		KeywordManager::GetSingleton()->Add(a_form, a_keyword);
+		FORM::KeywordManager::GetSingleton()->Add(a_form, a_keyword);
 	}
 
 	inline void ClearRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -120,11 +120,11 @@ namespace Papyrus::Form
 		return result;
 	}
 
-	inline std::vector<RE::BSFixedString> GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline std::vector<std::string> GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESForm* a_form,
 		std::uint32_t a_index)
 	{
-		std::vector<RE::BSFixedString> result;
+		std::vector<std::string> result;
 
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -271,7 +271,7 @@ namespace Papyrus::Form
 			return false;
 		}
 
-		return KeywordManager::GetSingleton()->Remove(a_form, a_keyword);
+		return FORM::KeywordManager::GetSingleton()->Remove(a_form, a_keyword);
 	}
 
 	inline void ReplaceKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

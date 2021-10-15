@@ -1,8 +1,7 @@
 set(headers ${headers}
+	src/C++/Common.h
 	src/C++/PCH.h
 	src/C++/Game/Events.h
-	src/C++/Game/Manager.h
-	src/C++/Papyrus/Common.h
 	src/C++/Papyrus/ObjectTypes.h
 	src/C++/Papyrus/Papyrus.h
 	src/C++/Papyrus/Functions/ActiveMagicEffect.h
@@ -43,6 +42,6 @@ set(headers ${headers}
 	src/C++/Serialization/Events.h
 	src/C++/Serialization/Manager.h
 	src/C++/Serialization/Services.h
-	src/C++/Serialization/Registration/FormSetPair.h
-	src/C++/Serialization/Registration/MagicRegSet.h
+	src/C++/Serialization/Registration/DataMap.h
+	src/C++/Serialization/Registration/DataSet.h
 )

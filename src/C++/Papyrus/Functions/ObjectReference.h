@@ -151,7 +151,7 @@ namespace Papyrus::ObjectReference
 		}
 
 		if (const auto form = a_ref->GetObjectReference(); form) {
-			KeywordManager::GetSingleton()->Add(form, a_keyword);
+			FORM::KeywordManager::GetSingleton()->Add(form, a_keyword);
 		}
 	}
 
@@ -1027,7 +1027,7 @@ namespace Papyrus::ObjectReference
 		}
 
 		const auto form = a_ref->GetObjectReference();
-		return form && KeywordManager::GetSingleton()->Remove(form, a_keyword);
+		return form && FORM::KeywordManager::GetSingleton()->Remove(form, a_keyword);
 	}
 
 	inline void PlayDebugShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

@@ -5,7 +5,6 @@
 
 namespace Serialization
 {
-	using namespace Form;
 	using namespace Events::Script;
 	using namespace Events::Story;
 	using namespace Events::Game;
@@ -27,9 +26,6 @@ namespace Serialization
 
 	void SaveCallback(SKSE::SerializationInterface* a_intfc)
 	{
-		SAVE<PerkManager>(a_intfc, kAddPerks, kRemovePerks);
-		SAVE<KeywordManager>(a_intfc, kAddKeywords, kRemoveKeywords);
-
 		SAVE<OnCellFullyLoadedRegSet>(a_intfc, kOnCellFullyLoaded);
 		SAVE<OnQuestStartRegMap>(a_intfc, kQuestStart);
 		SAVE<OnQuestStopRegMap>(a_intfc, kQuestStop);
@@ -63,8 +59,14 @@ namespace Serialization
 
 		SAVE<OnFECResetRegMap>(a_intfc, kFECReset);
 
-		SAVE<Detection::TargetManager>(a_intfc, kTargetHide, kTargetAlert);
-		SAVE<Detection::SourceManager>(a_intfc, kSourceHide, kSourceAlert);
+		SAVE<FORM::PerkManager>(a_intfc, kAddPerks, kRemovePerks);
+		SAVE<FORM::KeywordManager>(a_intfc, kAddKeywords, kRemoveKeywords);
+		
+		SAVE<DETECTION::TargetManager>(a_intfc, kTargetHide, kTargetAlert);
+		SAVE<DETECTION::SourceManager>(a_intfc, kSourceHide, kSourceAlert);
+
+		SAVE<MAGIC::MGEFManager>(a_intfc, kAddMGEF, kRemoveMGEF);
+		SAVE<MAGIC::EffectManager>(a_intfc, kAddEffect, kRemoveEffect);
 
 		logger::info("Finished saving data"sv);
 	}
@@ -80,18 +82,6 @@ namespace Serialization
 				continue;
 			}
 			switch (type) {
-			case kAddPerks:
-				LOAD<PerkManager>(a_intfc, Form::kAdd);
-				break;
-			case kRemovePerks:
-				LOAD<PerkManager>(a_intfc, Form::kRemove);
-				break;
-			case kAddKeywords:
-				LOAD<KeywordManager>(a_intfc, Form::kAdd);
-				break;
-			case kRemoveKeywords:
-				LOAD<KeywordManager>(a_intfc, Form::kRemove);
-				break;
 			case kOnCellFullyLoaded:
 				LOAD<OnCellFullyLoadedRegSet>(a_intfc);
 				break;
@@ -179,17 +169,41 @@ namespace Serialization
 			case kFECReset:
 				LOAD<OnFECResetRegMap>(a_intfc);
 				break;
+			case kAddPerks:
+				LOAD<FORM::PerkManager>(a_intfc, FORM::kAdd);
+				break;
+			case kRemovePerks:
+				LOAD<FORM::PerkManager>(a_intfc, FORM::kRemove);
+				break;
+			case kAddKeywords:
+				LOAD<FORM::KeywordManager>(a_intfc, FORM::kAdd);
+				break;
+			case kRemoveKeywords:
+				LOAD<FORM::KeywordManager>(a_intfc, FORM::kRemove);
+				break;
 			case kTargetHide:
-				LOAD<Detection::TargetManager>(a_intfc, Detection::kHide);
+				LOAD<DETECTION::TargetManager>(a_intfc, DETECTION::kHide);
 				break;
 			case kTargetAlert:
-				LOAD<Detection::TargetManager>(a_intfc, Detection::kAlert);
+				LOAD<DETECTION::TargetManager>(a_intfc, DETECTION::kAlert);
 				break;
 			case kSourceHide:
-				LOAD<Detection::SourceManager>(a_intfc, Detection::kHide);
+				LOAD<DETECTION::SourceManager>(a_intfc, DETECTION::kHide);
 				break;
 			case kSourceAlert:
-				LOAD<Detection::SourceManager>(a_intfc, Detection::kAlert);
+				LOAD<DETECTION::SourceManager>(a_intfc, DETECTION::kAlert);
+				break;
+			case kAddMGEF:
+				LOAD<MAGIC::MGEFManager>(a_intfc, FORM::kAdd);
+				break;
+			case kRemoveMGEF:
+				LOAD<MAGIC::MGEFManager>(a_intfc, FORM::kRemove);
+				break;
+			case kAddEffect:
+				LOAD<MAGIC::EffectManager>(a_intfc, FORM::kAdd);
+				break;
+			case kRemoveEffect:
+				LOAD<MAGIC::EffectManager>(a_intfc, FORM::kRemove);
 				break;
 			default:
 				logger::critical("Unrecognized record type ({})!"sv, DecodeTypeCode(type));
@@ -201,9 +215,6 @@ namespace Serialization
 
 	void RevertCallback(SKSE::SerializationInterface* a_intfc)
 	{
-		REVERT<PerkManager>(a_intfc);
-		REVERT<KeywordManager>(a_intfc);
-
 		REVERT<OnCellFullyLoadedRegSet>(a_intfc);
 		REVERT<OnQuestStartRegMap>(a_intfc);
 		REVERT<OnQuestStopRegMap>(a_intfc);
@@ -238,8 +249,14 @@ namespace Serialization
 
 		REVERT<OnFECResetRegMap>(a_intfc);
 
-		REVERT<Detection::TargetManager>(a_intfc);
-		REVERT<Detection::SourceManager>(a_intfc);
+		REVERT<FORM::PerkManager>(a_intfc);
+		REVERT<FORM::KeywordManager>(a_intfc);
+
+		REVERT<DETECTION::TargetManager>(a_intfc);
+		REVERT<DETECTION::SourceManager>(a_intfc);
+
+		REVERT<MAGIC::MGEFManager>(a_intfc);
+		REVERT<MAGIC::EffectManager>(a_intfc);
 
 		logger::info("Finished reverting data"sv);
 	}
@@ -294,11 +311,11 @@ namespace Serialization
 			if (a_event && a_event->formID != 0) {
 				const auto formID = a_event->formID;
 				
-				FORM_DELETE<KeywordManager>(formID);
-				FORM_DELETE<PerkManager>(formID);
+				FORM_DELETE<FORM::KeywordManager>(formID);
+				FORM_DELETE<FORM::PerkManager>(formID);
 				
-				FORM_DELETE<Detection::TargetManager>(formID);
-				FORM_DELETE<Detection::SourceManager>(formID);
+				FORM_DELETE<DETECTION::TargetManager>(formID);
+				FORM_DELETE<DETECTION::SourceManager>(formID);
 			}
 
 			return EventResult::kContinue;

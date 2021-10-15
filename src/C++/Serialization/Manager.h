@@ -49,7 +49,12 @@ namespace Serialization
 		kTargetHide = 'TGHI',
 		kTargetAlert = 'TGAL',
 		kSourceHide = 'SRHI',
-		kSourceAlert = 'SRAL'
+		kSourceAlert = 'SRAL',
+
+		kAddMGEF = 'AMGE',
+		kRemoveMGEF = 'RMGE',
+		kAddEffect = 'AEFF',
+		kRemoveEffect = 'REFF'
 	};
 
 	void SaveCallback(SKSE::SerializationInterface* a_intfc);
@@ -61,12 +66,12 @@ namespace Serialization
 	void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version1, std::uint32_t a_version0)
 	{
 	    const auto regs = T::GetSingleton();
-		if (!regs->GetFormSet(1).empty()) {
+		if (!regs->GetData(1).empty()) {
 			if (!regs->Save(a_intfc, a_version1, kSerializationVersion, 1)) {
 				
 			}
 		}
-		if (!regs->GetFormSet(0).empty()) {
+		if (!regs->GetData(0).empty()) {
 			if (!regs->Save(a_intfc, a_version0, kSerializationVersion, 0)) {
 				logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 0);
 			}

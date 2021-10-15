@@ -646,7 +646,7 @@ namespace CONDITION
 		return result;
 	}
 
-	ConditionDataVec ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList)
+	ConditionDataVec ParseConditions(const std::vector<std::string>& a_conditionList)
 	{
 		ConditionDataVec dataVec;
 
@@ -864,7 +864,7 @@ namespace CONDITION
 		return result;
 	}
 
-	std::vector<RE::BSFixedString> BuildConditions(RE::TESCondition* a_conditions)
+	std::vector<std::string> BuildConditions(RE::TESCondition* a_conditions)
 	{
 		using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
 
@@ -888,10 +888,10 @@ namespace CONDITION
 		}
 
 		if (conditionVec.empty()) {
-			return std::vector<RE::BSFixedString>();
+			return std::vector<std::string>();
 		}
 
-		std::vector<RE::BSFixedString> vec;
+		std::vector<std::string> vec;
 		vec.reserve(conditionVec.size());
 
 		for (auto& [conditionItem, functionID, param1, param2, operationCode, floatVal, operatorVal] : conditionVec) {

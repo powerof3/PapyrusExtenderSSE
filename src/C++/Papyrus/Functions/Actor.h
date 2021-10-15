@@ -22,7 +22,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		return PerkManager::GetSingleton()->Add(a_actor, a_perk);
+		return FORM::PerkManager::GetSingleton()->Add(a_actor, a_perk);
 	}
 
 	inline bool AddBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -128,28 +128,28 @@ namespace Papyrus::Actor
 			return -1;
 		}
 
-		const auto targetManager = Detection::TargetManager::GetSingleton();
-		if (targetManager->Contains(a_actor, Detection::kHide)) {
+		const auto targetManager = DETECTION::TargetManager::GetSingleton();
+		if (targetManager->Contains(a_actor, DETECTION::kHide)) {
 			return 0;
 		}
-		if (targetManager->Contains(a_actor, Detection::kAlert)) {
+		if (targetManager->Contains(a_actor, DETECTION::kAlert)) {
 			return 2;
 		}
 		return 1;
 	}
 
 	inline std::int32_t CanActorDetect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
-	{	
+	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return -1;
 		}
 
-		const auto sourceManager = Detection::SourceManager::GetSingleton();
-		if (sourceManager->Contains(a_actor, Detection::kHide)) {
+		const auto sourceManager = DETECTION::SourceManager::GetSingleton();
+		if (sourceManager->Contains(a_actor, DETECTION::kHide)) {
 			return 0;
 		}
-		if (sourceManager->Contains(a_actor, Detection::kAlert)) {
+		if (sourceManager->Contains(a_actor, DETECTION::kAlert)) {
 			return 2;
 		}
 		return 1;
@@ -261,7 +261,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		Detection::TargetManager::GetSingleton()->Add(a_actor, Detection::kAlert);
+		DETECTION::TargetManager::GetSingleton()->Add(a_actor, DETECTION::kAlert);
 	}
 
 	inline void ForceActorDetecting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
@@ -271,7 +271,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		Detection::SourceManager::GetSingleton()->Add(a_actor, Detection::kAlert);
+		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kAlert);
 	}
 
 	inline std::vector<RE::EffectSetting*> GetActiveEffects(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -331,7 +331,7 @@ namespace Papyrus::Actor
 		return middleProcess ? middleProcess->scriptRefractPower : 1.0f;
 	}
 
-    inline std::int32_t GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::int32_t GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -372,7 +372,7 @@ namespace Papyrus::Actor
                    0.0f;
 	}
 
-    inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -576,7 +576,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-        if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
 			});
@@ -611,7 +611,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-        if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				const auto mgef = ae ? ae->GetBaseObject() : nullptr;
 				return mgef && MAGIC::get_archetype_as_string(mgef->GetArchetype()) == a_archetype;
@@ -746,7 +746,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		Detection::TargetManager::GetSingleton()->Add(a_actor, Detection::kHide);
+		DETECTION::TargetManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
 	}
 
 	inline void PreventActorDetecting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
@@ -756,7 +756,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		Detection::SourceManager::GetSingleton()->Add(a_actor, Detection::kHide);
+		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
 	}
 
 	inline bool RemoveBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -772,7 +772,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		return PerkManager::GetSingleton()->Remove(a_actor, a_perk);
+		return FORM::PerkManager::GetSingleton()->Remove(a_actor, a_perk);
 	}
 
 	inline bool RemoveBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -788,7 +788,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-        if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
 			for (const auto& activeEffect : *activeEffects) {
 				if (activeEffect && activeEffect->spell == a_spell) {
 					activeEffect->Dispel(true);
@@ -855,10 +855,10 @@ namespace Papyrus::Actor
 				});
 			}
 
-            const auto root = a_actor->Get3D(false);
+			const auto root = a_actor->Get3D(false);
 			if (replaced && root) {
 				auto armorID = std::to_string(a_armor->formID);
-                const auto name = "PO3_TXST - " + armorID;
+				const auto name = "PO3_TXST - " + armorID;
 
 				const auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
 				if (!data) {
@@ -904,7 +904,7 @@ namespace Papyrus::Actor
 					std::vector<RE::BSFixedString> result;
 					SET::SkinTXST(faceObject, txst, result, a_type);
 
-                    const auto root = a_actor->Get3D(false);
+					const auto root = a_actor->Get3D(false);
 					if (!result.empty() && root) {
 						SET::add_data_if_none<RE::NiStringsExtraData>(root, EXTRA::FACE_TXST, result);
 					}
@@ -938,12 +938,12 @@ namespace Papyrus::Actor
 			a_vm->TraceStack("Female TextureSet is None", a_stackID);
 			return;
 		}
-        if (!isFemale && !a_maleTXST) {
-            a_vm->TraceStack("Male TextureSet is None", a_stackID);
-            return;
-        }
+		if (!isFemale && !a_maleTXST) {
+			a_vm->TraceStack("Male TextureSet is None", a_stackID);
+			return;
+		}
 
-        SET::ArmorSkinTXST(a_actor,
+		SET::ArmorSkinTXST(a_actor,
 			isFemale ? a_femaleTXST : a_maleTXST,
 			static_cast<BipedSlot>(a_slot), a_type);
 	}
@@ -1008,7 +1008,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		Detection::TargetManager::GetSingleton()->Remove(a_actor);
+		DETECTION::TargetManager::GetSingleton()->Remove(a_actor);
 	}
 
 	inline void ResetActorDetecting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
@@ -1018,7 +1018,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		Detection::SourceManager::GetSingleton()->Remove(a_actor);
+		DETECTION::SourceManager::GetSingleton()->Remove(a_actor);
 	}
 
 	inline void SetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1318,7 +1318,6 @@ namespace Papyrus::Actor
 
 		if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager) {
 			std::for_each(
-				std::execution::par_unseq,
 				inv.begin(),
 				inv.end(),
 				[&](auto& invData) {

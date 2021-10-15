@@ -885,6 +885,6 @@ namespace CONDITION
 
 	RE::TESCondition* GetCondition(RE::TESForm& a_form, std::uint32_t a_index);
 
-	ConditionDataVec ParseConditions(const std::vector<RE::BSFixedString>& a_conditionList);
-	std::vector<RE::BSFixedString> BuildConditions(RE::TESCondition* a_conditions);
+	ConditionDataVec ParseConditions(const std::vector<std::string>& a_conditionList);
+	std::vector<std::string> BuildConditions(RE::TESCondition* a_conditions);
 }

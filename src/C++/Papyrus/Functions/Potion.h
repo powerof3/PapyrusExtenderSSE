@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Serialization/Services.h"
+
 namespace Papyrus::Potion
 {
 	inline void AddMagicEffectToPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -9,7 +11,7 @@ namespace Papyrus::Potion
 		std::uint32_t a_area,
 		std::uint32_t a_dur,
 		float a_cost,
-        std::vector<RE::BSFixedString> a_conditionList)
+        std::vector<std::string> a_conditionList)
 	{
 		if (!a_potion) {
 			a_vm->TraceStack("Potion is None", a_stackID);
@@ -24,14 +26,16 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		auto result = MAGIC::add_magic_effect(
-			a_potion, a_mgef, a_mag, a_area, a_dur, a_cost,
-			a_conditionList);
-		if (result == MAGIC::RESULT::kFailParse) {
-			a_vm->TraceForm(a_potion, "failed to parse condition list", a_stackID);
-		} else if (result == MAGIC::RESULT::kFailExists) {
-			a_vm->TraceForm(a_potion, "effect already exists", a_stackID);
-		}
+		MAGIC::MGEFData data = {
+			std::make_pair(a_mgef, a_mgef->GetFormID()),
+			a_mag,
+			a_area,
+			a_dur,
+			a_cost,
+			a_conditionList
+		};
+
+		MAGIC::MGEFManager::GetSingleton()->Add(a_potion, data);
 	}
 
 	inline void AddEffectItemToPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -53,7 +57,13 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::add_effect_item(a_potion, a_copyPotion, a_index, a_cost);
+		MAGIC::EffectData data = {
+			std::make_pair(a_copyPotion, a_copyPotion->GetFormID()),
+			a_index,
+			a_cost
+		};
+
+		MAGIC::EffectManager::GetSingleton()->Add(a_potion, data);
 	}
 
 	inline void RemoveMagicEffectFromPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -77,7 +87,16 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::remove_magic_effect(a_potion, a_mgef, a_mag, a_area, a_dur, a_cost);
+		MAGIC::MGEFData data = {
+			std::make_pair(a_mgef, a_mgef->GetFormID()),
+			a_mag,
+			a_area,
+			a_dur,
+			a_cost,
+			std::vector<std::string>()
+		};
+
+		MAGIC::MGEFManager::GetSingleton()->Remove(a_potion, data);
 	}
 
 	inline void RemoveEffectItemFromPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -98,7 +117,13 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::remove_effect_item(a_potion, a_copyPotion, a_index);
+		MAGIC::EffectData data = {
+			std::make_pair(a_copyPotion, a_copyPotion->GetFormID()),
+			a_index,
+			-1.0f
+		};
+
+		MAGIC::EffectManager::GetSingleton()->Remove(a_potion, data);
 	}
 
 	inline void Bind(VM& a_vm)

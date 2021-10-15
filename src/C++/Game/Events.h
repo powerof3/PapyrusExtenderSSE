@@ -186,8 +186,7 @@ namespace Events
 		};
 	}
 
-	namespace Game
-	{
-		bool Install();
-	}
+	void Register();
+
+	void Hook();
 }

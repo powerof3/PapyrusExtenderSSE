@@ -4,15 +4,7 @@ namespace MAGIC
 {
 	using Archetype = RE::EffectArchetypes::ArchetypeID;
 
-	enum class RESULT
-	{
-		kSuccess = 0,
-		kFailExists = 1,
-		kFailParse = 2
-	};
-
 	inline constexpr auto namedNode = "NamedNode&"sv;
-
 	inline constexpr frozen::map<Archetype, std::string_view, 46> archetypeMap = {
 		{ Archetype::kValueModifier, "ValueMod"sv },
 		{ Archetype::kScript, "Script"sv },
@@ -64,12 +56,4 @@ namespace MAGIC
 	};
 
 	std::string_view get_archetype_as_string(Archetype a_archetype);
-
-	void add_effect_item(RE::MagicItem* a_item, RE::MagicItem* a_copyItem, std::uint32_t a_index, float a_cost);
-
-	RESULT add_magic_effect(RE::MagicItem* a_item, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost, const std::vector<RE::BSFixedString>& a_conditionList);
-
-	void remove_effect_item(RE::MagicItem* a_item, RE::MagicItem* a_copyItem, std::uint32_t a_index);
-
-	void remove_magic_effect(RE::MagicItem* a_item, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost);
 }

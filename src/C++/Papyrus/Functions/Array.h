@@ -2,54 +2,50 @@
 
 namespace Papyrus::Array
 {
-	inline bool AddActorToArray(RE::StaticFunctionTag*,  RE::Actor* a_actor,  RE::reference_array<RE::Actor*> a_actors)
+	inline bool AddActorToArray(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::reference_array<RE::Actor*> a_actors)
 	{
-        const auto it = std::ranges::find(a_actors, nullptr);
-		if (it != a_actors.end()) {
-			*it = a_actor; 
+		if (const auto it = std::ranges::find(a_actors, nullptr); it != a_actors.end()) {
+			*it = a_actor;
 			return true;
 		}
 		return false;
 	}
 
-	inline bool AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, RE::BSFixedString a_string, RE::reference_array<RE::BSFixedString> a_strings)
+	inline bool AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, std::string a_string, RE::reference_array<std::string> a_strings)
 	{
-        const auto it = std::ranges::find(a_strings, "");
-		if (it != a_strings.end()) {
+		if (const auto it = std::ranges::find(a_strings, ""); it != a_strings.end()) {
 			*it = a_string;
 			return true;
 		}
 		return false;
 	}
 
-	inline std::uint32_t ArrayStringCount(RE::StaticFunctionTag*, RE::BSFixedString a_string, RE::reference_array<RE::BSFixedString> a_strings)
+	inline std::uint32_t ArrayStringCount(RE::StaticFunctionTag*, std::string a_string, const RE::reference_array<std::string> a_strings)
 	{
 		return static_cast<std::uint32_t>(std::ranges::count(a_strings, a_string));
 	}
 
-	inline std::vector<RE::BSFixedString> SortArrayString(RE::StaticFunctionTag*, const RE::reference_array<RE::BSFixedString> a_strings)
+	inline std::vector<std::string> SortArrayString(RE::StaticFunctionTag*, const RE::reference_array<std::string> a_strings)
 	{
-		std::vector<RE::BSFixedString> strings(a_strings);
-		strings.erase(std::ranges::remove_if(strings, [](const RE::BSFixedString& str) {
-                return str.empty();
-            }).begin(),
+		std::vector<std::string> strings(a_strings);
+		strings.erase(std::ranges::remove_if(strings, [](const std::string& str) {
+			return str.empty();
+		}).begin(),
 			strings.end());
-		std::ranges::sort(strings, [](const RE::BSFixedString& a_lhs, const RE::BSFixedString& a_rhs) {
-			return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
-		});
+		std::ranges::sort(strings);
 		return strings;
 	}
 
-	inline std::vector<RE::BSFixedString> GetSortedActorNames(RE::StaticFunctionTag*, 
+	inline std::vector<std::string> GetSortedActorNames(RE::StaticFunctionTag*,
 		const RE::BGSKeyword* a_keyword,
-        RE::BSFixedString a_pronoun, 
+		std::string a_pronoun,
 		bool a_invert)
 	{
 		std::unordered_map<std::string, size_t> nameMap;
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			bool hasKeyword = false;
-            const bool noKeyword = !a_keyword;
+			const bool noKeyword = !a_keyword;
 
 			for (const auto& handle : processLists->highActorHandles) {
 				if (const auto actor = handle.get(); actor) {
@@ -66,24 +62,24 @@ namespace Papyrus::Array
 			}
 		}
 
-		std::vector<RE::BSFixedString> names;
+		std::vector<std::string> names;
 		for (const auto& [name, count] : nameMap) {
-			std::string fullName = count > 1 ? std::to_string(count) + " " + name + a_pronoun.c_str() : name;
+			std::string fullName = count > 1 ?
+                                       std::to_string(count) + " " + name + a_pronoun :
+                                       name;
 			names.emplace_back(fullName);
 		}
 
-		std::ranges::sort(names, [](const auto& a_lhs, const auto& a_rhs) {
-			return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
-		});
+		std::ranges::sort(names);
 
 		return names;
 	}
 
-	inline std::vector<RE::BSFixedString> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*,
-        const std::vector<RE::TESNPC*> a_npcs, 
-		RE::BSFixedString a_pronoun)
+	inline std::vector<std::string> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*,
+		const std::vector<RE::TESNPC*> a_npcs,
+		std::string a_pronoun)
 	{
-		std::vector<RE::BSFixedString> names;
+		std::vector<std::string> names;
 
 		if (a_npcs.empty()) {
 			return names;
@@ -102,13 +98,13 @@ namespace Papyrus::Array
 		}
 
 		for (const auto& [name, count] : nameMap) {
-			std::string fullName{ count > 1 ? std::to_string(count) + " " + name + a_pronoun.c_str() : name };
+			std::string fullName = count > 1 ?
+                                       std::to_string(count) + " " + name + a_pronoun :
+                                       name;
 			names.emplace_back(fullName);
 		}
 
-		std::ranges::sort(names, [](const auto& a_lhs, const auto& a_rhs) {
-			return _stricmp(a_lhs.c_str(), a_rhs.c_str()) < 0;
-		});
+		std::ranges::sort(names);
 
 		return names;
 	}

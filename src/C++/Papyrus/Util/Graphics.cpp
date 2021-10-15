@@ -94,7 +94,8 @@ namespace MATERIAL
 {
 	std::string_view get_material(MAT a_mat)
 	{
-		return materialMap.at(a_mat);
+		auto it = materialMap.find(a_mat);
+		return it != materialMap.end() ? it->second : "";
 	}
 }
 

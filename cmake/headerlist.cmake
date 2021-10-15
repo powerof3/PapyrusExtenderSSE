@@ -2,8 +2,9 @@ set(headers ${headers}
 	src/C++/Common.h
 	src/C++/PCH.h
 	src/C++/Game/Events.h
+	src/C++/Game/Manager.h
+	src/C++/Papyrus/Manager.h
 	src/C++/Papyrus/ObjectTypes.h
-	src/C++/Papyrus/Papyrus.h
 	src/C++/Papyrus/Functions/ActiveMagicEffect.h
 	src/C++/Papyrus/Functions/Actor.h
 	src/C++/Papyrus/Functions/ActorBase.h

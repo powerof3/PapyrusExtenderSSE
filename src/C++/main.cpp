@@ -1,7 +1,6 @@
-#include "Game/Events.h"
-#include "Papyrus/Papyrus.h"
+#include "Game/Manager.h"
+#include "Papyrus/Manager.h"
 #include "Serialization/Manager.h"
-#include "Serialization/Services.h"
 
 static std::vector<std::string> DetectOldVersion()
 {
@@ -51,10 +50,10 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			Events::Register();
+			Events::Game::Register();
+			DETECTION::Register();
+		
 			Serialization::FormDeletion::Register();
-
-			Events::Hook();
-			DETECTION::Hook();
 		}
 		break;
 	default:

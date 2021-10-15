@@ -185,8 +185,4 @@ namespace Events
 			EventHandler& operator=(EventHandler&&) = delete;
 		};
 	}
-
-	void Register();
-
-	void Hook();
 }

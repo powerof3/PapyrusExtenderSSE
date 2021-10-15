@@ -1,4 +1,4 @@
-#include "Papyrus.h"
+#include "Manager.h"
 
 #include "Functions/ActiveMagicEffect.h"
 #include "Functions/Actor.h"

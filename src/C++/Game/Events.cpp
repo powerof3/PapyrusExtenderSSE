@@ -531,35 +531,35 @@ namespace Events
 				OnWeatherChangeRegSet::GetSingleton()->QueueEvent(lastWeather, currentWeather);
 			}
 		};
+
+		void Register()
+		{
+			logger::info("{:*^30}", "HOOKED EVENTS"sv);
+
+			Resurrect::Install();
+			logger::info("Hooked Actor Resurrect"sv);
+
+			ReanimateStart::Install();
+			ReanimateStop::Install();
+			logger::info("Hooked Actor Reanimate"sv);
+
+			MagicEffectApply::Install();
+			logger::info("Hooked Magic Effect Apply"sv);
+
+			WeaponHit::Install();
+			logger::info("Hooked Weapon Hit"sv);
+
+			MagicHit::Install();
+			logger::info("Hooked Magic Hit"sv);
+
+			WeatherEvent::Install();
+			logger::info("Hooked Weather Change"sv);
+		}
 	}
 
 	void Register()
 	{
 		Script::EventHandler::Register();
 		Story::EventHandler::Register();
-	}
-
-	void Hook()
-	{
-		logger::info("{:*^30}", "HOOKED EVENTS"sv);
-
-		Game::Resurrect::Install();
-		logger::info("Hooked Actor Resurrect"sv);
-
-		Game::ReanimateStart::Install();
-		Game::ReanimateStop::Install();
-		logger::info("Hooked Actor Reanimate"sv);
-
-		Game::MagicEffectApply::Install();
-		logger::info("Hooked Magic Effect Apply"sv);
-
-		Game::WeaponHit::Install();
-		logger::info("Hooked Weapon Hit"sv);
-
-		Game::MagicHit::Install();
-		logger::info("Hooked Magic Hit"sv);
-
-		Game::WeatherEvent::Install();
-		logger::info("Hooked Weather Change"sv);
 	}
 }

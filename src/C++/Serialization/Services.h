@@ -138,8 +138,6 @@ namespace DETECTION
 		SourceManager& operator=(const SourceManager&) = delete;
 		SourceManager& operator=(SourceManager&&) = delete;
 	};
-
-	void Hook();
 }
 
 namespace MAGIC

@@ -52,6 +52,12 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets all targets of the actor, if in combat
 	Actor[] Function GetCombatTargets(Actor akActor) global native
 	
+	;Gets all current summons commanded by this actor
+	Actor[] Function GetCommandedActors(Actor akActor) global native
+	
+	;Gets the owner of summoned actor
+	Actor Function GetCommandingActor(Actor akActor) global native
+	
 	;Gets current hair color on actor. Fails if hair headpart doesn't exist
 	ColorForm Function GetHairColor(Actor akActor) global native
 	
@@ -168,6 +174,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;True - intensity is manually calculated using percentage 0-1.0, False - automatically calculated using skin tone luminance 
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
 		
+	;Batch added spell removal, filtered by optional mod name, and keyword array (matching any keyword or all of them)
+	Function RemoveAddedSpells(Actor akActor, String modName, Keyword[] keywords, bool abMatchAll) global native
+	
 	;Removes perks from the actorbase
 	;Perk effects may not be removed from unique actors, more testing required.
 	;Function serializes data to skse cosave, so perks are applied correctly on loading/reloading saves.
@@ -175,7 +184,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Removes spells from the actorbase, works on player/leveled actors/unique NPCs. Function serializes data to skse cosave, so spells are applied correctly on loading/reloading saves.
 	bool Function RemoveBaseSpell(Actor akActor, Spell akSpell) global native
-	
+		
 	;Replaces specified source textureset on worn armor with target textureset. Lasts for one single gaming session.
 	;If texture type is -1, the entire textureset is replaced, otherwise the texture map specified at [textureType] index is replaced (diffuse is 0, normal is 1...)
 	Function ReplaceArmorTextureSet(Actor akActor, Armor akArmor, TextureSet akSourceTXST, TextureSet akTargetTXST, int aiTextureType = -1) global native
@@ -331,6 +340,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Adds all functional spells (ie. spells that can be learned from spell books, and not all 2000+ spells like psb)
 	Function GivePlayerSpellBook() global native
+	
+	;Dumps current animation variables to po3_papyrusextender64.log
+	Function DumpAnimationVariables(Actor akActor, String asAnimationVarPrefix) global native
 
 ;----------------------------------------------------------------------------------------------------------	
 ;DETECTION
@@ -531,7 +543,10 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Some conditions may be skipped (conditions that require non player references, overly complex conditions involving packages/aliases)
 	String[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
 	
-	;Returns whether the form is temporary (ie. has a formID beginning with FF).
+	;Returns whether the form is part of the mod
+	bool Function IsFormInMod(Form akForm, String asModName) global native
+	
+	;Returns whether the form is temporary (ie. has a formID beginning with FF)
 	bool Function IsGeneratedForm(Form akForm) global native	
 	
 	;Is record flag set?
@@ -583,6 +598,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets all enchantments from base game + mods, filtered using optional keyword array
 	Enchantment[] Function GetAllEnchantments(Keyword[] akKeywords = None) global native
 	
+	;Gets all forms from base game + mods, filtered using formtype and optional keyword array
+	Form[] Function GetAllForms(int aiFormType, Keyword[] akKeywords = None) global native
+	
 	;Gets all races from base game + mods, filtered using optional keyword array
 	Race[] Function GetAllRaces(Keyword[] akKeywords = None) global native
 	
@@ -599,6 +617,9 @@ Scriptname PO3_SKSEFunctions Hidden
 		
 	;Gets all actors by AI processing type. https://geck.bethsoft.com/index.php?title=GetActorsByProcessingLevel for more info	
 	Actor[] Function GetActorsByProcessingLevel(int aiLevel) global native
+	
+	;Gets all forms added by a specified mod/game esm, filtered using formtype and optional keyword array. 
+	Form[] Function GetAllFormsInMod(String asModName, int aiFormType, Keyword[] akKeywords = None) global native
 	
 	;Gets all enchantments added by a specified mod/game esm, filtered using optional keyword array. 
 	Enchantment[] Function GetAllEnchantmentsInMod(String asModName, Keyword[] akKeywords = None) global native

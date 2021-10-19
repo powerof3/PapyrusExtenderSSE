@@ -11,7 +11,7 @@ namespace Papyrus::Potion
 		std::uint32_t a_area,
 		std::uint32_t a_dur,
 		float a_cost,
-        std::vector<std::string> a_conditionList)
+		std::vector<std::string> a_conditionList)
 	{
 		if (!a_potion) {
 			a_vm->TraceStack("Potion is None", a_stackID);
@@ -26,7 +26,7 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::MGEFData data = {
+		MAGIC::MGEFData data{
 			std::make_pair(a_mgef, a_mgef->GetFormID()),
 			a_mag,
 			a_area,
@@ -35,7 +35,9 @@ namespace Papyrus::Potion
 			a_conditionList
 		};
 
-		MAGIC::MGEFManager::GetSingleton()->Add(a_potion, data);
+		if (MAGIC::MGEFManager::GetSingleton()->Add(a_potion, data)) {
+			a_vm->TraceForm(a_potion, "Failed to add magic effect", a_stackID);
+		}
 	}
 
 	inline void AddEffectItemToPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -57,13 +59,15 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::EffectData data = {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyPotion, a_copyPotion->GetFormID()),
 			a_index,
 			a_cost
 		};
 
-		MAGIC::EffectManager::GetSingleton()->Add(a_potion, data);
+		if (MAGIC::EffectManager::GetSingleton()->Add(a_potion, data)) {
+			a_vm->TraceForm(a_potion, "Failed to add magic effect", a_stackID);
+		}
 	}
 
 	inline void RemoveMagicEffectFromPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -87,7 +91,7 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::MGEFData data = {
+		MAGIC::MGEFData data{
 			std::make_pair(a_mgef, a_mgef->GetFormID()),
 			a_mag,
 			a_area,
@@ -96,7 +100,9 @@ namespace Papyrus::Potion
 			std::vector<std::string>()
 		};
 
-		MAGIC::MGEFManager::GetSingleton()->Remove(a_potion, data);
+		if (MAGIC::MGEFManager::GetSingleton()->Remove(a_potion, data)) {
+			a_vm->TraceForm(a_potion, "Failed to remove magic effect", a_stackID);
+		}
 	}
 
 	inline void RemoveEffectItemFromPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -117,13 +123,15 @@ namespace Papyrus::Potion
 			return;
 		}
 
-		MAGIC::EffectData data = {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyPotion, a_copyPotion->GetFormID()),
 			a_index,
 			-1.0f
 		};
 
-		MAGIC::EffectManager::GetSingleton()->Remove(a_potion, data);
+		if (MAGIC::EffectManager::GetSingleton()->Remove(a_potion, data)) {
+			a_vm->TraceForm(a_potion, "Failed to remove magic effect", a_stackID);
+		}
 	}
 
 	inline void Bind(VM& a_vm)

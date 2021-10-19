@@ -570,13 +570,13 @@ namespace CONDITION
 
 	bool ParseVoidParams(const std::string& a_str, void*& a_param, std::optional<PARAM_TYPE> a_type)
 	{
-		bool result = false;
-
-		if (!a_type.has_value()) {
+		if (!a_type) {
 			return true;
 		}
 
-		switch (a_type.value()) {
+		bool result = false;
+
+		switch (*a_type) {
 		case PARAM_TYPE::kObjectRef:
 		case PARAM_TYPE::kActor:
 			{
@@ -584,10 +584,22 @@ namespace CONDITION
 					a_param = RE::PlayerCharacter::GetSingleton();
 					result = true;
 				} else {
-					if (string::is_only_digit(a_str)) {
-						const auto formID = std::stoul(a_str);
-						if (formID == 14) {
-							a_param = RE::PlayerCharacter::GetSingleton();
+					const auto split_param = string::split(a_str, " ~ ");
+					if (split_param.size() > 1) {
+						const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+						const auto esp = split_param.at(kESP);
+
+						const auto dataHandler = RE::TESDataHandler::GetSingleton();
+						const auto form = dataHandler ? dataHandler->LookupForm(formID, esp) : nullptr;
+						if (form) {
+							a_param = form;
+							result = true;
+						}
+					} else {
+						const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+						const auto form = RE::TESForm::LookupByID(formID);
+						if (form) {
+							a_param = form;
 							result = true;
 						}
 					}
@@ -626,16 +638,24 @@ namespace CONDITION
 		case PARAM_TYPE::kBGSScene:
 		case PARAM_TYPE::kKnowableForm:
 			{
-                const auto split_param = string::split(a_str, " ~ ");
+				const auto split_param = string::split(a_str, " ~ ");
+				if (split_param.size() > 1) {
+					const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+					const auto esp = split_param.at(kESP);
 
-				const auto formID = std::stoul(split_param.at(kFormID), nullptr, 16);
-				const auto esp = split_param.at(kESP);
-
-				const auto dataHandler = RE::TESDataHandler::GetSingleton();
-				const auto form = dataHandler ? dataHandler->LookupForm(formID, esp) : nullptr;
-				if (form) {
-					a_param = form;
-					result = true;
+					const auto dataHandler = RE::TESDataHandler::GetSingleton();
+					const auto form = dataHandler ? dataHandler->LookupForm(formID, esp) : nullptr;
+					if (form) {
+						a_param = form;
+						result = true;
+					}
+				} else {
+					const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+					const auto form = RE::TESForm::LookupByID(formID);
+					if (form) {
+						a_param = form;
+						result = true;
+					}
 				}
 			}
 			break;
@@ -656,7 +676,7 @@ namespace CONDITION
 
 			PARAMS paramPair = { std::nullopt, std::nullopt };
 
-			auto split_condition = string::split(condition.c_str(), " | ");
+			auto split_condition = string::split(condition, " | ");
 			//conditionItemObject
 			try {
 				auto str = string::trim_copy(split_condition.at(stl::to_underlying(TYPE::kConditionItemObject)));
@@ -746,17 +766,17 @@ namespace CONDITION
 
 	bool BuildVoidParams(std::string& a_str, void* a_param, std::optional<PARAM_TYPE> a_type)
 	{
-		if (!a_type.has_value()) {
+		if (!a_type || !a_param) {
 			a_str += "NONE"sv;
 			return true;
 		}
 
 		bool result = false;
 
-		switch (a_type.value()) {
+		switch (*a_type) {
 		case PARAM_TYPE::kInt:
 			{
-                const auto integer = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
+				const auto integer = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
 				a_str += std::to_string(integer);
 
 				result = true;
@@ -764,7 +784,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kFloat:
 			{
-                const auto num = *reinterpret_cast<float*>(&a_param);
+				const auto num = *reinterpret_cast<float*>(&a_param);
 				a_str += std::to_string(num);
 
 				result = true;
@@ -772,15 +792,13 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kChar:
 			{
-                const auto string = *static_cast<RE::BSFixedString*>(a_param);
-				a_str += string;
-
+				a_str += *static_cast<const char*>(a_param);
 				result = true;
 			}
 			break;
 		case PARAM_TYPE::kSex:
 			{
-                const auto sex = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
+				const auto sex = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
 				a_str += sex == 0 ? "Male" : "Female";
 
 				result = true;
@@ -790,8 +808,8 @@ namespace CONDITION
 			{
 				auto av = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
 
-                const auto avList = RE::ActorValueList::GetSingleton();
-                const auto info = avList ? avList->GetActorValue(static_cast<RE::ActorValue>(av)) : nullptr;
+				const auto avList = RE::ActorValueList::GetSingleton();
+				const auto info = avList ? avList->GetActorValue(static_cast<RE::ActorValue>(av)) : nullptr;
 
 				if (info) {
 					a_str += info->enumName;
@@ -803,10 +821,19 @@ namespace CONDITION
 		case PARAM_TYPE::kObjectRef:
 		case PARAM_TYPE::kActor:
 			{
-                const auto player = static_cast<RE::PlayerCharacter*>(a_param);
-				a_str += player ? "PlayerRef"sv : "NONE"sv;
+				if (const auto player = static_cast<RE::PlayerCharacter*>(a_param); player) {
+					a_str += "PlayerRef"sv;
+				} else if (const auto form = static_cast<RE::TESForm*>(a_param); form) {
+					std::stringstream formID;
+					formID << "0x" << std::uppercase << std::hex << form->GetLocalFormID();
+					a_str += formID.str();
+					a_str += " ~ "sv;
+					a_str += form->GetFile(0)->fileName;
 
-				result = true;
+					result = true;
+				} else {
+					a_str += "NONE"sv;
+				}
 			}
 			break;
 		case PARAM_TYPE::kEquipType:
@@ -841,19 +868,17 @@ namespace CONDITION
 		case PARAM_TYPE::kBGSScene:
 		case PARAM_TYPE::kKnowableForm:
 			{
-                const auto form = static_cast<RE::TESForm*>(a_param);
+				const auto form = static_cast<RE::TESForm*>(a_param);
 				if (form) {
-					std::stringstream sstream;
-					sstream << "0x" << std::uppercase << std::hex << form->GetFormID();
-					const auto formID = sstream.str();
-					a_str += formID;
-					a_str.append(" ~ "sv);
-                    const auto owner = form->sourceFiles.array->front();
-					a_str.append(owner ? owner->fileName : "Skyrim.esm"sv);
+					std::stringstream formID;
+					formID << "0x" << std::uppercase << std::hex << form->GetLocalFormID();
+					a_str += formID.str();
+					a_str += " ~ "sv;
+					a_str += form->GetFile(0)->fileName;
 
 					result = true;
 				} else {
-					a_str.append("NONE"sv);
+					a_str += "NONE"sv;
 				}
 			}
 			break;
@@ -958,7 +983,7 @@ namespace CONDITION
 		switch (a_form.GetFormType()) {
 		case RE::FormType::MagicEffect:
 			{
-                const auto effect = a_form.As<RE::EffectSetting>();
+				const auto effect = a_form.As<RE::EffectSetting>();
 				condition = effect ? &effect->conditions : nullptr;
 			}
 			break;
@@ -968,7 +993,7 @@ namespace CONDITION
 		case RE::FormType::AlchemyItem:
 		case RE::FormType::Scroll:
 			{
-                const auto magicItem = a_form.As<RE::MagicItem>();
+				const auto magicItem = a_form.As<RE::MagicItem>();
 				condition = magicItem && a_index < magicItem->effects.size() ? &magicItem->effects[a_index]->conditions : nullptr;
 			}
 			break;

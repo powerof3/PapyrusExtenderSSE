@@ -26,7 +26,7 @@ namespace Papyrus::Scroll
 			return;
 		}
 
-		MAGIC::MGEFData data = {
+		MAGIC::MGEFData data{
 			std::make_pair(a_mgef, a_mgef->GetFormID()),
 			a_mag,
 			a_area,
@@ -35,7 +35,9 @@ namespace Papyrus::Scroll
 			a_conditionList
 		};
 
-		MAGIC::MGEFManager::GetSingleton()->Add(a_scroll, data);
+		if (MAGIC::MGEFManager::GetSingleton()->Add(a_scroll, data)) {
+			a_vm->TraceForm(a_scroll, "Failed to add magic effect", a_stackID);
+		}
 	}
 
 	inline void AddEffectItemToScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -63,7 +65,9 @@ namespace Papyrus::Scroll
 			a_cost
 		};
 
-		MAGIC::EffectManager::GetSingleton()->Add(a_scroll, data);
+		if (MAGIC::EffectManager::GetSingleton()->Add(a_scroll, data)) {
+			a_vm->TraceForm(a_scroll, "Failed to add magic effect", a_stackID);
+		}
 	}
 
 	inline void RemoveMagicEffectFromScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -87,7 +91,7 @@ namespace Papyrus::Scroll
 			return;
 		}
 
-		MAGIC::MGEFData data = {
+		MAGIC::MGEFData data{
 			std::make_pair(a_mgef, a_mgef->GetFormID()),
 			a_mag,
 			a_area,
@@ -96,7 +100,9 @@ namespace Papyrus::Scroll
 			std::vector<std::string>()
 		};
 
-		MAGIC::MGEFManager::GetSingleton()->Remove(a_scroll, data);
+		if (MAGIC::MGEFManager::GetSingleton()->Remove(a_scroll, data)) {
+			a_vm->TraceForm(a_scroll, "Failed to remove magic effect", a_stackID);
+		}
 	}
 
 	inline void RemoveEffectItemFromScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -117,13 +123,15 @@ namespace Papyrus::Scroll
 			return;
 		}
 
-		MAGIC::EffectData data = {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyScroll, a_copyScroll->GetFormID()),
 			a_index,
 			-1.0f
 		};
 
-		MAGIC::EffectManager::GetSingleton()->Remove(a_scroll, data);
+		if (MAGIC::EffectManager::GetSingleton()->Remove(a_scroll, data)) {
+			a_vm->TraceForm(a_scroll, "Failed to remove magic effect", a_stackID);
+		}
 	}
 
 	inline void Bind(VM& a_vm)

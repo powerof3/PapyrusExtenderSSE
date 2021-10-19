@@ -413,7 +413,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		auto combatGroup = a_actor->GetCombatGroup();
+		const auto combatGroup = a_actor->GetCombatGroup();
 		if (combatGroup) {
 			for (auto& targetData : combatGroup->targets) {
 				auto target = targetData.targetHandle.get();
@@ -424,6 +424,45 @@ namespace Papyrus::Actor
 		}
 
 		return result;
+	}
+
+	inline std::vector<RE::Actor*> GetCommandedActors(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	{
+		std::vector<RE::Actor*> result;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return result;
+		}
+
+		const auto process = a_actor->currentProcess;
+		const auto middleHigh = process ? process->middleHigh : nullptr;
+
+		if (middleHigh) {
+			for (auto& commandedActorData : middleHigh->commandedActors) {
+				const auto commandedActor = commandedActorData.commandedActor.get();
+				if (commandedActor) {
+					result.push_back(commandedActor.get());
+				}
+			}
+		}
+
+		return result;
+	}
+
+	inline RE::Actor* GetCommandingActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+
+		if (a_actor->IsCommandedActor()) {
+			const auto commanderPtr = a_actor->GetCommandingActor().get();
+			return commanderPtr.get();
+		}
+
+		return nullptr;
 	}
 
 	inline RE::BGSColorForm* GetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
@@ -757,6 +796,53 @@ namespace Papyrus::Actor
 		}
 
 		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
+	}
+
+	inline void RemoveAddedSpells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		RE::BSFixedString a_modName,
+		std::vector<RE::BGSKeyword*> a_keywords,
+		bool a_matchAll)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return;
+		}
+
+		std::vector<RE::SpellItem*> spells;
+
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
+		auto mod = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
+
+		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywords, bool a_matchAll) {
+			if (a_matchAll) {
+				return std::ranges::all_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+			} else {
+				return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+			}
+		};
+
+		for (auto& spell : a_actor->addedSpells | std::ranges::views::reverse) {
+			if (!spell) {
+				continue;
+			}
+			if (mod && !mod->IsFormInMod(spell->GetFormID())) {
+				continue;
+			}
+			if (!a_keywords.empty() && !has_keyword(spell, a_keywords, a_matchAll)) {
+				continue;
+			}
+			spells.push_back(spell);
+		}
+
+		//Papyrus RemoveSpell queues a task, while console command calls this directly. 
+		auto taskQueue = RE::TaskQueueInterface::GetSingleton();
+		if (taskQueue) {
+			auto actorHandle = a_actor->CreateRefHandle();
+			for (auto& spell : spells) {
+				taskQueue->QueueRemoveSpellTask(actorHandle, spell);
+			}
+		}
 	}
 
 	inline bool RemoveBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1352,6 +1438,8 @@ namespace Papyrus::Actor
 		BIND(GetCriticalStage);
 		BIND(GetCombatAllies);
 		BIND(GetCombatTargets);
+		BIND(GetCommandedActors);
+		BIND(GetCommandingActor);
 		BIND(GetHairColor);
 		BIND(GetHeadPartTextureSet);
 		BIND(GetLocalGravityActor);
@@ -1372,6 +1460,7 @@ namespace Papyrus::Actor
 		BIND(MixColorWithSkinTone);
 		BIND(PreventActorDetection);
 		BIND(PreventActorDetecting);
+		BIND(RemoveAddedSpells);
 		BIND(RemoveBasePerk);
 		BIND(RemoveBaseSpell);
 		BIND(ReplaceArmorTextureSet);

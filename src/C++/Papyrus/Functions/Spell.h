@@ -41,8 +41,6 @@ namespace Papyrus::Spell
 
 		if (!MAGIC::MGEFManager::GetSingleton()->Add(a_spell, data)) {
 			a_vm->TraceForm(a_spell, "Failed to add magic effect", a_stackID);
-		} else {
-			a_vm->TraceForm(a_spell, "Added magic effect", a_stackID);
 		}
 	}
 
@@ -79,7 +77,9 @@ namespace Papyrus::Spell
 			a_cost
 		};
 
-		MAGIC::EffectManager::GetSingleton()->Add(a_spell, data);
+		if (MAGIC::EffectManager::GetSingleton()->Add(a_spell, data)) {
+			a_vm->TraceForm(a_spell, "Failed to add magic effect", a_stackID);
+		}
 	}
 
 	inline std::int32_t GetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::SpellItem* a_spell)
@@ -118,7 +118,9 @@ namespace Papyrus::Spell
 			std::vector<std::string>()
 		};
 
-		MAGIC::MGEFManager::GetSingleton()->Remove(a_spell, data);
+		if (MAGIC::MGEFManager::GetSingleton()->Remove(a_spell, data)) {
+			a_vm->TraceForm(a_spell, "Failed to remove magic effect", a_stackID);
+		}
 	}
 
 	inline void RemoveEffectItemFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -145,7 +147,9 @@ namespace Papyrus::Spell
 			-1.0f
 		};
 
-		MAGIC::EffectManager::GetSingleton()->Remove(a_spell, data);
+		if (MAGIC::EffectManager::GetSingleton()->Remove(a_spell, data)) {
+			a_vm->TraceForm(a_spell, "Failed to remove magic effect", a_stackID);
+		}
 	}
 
 	inline void SetSpellCastingType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

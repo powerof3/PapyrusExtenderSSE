@@ -28,11 +28,14 @@ namespace Papyrus::Array
 	inline std::vector<std::string> SortArrayString(RE::StaticFunctionTag*, const RE::reference_array<std::string> a_strings)
 	{
 		std::vector<std::string> strings(a_strings);
+
 		strings.erase(std::ranges::remove_if(strings, [](const std::string& str) {
 			return str.empty();
 		}).begin(),
 			strings.end());
+
 		std::ranges::sort(strings);
+
 		return strings;
 	}
 

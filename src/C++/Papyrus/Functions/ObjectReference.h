@@ -615,11 +615,11 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::vector<RE::BSFixedString> GetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline std::vector<std::string> GetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_nodeName)
+		std::string a_nodeName)
 	{
-		std::vector<RE::BSFixedString> result;
+		std::vector<std::string> result;
 
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1107,7 +1107,7 @@ namespace Papyrus::ObjectReference
 
 	inline void ScaleObject3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_nodeName,
+		std::string a_nodeName,
 		float a_scale)
 	{
 		if (!a_ref) {
@@ -1309,9 +1309,9 @@ namespace Papyrus::ObjectReference
 
 	inline void SetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_newMaterialType,
-		RE::BSFixedString a_oldMaterialType,
-		RE::BSFixedString a_nodeName)
+		std::string a_newMaterialType,
+		std::string a_oldMaterialType,
+		std::string a_nodeName)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1531,7 +1531,7 @@ namespace Papyrus::ObjectReference
 
 	inline void ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_nodeName,
+		std::string a_nodeName,
 		bool a_disable)
 	{
 		if (!a_ref) {
@@ -1587,7 +1587,7 @@ namespace Papyrus::ObjectReference
 			});
 		}
 
-		const auto art = hitEffect ? hitEffect->hitEffectArtData.attachedArt.get() : nullptr;
+		const auto art = hitEffect ? hitEffect->hitEffectArtData.attachedArt : nullptr;
 
 		if (art) {
 			RE::NiMatrix3 rotate{};
@@ -1602,28 +1602,23 @@ namespace Papyrus::ObjectReference
 			const auto task = SKSE::GetTaskInterface();
 			task->AddTask([a_toNode, art, hitEffect, transform]() {
 				if (!a_toNode.empty() && hitEffect->hitEffectArtData.nodeName != a_toNode) {
-					const auto root = hitEffect->hitEffectArtData.current3DRoot.get();
+					const auto root = hitEffect->hitEffectArtData.current3DRoot;
 					const auto newObj = root ? root->GetObjectByName(a_toNode) : nullptr;
 					const auto newNode = newObj ? newObj->AsNode() : nullptr;
 
 					if (newNode) {
-						if (const auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData) {
-							const std::string namedNode(MAGIC::namedNode);
-							const auto oldNodeStr{ namedNode + hitEffect->hitEffectArtData.nodeName.c_str() };
-							const auto newNodeStr{ namedNode + a_toNode.c_str() };
-							attachTData->Replace(oldNodeStr, newNodeStr);
+						if (const auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData && attachTData->value[0]) {
+							std::string newNodeStr{ MAGIC::namedNode };
+							newNodeStr += a_toNode;
+							attachTData->Replace(attachTData->value[0], newNodeStr);
 						}
-						newNode->AttachChild(art);
-
-						RE::NiUpdateData data{ RE::GetDurationOfApplicationRunTime() * 0.001f, RE::NiUpdateData::Flag::kDirty };
-						art->UpdateWorldData(&data);
-
+						newNode->AttachChild(art.get(), true);
 						hitEffect->hitEffectArtData.nodeName = a_toNode;
 					}
 				}
 
-				for (const auto& nodesPtr : art->children) {
-					if (const auto nodes = nodesPtr.get(); nodes) {
+				for (const auto& nodes : art->children) {
+					if (nodes) {
 						nodes->local = transform;
 					}
 				}

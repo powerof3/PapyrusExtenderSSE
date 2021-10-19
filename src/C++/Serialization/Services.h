@@ -57,7 +57,7 @@ namespace FORM
 
 			if (const auto actorbase = a_form->GetActorBase(); actorbase) {
 				success = a_index == FORM::kAdd ?
-                              actorbase->AddPerk(a_data, 0) :
+                              actorbase->AddPerk(a_data, 1) :
                               actorbase->RemovePerk(a_data);
 				if (success) {
 					for (auto& perkEntry : a_data->perkEntries) {
@@ -224,8 +224,6 @@ namespace MAGIC
 			assert(a_intfc);
 			std::size_t numRegs;
 			a_intfc->ReadRecordData(numRegs);
-			logger::info("LOAD");
-			logger::info("number of regs ({})", numRegs);
 
 			Locker locker(_lock);
 

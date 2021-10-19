@@ -15,7 +15,7 @@ namespace Papyrus::Form
 		RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;
-		
+
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return;
@@ -74,11 +74,10 @@ namespace Papyrus::Form
 						}
 
 						if (effect) {
+							const bool effectValid = effect->conditions.IsTrue(a_actionRef, a_target);
 
-                            const bool effectValid = effect->conditions.IsTrue(a_actionRef, a_target);
-
-                            const auto baseEffect = effect->baseEffect;
-                            const bool mgefValid = baseEffect && baseEffect->conditions.IsTrue(a_actionRef, a_target);
+							const auto baseEffect = effect->baseEffect;
+							const bool mgefValid = baseEffect && baseEffect->conditions.IsTrue(a_actionRef, a_target);
 
 							if (effectValid && mgefValid) {
 								result = true;
@@ -139,6 +138,19 @@ namespace Papyrus::Form
 		return CONDITION::BuildConditions(condition);
 	}
 
+	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return false;
+		}
+
+		const auto dataHandler = RE::TESDataHandler::GetSingleton();
+		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
+
+		return modInfo ? modInfo->IsFormInMod(a_form->GetFormID()) : false;
+	}
+
 	inline bool IsGeneratedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 	{
 		if (!a_form) {
@@ -153,21 +165,21 @@ namespace Papyrus::Form
 	{
 		namespace item
 		{
-            inline void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
+			inline void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
 			{
 				using func_t = decltype(&favorite);
 				REL::Relocation<func_t> func{ REL::ID(15858) };
 				return func(a_changes, a_entryData, a_list);
 			}
 
-            inline void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
+			inline void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
 			{
 				using func_t = decltype(&unfavorite);
 				REL::Relocation<func_t> func{ REL::ID(15859) };
 				return func(a_changes, a_entryData, a_list);
 			}
 
-            inline RE::ExtraDataList* get_hotkeyed(RE::InventoryEntryData* a_changes)
+			inline RE::ExtraDataList* get_hotkeyed(RE::InventoryEntryData* a_changes)
 			{
 				if (a_changes->extraLists) {
 					for (const auto& xList : *a_changes->extraLists) {
@@ -183,14 +195,14 @@ namespace Papyrus::Form
 
 		namespace magic
 		{
-            inline void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
+			inline void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
 			{
 				using func_t = decltype(&favorite);
 				REL::Relocation<func_t> func{ REL::ID(51121) };
 				return func(a_magicFavorites, a_form);
 			}
 
-            inline void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
+			inline void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
 			{
 				using func_t = decltype(&unfavorite);
 				REL::Relocation<func_t> func{ REL::ID(51122) };
@@ -256,12 +268,12 @@ namespace Papyrus::Form
 		return SCRIPT::is_script_attached(a_form, a_scriptName);
 	}
 
-	inline bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESForm* a_form, 
+	inline bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESForm* a_form,
 		RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;
-		
+
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return false;
@@ -293,10 +305,10 @@ namespace Papyrus::Form
 		}
 
 		if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
-            if (keywordForm->keywords) {
-                bool found = false;
-                std::uint32_t removeIndex = 0;
-                for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
+			if (keywordForm->keywords) {
+				bool found = false;
+				std::uint32_t removeIndex = 0;
+				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 					const auto keyword = keywordForm->keywords[i];
 					if (keyword) {
 						if (keyword == a_add) {
@@ -891,6 +903,7 @@ namespace Papyrus::Form
 		BIND(ClearRecordFlag);
 		BIND(EvaluateConditionList);
 		BIND(GetConditionList);
+		BIND(IsFormInMod, true);
 		BIND(IsGeneratedForm, true);
 		BIND(IsRecordFlagSet);
 		BIND(IsScriptAttachedToForm);

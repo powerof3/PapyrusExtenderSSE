@@ -88,7 +88,7 @@ namespace Papyrus::Actor
 		bool a_autoCalc,
 		float a_opacity)
 	{
-		using BLEND_MODE = COLOR::BLEND_MODE;
+		using BLEND_MODE = RE::ColorUtil::BLEND_MODE;
 
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -107,8 +107,8 @@ namespace Papyrus::Actor
 
 		const auto actorbase = a_actor->GetActorBase();
 		if (actorbase) {
-			const float opacity = a_autoCalc ? std::clamp(a_opacity * COLOR::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) : a_opacity;
-			auto newColor = COLOR::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
+			const float opacity = a_autoCalc ? std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) : a_opacity;
+			auto newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
 
 			auto task = SKSE::GetTaskInterface();
 			task->AddTask([a_actor, newColor, root]() {
@@ -763,8 +763,8 @@ namespace Papyrus::Actor
 			const auto actorbase = a_actor->GetActorBase();
 			const auto root = a_actor->Get3D(false);
 			if (actorbase && root) {
-				const float skinLuminance = a_manual ? a_percent : COLOR::CalcLuminance(actorbase->bodyTintColor);
-				auto newColor = COLOR::Mix(actorbase->bodyTintColor, a_color->color, skinLuminance);
+				const float skinLuminance = a_manual ? a_percent : RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor);
+				auto newColor = RE::ColorUtil::Mix(actorbase->bodyTintColor, a_color->color, skinLuminance);
 
 				auto task = SKSE::GetTaskInterface();
 				task->AddTask([a_actor, newColor, root]() {
@@ -835,7 +835,7 @@ namespace Papyrus::Actor
 			spells.push_back(spell);
 		}
 
-		//Papyrus RemoveSpell queues a task, while console command calls this directly. 
+		//Papyrus RemoveSpell queues a task, while console command calls this directly.
 		auto taskQueue = RE::TaskQueueInterface::GetSingleton();
 		if (taskQueue) {
 			auto actorHandle = a_actor->CreateRefHandle();
@@ -874,24 +874,30 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
-			for (const auto& activeEffect : *activeEffects) {
-				if (activeEffect && activeEffect->spell == a_spell) {
-					activeEffect->Dispel(true);
+		const auto actorbase = a_actor->GetActorBase();
+		const auto actorEffects = actorbase ? actorbase->GetSpellList() : nullptr;
+
+		if (actorEffects && actorEffects->GetIndex(a_spell)) {
+			const auto activeEffects = a_actor->GetActiveEffectList();
+			if (activeEffects) {
+				for (const auto& activeEffect : *activeEffects) {
+					if (activeEffect && activeEffect->spell == a_spell) {
+						activeEffect->Dispel(true);
+					}
 				}
 			}
-		}
 
-		const auto actorbase = a_actor->GetActorBase();
-		const auto actorEffects = actorbase ? actorbase->actorEffects : nullptr;
-
-		if (actorEffects && actorEffects->GetIndex(a_spell).has_value()) {
-			if (const auto combatController = a_actor->combatController; combatController && combatController->inventoryController) {
+			const auto combatController = a_actor->combatController; 
+			if (combatController && combatController->inventoryController) {
 				combatController->inventoryController->unk1C4 = 1;
 			}
-			a_actor->RemoveSelectedSpell(a_spell);
 
-			return actorEffects->RemoveSpell(a_spell);
+			a_actor->RemoveSelectedSpell(a_spell);
+			actorEffects->RemoveSpell(a_spell);
+
+			actorbase->AddChange(RE::TESNPC::ChangeFlags::kSpellList);
+
+			return true;
 		}
 
 		return false;

@@ -1,225 +1,5 @@
 #pragma once
 
-namespace COLOR
-{
-	enum class BLEND_MODE : std::uint32_t
-	{
-		kDarken = 0,
-		kMultiply,
-		kColorBurn,
-		kLinearBurn,
-		kDarkerColor,
-
-		kLighten,
-		kScreen,
-		kColorDodge,
-		kLinearDodge,
-		kLighterColor,
-
-		kOverlay,
-		kSoftLight,
-		kHardLight,
-		kVividLight,
-		kLinearLight,
-		kPinLight,
-		kHardMix,
-
-		kDifference,
-		kExclusion,
-		kSubtract,
-		kDivide
-	};
-
-	namespace detail
-	{
-		//https://www.shadertoy.com/view/XdS3RW
-		//ben, 2013
-
-		//UTILITY
-		inline RE::NiColor abs(const RE::NiColor& a_rhs)
-		{
-			return RE::NiColor(std::abs(a_rhs.red),
-				std::abs(a_rhs.green),
-				std::abs(a_rhs.blue));
-		}
-
-		inline RE::NiColor clamp(const RE::NiColor& a_rhs, float a_min, float a_max)
-		{
-			return RE::NiColor(std::clamp(a_rhs.red, a_min, a_max),
-				std::clamp(a_rhs.green, a_min, a_max),
-				std::clamp(a_rhs.blue, a_min, a_max));
-		}
-
-		inline RE::NiColor floor(const RE::NiColor& a_rhs)
-		{
-			return RE::NiColor(std::floor(a_rhs.red),
-				std::floor(a_rhs.green),
-				std::floor(a_rhs.blue));
-		}
-
-		inline RE::NiColor min(const RE::NiColor& a_lhs, const RE::NiColor& a_rhs)
-		{
-			return RE::NiColor(
-				std::min(a_lhs.red, a_rhs.red),
-				std::min(a_lhs.green, a_rhs.green),
-				std::min(a_lhs.blue, a_rhs.blue));
-		}
-
-		inline RE::NiColor max(const RE::NiColor& a_lhs, const RE::NiColor& a_rhs)
-		{
-			return RE::NiColor(
-				std::max(a_lhs.red, a_rhs.red),
-				std::max(a_lhs.green, a_rhs.green),
-				std::max(a_lhs.blue, a_rhs.blue));
-		}
-
-		// BLEND MODES
-
-		inline RE::NiColor darken(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return min(a_src, a_dest);
-		}
-
-		inline RE::NiColor multiply(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src * a_dest;
-		}
-
-		inline RE::NiColor colorBurn(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return 1.0 - (1.0 - a_dest) / a_src;
-		}
-
-		inline RE::NiColor linearBurn(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src + a_dest - 1.0;
-		}
-
-		inline RE::NiColor darkerColor(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return (a_src.red + a_src.green + a_src.blue < a_dest.red + a_dest.green + a_dest.blue) ? a_src : a_dest;
-		}
-
-		inline RE::NiColor lighten(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return max(a_src, a_dest);
-		}
-
-		inline RE::NiColor screen(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src + a_dest - a_src * a_dest;
-		}
-
-		inline RE::NiColor colorDodge(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_dest / (1.0 - a_src);
-		}
-
-		inline RE::NiColor linearDodge(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src + a_dest;
-		}
-
-		inline RE::NiColor lighterColor(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return (a_src.red + a_src.green + a_src.blue > a_dest.red + a_dest.green + a_dest.blue) ? a_src : a_dest;
-		}
-
-		inline float overlay(float a_src, float a_dest)
-		{
-			return (a_dest < 0.5f) ? 2.0f * a_src * a_dest : 1.0f - 2.0f * (1.0f - a_src) * (1.0f - a_dest);
-		}
-
-		inline RE::NiColor overlay(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return RE::NiColor(overlay(a_src.red, a_dest.red), overlay(a_src.green, a_dest.green), overlay(a_src.blue, a_dest.blue));
-		}
-
-		inline float softLight(float a_src, float a_dest)
-		{
-			return (a_src < 0.5f) ? a_dest - (1.0f - 2.0f * a_src) * a_dest * (1.0f - a_dest) : (a_dest < 0.25f) ? a_dest + (2.0f * a_src - 1.0f) * a_dest * ((16.0f * a_dest - 12.0f) * a_dest + 3.0f) :
-                                                                                                                   a_dest + (2.0f * a_src - 1.0f) * (sqrt(a_dest) - a_dest);
-		}
-
-		inline RE::NiColor softLight(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return RE::NiColor(softLight(a_src.red, a_dest.red), softLight(a_src.green, a_dest.green), softLight(a_src.blue, a_dest.blue));
-		}
-
-		inline float hardLight(float a_src, float a_dest)
-		{
-			return (a_src < 0.5f) ? 2.0f * a_src * a_dest : 1.0f - 2.0f * (1.0f - a_src) * (1.0f - a_dest);
-		}
-
-		inline RE::NiColor hardLight(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return RE::NiColor(hardLight(a_src.red, a_dest.red), hardLight(a_src.green, a_dest.green), hardLight(a_src.blue, a_dest.blue));
-		}
-
-		inline float vividLight(float a_src, float a_dest)
-		{
-			return (a_src < 0.5f) ? 1.0f - (1.0f - a_dest) / (2.0f * a_src) : a_dest / (2.0f * (1.0f - a_src));
-		}
-
-		inline RE::NiColor vividLight(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return RE::NiColor(vividLight(a_src.red, a_dest.red), vividLight(a_src.green, a_dest.green), vividLight(a_src.blue, a_dest.blue));
-		}
-
-		inline RE::NiColor linearLight(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return 2.0 * a_src + a_dest - 1.0;
-		}
-
-		inline float pinLight(float a_src, float a_dest)
-		{
-			return (2.0f * a_src - 1.0f > a_dest) ? 2.0f * a_src - 1.0f : (a_src < 0.5f * a_dest) ? 2.0f * a_src :
-                                                                                                    a_dest;
-		}
-
-		inline RE::NiColor pinLight(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return RE::NiColor(pinLight(a_src.red, a_dest.red), pinLight(a_src.green, a_dest.green), pinLight(a_src.blue, a_dest.blue));
-		}
-
-		inline RE::NiColor hardMix(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return floor(a_src + a_dest);
-		}
-
-		inline RE::NiColor difference(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return abs(a_dest - a_src);
-		}
-
-		inline RE::NiColor exclusion(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src + a_dest - 2.0 * a_src * a_dest;
-		}
-
-		inline RE::NiColor subtract(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src - a_dest;
-		}
-
-		inline RE::NiColor divide(const RE::NiColor& a_src, const RE::NiColor& a_dest)
-		{
-			return a_src / a_dest;
-		}
-
-		inline RE::NiColor mix(const RE::NiColor& a_src, const RE::NiColor& a_dest, float a_alpha)
-		{
-			return a_src * (1 - a_alpha) + a_dest * a_alpha;
-		}
-	}
-
-	RE::NiColor Blend(const RE::NiColor& a_src, const RE::NiColor& a_dest, BLEND_MODE a_mode, float a_alpha);
-
-	float CalcLuminance(const RE::NiColor& a_src);
-
-	RE::NiColor Mix(const RE::NiColor& a_src, const RE::NiColor& a_dest, float a_percentage);
-}
-
 namespace EXTRA
 {
 	inline constexpr auto TOGGLE = "PO3_TOGGLE"sv;
@@ -381,7 +161,7 @@ namespace SET
 	void update_color_data(RE::NiAVObject* a_root, const RE::BSFixedString& a_name, const RE::NiColor& a_color);
 
 	template <class T, typename D>
-    void add_data_if_none(RE::NiAVObject* a_root, std::string_view a_type, D a_data)
+	void add_data_if_none(RE::NiAVObject* a_root, std::string_view a_type, D a_data)
 	{
 		if (const auto data = a_root->GetExtraData<T>(a_type); !data) {
 			const auto newData = T::Create(a_type, a_data);
@@ -406,7 +186,15 @@ namespace TEXTURE
 {
 	using Texture = RE::BSTextureSet::Texture;
 
-	inline constexpr std::array<Texture, 9> types{ Texture::kDiffuse, Texture::kNormal, Texture::kEnvironmentMask, Texture::kGlowMap, Texture::kHeight, Texture::kEnvironment, Texture::kMultilayer, Texture::kBacklightMask, Texture::kUnused08 };  //to iterate over enum
+	inline constexpr std::array<Texture, 9> types{ Texture::kDiffuse,
+		Texture::kNormal,
+		Texture::kEnvironmentMask,
+		Texture::kGlowMap,
+		Texture::kHeight,
+		Texture::kEnvironment,
+		Texture::kMultilayer,
+		Texture::kBacklightMask,
+		Texture::kUnused08 };  //to iterate over enum
 
 	void sanitize_path(std::string& a_path);
 

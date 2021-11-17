@@ -998,7 +998,7 @@ namespace Papyrus::ObjectReference
 		};
 
 		const auto nearestVertex = find_nearest_vertex();
-		if (!nearestVertex.has_value()) {
+		if (!nearestVertex) {
 			a_vm->TraceForm(a_ref, "does not have a valid navmesh position", a_stackID);
 			return;
 		}

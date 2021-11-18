@@ -682,6 +682,28 @@ namespace Papyrus::Actor
 		return waterLevel >= 0.875f;
 	}
 
+	inline bool IsDetectedByAnyone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+		if (a_actor->currentProcess) {
+			const auto processLists = RE::ProcessLists::GetSingleton(); 
+			if (processLists) {
+				for (auto& targetHandle : processLists->highActorHandles) {
+					auto target = targetHandle.get();
+					if (target && target->currentProcess && target->RequestDetectionLevel(a_actor) > 0) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	inline bool IsLimbGone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
 		std::int32_t a_limbEnum)
@@ -1458,8 +1480,9 @@ namespace Papyrus::Actor
 		BIND(IsQuadruped, true);
 		BIND(HasDeferredKill);
 		BIND(HasMagicEffectWithArchetype);
-		BIND(IsActorInWater, true);
-		BIND(IsActorUnderwater, true);
+		BIND(IsActorInWater);
+		BIND(IsActorUnderwater);
+		BIND(IsDetectedByAnyone);
 		BIND(IsLimbGone);
 		BIND(IsSoulTrapped);
 		BIND(KillNoWait);

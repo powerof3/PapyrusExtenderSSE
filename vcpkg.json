@@ -1,13 +1,13 @@
 {
   "name": "papyrusextender",
-  "version-string": "4.5.2",
+  "version-string": "4.5.5",
   "description": "Papyrus Function Library",
   "homepage": "https://github.com/powerof3/PapyrusExtenderSSE",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
-    "boost-algorithm",
     "frozen",
+    "robin-hood-hashing",
     "spdlog",
     "xbyak"
   ]

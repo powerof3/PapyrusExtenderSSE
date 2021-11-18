@@ -54,6 +54,8 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 			DETECTION::Register();
 		
 			Serialization::FormDeletion::Register();
+
+			Cache::Register();
 		}
 		break;
 	default:

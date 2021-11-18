@@ -1,6 +1,7 @@
 set(headers ${headers}
 	src/C++/Common.h
 	src/C++/PCH.h
+	src/C++/Game/Cache.h
 	src/C++/Game/Events.h
 	src/C++/Game/Manager.h
 	src/C++/Papyrus/Manager.h

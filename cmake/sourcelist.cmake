@@ -1,5 +1,6 @@
 set(sources ${sources}
 	src/C++/main.cpp
+	src/C++/Game/Cache.cpp
 	src/C++/Game/Events.cpp
 	src/C++/Game/Services.cpp
 	src/C++/Papyrus/Manager.cpp

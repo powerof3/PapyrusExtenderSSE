@@ -14,3 +14,8 @@ namespace DETECTION
 {
 	void Register();
 }
+
+namespace Cache
+{
+	void Register();
+}

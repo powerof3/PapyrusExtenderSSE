@@ -232,6 +232,11 @@ namespace Papyrus::Game
 		return result;
 	}
 
+	inline RE::TESForm* GetFormFromEditorID(RE::StaticFunctionTag*, RE::BSFixedString a_editorID)
+	{
+		return RE::TESForm::LookupByEditorID(a_editorID);
+	}
+	
 	inline std::int32_t GetGameSettingBool(RE::StaticFunctionTag*, RE::BSFixedString a_gamesetting)
 	{
 		if (a_gamesetting.empty()) {
@@ -276,6 +281,23 @@ namespace Papyrus::Game
 	inline std::vector<std::int32_t> GetPapyrusExtenderVersion(RE::StaticFunctionTag*)
 	{
 		return { Version::MAJOR, Version::MINOR, Version::PATCH };
+	}
+
+	inline std::vector<RE::Actor*> GetPlayerFollowers(RE::StaticFunctionTag*)
+	{
+		std::vector<RE::Actor*> result;
+
+		const auto xFollowers = RE::PlayerCharacter::GetSingleton()->extraList.GetByType<RE::ExtraFollower>();
+		if (xFollowers) {
+			for (auto& [actorHandle, distance] : xFollowers->actorFollowers) {
+				auto actor = actorHandle.get();
+				if (actor) {
+					result.push_back(actor.get());
+				}
+			}
+		}
+
+		return result;
 	}
 
 	inline bool IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name)
@@ -327,10 +349,12 @@ namespace Papyrus::Game
 		BIND(GetAllRacesInMod);
 		BIND(GetAllSpellsInMod);
 		BIND(GetAttachedCells);
+		BIND(GetFormFromEditorID);
 		BIND(GetGameSettingBool);
 		BIND(GetLocalGravity);
 		BIND(GetNumActorsInHigh);
 		BIND(GetPapyrusExtenderVersion, true);
+		BIND(GetPlayerFollowers);
 		BIND(IsSurvivalModeActive, true);
 		BIND(IsPluginFound, true);
 		BIND(SetLocalGravity);

@@ -2,6 +2,7 @@
 
 #include "Serialization/Events.h"
 #include "Serialization/Services.h"
+#include "Game/Cache.h"
 
 using namespace Events::Script;
 using namespace Events::Story;
@@ -136,6 +137,16 @@ namespace Papyrus::Form
 		}
 
 		return CONDITION::BuildConditions(condition);
+	}
+
+	inline RE::BSFixedString GetFormEditorID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return RE::BSFixedString();
+		}
+
+		return Cache::EditorID::GetSingleton()->GetEditorID(a_form->GetFormID());
 	}
 
 	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)
@@ -903,6 +914,7 @@ namespace Papyrus::Form
 		BIND(ClearRecordFlag);
 		BIND(EvaluateConditionList);
 		BIND(GetConditionList);
+		BIND(GetFormEditorID);
 		BIND(IsFormInMod, true);
 		BIND(IsGeneratedForm, true);
 		BIND(IsRecordFlagSet);

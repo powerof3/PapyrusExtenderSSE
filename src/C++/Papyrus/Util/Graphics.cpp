@@ -169,7 +169,7 @@ namespace RESET
 		}
 	}
 
-	void reset_textureset(RE::NiAVObject* a_object, RE::BSShaderTextureSet* a_txst, bool a_doOnlySkin, const std::string_view a_folder)
+	void reset_textureset(RE::NiAVObject* a_object, RE::BSShaderTextureSet* a_txst, bool a_doOnlySkin, const std::string& a_folder)
 	{
 		using Texture = RE::BSTextureSet::Texture;
 

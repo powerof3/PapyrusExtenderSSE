@@ -211,7 +211,7 @@ if (MSVC)
 			/W4	# Warning level
 			/WX # Warning level (warnings are errors)
 
-			"$<$<CONFIG:DEBUG>:>"
+			"$<$<CONFIG:DEBUG>:/bigobj>"
 			"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"
 	)
 

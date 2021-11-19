@@ -53,6 +53,49 @@ namespace Papyrus::FEC
 	inline constexpr auto ShockKYWD{ "MagicDamageShock"sv };
 	inline constexpr auto ParalysisKYWD{ "MagicParalysis"sv };
 
+	using deathEffectPair = std::pair<std::uint32_t, RE::EffectSetting*>;                               //[type, mgef]
+	using deathEffectMap = std::map<std::uint32_t, std::vector<std::pair<RE::EffectSetting*, float>>>;  // [type, [mgef, mag]]
+
+	bool _process_active_effect(RE::ActiveEffect* activeEffect, std::uint32_t a_type, deathEffectPair* effectPair, deathEffectMap* effectMap)
+	{
+		using FLAG = RE::EffectSetting::EffectSettingData::Flag;
+		using AE_FLAG = RE::ActiveEffect::Flag;
+		using CAST_TYPE = RE::MagicSystem::CastingType;
+		using Archetype = RE::EffectArchetypes::ArchetypeID;
+
+		const auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr;
+		if (mgef && mgef->data.flags.all(FLAG::kHostile) && mgef->data.flags.all(FLAG::kDetrimental)) {
+			if (a_type == 0) {
+				if (mgef->HasKeyword(SunKYWD)) {
+					*(effectPair) = { DEATH_TYPE::kSun, mgef };  //sun override
+					// break out of loop
+					return true;
+					/*} else if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType == CAST_TYPE::kConcentration) {
+						effectPair = { DEATH_TYPE::kAcid, mgef };  //acid override
+						break;*/
+				}
+				if (mgef->HasKeyword(FireKYWD)) {
+					(*effectMap)[DEATH_TYPE::kFire].emplace_back(mgef, -activeEffect->magnitude);  //flipping the magnitude back to +ve
+				} else if (mgef->HasKeyword(FrostKYWD)) {
+					(*effectMap)[DEATH_TYPE::kFrost].emplace_back(mgef, -activeEffect->magnitude);
+				} else if (mgef->HasKeyword(ShockKYWD)) {
+					(*effectMap)[DEATH_TYPE::kShock].emplace_back(mgef, -activeEffect->magnitude);
+				} else if (mgef->GetArchetype() == Archetype::kAbsorb) {
+					(*effectMap)[DEATH_TYPE::kDrain].emplace_back(mgef, -activeEffect->magnitude);
+				}
+			} else {
+				if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist /*&& mgef->data.castingType != CAST_TYPE::kConcentration*/) {
+					(*effectMap)[DEATH_TYPE::kPoison].emplace_back(mgef, -activeEffect->magnitude);
+				} else if (mgef->GetArchetype() == Archetype::kDemoralize) {
+					(*effectMap)[DEATH_TYPE::kFear].emplace_back(mgef, -activeEffect->magnitude);
+				} else if (mgef->data.associatedSkill == RE::ActorValue::kAlteration && mgef->HasKeyword(ParalysisKYWD)) {
+					(*effectMap)[DEATH_TYPE::kAsh].emplace_back(mgef, -activeEffect->magnitude);
+				}
+			}
+		}
+		return false;
+	}
+
 	inline std::vector<std::int32_t> GetDeathEffectType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
 		std::uint32_t a_type)
@@ -70,50 +113,32 @@ namespace Papyrus::FEC
 			return vec;
 		}
 
+#ifndef SKYRIMVR
 		const auto activeEffects = a_actor->GetActiveEffectList();
 		if (!activeEffects) {
 			a_vm->TraceForm(a_actor, "has no active effects", a_stackID, Severity::kInfo);
 			return vec;
 		}
+#endif
 
 		using deathEffectPair = std::pair<std::uint32_t, RE::EffectSetting*>;  //[type, mgef]
 		deathEffectPair effectPair = { -1, nullptr };
 
 		using deathEffectMap = std::map<std::uint32_t, std::vector<std::pair<RE::EffectSetting*, float>>>;  // [type, [mgef, mag]]
 		deathEffectMap effectMap;
-
+#ifndef SKYRIMVR
 		for (const auto& activeEffect : *activeEffects) {
-			const auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr;
-			if (mgef && mgef->data.flags.all(FLAG::kHostile) && mgef->data.flags.all(FLAG::kDetrimental)) {
-				if (a_type == 0) {
-					if (mgef->HasKeyword(SunKYWD)) {
-						effectPair = { DEATH_TYPE::kSun, mgef };  //sun override
-						break;
-						/*} else if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType == CAST_TYPE::kConcentration) {
-						effectPair = { DEATH_TYPE::kAcid, mgef };  //acid override
-						break;*/
-					}
-					if (mgef->HasKeyword(FireKYWD)) {
-						effectMap[DEATH_TYPE::kFire].emplace_back(mgef, -activeEffect->magnitude);  //flipping the magnitude back to +ve
-					} else if (mgef->HasKeyword(FrostKYWD)) {
-						effectMap[DEATH_TYPE::kFrost].emplace_back(mgef, -activeEffect->magnitude);
-					} else if (mgef->HasKeyword(ShockKYWD)) {
-						effectMap[DEATH_TYPE::kShock].emplace_back(mgef, -activeEffect->magnitude);
-					} else if (mgef->GetArchetype() == Archetype::kAbsorb) {
-						effectMap[DEATH_TYPE::kDrain].emplace_back(mgef, -activeEffect->magnitude);
-					}
-				} else {
-					if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist /*&& mgef->data.castingType != CAST_TYPE::kConcentration*/) {
-						effectMap[DEATH_TYPE::kPoison].emplace_back(mgef, -activeEffect->magnitude);
-					} else if (mgef->GetArchetype() == Archetype::kDemoralize) {
-						effectMap[DEATH_TYPE::kFear].emplace_back(mgef, -activeEffect->magnitude);
-					} else if (mgef->data.associatedSkill == RE::ActorValue::kAlteration && mgef->HasKeyword(ParalysisKYWD)) {
-						effectMap[DEATH_TYPE::kAsh].emplace_back(mgef, -activeEffect->magnitude);
-					}
-				}
-			}
+			if (_process_active_effect(activeEffect, a_type, &effectPair, &effectMap))
+				break;
 		}
+#else
+		a_actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+			if (_process_active_effect(activeEffect, a_type, &effectPair, &effectMap))
+				return RE::BSContainer::ForEachResult::kStop;
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
 
+#endif
 		if (effectPair.first == DEATH_TYPE::kNone && !effectMap.empty()) {
 			constexpr auto mag_cmp = [](const auto& a_lhs, const auto& a_rhs) {
 				return numeric::definitely_less_than(a_lhs.second, a_rhs.second);

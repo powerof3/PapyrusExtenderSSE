@@ -473,6 +473,20 @@ namespace Papyrus::Actor
 		return nullptr;
 	}
 
+#ifdef SKYRIMVR
+	// Fix missing GetEquippedArmorInSlot declared in SKSEVR but that doesn't exist in VR.
+	// https://www.creationkit.com/index.php?title=Actor_Script#Special_Edition_Exclusive_Functions
+	inline RE::TESObjectARMO* GetEquippedArmorInSlot(VM* a_vm, StackID a_stackID, RE::Actor* a_actor, std::int32_t a_slot)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+		logger::debug("GetEquippedArmor running on {}", a_actor->GetDisplayFullName());
+		return a_actor->GetWornArmor(static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(a_slot));
+	}
+#endif
+
 	inline RE::BGSColorForm* GetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -1514,6 +1528,10 @@ namespace Papyrus::Actor
 		BIND(GetCombatTargets);
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
+#ifdef SKYRIMVR
+		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
+		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");
+#endif
 		BIND(GetHairColor);
 		BIND(GetHeadPartTextureSet);
 		BIND(GetLocalGravityActor);

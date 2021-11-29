@@ -104,7 +104,6 @@ Scriptname PO3_SKSEFunctions Hidden
 		None = -1
 		Torso = 0
 		Head = 1
-		...
 	/;
 	
 	;Returns whether limb is gone (i.e, the head, but adding the whole enum in case someone expands the dismemberment system in the future)
@@ -362,6 +361,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Force this actor to always detect their targets
 	Function ForceActorDetecting(Actor akActor) global native
 	
+	;Returns whether this actor is currently detected by other NPCs
+	Bool IsDetectedByAnyone(Actor akActor) global native
+	
 	;Prevent this actor from being detected by other NPCs (actor is hidden).
 	Function PreventActorDetection(Actor akActor) global native
 
@@ -382,21 +384,23 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;-------
 	
-	int property kEffectShader_NoMembraneShader = 0x00000001 AutoReadOnly ; 0
-	int property kEffectShader_MembraneGreyscaleColor = 0x00000002 AutoReadOnly ; 1
-	int property kEffectShader_MembraneGreyscaleAlpha = 0x00000004 AutoReadOnly ; 2
-	int property kEffectShader_NoParticleShader = 0x00000008 AutoReadOnly ; 3
-	int property kEffectShader_EdgeEffectInverse = 0x00000010 AutoReadOnly ; 4
-	int property kEffectShader_AffectSkinOnly = 0x00000020 AutoReadOnly ; 5
-	int property kEffectShader_IgnoreAlpha = 0x00000040 AutoReadOnly ; 6
-	int property kEffectShader_ProjectUV = 0x00000080 AutoReadOnly ; 7
-	int property kEffectShader_IgnoreBaseGeometryAlpha = 0x00000100 AutoReadOnly ; 8
-	int property kEffectShader_Lighting = 0x00000200 AutoReadOnly ; 9
-	int property kEffectShader_NoWeapons = 0x00000400 AutoReadOnly ; 10
-	int property kEffectShader_ParticleAnimated = 0x00008000 AutoReadOnly ; 15
-	int property kEffectShader_ParticleGreyscaleColor = 0x00010000 AutoReadOnly ; 16
-	int property kEffectShader_ParticleGreyscaleAlpha = 0x00020000 AutoReadOnly ; 17
-	int property kEffectShader_UseBloodGeometry = 0x01000000 AutoReadOnly ; 24
+	;/	EFFECT SHADER FLAGS
+		kNoMembraneShader = 0x00000001
+		kMembraneGreyscaleColor = 0x00000002
+		kMembraneGreyscaleAlpha = 0x00000004
+		kNoParticleShader = 0x00000008
+		kEdgeEffectInverse = 0x00000010
+		kAffectSkinOnly = 0x00000020
+		kIgnoreAlpha = 0x00000040
+		kProjectUV = 0x00000080
+		kIgnoreBaseGeometryAlpha = 0x00000100
+		kLighting = 0x00000200
+		kNoWeapons = 0x00000400
+		kParticleAnimated = 0x00008000
+		kParticleGreyscaleColor = 0x00010000
+		kParticleGreyscaleAlpha = 0x00020000
+		kUseBloodGeometry = 0x01000000
+	/;
 	
 	;Gets addon models
 	Debris Function GetAddonModels(EffectShader akEffectShader) global native
@@ -533,7 +537,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Record flags
 	;https://en.uesp.net/wiki/Skyrim_Mod:Mod_File_Format#Records
 	
-	;evakluates condition lists for spells/potions/enchantments/mgefs and returns if they can be fullfilled
+	;evaluates condition lists for spells/potions/enchantments/mgefs and returns if they can be fullfilled
 	bool Function EvaluateConditionList(Form akForm, ObjectReference akActionRef, ObjectReference akTargetRef) global native
 	
 	;Clear record flag
@@ -542,6 +546,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Builds a list of conditions present on the form. Index is for spells/other forms that have lists with conditions
 	;Some conditions may be skipped (conditions that require non player references, overly complex conditions involving packages/aliases)
 	String[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
+	
+	;Gets form using its editorID (as seen in CK or xEdit)
+	String Function GetFormFromEditorID(Form akForm) global native
 	
 	;Returns whether the form is part of the mod
 	bool Function IsFormInMod(Form akForm, String asModName) global native
@@ -636,11 +643,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets the value of the boolean gamesetting. Returns -1 if gmst is None or not a bool.
 	Int Function GetGameSettingBool(String asGameSetting) global native
 	
+	;Returns whether God Mode is enabled
+	Bool Function GetGodMode() global native
+	
 	;Gets local gravity of the exterior worldspace/interior cell. Default gravity is [0.0, 0.0, -9.81]
 	Float[] Function GetLocalGravity() global native
 	
 	;Gets how many actors are in high process
 	int Function GetNumActorsInHigh() global native
+	
+	;Returns all actors that are currently following the player
+	Actor[] Function GetPlayerFollowers() global native
 	
 	;Returns whether plugin exists
 	bool Function IsPluginFound(String akName) global native
@@ -659,12 +672,14 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;-------
 	
-	int property kHazard_None = 0 AutoReadOnly ; 0
-	int property kHazard_PCOnly = 0x00000001 AutoReadOnly ; 1
-	int property kHazard_InheritDuration = 0x00000002 AutoReadOnly ; 2
-	int property kHazard_AlignToNormal = 0x00000004 AutoReadOnly ; 3
-	int property kHazard_InheritRadius = 0x00000008 AutoReadOnly ; 4
-	int property kHazard_DropToGround = 0x00000010 AutoReadOnly ; 5
+	;/	HAZARD FLAGS
+		None = 0
+		PCOnly = 0x00000001
+		InheritDuration = 0x00000002
+		AlignToNormal = 0x00000004 
+		InheritRadius = 0x00000008
+		DropToGround = 0x00000010
+	/;
 	
 	;Gets hazard art path, eg. "Effects/MyHazardArt.nif"
 	String Function GetHazardArt(Hazard akHazard) global native
@@ -772,11 +787,11 @@ Scriptname PO3_SKSEFunctions Hidden
 	float Function GetLightShadowDepthBias(ObjectReference akLightObject) global native
 	
 	;/	LIGHT TYPES
-		HemiShadow = 1,
-		Omni = 2;
-		OmniShadow = 3,
-		Spot = 4,
-		SpotShadow = 5,
+		HemiShadow = 1
+		Omni = 2
+		OmniShadow = 3
+		Spot = 4
+		SpotShadow = 5
 	/;
 	
 	;Get light type
@@ -1138,6 +1153,59 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Sets the base object of this reference and reloads 3D
 	Function SetBaseObject(ObjectReference akRef, Form akBaseObject) global native
 	
+	;/ COLLISION LAYERS
+		kUnidentified = 0,
+		kStatic = 1,
+		kAnimStatic = 2,
+		kTransparent = 3,
+		kClutter = 4,
+		kWeapon = 5,
+		kProjectile = 6,
+		kSpell = 7,
+		kBiped = 8,
+		kTrees = 9,
+		kProps = 10,
+		kWater = 11,
+		kTrigger = 12,
+		kTerrain = 13,
+		kTrap = 14,
+		kNonCollidable = 15,
+		kCloudTrap = 16,
+		kGround = 17,
+		kPortal = 18,
+		kDebrisSmall = 19,
+		kDebrisLarge = 20,
+		kAcousticSpace = 21,
+		kActorZone = 22,
+		kProjectileZone = 23,
+		kGasTrap = 24,
+		kShellCasting = 25,
+		kTransparentWall = 26,
+		kInvisibleWall = 27,
+		kTransparentSmallAnim = 28,
+		kClutterLarge = 29,
+		kCharController = 30,
+		kStairHelper = 31,
+		kDeadBip = 32,
+		kBipedNoCC = 33,
+		kAvoidBox = 34,
+		kCollisionBox = 35,
+		kCameraSphere = 36,
+		kDoorDetection = 37,
+		kConeProjectile = 38,
+		kCamera = 39,
+		kItemPicker = 40,
+		kLOS = 41,
+		kPathingPick = 42,
+		kUnused0 = 43,
+		kUnused1 = 44,
+		kSpellExplosion = 45,
+		kDroppingPick = 46
+	/;
+	
+	;Sets object 3D root or specified node's collision layer 
+	Function SetCollisionLayer(ObjectReference akRef, String asNodeName, int aiCollisionLayer) global native
+	
 	;Sets the door as the new linked door
 	bool Function SetDoorDestination(ObjectReference akRef, ObjectReference akDoor) global native
 	
@@ -1154,25 +1222,26 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Copies skin tint color from actorbase to bodyparts nif
 	Function SetupBodyPartGeometry(ObjectReference akRef, actor akActor) global native
 	
-	;SHADER TYPES
-	int property kDefault = 0 AutoReadOnly ;
-	int property kEnvironmentMap = 1 AutoReadOnly ;
-	int property kGlowMap = 2 AutoReadOnly ;
-	int property kParallax = 3 AutoReadOnly ;
-	int property kFaceGen = 4 AutoReadOnly ;
-	int property kFaceGenRGBTint = 5 AutoReadOnly ;
-	int property kHairTint = 6 AutoReadOnly ;
-	int property kParallaxOcc = 7 AutoReadOnly ;
-	int property kMultiTexLand = 8 AutoReadOnly ;
-	int property kLODLand = 9 AutoReadOnly ;
-	int property kMultilayerParallax = 11 AutoReadOnly ;
-	int property kTreeAnim = 12 AutoReadOnly ;
-	int property kMultiIndexTriShapeSnow = 14 AutoReadOnly ;
-	int property kLODObjectsHD = 15 AutoReadOnly ;
-	int property kEye = 16 AutoReadOnly ;
-	int property kCloud = 17 AutoReadOnly ;
-	int property kLODLandNoise = 18 AutoReadOnly ;
-	int property kMultiTexLandLODBlend = 19 AutoReadOnly ;
+	;/ SHADER TYPES
+		kDefault = 0
+		kEnvironmentMap = 1
+		kGlowMap = 2
+		kParallax = 3
+		kFaceGen = 4
+		kFaceGenRGBTint = 5
+		kHairTint = 6
+		kParallaxOcc = 7
+		kMultiTexLand = 8
+		kLODLand = 9
+		kMultilayerParallax = 11
+		kTreeAnim = 12
+		kMultiIndexTriShapeSnow = 14
+		kLODObjectsHD = 15
+		kEye = 16
+		kCloud = 17
+		kLODLandNoise = 18
+		kMultiTexLandLODBlend = 19
+	/;
 	
 	;sets the ref's shader material type ie. default to cubemap
 	;template needs to be loaded
@@ -1244,9 +1313,6 @@ Scriptname PO3_SKSEFunctions Hidden
 		MovementBlocked = 36
 		VampireFeed = 37
 		CannibalFeed = 38
-		Unknown39 = 39
-		Unknown40 = 40
-		Unknown41 = 41
 	/;
 	
 	;Gets package type. Returns -1 if package is none

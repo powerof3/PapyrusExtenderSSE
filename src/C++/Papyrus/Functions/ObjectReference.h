@@ -1238,6 +1238,34 @@ namespace Papyrus::ObjectReference
 		a_ref->SetObjectReference(static_cast<RE::TESBoundObject*>(a_base));
 	}
 
+	inline void SetCollisionLayer(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESObjectREFR* a_ref,
+		std::string a_nodeName,
+		std::uint32_t a_colLayer)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return;
+		}
+
+		const auto root = a_ref->Get3D();
+		if (!root) {
+			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
+			return;
+		}
+
+		const auto colLayer = static_cast<RE::COL_LAYER>(a_colLayer);
+
+		if (a_nodeName.empty()) {
+			root->SetCollisionLayer(colLayer);
+		} else {
+			auto object = root->GetObjectByName(a_nodeName);
+			if (object) {
+				object->SetCollisionLayer(colLayer);
+			}
+		}
+	}
+
 	inline void SetEffectShaderDuration(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		const RE::TESEffectShader* a_effectShader,
@@ -1666,6 +1694,7 @@ namespace Papyrus::ObjectReference
 		BIND(PlayDebugShader);
 		BIND(ScaleObject3D);
 		BIND(SetBaseObject);
+		BIND(SetCollisionLayer);
 		BIND(SetDoorDestination);
 		BIND(SetEffectShaderDuration);
 		BIND(SetLinkedRef);

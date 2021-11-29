@@ -46,8 +46,8 @@ namespace Papyrus::Actor
 		const auto actorEffects = actorbase ? actorbase->GetSpellList() : nullptr;
 
 		if (actorEffects && actorEffects->AddSpell(a_spell)) {
-			if (const auto combatController = a_actor->combatController; combatController && combatController->inventoryController) {
-				combatController->inventoryController->unk1C4 = 1;
+			if (const auto combatController = a_actor->combatController; combatController && combatController->inventory) {
+				combatController->inventory->dirty = 1;
 			}
 			if (actorbase->IsPlayer() || a_spell->GetSpellType() == RE::MagicSystem::SpellType::kLeveledSpell) {
 				RE::SpellsLearned::SendEvent(a_spell);
@@ -242,12 +242,12 @@ namespace Papyrus::Actor
 					charController->GetCollisionFilterInfo(filterInfo);
 					if (a_enable) {
 						a_actor->boolBits.set(BOOL_BITS::kParalyzed);
-						root->UpdateRigidBodySettings(32, filterInfo + 1);
-						root->SetRigidConstraints(true);
+						root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo + 1);
+						root->UpdateRigidConstraints(true);
 					} else {
 						a_actor->boolBits.reset(BOOL_BITS::kParalyzed);
-						root->SetRigidConstraints(false);
-						root->UpdateRigidBodySettings(32, filterInfo >> 16);
+						root->UpdateRigidConstraints(false);
+						root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo >> 16);
 					}
 				});
 			}
@@ -844,7 +844,7 @@ namespace Papyrus::Actor
 			}
 		};
 
-		for (auto& spell : a_actor->addedSpells | std::ranges::views::reverse) {
+		for (auto& spell : a_actor->addedSpells) {
 			if (!spell) {
 				continue;
 			}
@@ -862,7 +862,7 @@ namespace Papyrus::Actor
 		if (taskQueue) {
 			auto actorHandle = a_actor->CreateRefHandle();
 			for (auto& spell : spells) {
-				taskQueue->QueueRemoveSpellTask(actorHandle, spell);
+				taskQueue->QueueRemoveSpell(actorHandle, spell);
 			}
 		}
 	}
@@ -910,11 +910,11 @@ namespace Papyrus::Actor
 			}
 
 			const auto combatController = a_actor->combatController; 
-			if (combatController && combatController->inventoryController) {
-				combatController->inventoryController->unk1C4 = 1;
+			if (combatController && combatController->inventory) {
+				combatController->inventory->dirty = 1;
 			}
 
-			a_actor->RemoveSelectedSpell(a_spell);
+			a_actor->DeselectSpell(a_spell);
 			actorEffects->RemoveSpell(a_spell);
 
 			actorbase->AddChange(RE::TESNPC::ChangeFlags::kSpellList);

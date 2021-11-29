@@ -296,12 +296,12 @@ namespace Events
 							if (root && charController) {
 								zombie->boolBits.reset(RE::Actor::BOOL_BITS::kParalyzed);
 
-								root->SetRigidConstraints(false);
+								root->UpdateRigidConstraints(false);
 
 								std::uint32_t filterInfo = 0;
 								charController->GetCollisionFilterInfo(filterInfo);
 
-								root->UpdateRigidBodySettings(32, filterInfo >> 16);
+								root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo >> 16);
 							}
 						}
 

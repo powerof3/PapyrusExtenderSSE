@@ -8,6 +8,7 @@
     "boost-stl-interfaces",
     "frozen",
     "robin-hood-hashing",
+    "rsm-binary-io",
     "spdlog",
     "xbyak"
   ]

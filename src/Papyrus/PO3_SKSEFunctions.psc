@@ -547,8 +547,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Some conditions may be skipped (conditions that require non player references, overly complex conditions involving packages/aliases)
 	String[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
 	
-	;Gets form using its editorID (as seen in CK or xEdit)
-	String Function GetFormFromEditorID(Form akForm) global native
+	;Get form editorID
+	String Function GetFormEditorID(Form akForm) global native
 	
 	;Returns whether the form is part of the mod
 	bool Function IsFormInMod(Form akForm, String asModName) global native
@@ -639,6 +639,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Gets current cell if in interior/attached cells in exterior/sky cells if in worldspace with no attached cells??
 	Cell[] Function GetAttachedCells() global native
+	
+	;Gets form using its editorID
+	Form Function GetFormFromEditorID(String asEditorID) global native
 	
 	;Gets the value of the boolean gamesetting. Returns -1 if gmst is None or not a bool.
 	Int Function GetGameSettingBool(String asGameSetting) global native

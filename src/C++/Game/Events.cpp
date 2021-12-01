@@ -485,52 +485,36 @@ namespace Events
 			}
 		}
 
-		class WeatherEvent
+		//got rid of asm hook, the fact that it worked in SE without issues was a miracle
+		namespace Weather
 		{
-		public:
-			static void Install()
+			struct SetCurrentWeather
 			{
-				REL::Relocation<std::uintptr_t> target{ REL::ID(25684), 0x416 };
-
-				struct Patch : Xbyak::CodeGenerator
+				static void thunk(RE::TESRegion* a_region, RE::TESWeather* a_currentWeather)
 				{
-					Patch(std::uintptr_t a_func, std::uintptr_t a_target)
-					{
-						Xbyak::Label funcLbl;
-						Xbyak::Label returnLbl;
+					if (currentWeather != a_currentWeather) {
+						currentWeather = a_currentWeather;
 
-						mov(dword[rbx + 0x1DC], eax);  // original code
+						const auto sky = RE::Sky::GetSingleton();
+						const auto lastWeather = sky ? sky->lastWeather : nullptr;
 
-						call(ptr[rip + funcLbl]);  // new function
-						jmp(ptr[rip + returnLbl]);
-
-						L(funcLbl);
-						dq(a_func);
-
-						L(returnLbl);
-						dq(a_target + 0x6);  // next line
+						OnWeatherChangeRegSet::GetSingleton()->QueueEvent(lastWeather, currentWeather);
 					}
-				};
 
-				Patch patch(reinterpret_cast<std::uintptr_t>(SendWeatherEvent), target.address());
-				patch.ready();
+					func(a_region, a_currentWeather);
+				}
+				static inline REL::Relocation<decltype(&thunk)> func;
 
-				auto& trampoline = SKSE::GetTrampoline();
-				trampoline.write_branch<6>(
-					target.address(),
-					trampoline.allocate(patch));
-			}
+			private:
+				static inline RE::TESWeather* currentWeather;
+			};
 
-		private:
-			static void SendWeatherEvent()
+			void Install()
 			{
-				const auto sky = RE::Sky::GetSingleton();
-				const auto currentWeather = sky ? sky->currentWeather : nullptr;
-				const auto lastWeather = sky ? sky->lastWeather : nullptr;
-
-				OnWeatherChangeRegSet::GetSingleton()->QueueEvent(lastWeather, currentWeather);
+				REL::Relocation<std::uintptr_t> target{ REL::ID(25684) };
+				stl::write_thunk_call<SetCurrentWeather>(target.address() + 0x44F);
 			}
-		};
+		}
 
 		void Register()
 		{
@@ -552,7 +536,7 @@ namespace Events
 			MagicHit::Install();
 			logger::info("Hooked Magic Hit"sv);
 
-			WeatherEvent::Install();
+			Weather::Install();
 			logger::info("Hooked Weather Change"sv);
 		}
 	}

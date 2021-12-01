@@ -362,7 +362,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function ForceActorDetecting(Actor akActor) global native
 	
 	;Returns whether this actor is currently detected by other NPCs
-	Bool IsDetectedByAnyone(Actor akActor) global native
+	Bool Function IsDetectedByAnyone(Actor akActor) global native
 	
 	;Prevent this actor from being detected by other NPCs (actor is hidden).
 	Function PreventActorDetection(Actor akActor) global native

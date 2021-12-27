@@ -12,8 +12,8 @@ namespace Papyrus::Cell
 		return a_cell->lightingTemplate;
 	}
 
-	inline void SetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESObjectCELL* a_cell, 
+	inline void SetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESObjectCELL* a_cell,
 		RE::BGSLightingTemplate* a_lightingTemplate)
 	{
 		if (!a_cell) {
@@ -38,8 +38,8 @@ namespace Papyrus::Cell
 		return a_cell->GetNorthRotation();
 	}
 
-	inline void SetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESObjectCELL* a_cell, 
+	inline void SetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESObjectCELL* a_cell,
 		float a_angle)
 	{
 		if (!a_cell) {

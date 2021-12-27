@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Game/Cache.h"
 #include "Serialization/Events.h"
 #include "Serialization/Services.h"
-#include "Game/Cache.h"
 
 using namespace Events::Script;
 using namespace Events::Story;

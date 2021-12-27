@@ -39,5 +39,3 @@ namespace Cache
 		EditorID::GetSingleton()->FillMap();
 	}
 }
-
-

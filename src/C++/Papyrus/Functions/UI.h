@@ -9,9 +9,9 @@ namespace Papyrus::UI
 		const auto ui = RE::UI::GetSingleton();
 		const auto menu = ui ? ui->GetMenu<RE::ContainerMenu>() : nullptr;
 		if (menu) {
-            const auto refHandle = menu->GetTargetRefHandle();
+			const auto refHandle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refr;
-            RE::LookupReferenceByHandle(refHandle, refr);
+			RE::LookupReferenceByHandle(refHandle, refr);
 
 			container = refr.get();
 		}
@@ -19,7 +19,7 @@ namespace Papyrus::UI
 		return container;
 	}
 
-    inline void Bind(VM& a_vm)
+	inline void Bind(VM& a_vm)
 	{
 		BIND(GetMenuContainer);
 

@@ -52,8 +52,8 @@ namespace Papyrus::Projectile
 		return a_projectile->GetType();
 	}
 
-	inline void SetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::BGSProjectile* a_projectile, 
+	inline void SetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::BGSProjectile* a_projectile,
 		float a_gravity)
 	{
 		if (!a_projectile) {
@@ -64,8 +64,8 @@ namespace Papyrus::Projectile
 		a_projectile->data.gravity = a_gravity;
 	}
 
-	inline void SetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::BGSProjectile* a_projectile, 
+	inline void SetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::BGSProjectile* a_projectile,
 		float a_force)
 	{
 		if (!a_projectile) {
@@ -76,8 +76,8 @@ namespace Papyrus::Projectile
 		a_projectile->data.force = a_force;
 	}
 
-	inline void SetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::BGSProjectile* a_projectile, 
+	inline void SetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::BGSProjectile* a_projectile,
 		float a_range)
 	{
 		if (!a_projectile) {
@@ -88,8 +88,8 @@ namespace Papyrus::Projectile
 		a_projectile->data.range = a_range;
 	}
 
-	inline void SetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::BGSProjectile* a_projectile, 
+	inline void SetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::BGSProjectile* a_projectile,
 		float a_speed)
 	{
 		if (!a_projectile) {

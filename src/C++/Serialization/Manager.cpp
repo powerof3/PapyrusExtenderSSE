@@ -16,7 +16,7 @@ namespace Serialization
 
 		std::string sig;
 		sig.resize(SIZE);
-        const char* iter = reinterpret_cast<char*>(&a_typeCode);
+		const char* iter = reinterpret_cast<char*>(&a_typeCode);
 		for (std::size_t i = 0, j = SIZE - 2; i < SIZE - 1; ++i, --j) {
 			sig[j] = iter[i];
 		}
@@ -61,7 +61,7 @@ namespace Serialization
 
 		SAVE<FORM::PerkManager>(a_intfc, kAddPerks, kRemovePerks);
 		SAVE<FORM::KeywordManager>(a_intfc, kAddKeywords, kRemoveKeywords);
-		
+
 		SAVE<DETECTION::TargetManager>(a_intfc, kTargetHide, kTargetAlert);
 		SAVE<DETECTION::SourceManager>(a_intfc, kSourceHide, kSourceAlert);
 
@@ -261,7 +261,7 @@ namespace Serialization
 		logger::info("Finished reverting data"sv);
 	}
 
-    void FormDeleteCallback(RE::VMHandle a_handle)
+	void FormDeleteCallback(RE::VMHandle a_handle)
 	{
 		FORM_DELETE<OnCellFullyLoadedRegSet>(a_handle);
 		FORM_DELETE<OnQuestStartRegMap>(a_handle);
@@ -298,7 +298,7 @@ namespace Serialization
 		FORM_DELETE<OnFECResetRegMap>(a_handle);
 	}
 
-    namespace FormDeletion
+	namespace FormDeletion
 	{
 		EventHandler* EventHandler::GetSingleton()
 		{
@@ -310,10 +310,10 @@ namespace Serialization
 		{
 			if (a_event && a_event->formID != 0) {
 				const auto formID = a_event->formID;
-				
+
 				FORM_DELETE<FORM::KeywordManager>(formID);
 				FORM_DELETE<FORM::PerkManager>(formID);
-				
+
 				FORM_DELETE<DETECTION::TargetManager>(formID);
 				FORM_DELETE<DETECTION::SourceManager>(formID);
 			}
@@ -329,5 +329,5 @@ namespace Serialization
 				logger::info("Registered form deletion event handler"sv);
 			}
 		}
-	} 
+	}
 }

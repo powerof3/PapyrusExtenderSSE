@@ -690,7 +690,7 @@ namespace Papyrus::Actor
 		}
 
 		if (a_actor->currentProcess) {
-			const auto processLists = RE::ProcessLists::GetSingleton(); 
+			const auto processLists = RE::ProcessLists::GetSingleton();
 			if (processLists) {
 				for (auto& targetHandle : processLists->highActorHandles) {
 					auto target = targetHandle.get();
@@ -909,7 +909,7 @@ namespace Papyrus::Actor
 				}
 			}
 
-			const auto combatController = a_actor->combatController; 
+			const auto combatController = a_actor->combatController;
 			if (combatController && combatController->inventory) {
 				combatController->inventory->dirty = 1;
 			}

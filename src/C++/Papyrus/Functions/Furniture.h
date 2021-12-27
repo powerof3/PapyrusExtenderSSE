@@ -27,7 +27,7 @@ namespace Papyrus::Furniture
 		return -1;
 	}
 
-    inline void Bind(VM& a_vm)
+	inline void Bind(VM& a_vm)
 	{
 		BIND(GetFurnitureType, true);
 

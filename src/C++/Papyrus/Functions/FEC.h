@@ -91,7 +91,7 @@ namespace Papyrus::FEC
 					if (mgef->HasKeyword(SunKYWD)) {
 						effectPair = { DEATH_TYPE::kSun, mgef };  //sun override
 						break;
-					/*} else if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType == CAST_TYPE::kConcentration) {
+						/*} else if (mgef->data.resistVariable == RE::ActorValue::kPoisonResist && mgef->data.castingType == CAST_TYPE::kConcentration) {
 						effectPair = { DEATH_TYPE::kAcid, mgef };  //acid override
 						break;*/
 					}

@@ -30,7 +30,7 @@ namespace Papyrus::Utility
 		};
 	}
 
-    inline void Bind(VM& a_vm)
+	inline void Bind(VM& a_vm)
 	{
 		BIND(GenerateRandomFloat, true);
 		BIND(GenerateRandomInt, true);

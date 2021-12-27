@@ -52,7 +52,7 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 			Events::Register();
 			Events::Game::Register();
 			DETECTION::Register();
-		
+
 			Serialization::FormDeletion::Register();
 
 			Cache::Register();

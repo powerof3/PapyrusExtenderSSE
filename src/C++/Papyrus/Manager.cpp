@@ -44,69 +44,69 @@ namespace Papyrus
 
 		logger::info("{:*^30}", "FUNCTIONS"sv);
 
-        ObjectTypes::Bind(*a_vm);
+		ObjectTypes::Bind(*a_vm);
 
-        ActiveMagicEffect::Bind(*a_vm);
+		ActiveMagicEffect::Bind(*a_vm);
 
-        Actor::Bind(*a_vm);
+		Actor::Bind(*a_vm);
 
-        ActorBase::Bind(*a_vm);
+		ActorBase::Bind(*a_vm);
 
-        ArmorAddon::Bind(*a_vm);
+		ArmorAddon::Bind(*a_vm);
 
-        Alias::Bind(*a_vm);
+		Alias::Bind(*a_vm);
 
-        Array::Bind(*a_vm);
+		Array::Bind(*a_vm);
 
-        Book::Bind(*a_vm);
+		Book::Bind(*a_vm);
 
-        Cell::Bind(*a_vm);
+		Cell::Bind(*a_vm);
 
-        Debug::Bind(*a_vm);
+		Debug::Bind(*a_vm);
 
-        EffectShader::Bind(*a_vm);
+		EffectShader::Bind(*a_vm);
 
-        Enchantment::Bind(*a_vm);
+		Enchantment::Bind(*a_vm);
 
-        Form::Bind(*a_vm);
+		Form::Bind(*a_vm);
 
-        FEC::Bind(*a_vm);
+		FEC::Bind(*a_vm);
 
-        Furniture::Bind(*a_vm);
+		Furniture::Bind(*a_vm);
 
-        Game::Bind(*a_vm);
+		Game::Bind(*a_vm);
 
-        Hazard::Bind(*a_vm);
+		Hazard::Bind(*a_vm);
 
-        Light::Bind(*a_vm);
+		Light::Bind(*a_vm);
 
-        Location::Bind(*a_vm);
+		Location::Bind(*a_vm);
 
-        MagicEffect::Bind(*a_vm);
+		MagicEffect::Bind(*a_vm);
 
-        ObjectReference::Bind(*a_vm);
+		ObjectReference::Bind(*a_vm);
 
-        Package::Bind(*a_vm);
+		Package::Bind(*a_vm);
 
-        Potion::Bind(*a_vm);
+		Potion::Bind(*a_vm);
 
-        Projectile::Bind(*a_vm);
+		Projectile::Bind(*a_vm);
 
-        Scroll::Bind(*a_vm);
+		Scroll::Bind(*a_vm);
 
-        Sound::Bind(*a_vm);
+		Sound::Bind(*a_vm);
 
-        Spell::Bind(*a_vm);
+		Spell::Bind(*a_vm);
 
-        Strings::Bind(*a_vm);
+		Strings::Bind(*a_vm);
 
 		UI::Bind(*a_vm);
 
-        Utility::Bind(*a_vm);
+		Utility::Bind(*a_vm);
 
-        VisualEffect::Bind(*a_vm);
+		VisualEffect::Bind(*a_vm);
 
-        Weather::Bind(*a_vm);
+		Weather::Bind(*a_vm);
 
 		return true;
 	}

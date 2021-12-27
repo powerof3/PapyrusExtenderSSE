@@ -254,10 +254,10 @@ namespace Papyrus::Alias
 			return;
 		}
 
-        const auto start = OnQuestStartRegMap::GetSingleton();
+		const auto start = OnQuestStartRegMap::GetSingleton();
 		start->Register(a_alias, a_quest->GetFormID());
 
-        const auto stop = OnQuestStopRegMap::GetSingleton();
+		const auto stop = OnQuestStopRegMap::GetSingleton();
 		stop->Register(a_alias, a_quest->GetFormID());
 	}
 
@@ -362,7 +362,7 @@ namespace Papyrus::Alias
 			return;
 		}
 
-        const auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
+		const auto refAlias = skyrim_cast<RE::BGSRefAlias*>(a_alias);
 		if (!refAlias) {
 			a_vm->TraceStack("Alias is not a reference alias", a_stackID);
 			return;
@@ -505,7 +505,7 @@ namespace Papyrus::Alias
 			return;
 		}
 
-        const auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
+		const auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
 		const auto regs = OnMagicEffectApplyRegMap::GetSingleton();
 		regs->Unregister(a_alias, key);
 	}
@@ -616,10 +616,10 @@ namespace Papyrus::Alias
 			return;
 		}
 
-        const auto start = OnQuestStartRegMap::GetSingleton();
+		const auto start = OnQuestStartRegMap::GetSingleton();
 		start->UnregisterAll(a_alias);
 
-        const auto stop = OnQuestStartRegMap::GetSingleton();
+		const auto stop = OnQuestStartRegMap::GetSingleton();
 		stop->UnregisterAll(a_alias);
 	}
 

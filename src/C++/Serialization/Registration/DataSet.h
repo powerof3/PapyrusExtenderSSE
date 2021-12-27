@@ -88,7 +88,7 @@ public:
 		Locker locker(_lock);
 		return GetData(a_index).contains(a_data);
 	}
-	
+
 	void Clear()
 	{
 		Locker locker(_lock);
@@ -188,7 +188,7 @@ public:
 		formSet.clear();
 
 		RE::FormID formID;
-	    for (std::size_t i = 0; i < numRegs; i++) {
+		for (std::size_t i = 0; i < numRegs; i++) {
 			a_intfc->ReadRecordData(formID);
 			if (!a_intfc->ResolveFormID(formID, formID)) {
 				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
@@ -199,7 +199,7 @@ public:
 
 		return true;
 	}
-	
+
 	void Remove(RE::FormID a_formID)
 	{
 		Locker locker(_lock);

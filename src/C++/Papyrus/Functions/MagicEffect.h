@@ -32,8 +32,8 @@ namespace Papyrus::MagicEffect
 		return MAGIC::get_archetype_as_string(a_mgef->GetArchetype());
 	}
 
-	inline RE::BGSSoundDescriptorForm* GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::EffectSetting* a_mgef, 
+	inline RE::BGSSoundDescriptorForm* GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::EffectSetting* a_mgef,
 		std::uint32_t a_type)
 	{
 		if (!a_mgef) {
@@ -77,7 +77,7 @@ namespace Papyrus::MagicEffect
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValue(a_mgef->data.secondaryAV) : nullptr;
-		
+
 		return actorValueInfo ? actorValueInfo->enumName : RE::BSFixedString();
 	}
 
@@ -91,9 +91,9 @@ namespace Papyrus::MagicEffect
 		a_mgef->data.associatedForm = a_form;
 	}
 
-	inline void SetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::EffectSetting* a_mgef, 
-		RE::BGSSoundDescriptorForm* a_sound, 
+	inline void SetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::EffectSetting* a_mgef,
+		RE::BGSSoundDescriptorForm* a_sound,
 		std::uint32_t a_type)
 	{
 		if (!a_mgef) {

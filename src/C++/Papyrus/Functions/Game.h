@@ -236,7 +236,7 @@ namespace Papyrus::Game
 	{
 		return RE::TESForm::LookupByEditorID(a_editorID);
 	}
-	
+
 	inline std::int32_t GetGameSettingBool(RE::StaticFunctionTag*, RE::BSFixedString a_gamesetting)
 	{
 		if (a_gamesetting.empty()) {

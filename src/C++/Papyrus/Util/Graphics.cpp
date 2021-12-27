@@ -527,10 +527,10 @@ namespace SET
 		using Texture = RE::BSTextureSet::Texture;
 
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-            const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
-            const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
+			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 			if (lightingShader) {
-                const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
+				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
 				if (material) {
 					auto const feature = material->GetFeature();
 					if (const auto textureSet = material->textureSet.get(); textureSet && stl::is_in(feature, Feature::kFaceGenRGBTint, Feature::kFaceGen)) {
@@ -575,7 +575,7 @@ namespace SET
 							lightingShader->InitializeGeometry(a_geometry);
 							lightingShader->InitializeShader(a_geometry);
 
-						    newMaterial->~BSLightingShaderMaterialBase();
+							newMaterial->~BSLightingShaderMaterialBase();
 							RE::free(newMaterial);
 						}
 					}

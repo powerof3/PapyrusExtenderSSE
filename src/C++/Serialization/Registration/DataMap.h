@@ -292,12 +292,12 @@ public:
 	void Remove(RE::FormID a_formID)
 	{
 		typename DataMapPair<RE::FormID, D>::Locker locker(this->_lock);
-		
+
 		for (std::uint32_t i = 0; i < 2; i++) {
 			auto& formMap = this->GetData(i);
 			formMap.erase(a_formID);
 		}
-	} 
+	}
 
 private:
 	virtual bool Process(F* a_form, const D& a_data, std::uint32_t a_index) = 0;

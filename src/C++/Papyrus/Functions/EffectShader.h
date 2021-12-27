@@ -2,8 +2,8 @@
 
 namespace Papyrus::EffectShader
 {
-	inline void ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		std::uint32_t a_flag)
 	{
 		if (!a_effectShader) {
@@ -117,8 +117,8 @@ namespace Papyrus::EffectShader
 		return a_effectShader->particleShaderTexture.textureName;
 	}
 
-	inline bool IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		const RE::TESEffectShader* a_effectShader, 
+	inline bool IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		const RE::TESEffectShader* a_effectShader,
 		std::uint32_t a_flag)
 	{
 		if (!a_effectShader) {
@@ -129,8 +129,8 @@ namespace Papyrus::EffectShader
 		return a_effectShader->data.flags.all(static_cast<RE::EffectShaderData::Flags>(a_flag));
 	}
 
-	inline void SetAddonModels(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetAddonModels(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		RE::BGSDebris* a_debris)
 	{
 		if (!a_effectShader) {
@@ -141,8 +141,8 @@ namespace Papyrus::EffectShader
 		a_effectShader->data.addonModels = a_debris;
 	}
 
-	inline void SetEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		std::uint32_t a_flag)
 	{
 		if (!a_effectShader) {
@@ -153,11 +153,11 @@ namespace Papyrus::EffectShader
 		a_effectShader->data.flags.set(static_cast<RE::EffectShaderData::Flags>(a_flag));
 	}
 
-	inline void SetMembraneColorKeyData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
-		std::uint32_t a_colorKey, 
-		std::vector<std::int32_t> a_rgb, 
-		float a_alpha, 
+	inline void SetMembraneColorKeyData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
+		std::uint32_t a_colorKey,
+		std::vector<std::int32_t> a_rgb,
+		float a_alpha,
 		float a_time)
 	{
 		if (!a_effectShader) {
@@ -201,8 +201,8 @@ namespace Papyrus::EffectShader
 		}
 	}
 
-	inline void SetMembraneHolesTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetMembraneHolesTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		RE::BSFixedString a_textureName)
 	{
 		if (!a_effectShader) {
@@ -213,8 +213,8 @@ namespace Papyrus::EffectShader
 		a_effectShader->holesTexture.textureName = std::move(a_textureName);
 	}
 
-	inline void SetMembraneFillTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetMembraneFillTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		RE::BSFixedString a_textureName)
 	{
 		if (!a_effectShader) {
@@ -225,8 +225,8 @@ namespace Papyrus::EffectShader
 		a_effectShader->fillTexture.textureName = std::move(a_textureName);
 	}
 
-	inline void SetMembranePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetMembranePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		RE::BSFixedString a_textureName)
 	{
 		if (!a_effectShader) {
@@ -237,11 +237,11 @@ namespace Papyrus::EffectShader
 		a_effectShader->membranePaletteTexture.textureName = std::move(a_textureName);
 	}
 
-	inline void SetParticleColorKeyData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
-		std::uint32_t a_colorKey, 
-		std::vector<std::int32_t> a_rgb, 
-		float a_alpha, 
+	inline void SetParticleColorKeyData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
+		std::uint32_t a_colorKey,
+		std::vector<std::int32_t> a_rgb,
+		float a_alpha,
 		float a_time)
 	{
 		if (!a_effectShader) {
@@ -285,8 +285,8 @@ namespace Papyrus::EffectShader
 		}
 	}
 
-	inline void SetParticleFullCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetParticleFullCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		float a_particleCount)
 	{
 		if (!a_effectShader) {
@@ -297,8 +297,8 @@ namespace Papyrus::EffectShader
 		a_effectShader->data.particleShaderFullParticleBirthRatio = a_particleCount;
 	}
 
-	inline void SetParticlePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetParticlePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		RE::BSFixedString a_textureName)
 	{
 		if (!a_effectShader) {
@@ -309,8 +309,8 @@ namespace Papyrus::EffectShader
 		a_effectShader->particlePaletteTexture.textureName = std::move(a_textureName);
 	}
 
-	inline void SetParticlePersistentCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetParticlePersistentCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		float a_particleCount)
 	{
 		if (!a_effectShader) {
@@ -321,8 +321,8 @@ namespace Papyrus::EffectShader
 		a_effectShader->data.particleShaderPersistantParticleCount = a_particleCount;
 	}
 
-	inline void SetParticleShaderTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
-		RE::TESEffectShader* a_effectShader, 
+	inline void SetParticleShaderTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESEffectShader* a_effectShader,
 		RE::BSFixedString a_textureName)
 	{
 		if (!a_effectShader) {

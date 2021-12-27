@@ -92,10 +92,6 @@ else ()
 	)
 endif ()
 
-
-find_package(Boost MODULE REQUIRED)
-find_package(spdlog REQUIRED CONFIG)
-find_package(xbyak REQUIRED CONFIG)
 find_package(frozen CONFIG REQUIRED)
 
 # ---- Add source files ----
@@ -147,11 +143,8 @@ target_include_directories(
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-		Boost::headers
 		CommonLibSSE::CommonLibSSE
 		frozen::frozen
-		spdlog::spdlog
-		xbyak::xbyak
 )
 
 if (MSVC)

@@ -176,13 +176,14 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		const auto projectedUVParams = RE::NiColorA(
+		const auto projectedUVParams = RE::NiColorA{
 			a_shader->directionalData.falloffScale,
 			a_shader->directionalData.falloffBias,
 			1.0f / a_shader->directionalData.noiseUVScale,
-			std::cosf(a_materialThresholdAngle * 0.017453292f));
+			std::cosf(RE::deg_to_rad(a_materialThresholdAngle))
+		};
 
-		root->UpdateMaterialShader(
+		root->SetProjectedUVData(
 			projectedUVParams,
 			a_shader->directionalData.singlePassColor,
 			a_shader->directionalData.flags.any(RE::BSMaterialObject::DIRECTIONAL_DATA::Flag::kSnow));

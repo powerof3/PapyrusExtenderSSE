@@ -303,9 +303,9 @@ namespace Papyrus::Game
 	inline RE::BSFixedString GetSurfaceMaterialType(VM*, StackID, RE::StaticFunctionTag*, const float a_x, const float a_y, const float a_z)
 	{
 		const auto materialID = RE::TES::GetSingleton() ? RE::TES::GetSingleton()->GetLandMaterialType({ a_x, a_y, a_z }) : RE::MATERIAL_ID::kNone;
-	    const auto material = RE::BGSMaterialType::GetMaterialType(materialID);
+		const auto material = RE::BGSMaterialType::GetMaterialType(materialID);
 
-	    return material ? material->materialName : RE::BSFixedString();
+		return material ? material->materialName : RE::BSFixedString();
 	}
 
 	inline bool IsPluginFound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name)

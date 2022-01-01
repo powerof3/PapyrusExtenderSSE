@@ -144,6 +144,16 @@ namespace RESET
 
 			if (colorForm) {
 				a_root->UpdateHairColor(colorForm->color);
+
+				if (const auto biped = a_actor->GetCurrentBiped().get(); biped) {
+					for (auto& slot : ACTOR::headSlots) {
+						const auto node = biped->objects[slot].partClone.get();
+						if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
+							node->UpdateHairColor(colorForm->color);
+						}
+					}
+				}
+
 				a_root->RemoveExtraData(a_data->GetName());
 			}
 		}

@@ -4,10 +4,7 @@
 
 namespace Papyrus::Actor
 {
-	using Biped = RE::BIPED_OBJECT;
-
 	inline constexpr RE::FormID SoulTrapHitArtID = 0x000531AE;
-	inline constexpr std::array<Biped, 3> headSlots = { Biped::kHair, Biped::kLongHair, Biped::kCirclet };
 
 	inline bool AddBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
@@ -1192,8 +1189,18 @@ namespace Papyrus::Actor
 		}
 
 		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, a_color]() {
+		task->AddTask([root, a_actor, a_color]() {
 			root->UpdateHairColor(a_color->color);
+
+			if (const auto biped = a_actor->GetCurrentBiped().get(); biped) {
+				for (auto& slot : ACTOR::headSlots) {
+					const auto node = biped->objects[slot].partClone.get();
+					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
+						node->UpdateHairColor(a_color->color);
+					}
+				}
+			}
+
 			SET::update_color_data(root, EXTRA::HAIR_TINT, a_color->color);
 		});
 	}
@@ -1277,7 +1284,7 @@ namespace Papyrus::Actor
 		}
 
 		if (const auto charController = a_actor->GetCharController(); charController) {
-			charController->SetLinearVelocityImpl(RE::hkVector4(a_x * 0.0142875f, a_y * 0.0142875f, a_z * 0.0142875f, 0.0f));
+			charController->SetLinearVelocityImpl(RE::hkVector4(RE::deg_to_rad(a_x), RE::deg_to_rad(a_y), RE::deg_to_rad(a_z), 0.0f));
 		}
 	}
 
@@ -1393,7 +1400,7 @@ namespace Papyrus::Actor
 		const auto task = SKSE::GetTaskInterface();
 		task->AddTask([a_actor, root, a_disable]() {
 			if (const auto biped = a_actor->GetCurrentBiped().get(); biped) {
-				for (auto& slot : headSlots) {
+				for (auto& slot : ACTOR::headSlots) {
 					const auto node = biped->objects[slot].partClone.get();
 					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
 						SET::Toggle(root, node, a_disable);

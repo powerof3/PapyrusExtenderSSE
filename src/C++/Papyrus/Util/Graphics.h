@@ -1,5 +1,10 @@
 #pragma once
 
+namespace ACTOR
+{
+    inline constexpr std::array headSlots = { RE::BIPED_OBJECT::kHair, RE::BIPED_OBJECT::kLongHair, RE::BIPED_OBJECT::kCirclet };
+}
+
 namespace EXTRA
 {
 	inline constexpr auto TOGGLE = "PO3_TOGGLE"sv;

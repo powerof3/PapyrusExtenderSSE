@@ -24,23 +24,11 @@ namespace Events
 			{
 				logger::info("{:*^30}", "SCRIPT EVENTS"sv);
 
-				auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
-				if (scripts) {
-					scripts->AddEventSink<RE::TESCellFullyLoadedEvent>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::TESCellFullyLoadedEvent).name());
-
-					scripts->AddEventSink<RE::TESQuestStartStopEvent>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::TESQuestStartStopEvent).name());
-
-					scripts->AddEventSink<RE::TESQuestStageEvent>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::TESQuestStageEvent).name());
-
-					scripts->AddEventSink<RE::TESObjectLoadedEvent>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::TESObjectLoadedEvent).name());
-
-					scripts->AddEventSink<RE::TESGrabReleaseEvent>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::TESGrabReleaseEvent).name());
-				}
+				register_event<RE::TESCellFullyLoadedEvent>();
+				register_event<RE::TESQuestStartStopEvent>();
+				register_event<RE::TESQuestStageEvent>();
+				register_event<RE::TESObjectLoadedEvent>();
+				register_event<RE::TESGrabReleaseEvent>();
 			}
 
 			EventResult ProcessEvent(const RE::TESCellFullyLoadedEvent* a_event, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>*) override;
@@ -58,6 +46,15 @@ namespace Events
 
 			EventHandler& operator=(const EventHandler&) = delete;
 			EventHandler& operator=(EventHandler&&) = delete;
+
+			template <class T>
+			static void register_event()
+			{
+				if (const auto scripts = RE::ScriptEventSourceHolder::GetSingleton(); scripts) {
+					scripts->AddEventSink<T>(GetSingleton());
+					logger::info("Registered {} handler"sv, typeid(T).name());
+				}
+			}
 		};
 	}
 
@@ -88,77 +85,23 @@ namespace Events
 			{
 				logger::info("{:*^30}", "STORY EVENTS"sv);
 
-				auto actorKill = RE::ActorKill::GetEventSource();
-				if (actorKill) {
-					actorKill->AddEventSink<RE::ActorKill::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::ActorKill::Event).name());
-				}
+				register_event<RE::ActorKill>();
+				register_event<RE::BooksRead>();
+				register_event<RE::CriticalHit>();
+				register_event<RE::DisarmedEvent>();
+				register_event<RE::DragonSoulsGained>();
 
-				auto books = RE::BooksRead::GetEventSource();
-				if (books) {
-					books->AddEventSink<RE::BooksRead::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::BooksRead::Event).name());
-				}
-
-				auto critHit = RE::CriticalHit::GetEventSource();
-				if (critHit) {
-					critHit->AddEventSink<RE::CriticalHit::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::CriticalHit::Event).name());
-				}
-
-				auto disarmed = RE::DisarmedEvent::GetEventSource();
-				if (disarmed) {
-					disarmed->AddEventSink<RE::DisarmedEvent::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::DisarmedEvent::Event).name());
-				}
-
-				auto dragonSoulGained = RE::DragonSoulsGained::GetEventSource();
-				if (dragonSoulGained) {
-					dragonSoulGained->AddEventSink<RE::DragonSoulsGained::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::DragonSoulsGained::Event).name());
-				}
-
-				auto itemHarvest = RE::TESHarvestedEvent::GetEventSource();
-				if (itemHarvest) {
-					itemHarvest->AddEventSink<RE::TESHarvestedEvent::ItemHarvested>(GetSingleton());
+				if (const auto event = RE::TESHarvestedEvent::GetEventSource(); event) {
+					event->AddEventSink<RE::TESHarvestedEvent::ItemHarvested>(GetSingleton());
 					logger::info("Registered {} handler"sv, typeid(RE::TESHarvestedEvent::ItemHarvested).name());
 				}
 
-				auto levelIncrease = RE::LevelIncrease::GetEventSource();
-				if (levelIncrease) {
-					levelIncrease->AddEventSink<RE::LevelIncrease::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::LevelIncrease::Event).name());
-				}
-
-				auto locDiscovery = RE::LocationDiscovery::GetEventSource();
-				if (locDiscovery) {
-					locDiscovery->AddEventSink<RE::LocationDiscovery::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::LocationDiscovery::Event).name());
-				}
-
-				auto shoutAttack = RE::ShoutAttack::GetEventSource();
-				if (shoutAttack) {
-					shoutAttack->AddEventSink<RE::ShoutAttack::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::ShoutAttack::Event).name());
-				}
-
-				auto skillIncrease = RE::SkillIncrease::GetEventSource();
-				if (skillIncrease) {
-					skillIncrease->AddEventSink<RE::SkillIncrease::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::ActorKill::Event).name());
-				}
-
-				auto soulsTrapped = RE::SoulsTrapped::GetEventSource();
-				if (soulsTrapped) {
-					soulsTrapped->AddEventSink<RE::SoulsTrapped::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::SoulsTrapped::Event).name());
-				}
-
-				auto spellsLearned = RE::SpellsLearned::GetEventSource();
-				if (spellsLearned) {
-					spellsLearned->AddEventSink<RE::SpellsLearned::Event>(GetSingleton());
-					logger::info("Registered {} handler"sv, typeid(RE::SpellsLearned::Event).name());
-				}
+				register_event<RE::LevelIncrease>();
+				register_event<RE::LocationDiscovery>();
+				register_event<RE::ShoutAttack>();
+				register_event<RE::SkillIncrease>();
+				register_event<RE::SoulsTrapped>();
+				register_event<RE::SpellsLearned>();
 			}
 
 			EventResult ProcessEvent(const RE::ActorKill::Event* a_event, RE::BSTEventSource<RE::ActorKill::Event>*) override;
@@ -183,6 +126,15 @@ namespace Events
 
 			EventHandler& operator=(const EventHandler&) = delete;
 			EventHandler& operator=(EventHandler&&) = delete;
+
+			template <class T>
+			static void register_event()
+			{
+				if (const auto event = T::GetEventSource(); event) {
+					event->AddEventSink<T::Event>(GetSingleton());
+					logger::info("Registered {} handler"sv, typeid(T::Event).name());
+				}
+			}
 		};
 	}
 }

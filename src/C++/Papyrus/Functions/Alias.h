@@ -748,6 +748,7 @@ namespace Papyrus::Alias
 		BIND_EVENT(RegisterForSpellLearned, true);
 		BIND_EVENT(RegisterForWeatherChange, true);
 		BIND_EVENT(RegisterForWeaponHit, true);
+
 		BIND_EVENT(UnregisterForActorKilled, true);
 		BIND_EVENT(UnregisterForActorReanimateStart, true);
 		BIND_EVENT(UnregisterForActorReanimateStop, true);

@@ -146,7 +146,7 @@ namespace Papyrus::Form
 			return RE::BSFixedString();
 		}
 
-		return Cache::EditorID::GetSingleton()->GetEditorID(a_form->GetFormID());
+        return Cache::EditorID::GetSingleton()->GetEditorID(a_form->GetFormID());
 	}
 
 	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)

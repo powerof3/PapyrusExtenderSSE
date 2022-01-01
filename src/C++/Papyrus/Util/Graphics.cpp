@@ -145,9 +145,9 @@ namespace RESET
 			if (colorForm) {
 				a_root->UpdateHairColor(colorForm->color);
 
-				if (const auto biped = a_actor->GetCurrentBiped().get(); biped) {
+				if (const auto biped = a_actor->GetCurrentBiped(); biped) {
 					for (auto& slot : ACTOR::headSlots) {
-						const auto node = biped->objects[slot].partClone.get();
+						const auto node = biped->objects[slot].partClone;
 						if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
 							node->UpdateHairColor(colorForm->color);
 						}
@@ -190,7 +190,7 @@ namespace RESET
 				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
 				if (material) {
 					if (!a_doOnlySkin) {
-						if (const auto textureSet = material->textureSet.get(); !a_folder.empty() && textureSet) {
+						if (const auto textureSet = material->textureSet; textureSet && !a_folder.empty()) {
 							std::string sourcePath{ textureSet->GetTexturePath(Texture::kDiffuse) };
 							if (TEXTURE::sanitize_path(sourcePath); sourcePath.find(a_folder) == std::string::npos) {
 								return RE::BSVisit::BSVisitControl::kContinue;
@@ -488,7 +488,7 @@ namespace SET
 			if (lightingShader) {
 				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
 				if (material) {
-					if (const auto textureSet = material->textureSet.get(); textureSet) {
+					if (const auto textureSet = material->textureSet; textureSet) {
 						std::string sourcePath{ textureSet->GetTexturePath(Texture::kDiffuse) };
 						TEXTURE::sanitize_path(sourcePath);
 
@@ -543,7 +543,7 @@ namespace SET
 				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
 				if (material) {
 					auto const feature = material->GetFeature();
-					if (const auto textureSet = material->textureSet.get(); textureSet && stl::is_in(feature, Feature::kFaceGenRGBTint, Feature::kFaceGen)) {
+					if (const auto textureSet = material->textureSet; textureSet && stl::is_in(feature, Feature::kFaceGenRGBTint, Feature::kFaceGen)) {
 						if (a_vec.empty()) {
 							a_vec.reserve(Texture::kTotal);
 							for (auto& type : TEXTURE::types) {
@@ -646,7 +646,7 @@ namespace SET
 			if (const auto parent = a_geometry->parent; parent && parent->AsFadeNode() && noWeap && isActor) {
 				return RE::BSVisit::BSVisitControl::kContinue;
 			}
-			if (const auto alpha = a_geometry->properties[State::kProperty].get(); alpha && noAlpha) {
+			if (const auto alpha = a_geometry->properties[State::kProperty]; alpha && noAlpha) {
 				return RE::BSVisit::BSVisitControl::kContinue;
 			}
 
@@ -661,8 +661,8 @@ namespace SET
 				const auto tempMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(tempLightingShader->material);
 
 				if (material && tempMaterial) {
-					const auto textureSet = material->textureSet.get();
-					const auto tempTextureSet = tempMaterial->textureSet.get();
+					const auto textureSet = material->textureSet;
+					const auto tempTextureSet = tempMaterial->textureSet;
 
 					if (textureSet && tempTextureSet) {
 						std::string sourceDiffuse{ textureSet->GetTexturePath(Texture::kDiffuse) };

@@ -1192,9 +1192,9 @@ namespace Papyrus::Actor
 		task->AddTask([root, a_actor, a_color]() {
 			root->UpdateHairColor(a_color->color);
 
-			if (const auto biped = a_actor->GetCurrentBiped().get(); biped) {
+			if (const auto biped = a_actor->GetCurrentBiped(); biped) {
 				for (auto& slot : ACTOR::headSlots) {
-					const auto node = biped->objects[slot].partClone.get();
+					const auto node = biped->objects[slot].partClone;
 					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
 						node->UpdateHairColor(a_color->color);
 					}
@@ -1399,11 +1399,11 @@ namespace Papyrus::Actor
 
 		const auto task = SKSE::GetTaskInterface();
 		task->AddTask([a_actor, root, a_disable]() {
-			if (const auto biped = a_actor->GetCurrentBiped().get(); biped) {
+			if (const auto biped = a_actor->GetCurrentBiped(); biped) {
 				for (auto& slot : ACTOR::headSlots) {
-					const auto node = biped->objects[slot].partClone.get();
+					const auto node = biped->objects[slot].partClone;
 					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
-						SET::Toggle(root, node, a_disable);
+						SET::Toggle(root, node.get(), a_disable);
 					}
 				}
 			}

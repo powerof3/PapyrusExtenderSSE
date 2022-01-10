@@ -147,6 +147,23 @@ namespace Papyrus::Form
 		return CONDITION::BuildConditions(condition);
 	}
 
+	inline RE::BSFixedString GetDescription(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return RE::BSFixedString();
+		}
+
+		const auto description = a_form->As<RE::TESDescription>();
+		if (description) {
+			RE::BSString str;
+			description->GetDescription(str, nullptr);
+			return str;
+		}
+
+		return RE::BSFixedString();
+	}
+
 	inline RE::BSFixedString GetFormEditorID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
@@ -922,6 +939,7 @@ namespace Papyrus::Form
 		BIND(ClearRecordFlag);
 		BIND(EvaluateConditionList);
 		BIND(GetConditionList);
+		BIND(GetDescription);
 		BIND(GetFormEditorID);
 		BIND(IsFormInMod, true);
 		BIND(IsGeneratedForm, true);

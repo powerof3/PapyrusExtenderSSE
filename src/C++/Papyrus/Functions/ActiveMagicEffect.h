@@ -351,7 +351,6 @@ namespace Papyrus::ActiveMagicEffect
 		regs->Register(a_activeEffect);
 	}
 
-	
 	inline void UnregisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {

@@ -276,7 +276,7 @@ namespace Events
 				logger::info("Hooked Fall Damage"sv);
 			}
 		}
-		
+
 		namespace Resurrect
 		{
 			struct Resurrect
@@ -292,8 +292,8 @@ namespace Events
 
 			void Install()
 			{
-				stl::write_vfunc<RE::Character, 0x0AB, Resurrect>();			
-				
+				stl::write_vfunc<RE::Character, 0x0AB, Resurrect>();
+
 				logger::info("Hooked Actor Resurrect"sv);
 			}
 		}
@@ -342,7 +342,7 @@ namespace Events
 			void Install()
 			{
 				stl::write_vfunc<RE::ReanimateEffect, 0x14, ReanimateStart>();
-				
+
 				logger::info("Hooked Actor Reanimate Start"sv);
 			}
 		};
@@ -371,7 +371,7 @@ namespace Events
 			void Install()
 			{
 				stl::write_vfunc<RE::ReanimateEffect, 0x15, ReanimateStop>();
-				
+
 				logger::info("Hooked Actor Reanimate Stop"sv);
 			}
 		}

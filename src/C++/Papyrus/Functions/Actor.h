@@ -44,7 +44,7 @@ namespace Papyrus::Actor
 
 		if (actorEffects && actorEffects->AddSpell(a_spell)) {
 			if (const auto combatController = a_actor->combatController; combatController && combatController->inventory) {
-				combatController->inventory->dirty = 1;
+				combatController->inventory->dirty = true;
 			}
 			if (actorbase->IsPlayer() || a_spell->GetSpellType() == RE::MagicSystem::SpellType::kLeveledSpell) {
 				RE::SpellsLearned::SendEvent(a_spell);
@@ -1438,9 +1438,7 @@ namespace Papyrus::Actor
 		});
 
 		if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager) {
-			std::for_each(
-				inv.begin(),
-				inv.end(),
+			std::ranges::for_each(inv,
 				[&](auto& invData) {
 					const auto& [item, data] = invData;
 					const auto& [count, entry] = data;

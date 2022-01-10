@@ -112,6 +112,14 @@ namespace Papyrus::Form
 				}
 			}
 			break;
+		case RE::FormType::Perk:
+			{
+				const auto perk = a_form->As<RE::BGSPerk>();
+				if (perk && perk->perkConditions.IsTrue(a_actionRef, a_target)) {
+					result = true;
+				}
+			}
+			break;
 		default:
 			result = true;
 			break;

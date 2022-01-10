@@ -121,6 +121,10 @@ namespace Events
 		OnProjectileHitRegSet::OnProjectileHitRegSet() :
 			Base("OnProjectileHit"sv)
 		{}
+
+		OnActorFallLongDistanceRegSet::OnActorFallLongDistanceRegSet() :
+			Base("OnActorFallLongDistance"sv)
+		{}
 	}
 
 	namespace FEC

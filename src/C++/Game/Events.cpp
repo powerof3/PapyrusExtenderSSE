@@ -253,6 +253,30 @@ namespace Events
 
 	namespace Game
 	{
+		namespace FallLongDistance
+		{
+			struct CalcDoDamage
+			{
+				static float thunk(RE::Actor* a_this, float a_fallDistance, float a_defaultMult)
+				{
+					auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
+					if (fallDamage > 0.0) {
+						OnActorFallLongDistanceRegSet::GetSingleton()->QueueEvent(a_this, a_this, a_fallDistance, fallDamage);
+					}
+					return fallDamage;
+				}
+				static inline REL::Relocation<decltype(&thunk)> func;
+			};
+
+			inline void Install()
+			{
+				REL::Relocation<std::uintptr_t> target{ REL::ID(36346) };
+				stl::write_thunk_call<CalcDoDamage>(target.address() + 0x35);
+
+				logger::info("Hooked Fall Damage"sv);
+			}
+		}
+		
 		namespace Resurrect
 		{
 			struct Resurrect
@@ -268,7 +292,9 @@ namespace Events
 
 			void Install()
 			{
-				stl::write_vfunc<RE::Character, 0x0AB, Resurrect>();
+				stl::write_vfunc<RE::Character, 0x0AB, Resurrect>();			
+				
+				logger::info("Hooked Actor Resurrect"sv);
 			}
 		}
 
@@ -316,6 +342,8 @@ namespace Events
 			void Install()
 			{
 				stl::write_vfunc<RE::ReanimateEffect, 0x14, ReanimateStart>();
+				
+				logger::info("Hooked Actor Reanimate Start"sv);
 			}
 		};
 
@@ -343,6 +371,8 @@ namespace Events
 			void Install()
 			{
 				stl::write_vfunc<RE::ReanimateEffect, 0x15, ReanimateStop>();
+				
+				logger::info("Hooked Actor Reanimate Stop"sv);
 			}
 		}
 
@@ -372,6 +402,8 @@ namespace Events
 			{
 				REL::Relocation<std::uintptr_t> target{ REL::ID(33742), 0x1E8 };
 				stl::write_thunk_call<MagicTargetApply>(target.address());
+
+				logger::info("Hooked Magic Effect Apply"sv);
 			}
 		}
 
@@ -398,6 +430,8 @@ namespace Events
 			{
 				REL::Relocation<std::uintptr_t> target{ REL::ID(37832), 0x1C3 };
 				stl::write_thunk_call<SendHitEvent>(target.address());
+
+				logger::info("Hooked Magic Hit"sv);
 			}
 		}
 
@@ -476,10 +510,10 @@ namespace Events
 			inline void Install()
 			{
 				stl::write_thunk_call<Actor::SendHitEvent>(Actor::target.address());
-
 				stl::write_thunk_call<Static::SendHitEvent>(Static::target.address());
-
 				stl::write_thunk_call<Projectile::SendHitEvent>(Projectile::target.address());
+
+				logger::info("Hooked Weapon Hit"sv);
 			}
 		}
 
@@ -511,6 +545,8 @@ namespace Events
 			{
 				REL::Relocation<std::uintptr_t> target{ REL::ID(25684) };
 				stl::write_thunk_call<SetCurrentWeather>(target.address() + 0x44F);
+
+				logger::info("Hooked Weather Change"sv);
 			}
 		}
 
@@ -518,24 +554,14 @@ namespace Events
 		{
 			logger::info("{:*^30}", "HOOKED EVENTS"sv);
 
+			FallLongDistance::Install();
 			Resurrect::Install();
-			logger::info("Hooked Actor Resurrect"sv);
-
 			ReanimateStart::Install();
 			ReanimateStop::Install();
-			logger::info("Hooked Actor Reanimate"sv);
-
 			MagicEffectApply::Install();
-			logger::info("Hooked Magic Effect Apply"sv);
-
 			WeaponHit::Install();
-			logger::info("Hooked Weapon Hit"sv);
-
 			MagicHit::Install();
-			logger::info("Hooked Magic Hit"sv);
-
 			Weather::Install();
-			logger::info("Hooked Weather Change"sv);
 		}
 	}
 

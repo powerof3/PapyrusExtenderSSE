@@ -20,6 +20,17 @@ namespace Papyrus::Alias
 		return SCRIPT::is_script_attached(a_alias, a_scriptName);
 	}
 
+	inline void RegisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		const auto regs = OnActorFallLongDistanceRegSet::GetSingleton();
+		regs->Register(a_alias);
+	}
+
 	inline void RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -342,6 +353,17 @@ namespace Papyrus::Alias
 
 		const auto regs = OnWeaponHitRegSet::GetSingleton();
 		regs->Register(a_alias);
+	}
+
+	inline void UnregisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		const auto regs = OnActorFallLongDistanceRegSet::GetSingleton();
+		regs->Unregister(a_alias);
 	}
 
 	inline void UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
@@ -723,6 +745,7 @@ namespace Papyrus::Alias
 
 		BIND(IsScriptAttachedToAlias);
 
+		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
 		BIND_EVENT(RegisterForActorReanimateStop, true);
@@ -749,6 +772,7 @@ namespace Papyrus::Alias
 		BIND_EVENT(RegisterForWeatherChange, true);
 		BIND_EVENT(RegisterForWeaponHit, true);
 
+		BIND_EVENT(UnregisterForActorFallLongDistance, true);
 		BIND_EVENT(UnregisterForActorKilled, true);
 		BIND_EVENT(UnregisterForActorReanimateStart, true);
 		BIND_EVENT(UnregisterForActorReanimateStop, true);

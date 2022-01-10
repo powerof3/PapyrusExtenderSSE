@@ -597,6 +597,27 @@ namespace Events
 			OnProjectileHitRegSet& operator=(const OnProjectileHitRegSet&) = delete;
 			OnProjectileHitRegSet& operator=(OnProjectileHitRegSet&&) = delete;
 		};
+
+		class OnActorFallLongDistanceRegSet : public SKSE::RegistrationSetUnique<const RE::Actor*, float, float>
+		{
+		public:
+			using Base = SKSE::RegistrationSetUnique<const RE::Actor*, float, float>;
+
+			static OnActorFallLongDistanceRegSet* GetSingleton()
+			{
+				static OnActorFallLongDistanceRegSet singleton;
+				return &singleton;
+			}
+
+		private:
+			OnActorFallLongDistanceRegSet();
+			OnActorFallLongDistanceRegSet(const OnActorFallLongDistanceRegSet&) = delete;
+			OnActorFallLongDistanceRegSet(OnActorFallLongDistanceRegSet&&) = delete;
+			~OnActorFallLongDistanceRegSet() = default;
+
+			OnActorFallLongDistanceRegSet& operator=(const OnActorFallLongDistanceRegSet&) = delete;
+			OnActorFallLongDistanceRegSet& operator=(OnActorFallLongDistanceRegSet&&) = delete;
+		};
 	}
 
 	namespace FEC

@@ -21,6 +21,17 @@ namespace Papyrus::ActiveMagicEffect
 		return SCRIPT::is_script_attached(a_activeEffect, a_scriptName);
 	}
 
+	inline void RegisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		const auto regs = OnActorFallLongDistanceRegSet::GetSingleton();
+		regs->Register(a_activeEffect);
+	}
+
 	inline void RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -338,6 +349,18 @@ namespace Papyrus::ActiveMagicEffect
 
 		const auto regs = OnWeaponHitRegSet::GetSingleton();
 		regs->Register(a_activeEffect);
+	}
+
+	
+	inline void UnregisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		const auto regs = OnActorFallLongDistanceRegSet::GetSingleton();
+		regs->Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -728,6 +751,7 @@ namespace Papyrus::ActiveMagicEffect
 
 		BIND(IsScriptAttachedToActiveEffect);
 
+		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
 		BIND_EVENT(RegisterForFECReset, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
@@ -755,6 +779,7 @@ namespace Papyrus::ActiveMagicEffect
 		BIND_EVENT(RegisterForWeatherChange, true);
 		BIND_EVENT(RegisterForWeaponHit, true);
 
+		BIND_EVENT(UnregisterForActorFallLongDistance, true);
 		BIND_EVENT(UnregisterForActorKilled, true);
 		BIND_EVENT(UnregisterForFECReset, true);
 		BIND_EVENT(UnregisterForAllFECResets, true);

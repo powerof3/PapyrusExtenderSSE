@@ -255,7 +255,7 @@ namespace Events
 				static float thunk(RE::Actor* a_this, float a_fallDistance, float a_defaultMult)
 				{
 					auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
-					if (fallDamage > 0.0) {
+					if (fallDamage > 0.0f) {
 						OnActorFallLongDistanceRegSet::GetSingleton()->QueueEvent(a_this, a_this, a_fallDistance, fallDamage);
 					}
 					return fallDamage;
@@ -265,8 +265,11 @@ namespace Events
 
 			inline void Install()
 			{
-				REL::Relocation<std::uintptr_t> target{ REL::ID(36346) };
-				stl::write_thunk_call<CalcDoDamage>(target.address() + 0x35);
+				REL::Relocation<std::uintptr_t> take_ragdoll_damage{ REL::ID(36346) };
+				stl::write_thunk_call<CalcDoDamage>(take_ragdoll_damage.address() + 0x35);
+
+				REL::Relocation<std::uintptr_t> process_movefinish_event{ REL::ID(36973) };
+				stl::write_thunk_call<CalcDoDamage>(process_movefinish_event.address() + 0xAE);
 
 				logger::info("Hooked Fall Damage"sv);
 			}

@@ -48,6 +48,7 @@ namespace Serialization
 		SAVE<OnSoulsTrappedRegSet>(a_intfc, kSoulTrap);
 		SAVE<OnSpellsLearnedRegSet>(a_intfc, kSpellLearned);
 
+		SAVE<OnActorFallLongDistanceRegSet>(a_intfc, kActorFallLongDistance);
 		SAVE<OnActorResurrectRegSet>(a_intfc, kActorResurrect);
 		SAVE<OnActorReanimateStartRegSet>(a_intfc, kActorReanimateStart);
 		SAVE<OnActorReanimateStopRegSet>(a_intfc, kActorReanimateStop);
@@ -141,6 +142,9 @@ namespace Serialization
 				break;
 			case kSpellLearned:
 				LOAD<OnSpellsLearnedRegSet>(a_intfc);
+				break;
+			case kActorFallLongDistance:
+				LOAD<OnActorFallLongDistanceRegSet>(a_intfc);
 				break;
 			case kActorResurrect:
 				LOAD<OnActorResurrectRegSet>(a_intfc);
@@ -238,6 +242,7 @@ namespace Serialization
 		REVERT<OnSoulsTrappedRegSet>(a_intfc);
 		REVERT<OnSpellsLearnedRegSet>(a_intfc);
 
+		REVERT<OnActorFallLongDistanceRegSet>(a_intfc);
 		REVERT<OnActorResurrectRegSet>(a_intfc);
 		REVERT<OnActorReanimateStartRegSet>(a_intfc);
 		REVERT<OnActorReanimateStopRegSet>(a_intfc);
@@ -286,6 +291,7 @@ namespace Serialization
 		FORM_DELETE<OnSoulsTrappedRegSet>(a_handle);
 		FORM_DELETE<OnSpellsLearnedRegSet>(a_handle);
 
+		FORM_DELETE<OnActorFallLongDistanceRegSet>(a_handle);
 		FORM_DELETE<OnActorResurrectRegSet>(a_handle);
 		FORM_DELETE<OnActorReanimateStartRegSet>(a_handle);
 		FORM_DELETE<OnActorReanimateStopRegSet>(a_handle);

@@ -35,6 +35,7 @@ namespace Serialization
 		kShoutAttack = 'SHOU',
 		kSpellLearned = 'SPEL',
 
+		kActorFallLongDistance = 'FALL',
 		kActorResurrect = 'RSUR',
 		kActorReanimateStart = 'RSTA',
 		kActorReanimateStop = 'REND',
@@ -68,6 +69,7 @@ namespace Serialization
 		const auto regs = T::GetSingleton();
 		if (!regs->GetData(1).empty()) {
 			if (!regs->Save(a_intfc, a_version1, kSerializationVersion, 1)) {
+				logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 1);
 			}
 		}
 		if (!regs->GetData(0).empty()) {

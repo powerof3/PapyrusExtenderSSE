@@ -364,10 +364,10 @@ namespace Events
 			OnShoutAttackRegSet& operator=(OnShoutAttackRegSet&&) = delete;
 		};
 
-		class OnSkillIncreaseRegSet : public SKSE::RegistrationSet<RE::BSFixedString>
+		class OnSkillIncreaseRegSet : public SKSE::RegistrationSet<std::uint32_t>
 		{
 		public:
-			using Base = SKSE::RegistrationSet<RE::BSFixedString>;
+			using Base = SKSE::RegistrationSet<std::uint32_t>;
 
 			static OnSkillIncreaseRegSet* GetSingleton()
 			{

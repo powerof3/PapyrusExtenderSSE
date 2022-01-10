@@ -211,12 +211,7 @@ namespace Events
 				return EventResult::kContinue;
 			}
 
-			const auto avList = RE::ActorValueList::GetSingleton();
-			const auto avInfo = avList ? avList->GetActorValue(a_event->actorValue) : nullptr;
-
-			if (avInfo) {
-				OnSkillIncreaseRegSet::GetSingleton()->QueueEvent(avInfo->enumName);
-			}
+			OnSkillIncreaseRegSet::GetSingleton()->QueueEvent(stl::to_underlying(a_event->actorValue));
 
 			return EventResult::kContinue;
 		}

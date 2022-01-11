@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Serialization/Events.h"
-
-using namespace Events::FEC;
+#include "Serialization/EventHolder.h"
 
 namespace Papyrus::FEC
 {
@@ -313,6 +311,19 @@ namespace Papyrus::FEC
 		});
 	}
 
+	inline void RegisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		const RE::ActiveEffect* a_activeEffect,
+		std::uint32_t a_type)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->FECreset;
+		regs.Register(a_activeEffect, a_type);
+	}
+
 	inline void SendFECResetEvent(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::Actor* a_actor,
 		std::uint32_t a_type,
@@ -323,14 +334,44 @@ namespace Papyrus::FEC
 			return;
 		}
 
-		OnFECResetRegMap::GetSingleton()->QueueEvent(a_type, a_actor, a_type, a_reset);
+		Event::GameEventHolder::GetSingleton()->FECreset.QueueEvent(a_type, a_actor, a_type, a_reset);
+	}
+
+	inline void UnregisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		const RE::ActiveEffect* a_activeEffect,
+		std::uint32_t a_type)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->FECreset;
+		regs.Unregister(a_activeEffect, a_type);
+	}
+
+	inline void UnregisterForAllFECResets(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->FECreset;
+		regs.UnregisterAll(a_activeEffect);
 	}
 
 	inline void Bind(VM& a_vm)
 	{
+		auto const obj = "PO3_Events_AME"sv;
+		
 		BIND(GetDeathEffectType);
 		BIND(RemoveEffectsNotOfType);
 		BIND(SendFECResetEvent, true);
+
+		BIND_EVENT(RegisterForFECReset, true);
+		BIND_EVENT(UnregisterForFECReset, true);
+		BIND_EVENT(UnregisterForAllFECResets, true);
 
 		logger::info("Registered FEC functions"sv);
 	}

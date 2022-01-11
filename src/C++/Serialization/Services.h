@@ -14,7 +14,7 @@ namespace FORM
 	class KeywordManager final : public FormMapPair<RE::TESForm, RE::BGSKeyword>
 	{
 	public:
-		static KeywordManager* GetSingleton()
+		[[nodiscard]] static KeywordManager* GetSingleton()
 		{
 			static KeywordManager singleton;
 			return &singleton;
@@ -44,7 +44,7 @@ namespace FORM
 	class PerkManager final : public FormMapPair<RE::Actor, RE::BGSPerk>
 	{
 	public:
-		static PerkManager* GetSingleton()
+		[[nodiscard]] static PerkManager* GetSingleton()
 		{
 			static PerkManager singleton;
 			return &singleton;
@@ -103,7 +103,7 @@ namespace DETECTION
 	class TargetManager final : public FormSetPair<RE::Actor>
 	{
 	public:
-		static TargetManager* GetSingleton()
+		[[nodiscard]] static TargetManager* GetSingleton()
 		{
 			static TargetManager singleton;
 			return &singleton;
@@ -123,7 +123,7 @@ namespace DETECTION
 	class SourceManager final : public FormSetPair<RE::Actor>
 	{
 	public:
-		static SourceManager* GetSingleton()
+		[[nodiscard]] static SourceManager* GetSingleton()
 		{
 			static SourceManager singleton;
 			return &singleton;
@@ -157,7 +157,7 @@ namespace MAGIC
 	class MGEFManager final : public FormDataMapPair<RE::MagicItem, MGEFData>
 	{
 	public:
-		static MGEFManager* GetSingleton()
+		[[nodiscard]] static MGEFManager* GetSingleton()
 		{
 			static MGEFManager singleton;
 			return &singleton;
@@ -394,7 +394,7 @@ namespace MAGIC
 	class EffectManager final : public FormDataMapPair<RE::MagicItem, EffectData>
 	{
 	public:
-		static EffectManager* GetSingleton()
+		[[nodiscard]] static EffectManager* GetSingleton()
 		{
 			static EffectManager singleton;
 			return &singleton;

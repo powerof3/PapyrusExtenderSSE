@@ -1,11 +1,6 @@
 #pragma once
 
-#include "Serialization/Events.h"
-
-using namespace Events::Script;
-using namespace Events::Story;
-using namespace Events::Game;
-using namespace Events::FEC;
+#include "Serialization/EventHolder.h"
 
 namespace Papyrus::ActiveMagicEffect
 {
@@ -28,8 +23,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorFallLongDistanceRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorFallLongDistance;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -39,21 +34,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorKillRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
-	}
-
-	inline void RegisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::ActiveEffect* a_activeEffect,
-		std::uint32_t a_type)
-	{
-		if (!a_activeEffect) {
-			a_vm->TraceStack("Active Effect is None", a_stackID);
-			return;
-		}
-
-		const auto regs = OnFECResetRegMap::GetSingleton();
-		regs->Register(a_activeEffect, a_type);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->actorKill;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -63,8 +45,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorReanimateStartRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorReanimateStart;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -74,8 +56,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorReanimateStopRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorReanimateStop;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -85,8 +67,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorResurrectRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorResurrect;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -96,8 +78,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnBooksReadRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForCellFullyLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -107,8 +89,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnCellFullyLoadedRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::ScriptEventHolder::GetSingleton()->cellFullyLoaded;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForCriticalHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -118,8 +100,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnCriticalHitRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->criticalHit;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForDisarmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -129,8 +111,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnDisarmedRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->disarmed;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForDragonSoulGained(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -140,8 +122,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->dragonSoulsGained;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -151,8 +133,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnItemHarvestedRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->itemHarvested;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForLevelIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -162,8 +144,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnLevelIncreaseRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->levelIncrease;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -173,8 +155,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnLocationDiscoveryRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->locationDiscovery;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -191,9 +173,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
-		const auto regs = OnMagicEffectApplyRegMap::GetSingleton();
-		regs->Register(a_activeEffect, key);
+		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
+		regs.Register(a_activeEffect, std::make_pair(a_effectFilter->GetFormID(), a_match));
 	}
 
 	inline void RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -203,8 +184,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnMagicHitRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->magicHit;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -214,11 +195,11 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto grab = OnGrabRegSet::GetSingleton();
-		grab->Register(a_activeEffect);
+		auto& grab = Event::ScriptEventHolder::GetSingleton()->objectGrab;
+		grab.Register(a_activeEffect);
 
-		const auto release = OnReleaseRegSet::GetSingleton();
-		release->Register(a_activeEffect);
+		auto& release = Event::ScriptEventHolder::GetSingleton()->objectRelease;
+		release.Register(a_activeEffect);
 	}
 
 	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -232,11 +213,11 @@ namespace Papyrus::ActiveMagicEffect
 
 		const auto formType = static_cast<RE::FormType>(a_formType);
 
-		const auto load = OnObjectLoadedRegMap::GetSingleton();
-		load->Register(a_activeEffect, formType);
+		auto& load = Event::ScriptEventHolder::GetSingleton()->objectLoaded;
+		load.Register(a_activeEffect, formType);
 
-		const auto unload = OnObjectUnloadedRegMap::GetSingleton();
-		unload->Register(a_activeEffect, formType);
+		auto& unload = Event::ScriptEventHolder::GetSingleton()->objectUnloaded;
+		unload.Register(a_activeEffect, formType);
 	}
 
 	inline void RegisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -246,8 +227,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnProjectileHitRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->projectileHit;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect, RE::TESQuest* a_quest)
@@ -261,11 +242,11 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto start = OnQuestStartRegMap::GetSingleton();
-		start->Register(a_activeEffect, a_quest->GetFormID());
+		auto& start = Event::ScriptEventHolder::GetSingleton()->questStart;
+		start.Register(a_activeEffect, a_quest->GetFormID());
 
-		const auto stop = OnQuestStopRegMap::GetSingleton();
-		stop->Register(a_activeEffect, a_quest->GetFormID());
+		auto& stop = Event::ScriptEventHolder::GetSingleton()->questStop;
+		stop.Register(a_activeEffect, a_quest->GetFormID());
 	}
 
 	inline void RegisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -281,8 +262,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnQuestStageRegMap::GetSingleton();
-		regs->Register(a_activeEffect, a_quest->GetFormID());
+		auto& regs = Event::ScriptEventHolder::GetSingleton()->questStage;
+		regs.Register(a_activeEffect, a_quest->GetFormID());
 	}
 
 	inline void RegisterForShoutAttack(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -292,8 +273,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnShoutAttackRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->shoutAttack;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForSkillIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -303,8 +284,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnSkillIncreaseRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->skillIncrease;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -314,8 +295,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnSoulsTrappedRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->soulsTrapped;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -325,8 +306,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnSpellsLearnedRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->spellsLearned;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -336,8 +317,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnWeatherChangeRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->weatherChange;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void RegisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -347,8 +328,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnWeaponHitRegSet::GetSingleton();
-		regs->Register(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->weaponHit;
+		regs.Register(a_activeEffect);
 	}
 
 	inline void UnregisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -358,8 +339,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorFallLongDistanceRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorFallLongDistance;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -369,32 +350,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorKillRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
-	}
-
-	inline void UnregisterForFECReset(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::ActiveEffect* a_activeEffect,
-		std::uint32_t a_type)
-	{
-		if (!a_activeEffect) {
-			a_vm->TraceStack("Active Effect is None", a_stackID);
-			return;
-		}
-
-		const auto regs = OnFECResetRegMap::GetSingleton();
-		regs->Unregister(a_activeEffect, a_type);
-	}
-
-	inline void UnregisterForAllFECResets(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
-	{
-		if (!a_activeEffect) {
-			a_vm->TraceStack("Active Effect is None", a_stackID);
-			return;
-		}
-
-		const auto regs = OnFECResetRegMap::GetSingleton();
-		regs->UnregisterAll(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->actorKill;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -404,8 +361,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorReanimateStartRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorReanimateStart;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -415,8 +372,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorReanimateStopRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorReanimateStop;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -426,8 +383,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnActorResurrectRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->actorResurrect;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -437,8 +394,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnBooksReadRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForCellFullyLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -448,8 +405,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnCellFullyLoadedRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::ScriptEventHolder::GetSingleton()->cellFullyLoaded;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForCriticalHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -459,8 +416,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnCriticalHitRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->criticalHit;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForDisarmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -470,8 +427,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnDisarmedRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->disarmed;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForDragonSoulGained(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -481,8 +438,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnDragonSoulsGainedRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->dragonSoulsGained;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -492,8 +449,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnItemHarvestedRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->itemHarvested;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForLevelIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -503,8 +460,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnLevelIncreaseRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->levelIncrease;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -514,8 +471,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnLocationDiscoveryRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->locationDiscovery;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -532,9 +489,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto key = std::make_pair(a_effectFilter->GetFormID(), a_match);
-		const auto regs = OnMagicEffectApplyRegMap::GetSingleton();
-		regs->Unregister(a_activeEffect, key);
+		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
+		regs.Unregister(a_activeEffect, std::make_pair(a_effectFilter->GetFormID(), a_match));
 	}
 
 	inline void UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -544,8 +500,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnMagicEffectApplyRegMap::GetSingleton();
-		regs->UnregisterAll(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
+		regs.UnregisterAll(a_activeEffect);
 	}
 
 	inline void UnregisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -555,8 +511,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnMagicHitRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->magicHit;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -566,11 +522,11 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto grab = OnGrabRegSet::GetSingleton();
-		grab->Unregister(a_activeEffect);
+		auto& grab = Event::ScriptEventHolder::GetSingleton()->objectGrab;
+		grab.Unregister(a_activeEffect);
 
-		const auto release = OnReleaseRegSet::GetSingleton();
-		release->Unregister(a_activeEffect);
+		auto& release = Event::ScriptEventHolder::GetSingleton()->objectRelease;
+		release.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -584,11 +540,11 @@ namespace Papyrus::ActiveMagicEffect
 
 		auto formType = static_cast<RE::FormType>(a_formType);
 
-		const auto load = OnObjectLoadedRegMap::GetSingleton();
-		load->Unregister(a_activeEffect, formType);
+		auto& load = Event::ScriptEventHolder::GetSingleton()->objectLoaded;
+		load.Unregister(a_activeEffect, formType);
 
-		const auto unload = OnObjectUnloadedRegMap::GetSingleton();
-		unload->Unregister(a_activeEffect, formType);
+		auto& unload = Event::ScriptEventHolder::GetSingleton()->objectUnloaded;
+		unload.Unregister(a_activeEffect, formType);
 	}
 
 	inline void UnregisterForAllObjectsLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -598,11 +554,11 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto load = OnObjectLoadedRegMap::GetSingleton();
-		load->UnregisterAll(a_activeEffect);
+		auto& load = Event::ScriptEventHolder::GetSingleton()->objectLoaded;
+		load.UnregisterAll(a_activeEffect);
 
-		const auto unload = OnObjectUnloadedRegMap::GetSingleton();
-		unload->UnregisterAll(a_activeEffect);
+		auto& unload = Event::ScriptEventHolder::GetSingleton()->objectUnloaded;
+		unload.UnregisterAll(a_activeEffect);
 	}
 
 	inline void UnregisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -612,8 +568,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnProjectileHitRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->projectileHit;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -629,11 +585,11 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto start = OnQuestStartRegMap::GetSingleton();
-		start->Unregister(a_activeEffect, a_quest->GetFormID());
+		auto& start = Event::ScriptEventHolder::GetSingleton()->questStart;
+		start.Unregister(a_activeEffect, a_quest->GetFormID());
 
-		const auto stop = OnQuestStartRegMap::GetSingleton();
-		stop->Unregister(a_activeEffect, a_quest->GetFormID());
+		auto& stop = Event::ScriptEventHolder::GetSingleton()->questStop;
+		stop.Unregister(a_activeEffect, a_quest->GetFormID());
 	}
 
 	inline void UnregisterForAllQuests(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -643,11 +599,11 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto start = OnQuestStartRegMap::GetSingleton();
-		start->UnregisterAll(a_activeEffect);
+		auto& start = Event::ScriptEventHolder::GetSingleton()->questStart;
+		start.UnregisterAll(a_activeEffect);
 
-		const auto stop = OnQuestStartRegMap::GetSingleton();
-		stop->UnregisterAll(a_activeEffect);
+		auto& stop = Event::ScriptEventHolder::GetSingleton()->questStop;
+		stop.UnregisterAll(a_activeEffect);
 	}
 
 	inline void UnregisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -663,8 +619,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnQuestStageRegMap::GetSingleton();
-		regs->Unregister(a_activeEffect, a_quest->GetFormID());
+		auto& regs = Event::ScriptEventHolder::GetSingleton()->questStage;
+		regs.Unregister(a_activeEffect, a_quest->GetFormID());
 	}
 
 	inline void UnregisterForAllQuestStages(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -674,8 +630,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnQuestStageRegMap::GetSingleton();
-		regs->UnregisterAll(a_activeEffect);
+		auto& regs = Event::ScriptEventHolder::GetSingleton()->questStage;
+		regs.UnregisterAll(a_activeEffect);
 	}
 
 	inline void UnregisterForShoutAttack(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -685,8 +641,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnShoutAttackRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->shoutAttack;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForSkillIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -696,8 +652,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnShoutAttackRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->skillIncrease;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -707,8 +663,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnSoulsTrappedRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->soulsTrapped;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -718,8 +674,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnSpellsLearnedRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::StoryEventHolder::GetSingleton()->spellsLearned;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
@@ -729,8 +685,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnWeatherChangeRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->weatherChange;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void UnregisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -740,8 +696,8 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		const auto regs = OnWeaponHitRegSet::GetSingleton();
-		regs->Unregister(a_activeEffect);
+		auto& regs = Event::GameEventHolder::GetSingleton()->weaponHit;
+		regs.Unregister(a_activeEffect);
 	}
 
 	inline void Bind(VM& a_vm)
@@ -752,7 +708,6 @@ namespace Papyrus::ActiveMagicEffect
 
 		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
-		BIND_EVENT(RegisterForFECReset, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
 		BIND_EVENT(RegisterForActorReanimateStop, true);
 		BIND_EVENT(RegisterForActorResurrected, true);
@@ -780,8 +735,6 @@ namespace Papyrus::ActiveMagicEffect
 
 		BIND_EVENT(UnregisterForActorFallLongDistance, true);
 		BIND_EVENT(UnregisterForActorKilled, true);
-		BIND_EVENT(UnregisterForFECReset, true);
-		BIND_EVENT(UnregisterForAllFECResets, true);
 		BIND_EVENT(UnregisterForActorReanimateStart, true);
 		BIND_EVENT(UnregisterForActorReanimateStop, true);
 		BIND_EVENT(UnregisterForActorResurrected, true);

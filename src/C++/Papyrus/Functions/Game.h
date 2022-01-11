@@ -287,11 +287,9 @@ namespace Papyrus::Game
 	{
 		std::vector<RE::Actor*> result;
 
-		const auto xFollowers = RE::PlayerCharacter::GetSingleton()->extraList.GetByType<RE::ExtraFollower>();
-		if (xFollowers) {
-			for (auto& [actorHandle, distance] : xFollowers->actorFollowers) {
-				auto actor = actorHandle.get();
-				if (actor) {
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+			for (auto& actorHandle : processLists->highActorHandles) {
+				if (auto actor = actorHandle.get(); actor && actor->IsPlayerTeammate()) {
 					result.push_back(actor.get());
 				}
 			}

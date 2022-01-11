@@ -29,4 +29,6 @@ namespace Cache
 		robin_hood::unordered_flat_map<RE::FormID, std::string> _formIDToEditorIDMap;
 		robin_hood::unordered_flat_map<std::string, RE::FormID> _editorIDToFormIDMap;
 	};
+
+	void Register();
 }

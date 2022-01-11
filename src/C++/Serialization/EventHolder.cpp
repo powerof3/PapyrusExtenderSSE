@@ -172,7 +172,7 @@ namespace Event
 		weatherChange.Save(a_intfc, kWeatherChange, a_version);
 		FECreset.Save(a_intfc, kFECReset, a_version);
 	}
-	
+
 	void GameEventHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type)
 	{
 		switch (a_type) {
@@ -210,7 +210,7 @@ namespace Event
 			break;
 		}
 	}
-	
+
 	void GameEventHolder::Revert(SKSE::SerializationInterface* a_intfc)
 	{
 		actorFallLongDistance.Revert(a_intfc);
@@ -224,7 +224,7 @@ namespace Event
 		weatherChange.Revert(a_intfc);
 		FECreset.Revert(a_intfc);
 	}
-	
+
 	void GameEventHolder::FormDelete(RE::VMHandle a_handle)
 	{
 		actorFallLongDistance.Unregister(a_handle);

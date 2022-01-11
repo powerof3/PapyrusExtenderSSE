@@ -1,7 +1,7 @@
 #include "Manager.h"
 
-#include "EventHandler.h"
 #include "Cache.h"
+#include "EventHandler.h"
 
 namespace Game
 {
@@ -9,7 +9,7 @@ namespace Game
 	{
 		Cache::Register();
 		Event::Register();
-		
+
 		DETECTION::Register();
 	}
 }

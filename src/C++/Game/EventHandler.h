@@ -3,7 +3,7 @@
 namespace Event
 {
 	using EventResult = RE::BSEventNotifyControl;
-	
+
 	class ScriptEventHandler final :
 		public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>,
 		public RE::BSTEventSink<RE::TESQuestStartStopEvent>,

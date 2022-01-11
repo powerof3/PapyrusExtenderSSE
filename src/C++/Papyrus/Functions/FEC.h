@@ -364,7 +364,7 @@ namespace Papyrus::FEC
 	inline void Bind(VM& a_vm)
 	{
 		auto const obj = "PO3_Events_AME"sv;
-		
+
 		BIND(GetDeathEffectType);
 		BIND(RemoveEffectsNotOfType);
 		BIND(SendFECResetEvent, true);

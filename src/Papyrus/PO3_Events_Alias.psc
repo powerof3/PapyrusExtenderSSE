@@ -2,6 +2,15 @@ Scriptname PO3_Events_Alias  Hidden
 
 ;EVENTS SHOULD BE CALLED ON AN ALIAS - script that is attached to a reference alias/location alias.
 
+;ACTOR FALL LONG DISTANCE
+;fires when the actor falls enough distance to take fall damage
+	
+	Function RegisterForActorFallLongDistance(ReferenceAlias akRefAlias) global native	
+	Function UnregisterForActorFallLongDistance(ReferenceAlias akRefAlias) global native
+	
+	Event OnActorFallLongDistance(Actor akTarget, float afFallDistance, float afFallDamage)
+	EndEvent
+
 ;ACTOR KILL
 	
 	Function RegisterForActorKilled(Alias akAlias) global native	
@@ -157,11 +166,14 @@ Scriptname PO3_Events_Alias  Hidden
 	EndEvent
 	
 ;SKILL INCREASE
+;4.5.6 - Event had its params changed from String to Int as a workaround for only the first registered event recieving any events
+;See https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/A/ActorValues.h
+
 
 	Function RegisterForSkillIncrease(Alias akAlias) global native	
 	Function UnregisterForSkillIncrease(Alias akAlias) global native
 	
-	Event OnSkillIncrease(String asSkill)
+	Event OnSkillIncrease(Int aiSkill)
 	EndEvent
 	
 ;SOUL TRAP

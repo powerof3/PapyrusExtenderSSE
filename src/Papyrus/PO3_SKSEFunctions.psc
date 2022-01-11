@@ -547,6 +547,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Some conditions may be skipped (conditions that require non player references, overly complex conditions involving packages/aliases)
 	String[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
 	
+	;Gets form description text, if any
+	String Function GetDescription(Form akForm) global native
+	
 	;Get form editorID
 	String Function GetFormEditorID(Form akForm) global native
 	
@@ -657,6 +660,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Returns all actors that are currently following the player
 	Actor[] Function GetPlayerFollowers() global native
+	
+	;Gets the material name of the current surface (land texture) at point
+	String Function GetSurfaceMaterialType(float afX, float afY, float afZ) global native
 	
 	;Returns whether plugin exists
 	bool Function IsPluginFound(String akName) global native

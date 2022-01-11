@@ -153,13 +153,15 @@ Scriptname PO3_Events_Form  Hidden
 	
 	Event OnShoutAttack(Shout akShout)
 	endEvent
-	
+		
 ;SKILL INCREASE
+;4.5.6 - Event had its params changed from String to Int as a workaround for only the first registered event recieving any events
+;See https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/A/ActorValues.h
 
 	Function RegisterForSkillIncrease(Form akForm) global native	
 	Function UnregisterForSkillIncrease(Form akForm) global native
 	
-	Event OnSkillIncrease(String asSkill)
+	Event OnSkillIncrease(Int aiSkill)
 	endEvent
 	
 ;SOUL TRAP

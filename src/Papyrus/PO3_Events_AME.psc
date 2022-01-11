@@ -2,6 +2,15 @@ Scriptname PO3_Events_AME  Hidden
 
 ;EVENTS SHOULD BE CALLED ON AN ACTIVEFFECT - script that is attached to a magic effect.
 
+;ACTOR FALL LONG DISTANCE
+;fires when the actor falls enough distance to take fall damage
+	
+	Function RegisterForActorFallLongDistance(ActiveMagicEffect akActiveEffect) global native	
+	Function UnregisterForActorFallLongDistance(ActiveMagicEffect akActiveEffect) global native
+	
+	Event OnActorFallLongDistance(Actor akTarget, float afFallDistance, float afFallDamage)
+	EndEvent
+
 ;ACTOR KILL
 	
 	Function RegisterForActorKilled(ActiveMagicEffect akActiveEffect) global native	
@@ -157,11 +166,13 @@ Scriptname PO3_Events_AME  Hidden
 	EndEvent
 	
 ;SKILL INCREASE
+;4.5.6 - Event had its params changed from String to Int as a workaround for only the first registered event recieving any events
+;See https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/A/ActorValues.h
 
 	Function RegisterForSkillIncrease(ActiveMagicEffect akActiveEffect) global native	
 	Function UnregisterForSkillIncrease(ActiveMagicEffect akActiveEffect) global native
 	
-	Event OnSkillIncrease(String asSkill)
+	Event OnSkillIncrease(Int aiSkill)
 	EndEvent
 	
 ;SOUL TRAP

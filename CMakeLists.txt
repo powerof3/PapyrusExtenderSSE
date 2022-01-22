@@ -51,8 +51,6 @@ message(
 	"Building ${NAME} ${VERSION} for ${SkyrimVersion} at ${SkyrimPath} with ${CommonLibName} at ${CommonLibPath}."
 )
 
-
-
 if (DEFINED VCPKG_ROOT)
 	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 	set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
@@ -62,7 +60,6 @@ else ()
 		"Variable VCPKG_ROOT is not set. Continuing without vcpkg."
 	)
 endif ()
-
 
 set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
@@ -185,7 +182,6 @@ target_link_libraries(
 		frozen::frozen
 )
 
-
 if (MSVC)
 	target_compile_options(
 		${PROJECT_NAME}
@@ -225,70 +221,6 @@ if (MSVC)
 			/WX # Warning level (warnings are errors)
 
 			"$<$<CONFIG:DEBUG>:/bigobj>"
-			"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"
-	)
-
-	target_link_options(
-		${PROJECT_NAME}
-		PRIVATE
-			/WX	# Treat Linker Warnings as Errors
-
-			"$<$<CONFIG:DEBUG>:/INCREMENTAL;/OPT:NOREF;/OPT:NOICF>"
-			"$<$<CONFIG:RELEASE>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>"
-	)
-
-	# fix a warning with /Ob2 being overridden with /Ob3
-	string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-
-endif ()
-
-target_precompile_headers(
-	${PROJECT_NAME}
-	PRIVATE
-		src/C++/PCH.h
-)
-
-# ---- Post build ----
-
-if (MSVC)
-	target_compile_options(
-		${PROJECT_NAME}
-		PRIVATE
-			/sdl	# Enable Additional Security Checks
-			/utf-8	# Set Source and Executable character sets to UTF-8
-			/Zi	# Debug Information Format
-
-			/permissive-	# Standards conformance
-
-			/Zc:alignedNew	# C++17 over-aligned allocation
-			/Zc:auto	# Deduce Variable Type
-			/Zc:char8_t
-			/Zc:__cplusplus	# Enable updated __cplusplus macro
-			/Zc:externC
-			/Zc:externConstexpr	# Enable extern constexpr variables
-			/Zc:forScope	# Force Conformance in for Loop Scope
-			/Zc:hiddenFriend
-			/Zc:implicitNoexcept	# Implicit Exception Specifiers
-			/Zc:lambda
-			/Zc:noexceptTypes	# C++17 noexcept rules
-			/Zc:preprocessor	# Enable preprocessor conformance mode
-			/Zc:referenceBinding	# Enforce reference binding rules
-			/Zc:rvalueCast	# Enforce type conversion rules
-			/Zc:sizedDealloc	# Enable Global Sized Deallocation Functions
-			/Zc:strictStrings	# Disable string literal type conversion
-			/Zc:ternary	# Enforce conditional operator rules
-			/Zc:threadSafeInit	# Thread-safe Local Static Initialization
-			/Zc:tlsGuards
-			/Zc:trigraphs	# Trigraphs Substitution
-			/Zc:wchar_t	# wchar_t Is Native Type
-
-			/external:anglebrackets
-			/external:W0
-
-			/W4	# Warning level
-			/WX # Warning level (warnings are errors)
-
-			"$<$<CONFIG:DEBUG>:>"
 			"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"
 	)
 

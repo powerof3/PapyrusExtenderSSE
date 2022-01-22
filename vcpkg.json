@@ -7,7 +7,6 @@
   "dependencies": [
     "boost-stl-interfaces",
     "frozen",
-	  "rsm-binary-io",
     "robin-hood-hashing",
     "rsm-binary-io",
     "spdlog",

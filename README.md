@@ -45,7 +45,7 @@ git submodule update
 ### SSE
 ```
 cmake --preset vs2022-windows-vcpkg # for vs2019 use vs2019-windows-vcpkg
-cmake --build buildsse --config Release
+cmake --build build --config Release
 ```
 ### VR
 ```

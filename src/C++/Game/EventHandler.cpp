@@ -289,11 +289,12 @@ namespace Event::GameEventHandler
 		{
 			stl::write_vfunc<RE::Character,
 #ifndef SKYRIMVR
-			0x0AB
+				0x0AB
 #else
-			0x0AD
+				0x0AD
 #endif
-			, Resurrect>();
+				,
+				Resurrect>();
 
 			logger::info("Hooked Actor Resurrect"sv);
 		}

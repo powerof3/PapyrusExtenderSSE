@@ -32,18 +32,27 @@ Documentation for each function is listed within the Papyrus source files (.psc 
 * Run `cmake`
 * Close the cmd window
 
+## Building
+```
+git clone https://github.com/powerof3/PapyrusExtenderSSE.git
+cd PapyrusExtenderSSE
+# pull commonlib, skip if you've defined it in the path
+git submodule init
+# to update submodules to latest build (warning may result in build problems)
+git submodule update
+```
+
 ### SSE
 ```
-cmake -B build -S .
+cmake --preset vs2022-windows-vcpkg # for vs2019 use vs2019-windows-vcpkg
+cmake --build buildsse --config Release
 ```
-Open build/po3_PapyrusExtender.sln in Visual Studio to build dll.
-
 ### VR
 ```
-cmake -B build2 -S . -DBUILD_SKYRIMVR=On
+cmake --preset vs2022-windows-vcpkg-vr # for vs2019 use vs2019-windows-vcpkg-vr
+cmake --build buildvr --config Release
 ```
-Open build2/po3_PapyrusExtender.sln in Visual Studio to build dll.
-
+For VR, if you run into namespace errors/ambiguous references for stl or FORM. You may need to add :: in front of stl or FORM throughout. Cherry-pick `784293df6f8da93c2b8b114f578ec043a84cdd74` from https://github.com/alandtse/PapyrusExtenderSSE/tree/ambiguous_references to fix.
 
 ## License
 [MIT](LICENSE)

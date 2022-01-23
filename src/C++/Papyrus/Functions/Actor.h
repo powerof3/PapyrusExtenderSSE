@@ -883,11 +883,10 @@ namespace Papyrus::Actor
 			if (a_matchAll) {
 				return std::ranges::all_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 			}
-            return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
-        };
+			return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+		};
 
-		for (auto& spell : a_actor->addedSpells | std::views::reverse)
-			{
+		for (auto& spell : a_actor->addedSpells | std::views::reverse) {
 			if (!spell) {
 				continue;
 			}

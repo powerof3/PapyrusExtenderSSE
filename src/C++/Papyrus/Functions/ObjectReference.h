@@ -929,8 +929,8 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-	    return a_ref->HasQuestObject();
-    }
+		return a_ref->HasQuestObject();
+	}
 
 	inline bool IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 	{

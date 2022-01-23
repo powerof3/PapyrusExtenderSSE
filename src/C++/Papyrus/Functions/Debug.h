@@ -45,19 +45,19 @@ namespace Papyrus::Debug
 				if (variable[0] == 'b' || variable.starts_with("Is")) {
 					return std::string(a_var.variable->b ? "true" : "false");
 				}
-                if (variable[0] == 'i') {
-                    return std::to_string(a_var.variable->i);
-                }
-                if (a_var.variable->f >= RE::NI_INFINITY && a_var.variable->i >= std::numeric_limits<std::int32_t>::max()) {
-                    return std::string(a_var.variable->b ? "true" : "false");
-                }
-                if (a_var.variable->f >= RE::NI_INFINITY) {
-                    return std::to_string(a_var.variable->i);
-                }
-                return std::to_string(a_var.variable->f);
-            }
-            return std::string("no value");
-        };
+				if (variable[0] == 'i') {
+					return std::to_string(a_var.variable->i);
+				}
+				if (a_var.variable->f >= RE::NI_INFINITY && a_var.variable->i >= std::numeric_limits<std::int32_t>::max()) {
+					return std::string(a_var.variable->b ? "true" : "false");
+				}
+				if (a_var.variable->f >= RE::NI_INFINITY) {
+					return std::to_string(a_var.variable->i);
+				}
+				return std::to_string(a_var.variable->f);
+			}
+			return std::string("no value");
+		};
 
 		auto process = a_actor->currentProcess;
 		auto middle = process ? process->middleHigh : nullptr;

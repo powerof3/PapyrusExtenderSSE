@@ -38,7 +38,7 @@ git clone https://github.com/powerof3/PapyrusExtenderSSE.git
 cd PapyrusExtenderSSE
 # pull commonlib, skip if you've defined it in the path
 git submodule init
-# to update submodules to latest build (warning may result in build problems)
+# to update submodules to checked-out build (warning, pulling newer verisons may result in build problems)
 git submodule update
 ```
 

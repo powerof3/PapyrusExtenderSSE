@@ -53,10 +53,10 @@ namespace Papyrus::FEC
 	inline constexpr auto ShockKYWD{ "MagicDamageShock"sv };
 	inline constexpr auto ParalysisKYWD{ "MagicParalysis"sv };
 
-	using deathEffectPair = std::pair<std::uint32_t, RE::EffectSetting*>;                               //[type, mgef]
+	using deathEffectPair = std::pair<std::uint32_t, RE::EffectSetting*>;                               // [type, mgef]
 	using deathEffectMap = std::map<std::uint32_t, std::vector<std::pair<RE::EffectSetting*, float>>>;  // [type, [mgef, mag]]
 
-	bool _process_active_effect(RE::ActiveEffect* activeEffect, std::uint32_t a_type, deathEffectPair* effectPair, deathEffectMap* effectMap)
+	inline bool _process_active_effect(RE::ActiveEffect* activeEffect, std::uint32_t a_type, deathEffectPair* effectPair, deathEffectMap* effectMap)
 	{
 		using FLAG = RE::EffectSetting::EffectSettingData::Flag;
 		using AE_FLAG = RE::ActiveEffect::Flag;
@@ -121,10 +121,7 @@ namespace Papyrus::FEC
 		}
 #endif
 
-		using deathEffectPair = std::pair<std::uint32_t, RE::EffectSetting*>;  //[type, mgef]
 		deathEffectPair effectPair = { -1, nullptr };
-
-		using deathEffectMap = std::map<std::uint32_t, std::vector<std::pair<RE::EffectSetting*, float>>>;  // [type, [mgef, mag]]
 		deathEffectMap effectMap;
 #ifndef SKYRIMVR
 		for (const auto& activeEffect : *activeEffects) {

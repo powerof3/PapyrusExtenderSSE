@@ -39,26 +39,25 @@ namespace Papyrus::Debug
 			return;
 		}
 
-		constexpr auto get_value = [](RE::AnimVariableCacheInfo& a_var) {
+		constexpr auto get_value = [](const RE::AnimVariableCacheInfo& a_var) {
 			if (a_var.variable) {
 				std::string variable(a_var.variableName);
 				if (variable[0] == 'b' || variable.starts_with("Is")) {
 					return std::string(a_var.variable->b ? "true" : "false");
-				} else if (variable[0] == 'i') {
-					return std::to_string(a_var.variable->i);
-				} else {
-					if (a_var.variable->f >= RE::NI_INFINITY && a_var.variable->i >= std::numeric_limits<std::int32_t>::max()) {
-						return std::string(a_var.variable->b ? "true" : "false");
-					}
-					if (a_var.variable->f >= RE::NI_INFINITY) {
-						return std::to_string(a_var.variable->i);
-					}
-					return std::to_string(a_var.variable->f);
 				}
-			} else {
-				return std::string("no value");
-			}
-		};
+                if (variable[0] == 'i') {
+                    return std::to_string(a_var.variable->i);
+                }
+                if (a_var.variable->f >= RE::NI_INFINITY && a_var.variable->i >= std::numeric_limits<std::int32_t>::max()) {
+                    return std::string(a_var.variable->b ? "true" : "false");
+                }
+                if (a_var.variable->f >= RE::NI_INFINITY) {
+                    return std::to_string(a_var.variable->i);
+                }
+                return std::to_string(a_var.variable->f);
+            }
+            return std::string("no value");
+        };
 
 		auto process = a_actor->currentProcess;
 		auto middle = process ? process->middleHigh : nullptr;

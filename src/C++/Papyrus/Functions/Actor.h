@@ -882,12 +882,12 @@ namespace Papyrus::Actor
 		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywords, bool a_matchAll) {
 			if (a_matchAll) {
 				return std::ranges::all_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
-			} else {
-				return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 			}
-		};
+            return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+        };
 
-		for (auto& spell : a_actor->addedSpells) {
+		for (auto& spell : a_actor->addedSpells | std::views::reverse)
+			{
 			if (!spell) {
 				continue;
 			}
@@ -904,7 +904,7 @@ namespace Papyrus::Actor
 		auto taskQueue = RE::TaskQueueInterface::GetSingleton();
 		if (taskQueue) {
 			auto actorHandle = a_actor->CreateRefHandle();
-			for (auto& spell : spells) {
+			for (const auto& spell : spells) {
 				taskQueue->QueueRemoveSpell(actorHandle, spell);
 			}
 		}
@@ -963,7 +963,7 @@ namespace Papyrus::Actor
 
 			const auto combatController = a_actor->combatController;
 			if (combatController && combatController->inventory) {
-				combatController->inventory->dirty = 1;
+				combatController->inventory->dirty = true;
 			}
 
 			a_actor->DeselectSpell(a_spell);
@@ -1247,7 +1247,7 @@ namespace Papyrus::Actor
 		task->AddTask([root, a_actor, a_color]() {
 			root->UpdateHairColor(a_color->color);
 
-			if (const auto biped = a_actor->GetCurrentBiped(); biped) {
+			if (const auto& biped = a_actor->GetCurrentBiped(); biped) {
 				for (auto& slot : ACTOR::headSlots) {
 					const auto node = biped->objects[slot].partClone;
 					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
@@ -1454,7 +1454,7 @@ namespace Papyrus::Actor
 
 		const auto task = SKSE::GetTaskInterface();
 		task->AddTask([a_actor, root, a_disable]() {
-			if (const auto biped = a_actor->GetCurrentBiped(); biped) {
+			if (const auto& biped = a_actor->GetCurrentBiped(); biped) {
 				for (auto& slot : ACTOR::headSlots) {
 					const auto node = biped->objects[slot].partClone;
 					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {

@@ -313,7 +313,7 @@ namespace Papyrus::ObjectReference
 		}
 
 		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
+		for (const auto& item : inv | std::views::keys) {
 			if (a_list->HasForm(item)) {
 				return item;
 			}
@@ -927,10 +927,10 @@ namespace Papyrus::ObjectReference
 			}
 
 			return false;
-		} else {
-			return a_ref->HasQuestObject();
 		}
-	}
+
+	    return a_ref->HasQuestObject();
+    }
 
 	inline bool IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 	{

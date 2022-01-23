@@ -96,7 +96,7 @@ namespace Serialization
 			EventHandler() = default;
 			EventHandler(const EventHandler&) = delete;
 			EventHandler(EventHandler&&) = delete;
-			virtual ~EventHandler() = default;
+            ~EventHandler() override = default;
 
 			EventHandler& operator=(const EventHandler&) = delete;
 			EventHandler& operator=(EventHandler&&) = delete;

@@ -587,7 +587,7 @@ namespace CONDITION
 					const auto split_param = string::split(a_str, " ~ ");
 					if (split_param.size() > 1) {
 						const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
-						const auto esp = split_param.at(kESP);
+						const auto& esp = split_param.at(kESP);
 
 						const auto dataHandler = RE::TESDataHandler::GetSingleton();
 						const auto form = dataHandler ? dataHandler->LookupForm(formID, esp) : nullptr;
@@ -641,7 +641,7 @@ namespace CONDITION
 				const auto split_param = string::split(a_str, " ~ ");
 				if (split_param.size() > 1) {
 					const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
-					const auto esp = split_param.at(kESP);
+					const auto& esp = split_param.at(kESP);
 
 					const auto dataHandler = RE::TESDataHandler::GetSingleton();
 					const auto form = dataHandler ? dataHandler->LookupForm(formID, esp) : nullptr;

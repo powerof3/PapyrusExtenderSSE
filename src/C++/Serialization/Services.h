@@ -278,8 +278,8 @@ namespace MAGIC
 				auto form = RE::TESForm::LookupByID(dataID);
 				auto magicItem = form ? form->As<RE::MagicItem>() : nullptr;
 				if (magicItem) {
-					for (auto effectData : dataSet) {
-						auto& [mgef, mgefID] = effectData.mgef;
+					for (const auto& effectData : dataSet) {
+						auto [mgef, mgefID] = effectData.mgef;
 						mgef = RE::TESForm::LookupByID<RE::EffectSetting>(mgefID);
 						if (mgef) {
 							Process(magicItem, effectData, a_index);

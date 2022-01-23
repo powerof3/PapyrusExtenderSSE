@@ -9,21 +9,20 @@ namespace SCRIPT
 			if (!a_scriptName.empty()) {
 				RE::BSTSmartPointer<RE::BSScript::Object> object;
 				return a_vm.FindBoundObject(a_handle, a_scriptName.c_str(), object) && object;
-			} else {
-				RE::BSSpinLockGuard locker(a_vm.attachedScriptsLock);
-				return std::ranges::any_of(a_vm.attachedScripts, [&](const auto& attachedScript) {
-					const auto& [handle, scripts] = attachedScript;
-					if (handle == a_handle) {
-						RE::BSScript::ObjectTypeInfo* typeInfo = nullptr;
-						return std::ranges::none_of(scripts, [&](const auto& script) {
-							typeInfo = script ? script->GetTypeInfo() : nullptr;
-							return typeInfo && std::find(baseScripts.begin(), baseScripts.end(), typeInfo->name) != baseScripts.end();
-						});
-					}
-					return false;
-				});
 			}
-		}
+            RE::BSSpinLockGuard locker(a_vm.attachedScriptsLock);
+            return std::ranges::any_of(a_vm.attachedScripts, [&](const auto& attachedScript) {
+                const auto& [handle, scripts] = attachedScript;
+                if (handle == a_handle) {
+                    RE::BSScript::ObjectTypeInfo* typeInfo = nullptr;
+                    return std::ranges::none_of(scripts, [&](const auto& script) {
+                        typeInfo = script ? script->GetTypeInfo() : nullptr;
+                        return typeInfo && std::find(baseScripts.begin(), baseScripts.end(), typeInfo->name) != baseScripts.end();
+                    });
+                }
+                return false;
+            });
+        }
 	};
 
 	bool is_script_attached(const RE::TESForm* a_form, const RE::BSFixedString& a_scriptName)

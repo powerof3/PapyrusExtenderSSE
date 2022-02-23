@@ -482,8 +482,10 @@ namespace Papyrus::Actor
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return nullptr;
 		}
-		logger::debug("GetEquippedArmor running on {}", a_actor->GetDisplayFullName());
-		return a_actor->GetWornArmor(static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(a_slot));
+		auto biped_slot = (a_slot - 30) >= 0 ? 1 << (a_slot - 30) : 0;
+		auto result = a_actor->GetWornArmor(static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(biped_slot));
+		logger::info("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
+		return result;
 	}
 #endif
 

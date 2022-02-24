@@ -705,25 +705,25 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline bool IsActorInWater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline bool IsActorInWater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return false;
 		}
 
-		const float waterLevel = a_actor->GetSubmergedWaterLevel(a_actor->GetPositionZ(), a_actor->GetParentCell());
+		const float waterLevel = a_actor->IsPointDeepUnderWater(a_actor->GetPositionZ(), a_actor->GetParentCell());
 		return waterLevel >= 0.01f;
 	}
 
-	inline bool IsActorUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline bool IsActorUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return false;
 		}
 
-		const float waterLevel = a_actor->GetSubmergedWaterLevel(a_actor->GetPositionZ(), a_actor->GetParentCell());
+		const float waterLevel = a_actor->IsPointDeepUnderWater(a_actor->GetPositionZ(), a_actor->GetParentCell());
 		return waterLevel >= 0.875f;
 	}
 

@@ -402,7 +402,7 @@ namespace Papyrus::Actor
 		const auto combatGroup = a_actor->GetCombatGroup();
 		if (combatGroup) {
 			for (auto& memberData : combatGroup->members) {
-				auto ally = memberData.handle.get();
+				auto ally = memberData.memberHandle.get();
 				if (ally) {
 					result.push_back(ally.get());
 				}

@@ -251,7 +251,7 @@ namespace Event::GameEventHandler
 		{
 			static float thunk(RE::Actor* a_this, float a_fallDistance, float a_defaultMult)
 			{
-                const auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
+				const auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
 				if (fallDamage > 0.0f) {
 					GameEventHolder::GetSingleton()->actorFallLongDistance.QueueEvent(a_this, a_this, a_fallDistance, fallDamage);
 				}
@@ -389,7 +389,7 @@ namespace Event::GameEventHandler
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL_ID(33742, 34526), OFFSET(0x1E8,0x20B) };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(33742, 34526), OFFSET(0x1E8, 0x20B) };
 			stl::write_thunk_call<MagicTargetApply>(target.address());
 
 			logger::info("Hooked Magic Effect Apply"sv);
@@ -417,7 +417,7 @@ namespace Event::GameEventHandler
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL_ID(37832, 38786), OFFSET(0x1C3,0x29B) };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(37832, 38786), OFFSET(0x1C3, 0x29B) };
 			stl::write_thunk_call<SendHitEvent>(target.address());
 
 			logger::info("Hooked Magic Hit"sv);

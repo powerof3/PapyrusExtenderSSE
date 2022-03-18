@@ -71,7 +71,6 @@ else ()
 endif ()
 
 set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
 
 # ---- Project ----
 
@@ -130,6 +129,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
 set(Boost_USE_STATIC_LIBS ON)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
 
 # ---- Dependencies ----
 if (DEFINED CommonLibPath AND NOT ${CommonLibPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibPath})
@@ -139,7 +139,7 @@ else ()
 		FATAL_ERROR
 		"Variable ${CommonLibName}Path is not set."
 	)
-endif ()
+endif()
 
 find_package(frozen CONFIG REQUIRED)
 
@@ -235,7 +235,7 @@ if (MSVC)
 			/W4	# Warning level
 			/WX # Warning level (warnings are errors)
 
-			"$<$<CONFIG:DEBUG>:/bigobj>"
+			"$<$<CONFIG:DEBUG>:>"
 			"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"
 	)
 

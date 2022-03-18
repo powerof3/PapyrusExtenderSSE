@@ -2,6 +2,7 @@
 #include "Papyrus/Manager.h"
 #include "Serialization/Manager.h"
 
+#ifndef SKYRIM_AE
 static std::vector<std::string> DetectOldVersion()
 {
 	std::vector<std::string> vec;
@@ -32,23 +33,24 @@ Click Ok to continue, or Cancel to quit the game)";
 
 	return vec;
 }
+#endif
 
 void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
+#ifndef SKYRIM_AE
 	case SKSE::MessagingInterface::kPostLoad:
 		{
-#ifndef SKYRIM_AE
-            const auto vec = DetectOldVersion();
+			const auto vec = DetectOldVersion();
 			if (!vec.empty() && vec.size() == 2) {
-                const auto id = WinAPI::MessageBox(nullptr, vec[0].c_str(), vec[1].c_str(), 0x00000001);
+				const auto id = WinAPI::MessageBox(nullptr, vec[0].c_str(), vec[1].c_str(), 0x00000001);
 				if (id == 2) {
 					std::_Exit(EXIT_FAILURE);
 				}
 			}
 		}
-#endif
 		break;
+#endif
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			Game::Register();
@@ -72,31 +74,31 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	return v;
 }();
 #else
-	extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
-	{
-		a_info->infoVersion = SKSE::PluginInfo::kVersion;
-		a_info->name = "powerofthree's Papyrus Extender";
-		a_info->version = Version::MAJOR;
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+{
+	a_info->infoVersion = SKSE::PluginInfo::kVersion;
+	a_info->name = "powerofthree's Papyrus Extender";
+	a_info->version = Version::MAJOR;
 
-		if (a_skse->IsEditor()) {
-			logger::critical("Loaded in editor, marking as incompatible"sv);
-			return false;
-		}
-
-		const auto ver = a_skse->RuntimeVersion();
-		if (ver
-#	ifndef SKYRIMVR
-			< SKSE::RUNTIME_1_5_39
-#	else
-			> SKSE::RUNTIME_VR_1_4_15_1
-#	endif
-		) {
-			logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
-			return false;
-		}
-
-		return true;
+	if (a_skse->IsEditor()) {
+		logger::critical("Loaded in editor, marking as incompatible"sv);
+		return false;
 	}
+
+	const auto ver = a_skse->RuntimeVersion();
+	if (ver
+#	ifndef SKYRIMVR
+		< SKSE::RUNTIME_1_5_39
+#	else
+		> SKSE::RUNTIME_VR_1_4_15_1
+#	endif
+	) {
+		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
+		return false;
+	}
+
+	return true;
+}
 #endif
 
 void InitializeLog()

@@ -20,12 +20,12 @@ namespace DETECTION
 
 			return result;
 		}
-		static inline REL::Relocation<decltype(&thunk)> func;
+		static inline REL::Relocation<decltype(thunk)> func;
 	};
 
 	void Register()
 	{
-		REL::Relocation<std::uintptr_t> target{ REL::ID(41659), 0x526 };
+		REL::Relocation<std::uintptr_t> target{ REL_ID(41659, 42742), OFFSET(0x526,0x67B) };
 		stl::write_thunk_call<CalculateDetection>(target.address());
 
 		logger::info("Installing detection hook");

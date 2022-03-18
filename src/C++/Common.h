@@ -5,11 +5,26 @@
 #include "Papyrus/Util/Magic.h"
 #include "Papyrus/Util/Script.h"
 
+#ifdef SKYRIM_AE
+#	define REL_ID(se, ae) REL::ID(ae)
+#	define OFFSET(se, ae) ae
+#	define OFFSET_3(se, ae, vr) ae
+#elif SKYRIMVR
+#	define REL_ID(se, ae) REL::ID(se)
+#	define OFFSET(se, ae) se
+#	define OFFSET_3(se, ae, vr) vr
+#else
+#	define REL_ID(se, ae) REL::ID(se)
+#	define OFFSET(se, ae) se
+#	define OFFSET_3(se, ae, vr) se
+#endif
+
+#define BIND(a_method, ...) a_vm.RegisterFunction(#a_method##sv, script, a_method __VA_OPT__(, ) __VA_ARGS__)
+#define BIND_EVENT(a_method, ...) a_vm.RegisterFunction(#a_method##sv, obj, a_method __VA_OPT__(, ) __VA_ARGS__)
+
 namespace stl
 {
-	using SKSE::stl::adjust_pointer;
-	using SKSE::stl::is_in;
-	using SKSE::stl::to_underlying;
+	using namespace SKSE::stl;
 
 	inline bool read_string(SKSE::SerializationInterface* a_intfc, std::string& a_str)
 	{
@@ -51,10 +66,6 @@ namespace stl
 
 namespace Papyrus
 {
-#define BIND(a_method, ...) a_vm.RegisterFunction(#a_method##sv, script, a_method __VA_OPT__(, ) __VA_ARGS__)
-
-#define BIND_EVENT(a_method, ...) a_vm.RegisterFunction(#a_method##sv, obj, a_method __VA_OPT__(, ) __VA_ARGS__)
-
 	using VM = RE::BSScript::Internal::VirtualMachine;
 	using StackID = RE::VMStackID;
 	using Severity = RE::BSScript::ErrorLogger::Severity;

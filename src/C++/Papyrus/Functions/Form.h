@@ -199,14 +199,14 @@ namespace Papyrus::Form
 			inline void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
 			{
 				using func_t = decltype(&favorite);
-				REL::Relocation<func_t> func{ REL::ID(15858) };
+				REL::Relocation<func_t> func{ REL_ID(15858, 16098) };
 				return func(a_changes, a_entryData, a_list);
 			}
 
 			inline void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
 			{
 				using func_t = decltype(&unfavorite);
-				REL::Relocation<func_t> func{ REL::ID(15859) };
+				REL::Relocation<func_t> func{ REL_ID(15859, 16099) };
 				return func(a_changes, a_entryData, a_list);
 			}
 
@@ -229,14 +229,14 @@ namespace Papyrus::Form
 			inline void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
 			{
 				using func_t = decltype(&favorite);
-				REL::Relocation<func_t> func{ REL::ID(51121) };
+				REL::Relocation<func_t> func{ REL_ID(51121, 52004) };
 				return func(a_magicFavorites, a_form);
 			}
 
 			inline void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
 			{
 				using func_t = decltype(&unfavorite);
-				REL::Relocation<func_t> func{ REL::ID(51122) };
+				REL::Relocation<func_t> func{ REL_ID(51122, 52005) };
 				return func(a_magicFavorites, a_form);
 			}
 		}

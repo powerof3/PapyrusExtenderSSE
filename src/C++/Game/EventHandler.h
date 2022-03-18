@@ -40,7 +40,7 @@ namespace Event
 		ScriptEventHandler(const ScriptEventHandler&) = delete;
 		ScriptEventHandler(ScriptEventHandler&&) = delete;
 
-		~ScriptEventHandler() = default;
+		~ScriptEventHandler() override = default;
 
 		ScriptEventHandler& operator=(const ScriptEventHandler&) = delete;
 		ScriptEventHandler& operator=(ScriptEventHandler&&) = delete;
@@ -117,7 +117,7 @@ namespace Event
 		StoryEventHandler(const StoryEventHandler&) = delete;
 		StoryEventHandler(StoryEventHandler&&) = delete;
 
-		~StoryEventHandler() = default;
+		~StoryEventHandler() override = default;
 
 		StoryEventHandler& operator=(const StoryEventHandler&) = delete;
 		StoryEventHandler& operator=(StoryEventHandler&&) = delete;

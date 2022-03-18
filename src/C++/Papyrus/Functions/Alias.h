@@ -738,7 +738,7 @@ namespace Papyrus::Alias
 
 	inline void Bind(VM& a_vm)
 	{
-		auto const obj = "PO3_Events_Alias"sv;
+		auto constexpr obj = "PO3_Events_Alias"sv;
 
 		BIND(IsScriptAttachedToAlias);
 

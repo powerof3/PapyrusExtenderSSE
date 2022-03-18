@@ -38,14 +38,16 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kPostLoad:
 		{
-			auto vec = DetectOldVersion();
+#ifndef SKYRIM_AE
+            const auto vec = DetectOldVersion();
 			if (!vec.empty() && vec.size() == 2) {
-				auto id = WinAPI::MessageBox(nullptr, vec[0].c_str(), vec[1].c_str(), 0x00000001);
+                const auto id = WinAPI::MessageBox(nullptr, vec[0].c_str(), vec[1].c_str(), 0x00000001);
 				if (id == 2) {
 					std::_Exit(EXIT_FAILURE);
 				}
 			}
 		}
+#endif
 		break;
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
@@ -58,11 +60,50 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	}
 }
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+#ifdef SKYRIM_AE
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+	SKSE::PluginVersionData v;
+	v.PluginVersion(Version::MAJOR);
+	v.PluginName("powerofthree's Papyrus Extender");
+	v.AuthorName("powerofthree");
+	v.UsesAddressLibrary(true);
+	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+
+	return v;
+}();
+#else
+	extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+	{
+		a_info->infoVersion = SKSE::PluginInfo::kVersion;
+		a_info->name = "powerofthree's Papyrus Extender";
+		a_info->version = Version::MAJOR;
+
+		if (a_skse->IsEditor()) {
+			logger::critical("Loaded in editor, marking as incompatible"sv);
+			return false;
+		}
+
+		const auto ver = a_skse->RuntimeVersion();
+		if (ver
+#	ifndef SKYRIMVR
+			< SKSE::RUNTIME_1_5_39
+#	else
+			> SKSE::RUNTIME_VR_1_4_15_1
+#	endif
+		) {
+			logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
+			return false;
+		}
+
+		return true;
+	}
+#endif
+
+void InitializeLog()
 {
 	auto path = logger::log_directory();
 	if (!path) {
-		return false;
+		stl::report_and_fail("Failed to find standard logging directory"sv);
 	}
 
 	*path /= "po3_papyrusextender64.log"sv;
@@ -77,34 +118,13 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	spdlog::set_pattern("[%l] %v"s);
 
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
-
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "powerofthree's Papyrus Extender";
-	a_info->version = Version::MAJOR;
-
-	if (a_skse->IsEditor()) {
-		logger::critical("Loaded in editor, marking as incompatible"sv);
-		return false;
-	}
-
-	const auto ver = a_skse->RuntimeVersion();
-	if (ver
-#ifndef SKYRIMVR
-		< SKSE::RUNTIME_1_5_39
-#else
-		> SKSE::RUNTIME_VR_1_4_15_1
-#endif
-	) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
-		return false;
-	}
-
-	return true;
 }
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-	logger::info("loaded plugin");
+	InitializeLog();
+
+	logger::info("loaded");
 
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(112);

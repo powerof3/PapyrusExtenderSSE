@@ -251,22 +251,22 @@ namespace Event::GameEventHandler
 		{
 			static float thunk(RE::Actor* a_this, float a_fallDistance, float a_defaultMult)
 			{
-				auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
+                const auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
 				if (fallDamage > 0.0f) {
 					GameEventHolder::GetSingleton()->actorFallLongDistance.QueueEvent(a_this, a_this, a_fallDistance, fallDamage);
 				}
 				return fallDamage;
 			}
-			static inline REL::Relocation<decltype(&thunk)> func;
+			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
 		inline void Install()
 		{
-			REL::Relocation<std::uintptr_t> take_ragdoll_damage{ REL::ID(36346) };
-			stl::write_thunk_call<CalcDoDamage>(take_ragdoll_damage.address() + 0x35);
+			REL::Relocation<std::uintptr_t> take_ragdoll_damage{ REL_ID(36346, 37336), 0x35 };
+			stl::write_thunk_call<CalcDoDamage>(take_ragdoll_damage.address());
 
-			REL::Relocation<std::uintptr_t> process_movefinish_event{ REL::ID(36973) };
-			stl::write_thunk_call<CalcDoDamage>(process_movefinish_event.address() + 0xAE);
+			REL::Relocation<std::uintptr_t> process_movefinish_event{ REL_ID(36973, 37998), OFFSET(0xAE, 0xAB) };
+			stl::write_thunk_call<CalcDoDamage>(process_movefinish_event.address());
 
 			logger::info("Hooked Fall Damage"sv);
 		}
@@ -282,18 +282,17 @@ namespace Event::GameEventHandler
 
 				GameEventHolder::GetSingleton()->actorResurrect.QueueEvent(a_this, a_this, a_resetInventory);
 			}
-			static inline REL::Relocation<decltype(&thunk)> func;
+			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
 		void Install()
 		{
 			stl::write_vfunc<RE::Character,
 #ifndef SKYRIMVR
-				0x0AB
+				0x0AB,
 #else
-				0x0AD
+				0x0AD,
 #endif
-				,
 				Resurrect>();
 
 			logger::info("Hooked Actor Resurrect"sv);
@@ -337,7 +336,7 @@ namespace Event::GameEventHandler
 					}
 				}
 			}
-			static inline REL::Relocation<decltype(&thunk)> func;
+			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
 		struct Stop
@@ -353,7 +352,7 @@ namespace Event::GameEventHandler
 
 				func(a_this);
 			}
-			static inline REL::Relocation<decltype(&thunk)> func;
+			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
 		void Install()
@@ -390,7 +389,7 @@ namespace Event::GameEventHandler
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::ID(33742), 0x1E8 };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(33742, 34526), OFFSET(0x1E8,0x20B) };
 			stl::write_thunk_call<MagicTargetApply>(target.address());
 
 			logger::info("Hooked Magic Effect Apply"sv);
@@ -413,12 +412,12 @@ namespace Event::GameEventHandler
 
 				func(a_source, a_event);
 			}
-			static inline REL::Relocation<decltype(&thunk)> func;
+			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::ID(37832), 0x1C3 };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(37832, 38786), OFFSET(0x1C3,0x29B) };
 			stl::write_thunk_call<SendHitEvent>(target.address());
 
 			logger::info("Hooked Magic Hit"sv);
@@ -429,10 +428,30 @@ namespace Event::GameEventHandler
 	{
 		namespace Actor
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::ID(37633), 0x16A };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(37633, 38586), OFFSET(0x16A, 0xFA) };
 
 			struct SendHitEvent
 			{
+#ifdef SKYRIM_AE
+				// SendHitEventStruct was inlined
+				static void thunk(RE::AIProcess* a_targetProcess, RE::HitData& a_data)
+				{
+					func(a_targetProcess, a_data);
+
+					const auto middleHigh = a_targetProcess ? a_targetProcess->middleHigh : nullptr;
+					const auto torsoNode = middleHigh ? middleHigh->torsoNode : nullptr;
+					const auto hitTarget = torsoNode ? torsoNode->GetUserData() : nullptr;
+
+					const auto aggressor = a_data.aggressor.get();
+
+					if (aggressor && hitTarget) {
+						const auto source = a_data.weapon ? a_data.weapon : RE::TESForm::LookupByID<RE::TESObjectWEAP>(0x1F4);
+						const auto flags = stl::to_underlying(a_data.flags);
+
+						GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, flags);
+					}
+				}
+#else
 				static void thunk(RE::ScriptEventSourceHolder* a_holder,
 					RE::NiPointer<RE::TESObjectREFR>& a_target,
 					RE::NiPointer<RE::TESObjectREFR>& a_aggressor,
@@ -450,13 +469,14 @@ namespace Event::GameEventHandler
 
 					func(a_holder, a_target, a_aggressor, a_source, a_projectile, a_data);
 				}
+#endif
 				static inline REL::Relocation<decltype(thunk)> func;
 			};
 		}
 
 		namespace Static
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::ID(37674), 0x6C7 };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(37674, 38628), OFFSET(0x6C7, 0x785) };
 
 			struct SendHitEvent
 			{
@@ -475,7 +495,7 @@ namespace Event::GameEventHandler
 
 		namespace Projectile
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::ID(43022), 0x38D };
+			REL::Relocation<std::uintptr_t> target{ REL_ID(43022, 44213), OFFSET(0x38D, 0x357) };
 
 			struct SendHitEvent
 			{
@@ -525,7 +545,7 @@ namespace Event::GameEventHandler
 
 				func(a_region, a_currentWeather);
 			}
-			static inline REL::Relocation<decltype(&thunk)> func;
+			static inline REL::Relocation<decltype(thunk)> func;
 
 		private:
 			static inline RE::TESWeather* currentWeather;
@@ -533,8 +553,8 @@ namespace Event::GameEventHandler
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::ID(25684) };
-			stl::write_thunk_call<SetCurrentWeather>(target.address() + 0x44F);
+			REL::Relocation<std::uintptr_t> target{ REL_ID(25684, 26231), OFFSET(0x44F, 0x46C) };
+			stl::write_thunk_call<SetCurrentWeather>(target.address());
 
 			logger::info("Hooked Weather Change"sv);
 		}

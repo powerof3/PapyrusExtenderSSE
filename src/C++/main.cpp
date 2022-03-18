@@ -39,9 +39,9 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kPostLoad:
 		{
 #ifndef SKYRIM_AE
-            const auto vec = DetectOldVersion();
+			const auto vec = DetectOldVersion();
 			if (!vec.empty() && vec.size() == 2) {
-                const auto id = WinAPI::MessageBox(nullptr, vec[0].c_str(), vec[1].c_str(), 0x00000001);
+				const auto id = WinAPI::MessageBox(nullptr, vec[0].c_str(), vec[1].c_str(), 0x00000001);
 				if (id == 2) {
 					std::_Exit(EXIT_FAILURE);
 				}

@@ -170,7 +170,6 @@ namespace Event
 		projectileHit.Save(a_intfc, kProjectileHit, a_version);
 		weaponHit.Save(a_intfc, kWeaponHit, a_version);
 		weatherChange.Save(a_intfc, kWeatherChange, a_version);
-		FECreset.Save(a_intfc, kFECReset, a_version);
 	}
 
 	void GameEventHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type)
@@ -203,9 +202,6 @@ namespace Event
 		case kWeatherChange:
 			weatherChange.Load(a_intfc);
 			break;
-		case kFECReset:
-			FECreset.Load(a_intfc);
-			break;
 		default:
 			break;
 		}
@@ -222,7 +218,6 @@ namespace Event
 		projectileHit.Revert(a_intfc);
 		weaponHit.Revert(a_intfc);
 		weatherChange.Revert(a_intfc);
-		FECreset.Revert(a_intfc);
 	}
 
 	void GameEventHolder::FormDelete(RE::VMHandle a_handle)
@@ -236,6 +231,5 @@ namespace Event
 		projectileHit.Unregister(a_handle);
 		weaponHit.Unregister(a_handle);
 		weatherChange.Unregister(a_handle);
-		FECreset.UnregisterAll(a_handle);
 	}
 }

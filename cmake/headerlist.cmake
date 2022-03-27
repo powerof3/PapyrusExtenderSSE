@@ -15,7 +15,6 @@ set(headers ${headers}
 	src/C++/Papyrus/Functions/Debug.h
 	src/C++/Papyrus/Functions/EffectShader.h
 	src/C++/Papyrus/Functions/Enchantment.h
-	src/C++/Papyrus/Functions/FEC.h
 	src/C++/Papyrus/Functions/Form.h
 	src/C++/Papyrus/Functions/Furniture.h
 	src/C++/Papyrus/Functions/Game.h

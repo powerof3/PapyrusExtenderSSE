@@ -119,8 +119,7 @@ namespace Event
 			kMagicEffectApply = 'MGEF',
 			kWeaponHit = 'WHIT',
 			kMagicHit = 'MHIT',
-			kProjectileHit = 'PHIT',
-			kFECReset = 'FECR'
+			kProjectileHit = 'PHIT'
 		};
 
 		SKSE::RegistrationSetUnique<const RE::Actor*, float, float> actorFallLongDistance{ "OnActorFallLongDistance"sv };
@@ -132,8 +131,6 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> projectileHit{ "OnProjectileHit"sv };
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t> weaponHit{ "OnWeaponHit"sv };
 		SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*> weatherChange{ "OnWeatherChange"sv };
-
-		SKSE::RegistrationMap<const RE::Actor*, std::uint32_t, bool> FECreset{ "OnFECReset"sv };
 
 		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
 		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);

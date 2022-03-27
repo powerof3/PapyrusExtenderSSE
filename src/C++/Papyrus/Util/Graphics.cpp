@@ -210,8 +210,8 @@ namespace RESET
 
 						lightingShader->SetMaterial(newMaterial, true);
 
-						lightingShader->InitializeGeometry(a_geometry);
-						lightingShader->InitializeShader(a_geometry);
+						lightingShader->SetupGeometry(a_geometry);
+						lightingShader->FinishSetupGeometry(a_geometry);
 
 						newMaterial->~BSLightingShaderMaterialBase();
 						RE::free(newMaterial);
@@ -376,8 +376,8 @@ namespace RESET
 						lightingShader->emissiveMult = emissiveMult;
 
 						lightingShader->SetMaterial(newMaterial, true);
-						lightingShader->InitializeGeometry(a_geometry);
-						lightingShader->InitializeShader(a_geometry);
+						lightingShader->SetupGeometry(a_geometry);
+						lightingShader->FinishSetupGeometry(a_geometry);
 
 						newMaterial->~BSLightingShaderMaterialBase();
 						RE::free(newMaterial);
@@ -436,7 +436,8 @@ namespace SET
 						lightingShader->SetFlags(Flag::kFaceGenRGBTint, true);
 
 						lightingShader->SetMaterial(facegenTint, true);
-						lightingShader->InitializeShader(geometry);
+						lightingShader->SetupGeometry(geometry);
+						lightingShader->FinishSetupGeometry(geometry);
 
 						facegenTint->~BSLightingShaderMaterialFacegenTint();
 						RE::free(facegenTint);
@@ -514,8 +515,8 @@ namespace SET
 
 								lightingShader->SetMaterial(newMaterial, true);
 
-								lightingShader->InitializeGeometry(a_geometry);
-								lightingShader->InitializeShader(a_geometry);
+								lightingShader->SetupGeometry(a_geometry);
+								lightingShader->FinishSetupGeometry(a_geometry);
 
 								newMaterial->~BSLightingShaderMaterialBase();
 								RE::free(newMaterial);
@@ -582,8 +583,8 @@ namespace SET
 							}
 
 							lightingShader->SetMaterial(newMaterial, true);
-							lightingShader->InitializeGeometry(a_geometry);
-							lightingShader->InitializeShader(a_geometry);
+							lightingShader->SetupGeometry(a_geometry);
+							lightingShader->FinishSetupGeometry(a_geometry);
 
 							newMaterial->~BSLightingShaderMaterialBase();
 							RE::free(newMaterial);
@@ -717,8 +718,8 @@ namespace SET
 								lightingShader->SetFlags(Flags::kSkinned, a_geometry->vertexDesc.HasFlag(VertexFlags::VF_SKINNED));
 
 								lightingShader->SetMaterial(newMaterial, true);
-								lightingShader->InitializeGeometry(a_geometry);
-								lightingShader->InitializeShader(a_geometry);
+								lightingShader->SetupGeometry(a_geometry);
+								lightingShader->FinishSetupGeometry(a_geometry);
 
 								newMaterial->~BSLightingShaderMaterialBase();
 								RE::free(newMaterial);

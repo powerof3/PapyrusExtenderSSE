@@ -275,8 +275,8 @@ namespace MAGIC
 			}
 
 			for (auto& [dataID, dataSet] : formMap) {
-                const auto form = RE::TESForm::LookupByID(dataID);
-                if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
+				const auto form = RE::TESForm::LookupByID(dataID);
+				if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
 					for (const auto& effectData : dataSet) {
 						auto [mgef, mgefID] = effectData.mgef;
 						mgef = RE::TESForm::LookupByID<RE::EffectSetting>(mgefID);

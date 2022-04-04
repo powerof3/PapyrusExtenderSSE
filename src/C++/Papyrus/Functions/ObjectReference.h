@@ -1019,8 +1019,7 @@ namespace Papyrus::ObjectReference
 		}
 
 		const auto handle = a_ref->CreateRefHandle();
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([handle, nearestVertex]() {
+		SKSE::GetTaskInterface()->AddTask([handle, nearestVertex]() {
 			const auto ref = handle.get();
 			if (ref) {
 				ref->SetPosition(*nearestVertex);
@@ -1067,8 +1066,7 @@ namespace Papyrus::ObjectReference
 
 		RE::NiColorA color{ a_rgba[0], a_rgba[1], a_rgba[2], a_rgba[3] };
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, color]() {
+		SKSE::GetTaskInterface()->AddTask([root, color]() {
 			root->TintScenegraph(color);
 		});
 	}
@@ -1182,8 +1180,7 @@ namespace Papyrus::ObjectReference
 
 		if (!a_nodeName.empty()) {
 			if (const auto object = root->GetObjectByName(a_nodeName); object) {
-				auto task = SKSE::GetTaskInterface();
-				task->AddTask([object, a_scale]() {
+				SKSE::GetTaskInterface()->AddTask([object, a_scale]() {
 					object->local.scale *= a_scale;
 
 					RE::NiUpdateData updateData{ 0.0f, RE::NiUpdateData::Flag::kNone };
@@ -1210,8 +1207,7 @@ namespace Papyrus::ObjectReference
 				}
 			}
 		} else {
-			const auto task = SKSE::GetTaskInterface();
-			task->AddTask([root, a_scale]() {
+			SKSE::GetTaskInterface()->AddTask([root, a_scale]() {
 				root->local.scale *= a_scale;
 
 				RE::NiUpdateData updateData{ 0.0f, RE::NiUpdateData::Flag::kNone };
@@ -1484,8 +1480,7 @@ namespace Papyrus::ObjectReference
 		const auto feature = static_cast<Feature>(a_shaderType);
 
 		if (root && template_root) {
-			auto task = SKSE::GetTaskInterface();
-			task->AddTask([root, template_root, feature, sourcePath, a_textureType, params]() {
+			SKSE::GetTaskInterface()->AddTask([root, template_root, feature, sourcePath, a_textureType, params]() {
 				if (const auto template_geo = template_root->GetFirstGeometryOfShaderType(feature); template_geo) {
 					std::vector<RE::BSFixedString> result;
 					SET::ShaderType(root, template_geo, sourcePath, a_textureType, result, params);
@@ -1529,8 +1524,7 @@ namespace Papyrus::ObjectReference
 
 			RE::NiColor color{ data ? data->value : actorbase->bodyTintColor };
 
-			auto task = SKSE::GetTaskInterface();
-			task->AddTask([root, color]() {
+			SKSE::GetTaskInterface()->AddTask([root, color]() {
 				root->UpdateBodyTint(color);
 			});
 		}
@@ -1588,8 +1582,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, a_nodeName, a_disable]() {
+		SKSE::GetTaskInterface()->AddTask([root, a_nodeName, a_disable]() {
 			if (const auto object = root->GetObjectByName(a_nodeName); object) {
 				SET::Toggle(root, object, a_disable);
 			}
@@ -1642,8 +1635,7 @@ namespace Papyrus::ObjectReference
 			transform.rotate = rotate;
 			transform.scale = a_scale;
 
-			const auto task = SKSE::GetTaskInterface();
-			task->AddTask([a_toNode, art, hitEffect, transform]() {
+			SKSE::GetTaskInterface()->AddTask([a_toNode, art, hitEffect, transform]() {
 				if (!a_toNode.empty() && hitEffect->hitEffectArtData.nodeName != a_toNode) {
 					const auto root = hitEffect->hitEffectArtData.current3DRoot;
 					const auto newObj = root ? root->GetObjectByName(a_toNode) : nullptr;

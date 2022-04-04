@@ -468,7 +468,7 @@ namespace SET
 
 		if (const auto data = a_root->GetExtraData<RE::NiStringsExtraData>(EXTRA::TOGGLE); data) {
 			a_cull ?
-                data->Insert(a_node->name) :
+				data->Insert(a_node->name) :
                 data->Remove(a_node->name);
 		} else if (a_cull) {
 			std::vector<RE::BSFixedString> vec{ a_node->name };
@@ -486,43 +486,44 @@ namespace SET
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
 			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
 			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
-			if (lightingShader) {
-				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-				if (material) {
-					if (const auto textureSet = material->textureSet; textureSet) {
-						std::string sourcePath{ textureSet->GetTexturePath(Texture::kDiffuse) };
-						TEXTURE::sanitize_path(sourcePath);
 
-						if (sourcePath == a_tgtPath) {
-							if (const auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create()); newMaterial) {
-								newMaterial->CopyMembers(material);
-								newMaterial->ClearTextures();
+			const auto material = lightingShader ? static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material) : nullptr;
+			const auto textureSet = material ? material->textureSet : RE::NiPointer<RE::BSTextureSet>();
 
-								if (a_type == -1) {
-									newMaterial->OnLoadTextureSet(0, a_txst);
-								} else {
-									if (const auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
-										const auto BSTextureType = static_cast<Texture>(a_type);
-										for (const auto& type : TEXTURE::types) {
-											if (type != BSTextureType) {
-												newTextureSet->SetTexturePath(type, textureSet->GetTexturePath(type));
-											}
+			if (lightingShader && material) {
+				if (textureSet) {
+					std::string sourcePath{ textureSet->GetTexturePath(Texture::kDiffuse) };
+					TEXTURE::sanitize_path(sourcePath);
+
+					if (sourcePath == a_tgtPath) {
+						if (const auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create()); newMaterial) {
+							newMaterial->CopyMembers(material);
+							newMaterial->ClearTextures();
+
+							if (a_type == -1) {
+								newMaterial->OnLoadTextureSet(0, a_txst);
+							} else {
+								if (const auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
+									const auto BSTextureType = static_cast<Texture>(a_type);
+									for (const auto& type : TEXTURE::types) {
+										if (type != BSTextureType) {
+											newTextureSet->SetTexturePath(type, textureSet->GetTexturePath(type));
 										}
-										newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
-										newMaterial->OnLoadTextureSet(0, newTextureSet);
 									}
+									newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
+									newMaterial->OnLoadTextureSet(0, newTextureSet);
 								}
-
-								lightingShader->SetMaterial(newMaterial, true);
-
-								lightingShader->SetupGeometry(a_geometry);
-								lightingShader->FinishSetupGeometry(a_geometry);
-
-								newMaterial->~BSLightingShaderMaterialBase();
-								RE::free(newMaterial);
-
-								replaced = true;
 							}
+
+							lightingShader->SetMaterial(newMaterial, true);
+
+							lightingShader->SetupGeometry(a_geometry);
+							lightingShader->FinishSetupGeometry(a_geometry);
+
+							newMaterial->~BSLightingShaderMaterialBase();
+							RE::free(newMaterial);
+
+							replaced = true;
 						}
 					}
 				}
@@ -540,55 +541,55 @@ namespace SET
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
 			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
 			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
-			if (lightingShader) {
-				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-				if (material) {
-					auto const feature = material->GetFeature();
-					if (const auto textureSet = material->textureSet; textureSet && stl::is_in(feature, Feature::kFaceGenRGBTint, Feature::kFaceGen)) {
-						if (a_vec.empty()) {
-							a_vec.reserve(Texture::kTotal);
-							for (auto& type : TEXTURE::types) {
-								a_vec.emplace_back(textureSet->GetTexturePath(type));
-							}
-						}
-						if (const auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create()); newMaterial) {
-							newMaterial->CopyMembers(material);
-							newMaterial->ClearTextures();
 
-							if (a_type == -1) {
-								if (feature == Feature::kFaceGen) {
-									if (const auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
-										for (auto& type : TEXTURE::types) {
-											if (type != Texture::kMultilayer) {
-												newTextureSet->SetTexturePath(type, a_txst->GetTexturePath(type));
-											}
-										}
-										newTextureSet->SetTexturePath(Texture::kMultilayer, textureSet->GetTexturePath(Texture::kMultilayer));
-										newMaterial->OnLoadTextureSet(0, newTextureSet);
-									}
-								} else {
-									newMaterial->OnLoadTextureSet(0, a_txst);
-								}
-							} else {
+			const auto material = lightingShader ? static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material) : nullptr;
+
+		    if (lightingShader && material) {
+				auto const feature = material->GetFeature();
+				if (const auto textureSet = material->textureSet; textureSet && stl::is_in(feature, Feature::kFaceGenRGBTint, Feature::kFaceGen)) {
+					if (a_vec.empty()) {
+						a_vec.reserve(Texture::kTotal);
+						for (auto& type : TEXTURE::types) {
+							a_vec.emplace_back(textureSet->GetTexturePath(type));
+						}
+					}
+					if (const auto newMaterial = static_cast<RE::BSLightingShaderMaterialBase*>(material->Create()); newMaterial) {
+						newMaterial->CopyMembers(material);
+						newMaterial->ClearTextures();
+
+						if (a_type == -1) {
+							if (feature == Feature::kFaceGen) {
 								if (const auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
-									const auto BSTextureType = static_cast<Texture>(a_type);
-									for (const auto& type : TEXTURE::types) {
-										if (type != BSTextureType) {
-											newTextureSet->SetTexturePath(type, material->textureSet->GetTexturePath(type));
+									for (auto& type : TEXTURE::types) {
+										if (type != Texture::kMultilayer) {
+											newTextureSet->SetTexturePath(type, a_txst->GetTexturePath(type));
 										}
 									}
-									newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
+									newTextureSet->SetTexturePath(Texture::kMultilayer, textureSet->GetTexturePath(Texture::kMultilayer));
 									newMaterial->OnLoadTextureSet(0, newTextureSet);
 								}
+							} else {
+								newMaterial->OnLoadTextureSet(0, a_txst);
 							}
-
-							lightingShader->SetMaterial(newMaterial, true);
-							lightingShader->SetupGeometry(a_geometry);
-							lightingShader->FinishSetupGeometry(a_geometry);
-
-							newMaterial->~BSLightingShaderMaterialBase();
-							RE::free(newMaterial);
+						} else {
+							if (const auto newTextureSet = RE::BSShaderTextureSet::Create(); newTextureSet) {
+								const auto BSTextureType = static_cast<Texture>(a_type);
+								for (const auto& type : TEXTURE::types) {
+									if (type != BSTextureType) {
+										newTextureSet->SetTexturePath(type, material->textureSet->GetTexturePath(type));
+									}
+								}
+								newTextureSet->SetTexturePath(BSTextureType, a_txst->GetTexturePath(BSTextureType));
+								newMaterial->OnLoadTextureSet(0, newTextureSet);
+							}
 						}
+
+						lightingShader->SetMaterial(newMaterial, true);
+						lightingShader->SetupGeometry(a_geometry);
+						lightingShader->FinishSetupGeometry(a_geometry);
+
+						newMaterial->~BSLightingShaderMaterialBase();
+						RE::free(newMaterial);
 					}
 				}
 			}
@@ -609,8 +610,7 @@ namespace SET
 			return;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_txst, a_slot, a_type, skinArmor, skinArma]() {
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_txst, a_slot, a_type, skinArmor, skinArma]() {
 			std::vector<RE::BSFixedString> result;
 			a_actor->VisitArmorAddon(skinArmor, skinArma, [&](bool, RE::NiAVObject& a_obj) -> bool {
 				SET::SkinTXST(&a_obj, a_txst, result, a_type);

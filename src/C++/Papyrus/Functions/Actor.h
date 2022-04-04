@@ -107,8 +107,7 @@ namespace Papyrus::Actor
 			const float opacity = a_autoCalc ? std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) : a_opacity;
 			auto newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
 
-			auto task = SKSE::GetTaskInterface();
-			task->AddTask([a_actor, newColor, root]() {
+			SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
 				SET::tint_face(a_actor, newColor);
 
 				root->UpdateBodyTint(newColor);
@@ -233,8 +232,7 @@ namespace Papyrus::Actor
 			}
 		} else if (a_type == 1) {
 			if (const auto charController = a_actor->GetCharController(); charController) {
-				auto task = SKSE::GetTaskInterface();
-				task->AddTask([root, charController, a_actor, a_enable]() {
+				SKSE::GetTaskInterface()->AddTask([root, charController, a_actor, a_enable]() {
 					std::uint32_t filterInfo = 0;
 					charController->GetCollisionFilterInfo(filterInfo);
 					if (a_enable) {
@@ -371,12 +369,12 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
                                     RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
                    0.0f;
 	}
 
@@ -833,8 +831,7 @@ namespace Papyrus::Actor
 				const float skinLuminance = a_manual ? a_percent : RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor);
 				auto newColor = RE::ColorUtil::Mix(actorbase->bodyTintColor, a_color->color, skinLuminance);
 
-				auto task = SKSE::GetTaskInterface();
-				task->AddTask([a_actor, newColor, root]() {
+				SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
 					SET::tint_face(a_actor, newColor);
 
 					root->UpdateBodyTint(newColor);
@@ -1011,13 +1008,12 @@ namespace Papyrus::Actor
 		std::string targetPath{ a_srcTXST->GetTexturePath(Texture::kDiffuse) };
 		TEXTURE::sanitize_path(targetPath);
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_armor, a_srcTXST, a_tgtTXST, a_type, targetPath]() {
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_armor, a_srcTXST, a_tgtTXST, a_type, targetPath]() {
 			bool replaced = false;
 
 			if (const auto arma = a_armor->GetArmorAddon(a_actor->GetRace()); arma) {
 				a_actor->VisitArmorAddon(a_armor, arma, [&](bool, RE::NiAVObject& a_obj) -> bool {
-					SET::ArmorTXST(&a_obj, a_tgtTXST, a_type, targetPath, replaced);
+				    SET::ArmorTXST(&a_obj, a_tgtTXST, a_type, targetPath, replaced);
 					return true;
 				});
 			}
@@ -1035,8 +1031,7 @@ namespace Papyrus::Actor
 						result.emplace_back(a_srcTXST->GetTexturePath(type));
 					}
 					result.emplace_back(armorID);
-					const auto newData = RE::NiStringsExtraData::Create(name, result);
-					if (newData) {
+					if (const auto newData = RE::NiStringsExtraData::Create(name, result)) {
 						root->AddExtraData(newData);
 					}
 				}
@@ -1065,8 +1060,7 @@ namespace Papyrus::Actor
 		const bool isFemale = actorBase && actorBase->IsFemale();
 
 		if (const auto txst = isFemale ? a_femaleTXST : a_maleTXST; txst) {
-			auto task = SKSE::GetTaskInterface();
-			task->AddTask([txst, a_type, a_actor]() {
+			SKSE::GetTaskInterface()->AddTask([txst, a_type, a_actor]() {
 				if (const auto faceObject = a_actor->GetHeadPartObject(RE::BGSHeadPart::HeadPartType::kFace); faceObject) {
 					std::vector<RE::BSFixedString> result;
 					SET::SkinTXST(faceObject, txst, result, a_type);
@@ -1138,8 +1132,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_folderName, root, resetData]() {
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_folderName, root, resetData]() {
 			auto& [toggleData, skinTintData, hairTintData, skinAlphaData, txstFaceData, headpartAlphaVec, txstVec, txstSkinVec, shaderVec] = resetData;
 
 			RESET::Toggle(root, toggleData);
@@ -1244,8 +1237,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, a_actor, a_color]() {
+		SKSE::GetTaskInterface()->AddTask([root, a_actor, a_color]() {
 			root->UpdateHairColor(a_color->color);
 
 			if (const auto& biped = a_actor->GetCurrentBiped(); biped) {
@@ -1283,8 +1275,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, a_actor, a_alpha, a_type]() {
+		SKSE::GetTaskInterface()->AddTask([root, a_actor, a_alpha, a_type]() {
 			if (const auto object = a_actor->GetHeadPartObject(static_cast<HeadPartType>(a_type)); object) {
 				object->UpdateMaterialAlpha(a_alpha, false);
 
@@ -1358,7 +1349,7 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
                 charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
@@ -1380,8 +1371,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([root, a_alpha]() {
+		SKSE::GetTaskInterface()->AddTask([root, a_alpha]() {
 			root->UpdateMaterialAlpha(a_alpha, true);
 
 			if (a_alpha == 1.0f) {
@@ -1411,8 +1401,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, a_color, root]() {
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_color, root]() {
 			SET::tint_face(a_actor, a_color->color);
 
 			root->UpdateBodyTint(a_color->color);
@@ -1453,8 +1442,7 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		const auto task = SKSE::GetTaskInterface();
-		task->AddTask([a_actor, root, a_disable]() {
+		SKSE::GetTaskInterface()->AddTask([a_actor, root, a_disable]() {
 			if (const auto& biped = a_actor->GetCurrentBiped(); biped) {
 				for (auto& slot : ACTOR::headSlots) {
 					const auto node = biped->objects[slot].partClone;

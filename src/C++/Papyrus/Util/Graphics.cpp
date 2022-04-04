@@ -468,7 +468,7 @@ namespace SET
 
 		if (const auto data = a_root->GetExtraData<RE::NiStringsExtraData>(EXTRA::TOGGLE); data) {
 			a_cull ?
-				data->Insert(a_node->name) :
+                data->Insert(a_node->name) :
                 data->Remove(a_node->name);
 		} else if (a_cull) {
 			std::vector<RE::BSFixedString> vec{ a_node->name };
@@ -544,7 +544,7 @@ namespace SET
 
 			const auto material = lightingShader ? static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material) : nullptr;
 
-		    if (lightingShader && material) {
+			if (lightingShader && material) {
 				auto const feature = material->GetFeature();
 				if (const auto textureSet = material->textureSet; textureSet && stl::is_in(feature, Feature::kFaceGenRGBTint, Feature::kFaceGen)) {
 					if (a_vec.empty()) {

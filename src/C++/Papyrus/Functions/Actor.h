@@ -369,12 +369,12 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-		                            actorValueList->LookupActorValueByName(a_actorValue) :
+                                    actorValueList->LookupActorValueByName(a_actorValue) :
                                     RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-		           a_actor->GetActorValueModifier(modifier, actorValue) :
+                   a_actor->GetActorValueModifier(modifier, actorValue) :
                    0.0f;
 	}
 
@@ -1013,7 +1013,7 @@ namespace Papyrus::Actor
 
 			if (const auto arma = a_armor->GetArmorAddon(a_actor->GetRace()); arma) {
 				a_actor->VisitArmorAddon(a_armor, arma, [&](bool, RE::NiAVObject& a_obj) -> bool {
-				    SET::ArmorTXST(&a_obj, a_tgtTXST, a_type, targetPath, replaced);
+					SET::ArmorTXST(&a_obj, a_tgtTXST, a_type, targetPath, replaced);
 					return true;
 				});
 			}
@@ -1349,7 +1349,7 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
                 charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;

@@ -23,7 +23,7 @@ namespace Cache
 	{
 		Locker locker(_lock);
 
-	    const auto it = _formIDToEditorIDMap.find(a_formID);
+		const auto it = _formIDToEditorIDMap.find(a_formID);
 		return it != _formIDToEditorIDMap.end() ? it->second : std::string();
 	}
 

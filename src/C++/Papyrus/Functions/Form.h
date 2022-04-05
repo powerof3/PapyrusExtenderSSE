@@ -155,7 +155,7 @@ namespace Papyrus::Form
 			description->GetDescription(str, nullptr);
 
 			std::string temp(str);
-			string::replace_all(temp, "\r"sv, ""sv); //remove escape character not supported by BSFixedString
+			string::replace_all(temp, "\r"sv, ""sv);  //remove escape character not supported by BSFixedString
 			return temp;
 		}
 

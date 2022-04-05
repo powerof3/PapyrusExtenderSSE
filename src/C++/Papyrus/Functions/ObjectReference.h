@@ -898,7 +898,7 @@ namespace Papyrus::ObjectReference
 		return count;
 	}
 
-	inline bool IsCasting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
+	inline bool IsCasting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		RE::TESForm* a_form)
 	{
@@ -911,16 +911,16 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-        const auto magicItem = a_form->As<RE::MagicItem>();
+		const auto magicItem = a_form->As<RE::MagicItem>();
 		if (!magicItem) {
 			a_vm->TraceStack("Form is not a magic item", a_stackID);
 			return false;
 		}
 
-        if (auto actor = a_ref->As<RE::Actor>()) {
+		if (auto actor = a_ref->As<RE::Actor>()) {
 			return actor->IsCasting(magicItem);
 		} else {
-            const auto magicCaster = a_ref->GetMagicCaster(RE::MagicSystem::CastingSource::kInstant);
+			const auto magicCaster = a_ref->GetMagicCaster(RE::MagicSystem::CastingSource::kInstant);
 			return magicCaster && magicCaster->currentSpell == magicItem;
 		}
 	}
@@ -1047,7 +1047,7 @@ namespace Papyrus::ObjectReference
 
 		const auto handle = a_ref->CreateRefHandle();
 		SKSE::GetTaskInterface()->AddTask([handle, nearestVertex]() {
-            if (const auto ref = handle.get()) {
+			if (const auto ref = handle.get()) {
 				ref->SetPosition(*nearestVertex);
 			}
 		});

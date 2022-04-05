@@ -478,7 +478,7 @@ namespace Papyrus::Actor
 			return nullptr;
 		}
 
-        return a_actor->GetCurrentAmmo();
+		return a_actor->GetCurrentAmmo();
 	}
 
 #ifdef SKYRIMVR
@@ -550,7 +550,7 @@ namespace Papyrus::Actor
 			return mount.get();
 		}
 
-	    return nullptr;
+		return nullptr;
 	}
 
 	inline float GetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)

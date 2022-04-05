@@ -96,20 +96,20 @@ namespace Papyrus::Light
 		}
 
 		const auto flags = a_light->data.flags;
-		if (flags.all(FLAGS::kHemiShadow)) {
+		if (flags.any(FLAGS::kHemiShadow)) {
 			return 1;
 		}
-		if (flags.all(FLAGS::kNone)) {
-			return 2;
-		}
-		if (flags.all(FLAGS::kOmniShadow)) {
+		if (flags.any(FLAGS::kOmniShadow)) {
 			return 3;
 		}
-		if (flags.all(FLAGS::kSpotlight)) {
+		if (flags.any(FLAGS::kSpotlight)) {
 			return 4;
 		}
-		if (flags.all(FLAGS::kSpotShadow)) {
+		if (flags.any(FLAGS::kSpotShadow)) {
 			return 5;
+		}
+		if (flags.any(FLAGS::kNone)) {
+			return 2;
 		}
 		return 0;
 	}

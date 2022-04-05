@@ -639,7 +639,7 @@ namespace Papyrus::Actor
 			return nullptr;
 		}
 
-        return a_actor->GetVendorFaction();
+		return a_actor->GetVendorFaction();
 	}
 
 	inline bool HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

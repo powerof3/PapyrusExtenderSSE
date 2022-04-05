@@ -552,6 +552,16 @@ namespace Papyrus::Actor
 		return supportBody ? supportBody->GetUserData() : nullptr;
 	}
 
+	inline bool GetOffersServices(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+		return a_actor->CalculateOffersServices();
+	}
+
 	inline RE::TESPackage* GetRunningPackage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -620,6 +630,16 @@ namespace Papyrus::Actor
 		const auto timeOfDeath = currentProcess ? currentProcess->deathTime : 0.0f;
 
 		return timeOfDeath > 0.0f ? timeOfDeath / 24.0f : 0.0f;
+	}
+
+	inline RE::TESFaction* GetVendorFaction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+
+        return a_actor->GetVendorFaction();
 	}
 
 	inline bool HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1525,10 +1545,12 @@ namespace Papyrus::Actor
 		BIND(GetHeadPartTextureSet);
 		BIND(GetLocalGravityActor);
 		BIND(GetObjectUnderFeet);
+		BIND(GetOffersServices);
 		BIND(GetRunningPackage);
 		BIND(GetSkinColor);
 		BIND(GetTimeDead);
 		BIND(GetTimeOfDeath);
+		BIND(GetVendorFaction);
 		BIND(HasActiveSpell);
 		BIND(IsQuadruped, true);
 		BIND(HasDeferredKill);

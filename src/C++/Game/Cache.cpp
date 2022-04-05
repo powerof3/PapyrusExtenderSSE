@@ -14,7 +14,7 @@ namespace Cache
 		const RE::BSReadLockGuard locker{ lock };
 		if (map) {
 			for (auto& [id, form] : *map) {
-				_formIDToEditorIDMap.insert_or_assign(form->GetFormID(), id.c_str());
+				_formIDToEditorIDMap.emplace(form->GetFormID(), id.c_str());
 			}
 		}
 	}

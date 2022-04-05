@@ -284,11 +284,11 @@ namespace Event::GameEventHandler
 
 		struct StoryCraftItem
 		{
-            static StoryItemCraft* thunk(StoryItemCraft* a_event, RE::TESObjectREFR* a_refr, RE::BGSLocation* a_loc, RE::TESForm* a_form)
+			static StoryItemCraft* thunk(StoryItemCraft* a_event, RE::TESObjectREFR* a_refr, RE::BGSLocation* a_loc, RE::TESForm* a_form)
 			{
 				GameEventHolder::GetSingleton()->itemCrafted.QueueEvent(a_refr, a_loc, a_form);
 
-                return func(a_event, a_refr, a_loc, a_form);
+				return func(a_event, a_refr, a_loc, a_form);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 		};

@@ -11,7 +11,6 @@ namespace Cache
 		void FillMap();
 
 		std::string GetEditorID(RE::FormID a_formID);
-		RE::FormID GetFormID(const std::string& a_editorID);
 
 	private:
 		using Lock = std::mutex;
@@ -27,7 +26,6 @@ namespace Cache
 
 		mutable Lock _lock;
 		robin_hood::unordered_flat_map<RE::FormID, std::string> _formIDToEditorIDMap;
-		robin_hood::unordered_flat_map<std::string, RE::FormID> _editorIDToFormIDMap;
 	};
 
 	void Register();

@@ -153,7 +153,10 @@ namespace Papyrus::Form
 		if (description) {
 			RE::BSString str;
 			description->GetDescription(str, nullptr);
-			return str;
+
+			std::string temp(str);
+			string::replace_all(temp, "\r"sv, ""sv); //remove escape character not supported by BSFixedString
+			return temp;
 		}
 
 		return RE::BSFixedString();

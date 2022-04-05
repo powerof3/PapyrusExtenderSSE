@@ -85,6 +85,15 @@ Scriptname PO3_Events_Alias  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;ITEM CRAFTED
+;Player only event
+	
+	Function RegisterForItemCrafted(Alias akAlias) global native	
+	Function UnregisterForItemCrafted(Alias akAlias) global native
+	
+	Event OnItemCrafted(ObjectReference akBench, Location akLocation, Form akCreatedItem)
+	EndEvent
+	
 ;ITEM HARVESTED
 ;Player only event
 	

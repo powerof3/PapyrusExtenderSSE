@@ -74,6 +74,15 @@ Scriptname PO3_Events_Form  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	endEvent
 	
+;ITEM CRAFTED
+;Player only event
+	
+	Function RegisterForItemCrafted(Form akForm) global native	
+	Function UnregisterForItemCrafted(Form akForm) global native
+	
+	Event OnItemCrafted(ObjectReference akBench, Location akLocation, Form akCreatedItem)
+	EndEvent
+	
 ;ITEM HARVESTED
 ;Player only event
 	
@@ -188,13 +197,3 @@ Scriptname PO3_Events_Form  Hidden
 		
 	Event OnWeatherChange(Weather akOldWeather, Weather akNewWeather)
 	endEvent
-	
-;FEC - RESET ACTOR EFFECTS
-
-	Function RegisterForFECReset(Form akForm, int aiType) global native	
-	Function UnregisterForFECReset(Form akForm, int aiType) global native
-	Function UnregisterForAllFECResets(Form akForm) global native
-		
-	Event OnFECReset(Actor akActor, int aiType, bool abReset3D)
-	endEvent
-	

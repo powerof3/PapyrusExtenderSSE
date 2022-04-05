@@ -58,6 +58,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets the owner of summoned actor
 	Actor Function GetCommandingActor(Actor akActor) global native
 	
+	;Gets current equipped ammo
+	Ammo Function GetEquippedAmmo(Actor akActor) global native
+	
 	;Gets current hair color on actor. Fails if hair headpart doesn't exist
 	ColorForm Function GetHairColor(Actor akActor) global native
 	
@@ -67,8 +70,17 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Gets the actor's local gravity.
 	Float Function GetLocalGravityActor(Actor akActor) global native
 	
+	;Get the mount that the actor is riding on
+	Actor Function GetMount(Actor akActor) global native
+	
 	;Gets object under actor's feet (eg. table). Does not work if the player is standing on the ground.
 	ObjectReference Function GetObjectUnderFeet(Actor akActor) global native
+	
+	;Returns true if the actor is offering services (ie. barter)
+	bool Function GetOffersServices(Actor akActor) global native
+	
+	;Get the current rider of the mount
+	Actor Function GetRider(Actor akActor) global native
 	
 	;Gets actual current package on actor, including internal packages used by the game (see GetPackageType below)
 	Package Function GetRunningPackage(Actor akActor) global native
@@ -81,6 +93,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Returns time of death in game days passed
 	float Function GetTimeOfDeath(Actor akActor) global native
+	
+	;Get vendor faction of actor, if any
+	Faction Function GetVendorFaction(Actor akActor) global native
 	
 	;HasSpell but checks if the spell is present on the actor (i.e active and not dispelled)
 	bool Function HasActiveSpell(Actor akActor, Spell akSpell) global native
@@ -501,30 +516,6 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Removes effectitem from Enchantment that matches Enchantment at index.
 	Function RemoveEffectItemFromEnchantment(Enchantment akEnchantment, Enchantment akEnchantmentToMatchFrom, int aiIndex) global native
-	
-;----------------------------------------------------------------------------------------------------------	
-;FEC
-;----------------------------------------------------------------------------------------------------------
-	
-	;FEC function
-	;returns effect type, effect skill level, and projectile type, of the highest magnitude effect present on the actor
-	;permanent - SUN, ACID, FIRE, FROST, SHOCK, DRAIN
-	;temporary - POISON, FEAR
-	int[] Function GetDeathEffectType(Actor akActor, int type) global native
-	
-	;0 - charred/skeleton
-	;1 - drained
-	;2 - poisoned/frightened
-	;3-  aged
-	;4 - charred creature
-	;5 - frozen
-	Function RemoveEffectsNotOfType(Actor akActor, int aiEffectType) global native
-	
-	; 0 - permanent
-	; 1 - temporary
-	; 2 - frozenActor
-	; 3 - frozenCol
-	Function SendFECResetEvent(Actor akActor, int aiType, bool abReset3D) global native
 		
 ;----------------------------------------------------------------------------------------------------------	
 ;FORM
@@ -1124,6 +1115,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;Returns whether the reference has niextradata (attached to root 3D node). Partial matches accepted.
 	bool Function HasNiExtraData(ObjectReference akRef, String asName) global native
 	
+	;Returns whether the reference is currently casting spell/scroll/shout/other magic forms
+	bool Function IsCasting(ObjectReference akRef, Form akMagicItem) global native
+	
 	;Is door a load door?
 	bool Function IsLoadDoor(ObjectReference akRef) global native
 	
@@ -1344,7 +1338,7 @@ Scriptname PO3_SKSEFunctions Hidden
 ;PAPYRUS EXTENDER
 ;----------------------------------------------------------------------------------------------------------
 
-	;returns current version as int array (major,minor,patch / 4,3,7)
+	;returns current version as int array (major,minor,patch / 5,0,0)
 	int[] Function GetPapyrusExtenderVersion() global native
 	
 ;-----------------------------------------------------------------------------------------------------------	

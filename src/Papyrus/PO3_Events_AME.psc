@@ -85,6 +85,15 @@ Scriptname PO3_Events_AME  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;ITEM CRAFTED
+;Player only event
+	
+	Function RegisterForItemCrafted(ActiveMagicEffect akActiveEffect) global native	
+	Function UnregisterForItemCrafted(ActiveMagicEffect akActiveEffect) global native
+	
+	Event OnItemCrafted(ObjectReference akBench, Location akLocation, Form akCreatedItem)
+	EndEvent
+	
 ;ITEM HARVESTED
 ;Player only event
 	
@@ -262,14 +271,5 @@ Scriptname PO3_Events_AME  Hidden
 	Function UnregisterForProjectileHit(ActiveMagicEffect akActiveEffect) global native
 		
 	Event OnProjectileHit(ObjectReference akTarget, Form akSource, Projectile akProjectile)
-	EndEvent
-	
-;FEC - RESET ACTOR EFFECTS
-
-	Function RegisterForFECReset(ActiveMagicEffect akActiveEffect, int aiType) global native	
-	Function UnregisterForFECReset(ActiveMagicEffect akActiveEffect, int aiType) global native
-	Function UnregisterForAllFECResets(ActiveMagicEffect akActiveEffect) global native
-		
-	Event OnFECReset(Actor akActor, int aiType, bool abReset3D)
 	EndEvent
 	

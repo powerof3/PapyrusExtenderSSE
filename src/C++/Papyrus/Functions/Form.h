@@ -475,6 +475,17 @@ namespace Papyrus::Form
 		regs.Register(a_form);
 	}
 
+	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->itemCrafted;
+		regs.Register(a_form);
+	}
+
 	inline void RegisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
 	{
 		if (!a_form) {
@@ -693,6 +704,17 @@ namespace Papyrus::Form
 		}
 
 		auto& regs = Event::StoryEventHolder::GetSingleton()->dragonSoulsGained;
+		regs.Unregister(a_form);
+	}
+
+	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->itemCrafted;
 		regs.Unregister(a_form);
 	}
 
@@ -918,6 +940,7 @@ namespace Papyrus::Form
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
 		BIND_EVENT(RegisterForLevelIncrease, true);
 		BIND_EVENT(RegisterForLocationDiscovery, true);
@@ -937,6 +960,7 @@ namespace Papyrus::Form
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForItemCrafted, true);
 		BIND_EVENT(UnregisterForItemHarvested, true);
 		BIND_EVENT(UnregisterForLevelIncrease, true);
 		BIND_EVENT(UnregisterForLocationDiscovery, true);

@@ -144,6 +144,17 @@ namespace Papyrus::Alias
 		regs.Register(a_alias);
 	}
 
+	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->itemCrafted;
+		regs.Register(a_alias);
+	}
+
 	inline void RegisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -478,6 +489,17 @@ namespace Papyrus::Alias
 		regs.Unregister(a_alias);
 	}
 
+	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->itemCrafted;
+		regs.Unregister(a_alias);
+	}
+
 	inline void UnregisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -752,6 +774,7 @@ namespace Papyrus::Alias
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
 		BIND_EVENT(RegisterForLevelIncrease, true);
 		BIND_EVENT(RegisterForLocationDiscovery, true);
@@ -779,6 +802,7 @@ namespace Papyrus::Alias
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForItemCrafted, true);
 		BIND_EVENT(UnregisterForItemHarvested, true);
 		BIND_EVENT(UnregisterForLevelIncrease, true);
 		BIND_EVENT(UnregisterForLocationDiscovery, true);

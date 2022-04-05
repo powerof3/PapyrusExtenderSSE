@@ -126,6 +126,17 @@ namespace Papyrus::ActiveMagicEffect
 		regs.Register(a_activeEffect);
 	}
 
+	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->itemCrafted;
+		regs.Register(a_activeEffect);
+	}
+
 	inline void RegisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -442,6 +453,17 @@ namespace Papyrus::ActiveMagicEffect
 		regs.Unregister(a_activeEffect);
 	}
 
+	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->itemCrafted;
+		regs.Unregister(a_activeEffect);
+	}
+
 	inline void UnregisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -716,6 +738,7 @@ namespace Papyrus::ActiveMagicEffect
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
 		BIND_EVENT(RegisterForLevelIncrease, true);
 		BIND_EVENT(RegisterForLocationDiscovery, true);
@@ -743,6 +766,7 @@ namespace Papyrus::ActiveMagicEffect
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForItemCrafted, true);
 		BIND_EVENT(UnregisterForItemHarvested, true);
 		BIND_EVENT(UnregisterForLevelIncrease, true);
 		BIND_EVENT(UnregisterForLocationDiscovery, true);

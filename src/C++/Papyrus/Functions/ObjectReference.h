@@ -898,6 +898,33 @@ namespace Papyrus::ObjectReference
 		return count;
 	}
 
+	inline bool IsCasting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
+		RE::TESObjectREFR* a_ref,
+		RE::TESForm* a_form)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return false;
+		}
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return false;
+		}
+
+        const auto magicItem = a_form->As<RE::MagicItem>();
+		if (!magicItem) {
+			a_vm->TraceStack("Form is not a magic item", a_stackID);
+			return false;
+		}
+
+        if (auto actor = a_ref->As<RE::Actor>()) {
+			return actor->IsCasting(magicItem);
+		} else {
+            const auto magicCaster = a_ref->GetMagicCaster(RE::MagicSystem::CastingSource::kInstant);
+			return magicCaster && magicCaster->currentSpell == magicItem;
+		}
+	}
+
 	inline bool IsLoadDoor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
@@ -1020,8 +1047,7 @@ namespace Papyrus::ObjectReference
 
 		const auto handle = a_ref->CreateRefHandle();
 		SKSE::GetTaskInterface()->AddTask([handle, nearestVertex]() {
-			const auto ref = handle.get();
-			if (ref) {
+            if (const auto ref = handle.get()) {
 				ref->SetPosition(*nearestVertex);
 			}
 		});
@@ -1322,7 +1348,7 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-		const auto teleport = a_door->extraList.GetByType<RE::ExtraTeleport>();
+		const auto teleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
 		const auto teleportData = teleport ? teleport->teleportData : nullptr;
 
 		if (teleportData) {
@@ -1692,6 +1718,7 @@ namespace Papyrus::ObjectReference
 		BIND(HasArtObject);
 		BIND(HasEffectShader);
 		BIND(HasNiExtraData);
+		BIND(IsCasting);
 		BIND(IsLoadDoor, true);
 		BIND(IsQuestItem);
 		BIND(IsVIP);

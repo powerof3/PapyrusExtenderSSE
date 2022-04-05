@@ -471,6 +471,16 @@ namespace Papyrus::Actor
 		return nullptr;
 	}
 
+	inline RE::TESAmmo* GetEquippedAmmo(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+
+        return a_actor->GetCurrentAmmo();
+	}
+
 #ifdef SKYRIMVR
 	// Fix missing GetEquippedArmorInSlot declared in SKSEVR but that doesn't exist in VR.
 	// https://www.creationkit.com/index.php?title=Actor_Script#Special_Edition_Exclusive_Functions
@@ -528,6 +538,21 @@ namespace Papyrus::Actor
 		return headpart ? headpart->textureSet : nullptr;
 	}
 
+	inline RE::Actor* GetMount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+
+		RE::NiPointer<RE::Actor> mount;
+		if (a_actor->GetMount(mount)) {
+			return mount.get();
+		}
+
+	    return nullptr;
+	}
+
 	inline float GetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -560,6 +585,21 @@ namespace Papyrus::Actor
 		}
 
 		return a_actor->CalculateOffersServices();
+	}
+
+	inline RE::Actor* GetRider(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+
+		RE::NiPointer<RE::Actor> rider;
+		if (a_actor->GetRider(rider)) {
+			return rider.get();
+		}
+
+		return nullptr;
 	}
 
 	inline RE::TESPackage* GetRunningPackage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
@@ -1537,15 +1577,18 @@ namespace Papyrus::Actor
 		BIND(GetCombatTargets);
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
+		BIND(GetEquippedAmmo);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
 		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");
 #endif
 		BIND(GetHairColor);
 		BIND(GetHeadPartTextureSet);
+		BIND(GetMount);
 		BIND(GetLocalGravityActor);
 		BIND(GetObjectUnderFeet);
 		BIND(GetOffersServices);
+		BIND(GetRider);
 		BIND(GetRunningPackage);
 		BIND(GetSkinColor);
 		BIND(GetTimeDead);

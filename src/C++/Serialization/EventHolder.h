@@ -115,6 +115,7 @@ namespace Event
 			kActorResurrect = 'RSUR',
 			kActorReanimateStart = 'RSTA',
 			kActorReanimateStop = 'REND',
+			kItemCrafted = 'ITEM',
 			kWeatherChange = 'WEAT',
 			kMagicEffectApply = 'MGEF',
 			kWeaponHit = 'WHIT',
@@ -126,6 +127,7 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::Actor*, bool> actorResurrect{ "OnActorResurrected"sv };
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
 		SKSE::RegistrationMapUnique<const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool> magicApply{ "OnMagicEffectApplyEx"sv };
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> magicHit{ "OnMagicHit"sv };
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> projectileHit{ "OnProjectileHit"sv };

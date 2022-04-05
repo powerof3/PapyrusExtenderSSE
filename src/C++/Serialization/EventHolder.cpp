@@ -165,6 +165,7 @@ namespace Event
 		actorReanimateStart.Save(a_intfc, kActorReanimateStart, a_version);
 		actorReanimateStop.Save(a_intfc, kActorReanimateStop, a_version);
 		actorResurrect.Save(a_intfc, kActorResurrect, a_version);
+		itemCrafted.Save(a_intfc, kItemCrafted, a_version);
 		magicApply.Save(a_intfc, kMagicEffectApply, a_version);
 		magicHit.Save(a_intfc, kMagicHit, a_version);
 		projectileHit.Save(a_intfc, kProjectileHit, a_version);
@@ -186,6 +187,9 @@ namespace Event
 			break;
 		case kActorResurrect:
 			actorResurrect.Load(a_intfc);
+			break;
+		case kItemCrafted:
+			itemCrafted.Load(a_intfc);
 			break;
 		case kMagicEffectApply:
 			magicApply.Load(a_intfc);
@@ -213,6 +217,7 @@ namespace Event
 		actorReanimateStart.Revert(a_intfc);
 		actorReanimateStop.Revert(a_intfc);
 		actorResurrect.Revert(a_intfc);
+		itemCrafted.Revert(a_intfc);
 		magicApply.Revert(a_intfc);
 		magicHit.Revert(a_intfc);
 		projectileHit.Revert(a_intfc);
@@ -226,6 +231,7 @@ namespace Event
 		actorReanimateStart.Unregister(a_handle);
 		actorReanimateStop.Unregister(a_handle);
 		actorResurrect.Unregister(a_handle);
+		itemCrafted.Unregister(a_handle);
 		magicApply.UnregisterAll(a_handle);
 		magicHit.Unregister(a_handle);
 		projectileHit.Unregister(a_handle);

@@ -272,6 +272,45 @@ namespace Event::GameEventHandler
 		}
 	}
 
+	namespace ItemCrafted
+	{
+		struct StoryItemCraft
+		{
+			RE::ObjectRefHandle objectHandle;  // 00
+			RE::BGSLocation* location;         // 08
+			RE::TESForm* form;                 // 10
+		};
+		static_assert(sizeof(StoryItemCraft) == 0x18);
+
+		struct StoryCraftItem
+		{
+            static StoryItemCraft* thunk(StoryItemCraft* a_event, RE::TESObjectREFR* a_refr, RE::BGSLocation* a_loc, RE::TESForm* a_form)
+			{
+				GameEventHolder::GetSingleton()->itemCrafted.QueueEvent(a_refr, a_loc, a_form);
+
+                return func(a_event, a_refr, a_loc, a_form);
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		inline void Install()
+		{
+			REL::Relocation<std::uintptr_t> smithing{ REL_ID(50477, 51370), OFFSET(0x17D, 0x1B3) };
+			stl::write_thunk_call<StoryCraftItem>(smithing.address());
+
+			REL::Relocation<std::uintptr_t> tempering{ REL_ID(50476, 51369), OFFSET(0x11E, 0x227) };
+			stl::write_thunk_call<StoryCraftItem>(tempering.address());
+
+			REL::Relocation<std::uintptr_t> enchanting{ REL_ID(50450, 51355), OFFSET(0x2FC, 0x2FA) };
+			stl::write_thunk_call<StoryCraftItem>(enchanting.address());
+
+			REL::Relocation<std::uintptr_t> alchemy{ REL_ID(50449, 51354), OFFSET(0x29E, 0x296) };
+			stl::write_thunk_call<StoryCraftItem>(alchemy.address());
+
+			logger::info("Hooked Item Crafted"sv);
+		}
+	}
+
 	namespace Resurrect
 	{
 		struct Resurrect
@@ -565,6 +604,7 @@ namespace Event::GameEventHandler
 		logger::info("{:*^30}", "HOOKED EVENTS"sv);
 
 		FallLongDistance::Install();
+		ItemCrafted::Install();
 		Resurrect::Install();
 		Reanimate::Install();
 		MagicEffectApply::Install();

@@ -55,7 +55,7 @@ namespace stl
 		auto& trampoline = SKSE::GetTrampoline();
 		SKSE::AllocTrampoline(14);
 
-	    T::func = trampoline.write_call<5>(a_src, T::thunk);
+		T::func = trampoline.write_call<5>(a_src, T::thunk);
 	}
 
 	template <class F, std::size_t idx, class T>

@@ -78,7 +78,7 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		auto& regs = Event::GameEventHolder::GetSingleton()->booksRead;
 		regs.Register(a_activeEffect);
 	}
 
@@ -405,7 +405,7 @@ namespace Papyrus::ActiveMagicEffect
 			return;
 		}
 
-		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		auto& regs = Event::GameEventHolder::GetSingleton()->booksRead;
 		regs.Unregister(a_activeEffect);
 	}
 

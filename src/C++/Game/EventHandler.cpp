@@ -94,19 +94,6 @@ namespace Event
 		return EventResult::kContinue;
 	}
 
-	EventResult StoryEventHandler::ProcessEvent(const RE::BooksRead::Event* a_event, RE::BSTEventSource<RE::BooksRead::Event>*)
-	{
-		if (!a_event) {
-			return EventResult::kContinue;
-		}
-
-		if (const auto book = a_event->book; book) {
-			StoryEventHolder::GetSingleton()->booksRead.QueueEvent(book);
-		}
-
-		return EventResult::kContinue;
-	}
-
 	EventResult StoryEventHandler::ProcessEvent(const RE::CriticalHit::Event* a_event, RE::BSTEventSource<RE::CriticalHit::Event>*)
 	{
 		if (!a_event) {
@@ -269,6 +256,35 @@ namespace Event::GameEventHandler
 			stl::write_thunk_call<CalcDoDamage>(process_movefinish_event.address());
 
 			logger::info("Hooked Fall Damage"sv);
+		}
+	}
+
+	namespace BooksRead
+	{
+		struct Read
+		{
+			static bool thunk(RE::TESObjectBOOK* a_this, RE::TESObjectREFR* a_reader)
+			{
+				const auto result = func(a_this, a_reader);
+				if (a_this && a_reader->IsPlayerRef()) {
+					GameEventHolder::GetSingleton()->booksRead.QueueEvent(a_this);
+				}
+				return result;
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		inline void Install()
+		{
+			REL::Relocation<std::uintptr_t> bookMenu{ REL_ID(50122, 51053), OFFSET(0x22D, 0x231) };
+			stl::write_thunk_call<Read>(bookMenu.address());
+
+			REL::Relocation<std::uintptr_t> containerMenu{ REL_ID(50220, 51149), 0x18E };
+			stl::write_thunk_call<Read>(containerMenu.address());
+
+			//ignore spell read hook
+
+			logger::info("Hooked Book Read"sv);
 		}
 	}
 
@@ -605,6 +621,7 @@ namespace Event::GameEventHandler
 
 		FallLongDistance::Install();
 		ItemCrafted::Install();
+		BooksRead::Install();
 		Resurrect::Install();
 		Reanimate::Install();
 		MagicEffectApply::Install();

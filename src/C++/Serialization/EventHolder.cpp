@@ -73,7 +73,6 @@ namespace Event
 	void StoryEventHolder::Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
 	{
 		actorKill.Save(a_intfc, kActorKill, a_version);
-		booksRead.Save(a_intfc, kBookRead, a_version);
 		criticalHit.Save(a_intfc, kCritHit, a_version);
 		disarmed.Save(a_intfc, kDisarm, a_version);
 		dragonSoulsGained.Save(a_intfc, kDragonSoul, a_version);
@@ -90,9 +89,6 @@ namespace Event
 		switch (a_type) {
 		case kActorKill:
 			actorKill.Load(a_intfc);
-			break;
-		case kBookRead:
-			booksRead.Load(a_intfc);
 			break;
 		case kDisarm:
 			disarmed.Load(a_intfc);
@@ -128,7 +124,6 @@ namespace Event
 	void StoryEventHolder::Revert(SKSE::SerializationInterface* a_intfc)
 	{
 		actorKill.Revert(a_intfc);
-		booksRead.Revert(a_intfc);
 		criticalHit.Revert(a_intfc);
 		disarmed.Revert(a_intfc);
 		dragonSoulsGained.Revert(a_intfc);
@@ -143,7 +138,6 @@ namespace Event
 	void StoryEventHolder::FormDelete(RE::VMHandle a_handle)
 	{
 		actorKill.Unregister(a_handle);
-		booksRead.Unregister(a_handle);
 		criticalHit.Unregister(a_handle);
 		disarmed.Unregister(a_handle);
 		dragonSoulsGained.Unregister(a_handle);
@@ -165,6 +159,7 @@ namespace Event
 		actorReanimateStart.Save(a_intfc, kActorReanimateStart, a_version);
 		actorReanimateStop.Save(a_intfc, kActorReanimateStop, a_version);
 		actorResurrect.Save(a_intfc, kActorResurrect, a_version);
+		booksRead.Save(a_intfc, kBookRead, a_version);
 		itemCrafted.Save(a_intfc, kItemCrafted, a_version);
 		magicApply.Save(a_intfc, kMagicEffectApply, a_version);
 		magicHit.Save(a_intfc, kMagicHit, a_version);
@@ -187,6 +182,9 @@ namespace Event
 			break;
 		case kActorResurrect:
 			actorResurrect.Load(a_intfc);
+			break;
+		case kBookRead:
+			booksRead.Load(a_intfc);
 			break;
 		case kItemCrafted:
 			itemCrafted.Load(a_intfc);
@@ -217,6 +215,7 @@ namespace Event
 		actorReanimateStart.Revert(a_intfc);
 		actorReanimateStop.Revert(a_intfc);
 		actorResurrect.Revert(a_intfc);
+		booksRead.Revert(a_intfc);
 		itemCrafted.Revert(a_intfc);
 		magicApply.Revert(a_intfc);
 		magicHit.Revert(a_intfc);
@@ -231,6 +230,7 @@ namespace Event
 		actorReanimateStart.Unregister(a_handle);
 		actorReanimateStop.Unregister(a_handle);
 		actorResurrect.Unregister(a_handle);
+		booksRead.Unregister(a_handle);
 		itemCrafted.Unregister(a_handle);
 		magicApply.UnregisterAll(a_handle);
 		magicHit.Unregister(a_handle);

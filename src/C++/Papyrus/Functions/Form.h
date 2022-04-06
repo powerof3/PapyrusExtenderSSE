@@ -427,7 +427,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		auto& regs = Event::GameEventHolder::GetSingleton()->booksRead;
 		regs.Register(a_form);
 	}
 
@@ -659,7 +659,7 @@ namespace Papyrus::Form
 			return;
 		}
 
-		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		auto& regs = Event::GameEventHolder::GetSingleton()->booksRead;
 		regs.Unregister(a_form);
 	}
 

@@ -96,7 +96,7 @@ namespace Papyrus::Alias
 			return;
 		}
 
-		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		auto& regs = Event::GameEventHolder::GetSingleton()->booksRead;
 		regs.Register(a_alias);
 	}
 
@@ -441,7 +441,7 @@ namespace Papyrus::Alias
 			return;
 		}
 
-		auto& regs = Event::StoryEventHolder::GetSingleton()->booksRead;
+		auto& regs = Event::GameEventHolder::GetSingleton()->booksRead;
 		regs.Unregister(a_alias);
 	}
 

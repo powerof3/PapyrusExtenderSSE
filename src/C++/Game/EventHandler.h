@@ -57,7 +57,6 @@ namespace Event
 
 	class StoryEventHandler final :
 		public RE::BSTEventSink<RE::ActorKill::Event>,
-		public RE::BSTEventSink<RE::BooksRead::Event>,
 		public RE::BSTEventSink<RE::CriticalHit::Event>,
 		public RE::BSTEventSink<RE::DisarmedEvent::Event>,
 		public RE::BSTEventSink<RE::DragonSoulsGained::Event>,
@@ -81,7 +80,6 @@ namespace Event
 			logger::info("{:*^30}", "STORY EVENTS"sv);
 
 			register_event<RE::ActorKill>();
-			register_event<RE::BooksRead>();
 			register_event<RE::CriticalHit>();
 			register_event<RE::DisarmedEvent>();
 			register_event<RE::DragonSoulsGained>();
@@ -100,7 +98,6 @@ namespace Event
 		}
 
 		EventResult ProcessEvent(const RE::ActorKill::Event* a_event, RE::BSTEventSource<RE::ActorKill::Event>*) override;
-		EventResult ProcessEvent(const RE::BooksRead::Event* a_event, RE::BSTEventSource<RE::BooksRead::Event>*) override;
 		EventResult ProcessEvent(const RE::CriticalHit::Event* a_event, RE::BSTEventSource<RE::CriticalHit::Event>*) override;
 		EventResult ProcessEvent(const RE::DisarmedEvent::Event* a_event, RE::BSTEventSource<RE::DisarmedEvent::Event>*) override;
 		EventResult ProcessEvent(const RE::DragonSoulsGained::Event* a_event, RE::BSTEventSource<RE::DragonSoulsGained::Event>*) override;

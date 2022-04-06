@@ -96,10 +96,10 @@ namespace Papyrus::Light
 		}
 
 		const auto flags = a_light->data.flags;
-		if (flags.none(FLAGS::kHemiShadow) && flags.none(FLAGS::kOmniShadow) && flags.none(FLAGS::kSpotlight) && flags.none(FLAGS::kSpotShadow)) { // Omni
+		if (flags.none(FLAGS::kHemiShadow) && flags.none(FLAGS::kOmniShadow) && flags.none(FLAGS::kSpotlight) && flags.none(FLAGS::kSpotShadow)) {  // Omni
 			return 2;
 		}
-	    if (flags.any(FLAGS::kHemiShadow)) {
+		if (flags.any(FLAGS::kHemiShadow)) {
 			return 1;
 		}
 		if (flags.any(FLAGS::kOmniShadow)) {
@@ -112,7 +112,7 @@ namespace Papyrus::Light
 			return 5;
 		}
 
-	    return 0;
+		return 0;
 	}
 
 	inline void SetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

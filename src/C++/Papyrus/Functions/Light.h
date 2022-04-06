@@ -96,7 +96,10 @@ namespace Papyrus::Light
 		}
 
 		const auto flags = a_light->data.flags;
-		if (flags.any(FLAGS::kHemiShadow)) {
+		if (flags.none(FLAGS::kHemiShadow) && flags.none(FLAGS::kOmniShadow) && flags.none(FLAGS::kSpotlight) && flags.none(FLAGS::kSpotShadow)) { // Omni
+			return 2;
+		}
+	    if (flags.any(FLAGS::kHemiShadow)) {
 			return 1;
 		}
 		if (flags.any(FLAGS::kOmniShadow)) {
@@ -108,10 +111,8 @@ namespace Papyrus::Light
 		if (flags.any(FLAGS::kSpotShadow)) {
 			return 5;
 		}
-		if (flags.any(FLAGS::kNone)) {
-			return 2;
-		}
-		return 0;
+
+	    return 0;
 	}
 
 	inline void SetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -226,19 +227,24 @@ namespace Papyrus::Light
 		auto& flags = a_light->data.flags;
 		switch (a_type) {
 		case 1:
-			flags = flags & FLAGS::kType | FLAGS::kHemiShadow;
+			flags.set(FLAGS::kHemiShadow);
 			break;
 		case 2:
-			flags = flags & FLAGS::kType | FLAGS::kNone;
+			{
+				flags.reset(FLAGS::kHemiShadow);
+				flags.reset(FLAGS::kOmniShadow);
+				flags.reset(FLAGS::kSpotlight);
+				flags.reset(FLAGS::kSpotShadow);
+			}
 			break;
 		case 3:
-			flags = flags & FLAGS::kType | FLAGS::kOmniShadow;
+			flags.set(FLAGS::kOmniShadow);
 			break;
 		case 4:
-			flags = flags & FLAGS::kType | FLAGS::kSpotlight;
+			flags.set(FLAGS::kSpotlight);
 			break;
 		case 5:
-			flags = flags & FLAGS::kType | FLAGS::kSpotShadow;
+			flags.set(FLAGS::kSpotShadow);
 			break;
 		default:
 			break;

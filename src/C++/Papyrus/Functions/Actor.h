@@ -584,7 +584,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		return a_actor->CalculateOffersServices();
+		return a_actor->CanOfferServices();
 	}
 
 	inline RE::Actor* GetRider(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)

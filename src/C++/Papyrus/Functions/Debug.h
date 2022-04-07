@@ -20,7 +20,7 @@ namespace Papyrus::Debug
 		if (player && dataHandler) {
 			for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
 				if (book && book->TeachesSpell()) {
-                    if (const auto spell = book->GetSpell(); !spell->fullName.empty()) {
+					if (const auto spell = book->GetSpell(); !spell->fullName.empty()) {
 						if (const auto mod = spell->GetDescriptionOwnerFile(); mod) {
 							auto modName{ "[" + std::string(mod->fileName).substr(0, 4) + "] " };
 							spell->fullName = modName + spell->fullName.c_str();
@@ -40,7 +40,7 @@ namespace Papyrus::Debug
 
 		constexpr auto get_value = [](const RE::AnimVariableCacheInfo& a_var) {
 			if (a_var.variable) {
-                const std::string variable(a_var.variableName);
+				const std::string variable(a_var.variableName);
 				if (variable[0] == 'b' || variable.starts_with("Is")) {
 					return std::string(a_var.variable->b ? "true" : "false");
 				}

@@ -48,7 +48,7 @@ namespace Papyrus::Cell
 		}
 
 		if (a_cell->IsInteriorCell()) {
-            if (auto extraNorthMarker = a_cell->extraList.GetByType<RE::ExtraNorthRotation>()) {
+			if (auto extraNorthMarker = a_cell->extraList.GetByType<RE::ExtraNorthRotation>()) {
 				extraNorthMarker->northRot = a_angle;
 			} else {
 				extraNorthMarker = new RE::ExtraNorthRotation();
@@ -58,7 +58,7 @@ namespace Papyrus::Cell
 				}
 			}
 		} else {
-            if (const auto worldspace = a_cell->worldSpace) {
+			if (const auto worldspace = a_cell->worldSpace) {
 				worldspace->northRotation = a_angle;
 			}
 		}

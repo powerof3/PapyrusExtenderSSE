@@ -19,7 +19,7 @@ namespace Papyrus::ActorBase
 		return relationship ? relationship->assocType : nullptr;
 	}
 
-    inline RE::TESLevItem* GetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase)
+	inline RE::TESLevItem* GetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -95,7 +95,7 @@ namespace Papyrus::ActorBase
 	inline void Bind(VM& a_vm)
 	{
 		BIND(GetAssociationType);
-	    BIND(GetDeathItem);
+		BIND(GetDeathItem);
 		BIND(GetNthPerk);
 		BIND(GetRelationships);
 		BIND(GetPerkCount);

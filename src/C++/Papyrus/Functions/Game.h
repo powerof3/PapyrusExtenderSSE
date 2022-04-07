@@ -9,7 +9,7 @@ namespace Papyrus::Game
 		}
 	}
 
-    struct forms
+	struct forms
 	{
 		template <class T>
 		static std::vector<T*> get_all(const std::vector<RE::BGSKeyword*>& a_keywords)
@@ -353,7 +353,7 @@ namespace Papyrus::Game
 	inline void Bind(VM& a_vm)
 	{
 		BIND(ClearCachedFactionFightReactions);
-	    BIND(GetActorsByProcessingLevel);
+		BIND(GetActorsByProcessingLevel);
 		BIND(GetAllEnchantments);
 		BIND(GetAllForms);
 		BIND(GetAllRaces);

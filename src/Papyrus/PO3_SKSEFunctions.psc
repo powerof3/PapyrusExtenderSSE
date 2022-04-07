@@ -267,6 +267,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;-------
 	
+	;Get association type between 2 npcs, if any
+	AssociationType Function GetAssociationType(Actorbase akBase1, Actorbase akBase2) global native
+	
 	;Gets npc death item
 	LeveledItem Function GetDeathItem(Actorbase akBase) global native
 	
@@ -275,6 +278,9 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Get total actorbase perk count
 	int Function GetPerkCount(Actorbase akBase) global native
+	
+	;Gets list of actorbases by association type, OR all actors with relationships if association type is None 
+	Actorbase[] Function GetRelationships(Actorbase akBase, AssociationType akAssocType) global native
 	
 	;-------
 	;SETTERS
@@ -596,6 +602,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;GAME
 ;----------------------------------------------------------------------------------------------------------
 		
+	;Clears all faction combat reactions
+	Function ClearCachedFactionFightReactions() global native
+	
 	;Gets all enchantments from base game + mods, filtered using optional keyword array
 	Enchantment[] Function GetAllEnchantments(Keyword[] akKeywords = None) global native
 	
@@ -1405,6 +1414,13 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	;Sets projectile speed. 
 	Function SetProjectileSpeed(Projectile akProjectile, float afSpeed) global native
+	
+;-----------------------------------------------------------------------------------------------------------	
+;QUEST
+;-----------------------------------------------------------------------------------------------------------	
+
+	;Get all quest objective indices
+	int[] Function GetAllQuestObjectives(Quest akQuest) global native
 
 ;-----------------------------------------------------------------------------------------------------------	
 ;SCROLL - see SPELL

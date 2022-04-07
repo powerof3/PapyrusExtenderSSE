@@ -279,12 +279,7 @@ namespace Event::GameEventHandler
 			REL::Relocation<std::uintptr_t> bookMenu{ REL_ID(50122, 51053), OFFSET(0x22D, 0x231) };
 			stl::write_thunk_call<Read>(bookMenu.address());
 
-			REL::Relocation<std::uintptr_t> containerMenu{ REL_ID(50220, 51149), 0x18E };
-			stl::write_thunk_call<Read>(containerMenu.address());
-
-			//ignore spell read hook
-
-			logger::info("Hooked Book Read"sv);
+		    logger::info("Hooked Book Read"sv);
 		}
 	}
 

@@ -26,6 +26,7 @@ set(headers ${headers}
 	src/C++/Papyrus/Functions/Package.h
 	src/C++/Papyrus/Functions/Potion.h
 	src/C++/Papyrus/Functions/Projectile.h
+	src/C++/Papyrus/Functions/Quest.h
 	src/C++/Papyrus/Functions/Scroll.h
 	src/C++/Papyrus/Functions/Sound.h
 	src/C++/Papyrus/Functions/Spell.h

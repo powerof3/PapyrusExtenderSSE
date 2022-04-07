@@ -20,6 +20,7 @@
 #include "Functions/MagicEffect.h"
 #include "Functions/ObjectReference.h"
 #include "Functions/Package.h"
+#include "Functions/Quest.h"
 #include "Functions/Potion.h"
 #include "Functions/Projectile.h"
 #include "Functions/Scroll.h"
@@ -67,6 +68,7 @@ namespace Papyrus
 		Package::Bind(*a_vm);
 		Potion::Bind(*a_vm);
 		Projectile::Bind(*a_vm);
+		Quest::Bind(*a_vm);
 		Scroll::Bind(*a_vm);
 		Sound::Bind(*a_vm);
 		Spell::Bind(*a_vm);

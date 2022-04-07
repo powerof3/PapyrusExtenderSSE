@@ -2,7 +2,14 @@
 
 namespace Papyrus::Game
 {
-	struct forms
+	inline void ClearCachedFactionFightReactions(RE::StaticFunctionTag*)
+	{
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+			processLists->ClearCachedFactionFightReactions();
+		}
+	}
+
+    struct forms
 	{
 		template <class T>
 		static std::vector<T*> get_all(const std::vector<RE::BGSKeyword*>& a_keywords)
@@ -178,7 +185,7 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		if (!modInfo) {
-			return std::vector<RE::SpellItem*>();
+			return {};
 		}
 
 		if (a_playable) {
@@ -345,7 +352,8 @@ namespace Papyrus::Game
 
 	inline void Bind(VM& a_vm)
 	{
-		BIND(GetActorsByProcessingLevel);
+		BIND(ClearCachedFactionFightReactions);
+	    BIND(GetActorsByProcessingLevel);
 		BIND(GetAllEnchantments);
 		BIND(GetAllForms);
 		BIND(GetAllRaces);

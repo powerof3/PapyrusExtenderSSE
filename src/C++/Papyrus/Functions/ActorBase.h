@@ -2,7 +2,24 @@
 
 namespace Papyrus::ActorBase
 {
-	inline RE::TESLevItem* GetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase)
+	inline RE::BGSAssociationType* GetAssociationType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESNPC* a_npc1,
+		RE::TESNPC* a_npc2)
+	{
+		if (!a_npc1) {
+			a_vm->TraceStack("ActorBase is None", a_stackID);
+			return nullptr;
+		}
+		if (!a_npc2) {
+			a_vm->TraceStack("Other ActorBase is None", a_stackID);
+			return nullptr;
+		}
+
+		const auto relationship = RE::BGSRelationship::GetRelationship(a_npc1, a_npc2);
+		return relationship ? relationship->assocType : nullptr;
+	}
+
+    inline RE::TESLevItem* GetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -10,16 +27,6 @@ namespace Papyrus::ActorBase
 		}
 
 		return a_actorbase->deathItem;
-	}
-
-	inline std::uint32_t GetPerkCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESNPC* a_actorbase)
-	{
-		if (!a_actorbase) {
-			a_vm->TraceStack("ActorBase is None", a_stackID);
-			return 0;
-		}
-
-		return a_actorbase->perkCount;
 	}
 
 	inline RE::BGSPerk* GetNthPerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -39,6 +46,40 @@ namespace Papyrus::ActorBase
 		return a_actorbase->perks[a_index].perk;
 	}
 
+	inline std::uint32_t GetPerkCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESNPC* a_actorbase)
+	{
+		if (!a_actorbase) {
+			a_vm->TraceStack("ActorBase is None", a_stackID);
+			return 0;
+		}
+
+		return a_actorbase->perkCount;
+	}
+
+	inline std::vector<RE::TESNPC*> GetRelationships(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESNPC* a_actorbase,
+		RE::BGSAssociationType* a_assocType)
+	{
+		if (!a_actorbase) {
+			a_vm->TraceStack("ActorBase is None", a_stackID);
+			return {};
+		}
+
+		std::vector<RE::TESNPC*> actorbases;
+		if (a_actorbase->relationships) {
+			for (const auto& relationship : *a_actorbase->relationships) {
+				if (relationship && (!a_assocType || relationship->assocType == a_assocType)) {
+					auto parentNPC = relationship->npc1;
+					if (parentNPC == a_actorbase) {
+						parentNPC = relationship->npc2;
+					}
+					actorbases.push_back(parentNPC);
+				}
+			}
+		}
+		return actorbases;
+	}
+
 	inline void SetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESNPC* a_actorbase,
 		RE::TESLevItem* a_item)
@@ -53,9 +94,11 @@ namespace Papyrus::ActorBase
 
 	inline void Bind(VM& a_vm)
 	{
-		BIND(GetDeathItem);
-		BIND(GetPerkCount);
+		BIND(GetAssociationType);
+	    BIND(GetDeathItem);
 		BIND(GetNthPerk);
+		BIND(GetRelationships);
+		BIND(GetPerkCount);
 		BIND(SetDeathItem);
 
 		logger::info("Registered actorbase functions"sv);

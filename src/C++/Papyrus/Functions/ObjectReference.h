@@ -945,15 +945,10 @@ namespace Papyrus::ObjectReference
 		if (const auto xAliases = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>(); xAliases) {
 			RE::BSReadLockGuard locker(xAliases->lock);
 
-			for (const auto& aliasData : xAliases->aliases) {
+		    return std::ranges::any_of(xAliases->aliases, [](const auto& aliasData) {
 				const auto alias = aliasData ? aliasData->alias : nullptr;
-
-				if (alias && alias->IsQuestObject()) {
-					return true;
-				}
-			}
-
-			return false;
+				return alias && alias->IsQuestObject();
+			});
 		}
 
 		return a_ref->HasQuestObject();

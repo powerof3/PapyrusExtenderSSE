@@ -227,7 +227,13 @@ namespace Papyrus::Light
 		auto& flags = a_light->data.flags;
 		switch (a_type) {
 		case 1:
-			flags.set(FLAGS::kHemiShadow);
+			{
+				flags.reset(FLAGS::kOmniShadow);
+				flags.reset(FLAGS::kSpotlight);
+				flags.reset(FLAGS::kSpotShadow);
+
+				flags.set(FLAGS::kHemiShadow);
+			}
 			break;
 		case 2:
 			{
@@ -238,13 +244,31 @@ namespace Papyrus::Light
 			}
 			break;
 		case 3:
-			flags.set(FLAGS::kOmniShadow);
+			{
+				flags.reset(FLAGS::kHemiShadow);
+				flags.reset(FLAGS::kSpotlight);
+				flags.reset(FLAGS::kSpotShadow);
+
+				flags.set(FLAGS::kOmniShadow);
+			}
 			break;
 		case 4:
-			flags.set(FLAGS::kSpotlight);
+			{
+				flags.reset(FLAGS::kHemiShadow);
+				flags.reset(FLAGS::kOmniShadow);
+				flags.reset(FLAGS::kSpotShadow);
+
+				flags.set(FLAGS::kSpotlight);
+			}
 			break;
 		case 5:
-			flags.set(FLAGS::kSpotShadow);
+			{
+				flags.reset(FLAGS::kHemiShadow);
+				flags.reset(FLAGS::kOmniShadow);
+				flags.reset(FLAGS::kSpotlight);
+
+				flags.set(FLAGS::kSpotShadow);
+			
 			break;
 		default:
 			break;

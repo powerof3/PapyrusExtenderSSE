@@ -268,30 +268,30 @@ namespace Papyrus::Light
 				flags.reset(FLAGS::kSpotlight);
 
 				flags.set(FLAGS::kSpotShadow);
-			
-			break;
-		default:
-			break;
+
+				break;
+			default:
+				break;
+			}
+		}
+
+		inline void Bind(VM & a_vm)
+		{
+			BIND(GetLightColor);
+			BIND(GetLightFade, true);
+			BIND(GetLightFOV, true);
+			BIND(GetLightRadius, true);
+			BIND(GetLightRGB);
+			BIND(GetLightShadowDepthBias);
+			BIND(GetLightType);
+			BIND(SetLightRadius);
+			BIND(SetLightRGB);
+			BIND(SetLightColor);
+			BIND(SetLightFade);
+			BIND(SetLightFOV);
+			BIND(SetLightShadowDepthBias);
+			BIND(SetLightType);
+
+			logger::info("Registered light functions"sv);
 		}
 	}
-
-	inline void Bind(VM& a_vm)
-	{
-		BIND(GetLightColor);
-		BIND(GetLightFade, true);
-		BIND(GetLightFOV, true);
-		BIND(GetLightRadius, true);
-		BIND(GetLightRGB);
-		BIND(GetLightShadowDepthBias);
-		BIND(GetLightType);
-		BIND(SetLightRadius);
-		BIND(SetLightRGB);
-		BIND(SetLightColor);
-		BIND(SetLightFade);
-		BIND(SetLightFOV);
-		BIND(SetLightShadowDepthBias);
-		BIND(SetLightType);
-
-		logger::info("Registered light functions"sv);
-	}
-}

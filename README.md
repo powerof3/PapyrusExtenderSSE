@@ -24,7 +24,7 @@ Documentation for each function is listed within the Papyrus source files (.psc 
 
 ## User Requirements
 * [Address Library for SKSE](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
-	* Needed for SSE
+	* Needed for SSE/AE
 * [VR Address Library for SKSEVR](https://www.nexusmods.com/skyrimspecialedition/mods/58101)
 	* Needed for VR
 ## Register Visual Studio as a Generator
@@ -46,6 +46,11 @@ git submodule update
 ```
 cmake --preset vs2022-windows-vcpkg # for vs2019 use vs2019-windows-vcpkg
 cmake --build build --config Release
+```
+### AE
+```
+cmake --preset vs2022-windows-vcpkg # for vs2019 use vs2019-windows-vcpkg
+cmake --build buildae --config Release
 ```
 ### VR
 ```

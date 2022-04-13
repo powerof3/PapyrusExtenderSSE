@@ -218,11 +218,11 @@ namespace Event
 
 	EventResult StoryEventHandler::ProcessEvent(const RE::SpellsLearned::Event* a_event, RE::BSTEventSource<RE::SpellsLearned::Event>*)
 	{
-	    if (!a_event) {
+		if (!a_event) {
 			return EventResult::kContinue;
 		}
-#ifndef SKYRIM_AE //AE crashes when this event is sent from Papyrus AddSpell (why??)
-	    if (const auto spell = a_event->spell; spell) {
+#ifndef SKYRIM_AE  //AE crashes when this event is sent from Papyrus AddSpell (why??)
+		if (const auto spell = a_event->spell; spell) {
 			StoryEventHolder::GetSingleton()->spellsLearned.QueueEvent(spell);
 		}
 #endif

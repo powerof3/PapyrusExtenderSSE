@@ -326,10 +326,14 @@ namespace Papyrus::Game
 
 	inline bool IsSurvivalModeActive(RE::StaticFunctionTag*)
 	{
+#ifndef SKYRIMVR
 		const auto manager = RE::BGSDefaultObjectManager::GetSingleton();
 		const auto survivalGlobal = manager ? manager->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECTS::kSurvivalModeToggle) : nullptr;
 
 		return survivalGlobal && survivalGlobal->value == 1.0f;
+	#else // no survival mode in VR
+		return false;
+	#endif
 	}
 
 	inline void SetLocalGravity(RE::StaticFunctionTag*,

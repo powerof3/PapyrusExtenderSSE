@@ -698,22 +698,20 @@ namespace Papyrus::Actor
 		}
 #ifndef SKYRIMVR
 		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
-			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
-				return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
-			});
-		}
-		return false;
 #else
-		std::vector<RE::ActiveEffect*>* activeEffects;
+		const auto activeEffects = new std::vector<RE::ActiveEffect*>;
 		a_actor->VisitActiveEffects([&](RE::ActiveEffect* ae) -> RE::BSContainer::ForEachResult {
-			activeEffects->push_back(ae);
+			if (ae)
+				activeEffects->push_back(ae);
 			return RE::BSContainer::ForEachResult::kContinue;
 		});
-		return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
-			return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
-		});
-
+		if (activeEffects) {
 #endif
+			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
+					return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
+				});
+		}
+		return false;
 	}
 
 	inline bool HasDeferredKill(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
@@ -743,23 +741,19 @@ namespace Papyrus::Actor
 		}
 #ifndef SKYRIMVR
 		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+#else
+		const auto activeEffects = new std::vector<RE::ActiveEffect*>;
+		a_actor->VisitActiveEffects([&](RE::ActiveEffect* ae) -> RE::BSContainer::ForEachResult {
+			activeEffects->push_back(ae);
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
+		if (activeEffects){
+#endif
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				const auto mgef = ae ? ae->GetBaseObject() : nullptr;
 				return mgef && MAGIC::get_archetype_as_string(mgef->GetArchetype()) == a_archetype;
 			});
 		}
-#else
-		std::vector<RE::ActiveEffect*>* activeEffects;
-		a_actor->VisitActiveEffects([&](RE::ActiveEffect* ae) -> RE::BSContainer::ForEachResult {
-			activeEffects->push_back(ae);
-			return RE::BSContainer::ForEachResult::kContinue;
-		});
-		return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
-			const auto mgef = ae ? ae->GetBaseObject() : nullptr;
-			return mgef && MAGIC::get_archetype_as_string(mgef->GetArchetype()) == a_archetype;
-		});
-
-#endif
 		return false;
 	}
 

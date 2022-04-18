@@ -708,8 +708,8 @@ namespace Papyrus::Actor
 		if (activeEffects) {
 #endif
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
-					return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
-				});
+				return ae && ae->spell == a_spell && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
+			});
 		}
 		return false;
 	}
@@ -747,7 +747,7 @@ namespace Papyrus::Actor
 			activeEffects->push_back(ae);
 			return RE::BSContainer::ForEachResult::kContinue;
 		});
-		if (activeEffects){
+		if (activeEffects) {
 #endif
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				const auto mgef = ae ? ae->GetBaseObject() : nullptr;

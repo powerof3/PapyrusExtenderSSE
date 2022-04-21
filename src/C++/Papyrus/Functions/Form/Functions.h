@@ -148,7 +148,7 @@ namespace Papyrus::Form::Functions
 			return RE::BSFixedString();
 		}
 
-        if (const auto description = a_form->As<RE::TESDescription>()) {
+		if (const auto description = a_form->As<RE::TESDescription>()) {
 			RE::BSString str;
 			description->GetDescription(str, nullptr);
 
@@ -394,7 +394,7 @@ namespace Papyrus::Form::Functions
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
 					if (count > 0 && item == a_form) {
-                        if (const auto extralist = item::get_hotkeyed(entry.get())) {
+						if (const auto extralist = item::get_hotkeyed(entry.get())) {
 							item::unfavorite(invChanges, entry.get(), extralist);
 						}
 						break;

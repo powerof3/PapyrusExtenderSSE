@@ -254,7 +254,7 @@ namespace Papyrus::Form::Functions
 		}
 
 		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
-            if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) == magicFavorites->spells.end()) {
+			if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) == magicFavorites->spells.end()) {
 				magic::favorite(magicFavorites, a_form);
 			}
 		} else {
@@ -382,7 +382,7 @@ namespace Papyrus::Form::Functions
 		}
 
 		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
-            if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) != magicFavorites->spells.end()) {
+			if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) != magicFavorites->spells.end()) {
 				magic::unfavorite(magicFavorites, a_form);
 			}
 		} else {

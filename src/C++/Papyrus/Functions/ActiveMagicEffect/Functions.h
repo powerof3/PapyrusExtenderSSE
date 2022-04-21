@@ -14,7 +14,7 @@ namespace Papyrus::ActiveMagicEffect::Functions
 		return SCRIPT::is_script_attached(a_activeEffect, a_scriptName);
 	}
 
-    inline void Bind(VM& a_vm)
+	inline void Bind(VM& a_vm)
 	{
 		BIND(IsScriptAttachedToActiveEffect);
 

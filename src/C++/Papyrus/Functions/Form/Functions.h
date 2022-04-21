@@ -148,8 +148,7 @@ namespace Papyrus::Form::Functions
 			return RE::BSFixedString();
 		}
 
-		const auto description = a_form->As<RE::TESDescription>();
-		if (description) {
+        if (const auto description = a_form->As<RE::TESDescription>()) {
 			RE::BSString str;
 			description->GetDescription(str, nullptr);
 
@@ -266,7 +265,7 @@ namespace Papyrus::Form::Functions
 				auto inv = player->GetInventory();
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
-					if (count > 0 && item == a_form && !item::get_hotkeyed(entry.get())) {
+					if (count > 0 && item == a_form && !entry->IsFavorited()) {
 						const auto extralist = entry->extraLists ? entry->extraLists->front() : nullptr;
 						item::favorite(invChanges, entry.get(), extralist);
 						break;
@@ -395,8 +394,7 @@ namespace Papyrus::Form::Functions
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
 					if (count > 0 && item == a_form) {
-						const auto extralist = item::get_hotkeyed(entry.get());
-						if (extralist) {
+                        if (const auto extralist = item::get_hotkeyed(entry.get())) {
 							item::unfavorite(invChanges, entry.get(), extralist);
 						}
 						break;

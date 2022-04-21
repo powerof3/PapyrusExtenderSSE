@@ -44,46 +44,6 @@
     },
     {
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /external:anglebrackets /external:W0 $penv{CXXFLAGS}"
-      },
-      "generator": "Visual Studio 16 2019",
-      "inherits": [
-        "cmake-dev",
-        "vcpkg",
-        "windows"
-      ],
-      "name": "vs2019-windows-vcpkg-se"
-    },
-    {
-      "binaryDir": "${sourceDir}/buildvr",
-      "cacheVariables": {
-        "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /external:anglebrackets /external:W0 $penv{CXXFLAGS}",
-        "BUILD_SKYRIMVR": true
-      },
-      "generator": "Visual Studio 16 2019",
-      "inherits": [
-        "cmake-dev",
-        "vcpkg",
-        "windows"
-      ],
-      "name": "vs2019-windows-vcpkg-vr"
-    },
-    {
-      "binaryDir": "${sourceDir}/buildae",
-      "cacheVariables": {
-        "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /external:anglebrackets /external:W0 $penv{CXXFLAGS}",
-        "BUILD_SKYRIMAE": true
-      },
-      "generator": "Visual Studio 16 2019",
-      "inherits": [
-        "cmake-dev",
-        "vcpkg",
-        "windows"
-      ],
-      "name": "vs2019-windows-vcpkg-ae"
-    },
-    {
-      "cacheVariables": {
         "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /WX $penv{CXXFLAGS}"
       },
       "generator": "Visual Studio 17 2022",
@@ -92,7 +52,7 @@
         "vcpkg",
         "windows"
       ],
-      "name": "vs2022-windows-vcpkg-se",
+      "name": "vs2022-windows-se",
       "toolset": "v143"
     },
     {
@@ -107,7 +67,7 @@
         "vcpkg",
         "windows"
       ],
-      "name": "vs2022-windows-vcpkg-vr",
+      "name": "vs2022-windows-vr",
       "toolset": "v143"
     },
     {
@@ -122,7 +82,7 @@
         "vcpkg",
         "windows"
       ],
-      "name": "vs2022-windows-vcpkg-ae",
+      "name": "vs2022-windows-ae",
       "toolset": "v143"
     }
   ],

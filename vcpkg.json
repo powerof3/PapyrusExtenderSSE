@@ -12,7 +12,7 @@
     "spdlog",
     "xbyak"
   ],
-  "builtin-baseline": "bd1ef2df46303989eeb048eb7aa9b816aa46365e",
+  "builtin-baseline": "ecd55433fd37129109f663548f3b11204e35e630",
   "overrides": [
     {
       "name": "fmt",

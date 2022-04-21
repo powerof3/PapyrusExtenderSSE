@@ -2,20 +2,8 @@
 
 #include "Serialization/EventHolder.h"
 
-namespace Papyrus::Alias
+namespace Papyrus::Alias::Events
 {
-	inline bool IsScriptAttachedToAlias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::BGSBaseAlias* a_alias,
-		RE::BSFixedString a_scriptName)
-	{
-		if (!a_alias) {
-			a_vm->TraceStack("Alias is None", a_stackID);
-			return false;
-		}
-
-		return SCRIPT::is_script_attached(a_alias, a_scriptName);
-	}
-
 	inline void RegisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -762,8 +750,6 @@ namespace Papyrus::Alias
 	{
 		auto constexpr obj = "PO3_Events_Alias"sv;
 
-		BIND(IsScriptAttachedToAlias);
-
 		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
@@ -824,6 +810,6 @@ namespace Papyrus::Alias
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered alias functions"sv);
+		logger::info("Registered alias events"sv);
 	}
 }

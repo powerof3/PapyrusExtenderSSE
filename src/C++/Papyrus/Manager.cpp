@@ -1,9 +1,11 @@
 #include "Manager.h"
 
-#include "Functions/ActiveMagicEffect.h"
+#include "Functions/ActiveMagicEffect/Events.h"
+#include "Functions/ActiveMagicEffect/Functions.h"
 #include "Functions/Actor.h"
 #include "Functions/ActorBase.h"
-#include "Functions/Alias.h"
+#include "Functions/Alias/Events.h"
+#include "Functions/Alias/Functions.h"
 #include "Functions/ArmorAddon.h"
 #include "Functions/Array.h"
 #include "Functions/Book.h"
@@ -11,7 +13,8 @@
 #include "Functions/Debug.h"
 #include "Functions/EffectShader.h"
 #include "Functions/Enchantment.h"
-#include "Functions/Form.h"
+#include "Functions/Form/Events.h"
+#include "Functions/Form/Functions.h"
 #include "Functions/Furniture.h"
 #include "Functions/Game.h"
 #include "Functions/Hazard.h"
@@ -46,18 +49,26 @@ namespace Papyrus
 
 		ObjectTypes::Bind(*a_vm);
 
-		ActiveMagicEffect::Bind(*a_vm);
+		ActiveMagicEffect::Events::Bind(*a_vm);
+		ActiveMagicEffect::Functions::Bind(*a_vm);
+
 		Actor::Bind(*a_vm);
 		ActorBase::Bind(*a_vm);
 		ArmorAddon::Bind(*a_vm);
-		Alias::Bind(*a_vm);
+
+		Alias::Events::Bind(*a_vm);
+		Alias::Functions::Bind(*a_vm);
+
 		Array::Bind(*a_vm);
 		Book::Bind(*a_vm);
 		Cell::Bind(*a_vm);
 		Debug::Bind(*a_vm);
 		EffectShader::Bind(*a_vm);
 		Enchantment::Bind(*a_vm);
-		Form::Bind(*a_vm);
+
+		Form::Events::Bind(*a_vm);
+		Form::Functions::Bind(*a_vm);
+
 		Furniture::Bind(*a_vm);
 		Game::Bind(*a_vm);
 		Hazard::Bind(*a_vm);

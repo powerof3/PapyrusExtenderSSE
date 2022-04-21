@@ -2,20 +2,8 @@
 
 #include "Serialization/EventHolder.h"
 
-namespace Papyrus::ActiveMagicEffect
+namespace Papyrus::ActiveMagicEffect::Events
 {
-	inline bool IsScriptAttachedToActiveEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::ActiveEffect* a_activeEffect,
-		RE::BSFixedString a_scriptName)
-	{
-		if (!a_activeEffect) {
-			a_vm->TraceStack("Active Effect is None", a_stackID);
-			return false;
-		}
-
-		return SCRIPT::is_script_attached(a_activeEffect, a_scriptName);
-	}
-
 	inline void RegisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -726,8 +714,6 @@ namespace Papyrus::ActiveMagicEffect
 	{
 		auto constexpr obj = "PO3_Events_AME"sv;
 
-		BIND(IsScriptAttachedToActiveEffect);
-
 		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
@@ -788,6 +774,6 @@ namespace Papyrus::ActiveMagicEffect
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered activemagiceffect functions"sv);
+		logger::info("Registered activemagiceffect events"sv);
 	}
 }

@@ -4,10 +4,12 @@ set(headers ${headers}
 	src/C++/Game/EventHandler.h
 	src/C++/Game/Manager.h
 	src/C++/PCH.h
-	src/C++/Papyrus/Functions/ActiveMagicEffect.h
+	src/C++/Papyrus/Functions/ActiveMagicEffect/Events.h
+	src/C++/Papyrus/Functions/ActiveMagicEffect/Functions.h
 	src/C++/Papyrus/Functions/Actor.h
 	src/C++/Papyrus/Functions/ActorBase.h
-	src/C++/Papyrus/Functions/Alias.h
+	src/C++/Papyrus/Functions/Alias/Events.h
+	src/C++/Papyrus/Functions/Alias/Functions.h
 	src/C++/Papyrus/Functions/ArmorAddon.h
 	src/C++/Papyrus/Functions/Array.h
 	src/C++/Papyrus/Functions/Book.h
@@ -15,7 +17,8 @@ set(headers ${headers}
 	src/C++/Papyrus/Functions/Debug.h
 	src/C++/Papyrus/Functions/EffectShader.h
 	src/C++/Papyrus/Functions/Enchantment.h
-	src/C++/Papyrus/Functions/Form.h
+	src/C++/Papyrus/Functions/Form/Events.h
+	src/C++/Papyrus/Functions/Form/Functions.h
 	src/C++/Papyrus/Functions/Furniture.h
 	src/C++/Papyrus/Functions/Game.h
 	src/C++/Papyrus/Functions/Hazard.h

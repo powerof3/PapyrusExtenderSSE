@@ -495,7 +495,7 @@ namespace Event::GameEventHandler
 					const auto aggressor = a_data.aggressor.get();
 
 					if (aggressor && hitTarget) {
-						const auto source = a_data.weapon ? a_data.weapon : RE::TESForm::LookupByID<RE::TESObjectWEAP>(0x1F4); //unarmed
+						const auto source = a_data.weapon ? a_data.weapon : RE::TESForm::LookupByID<RE::TESObjectWEAP>(0x1F4);  //unarmed
 						const auto flags = stl::to_underlying(a_data.flags.get());
 
 						GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, flags);

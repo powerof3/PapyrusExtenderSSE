@@ -397,7 +397,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-        if (const auto combatGroup = a_actor->GetCombatGroup()) {
+		if (const auto combatGroup = a_actor->GetCombatGroup()) {
 			for (auto& memberData : combatGroup->members) {
 				auto ally = memberData.memberHandle.get();
 				if (ally) {
@@ -418,7 +418,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-        if (const auto combatGroup = a_actor->GetCombatGroup()) {
+		if (const auto combatGroup = a_actor->GetCombatGroup()) {
 			for (auto& targetData : combatGroup->targets) {
 				auto target = targetData.targetHandle.get();
 				if (target) {
@@ -497,7 +497,7 @@ namespace Papyrus::Actor
 
 	struct poison_util
 	{
-        static RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand)
+		static RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand)
 		{
 			if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand)) {
 				if (equippedEntryData->extraLists) {
@@ -524,7 +524,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-        const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand);
+		const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand);
 		return equippedEntryData && equippedEntryData->IsPoisoned();
 	}
 

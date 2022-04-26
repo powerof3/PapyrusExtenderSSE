@@ -397,8 +397,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		const auto combatGroup = a_actor->GetCombatGroup();
-		if (combatGroup) {
+        if (const auto combatGroup = a_actor->GetCombatGroup()) {
 			for (auto& memberData : combatGroup->members) {
 				auto ally = memberData.memberHandle.get();
 				if (ally) {
@@ -419,8 +418,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		const auto combatGroup = a_actor->GetCombatGroup();
-		if (combatGroup) {
+        if (const auto combatGroup = a_actor->GetCombatGroup()) {
 			for (auto& targetData : combatGroup->targets) {
 				auto target = targetData.targetHandle.get();
 				if (target) {
@@ -496,6 +494,65 @@ namespace Papyrus::Actor
 		return result;
 	}
 #endif
+
+	struct poison_util
+	{
+        static RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand)
+		{
+			if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand)) {
+				if (equippedEntryData->extraLists) {
+					for (const auto& xList : *equippedEntryData->extraLists) {
+						if (xList) {
+							if (const auto xPoison = xList->GetByType<RE::ExtraPoison>()) {
+								return xPoison;
+							}
+						}
+					}
+				}
+			}
+
+			return nullptr;
+		}
+	};
+
+	inline bool GetEquippedWeaponIsPoisoned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		bool a_leftHand)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+        const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand);
+		return equippedEntryData && equippedEntryData->IsPoisoned();
+	}
+
+	inline RE::AlchemyItem* GetEquippedWeaponPoison(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		bool a_leftHand)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return nullptr;
+		}
+
+		const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand);
+		return xPoison ? xPoison->poison : nullptr;
+	}
+
+	inline std::uint32_t GetEquippedWeaponPoisonCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		bool a_leftHand)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0;
+		}
+
+		const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand);
+		return xPoison ? xPoison->count : 0;
+	}
 
 	inline RE::BGSColorForm* GetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
@@ -1572,6 +1629,9 @@ namespace Papyrus::Actor
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
 		BIND(GetEquippedAmmo);
+		BIND(GetEquippedWeaponIsPoisoned);
+		BIND(GetEquippedWeaponPoison);
+		BIND(GetEquippedWeaponPoisonCount);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
 		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");

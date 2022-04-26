@@ -5,6 +5,7 @@ namespace MAGIC
 	using Archetype = RE::EffectArchetypes::ArchetypeID;
 
 	inline constexpr auto namedNode = "NamedNode&"sv;
+
 	inline constexpr frozen::map<Archetype, std::string_view, 46> archetypeMap = {
 		{ Archetype::kValueModifier, "ValueMod"sv },
 		{ Archetype::kScript, "Script"sv },

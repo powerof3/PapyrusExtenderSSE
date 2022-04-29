@@ -73,7 +73,7 @@ namespace Papyrus::Game
 			if (arr) {
 				for (auto& actorHandle : *arr) {
 					auto actorPtr = actorHandle.get();
-                    if (auto actor = actorPtr.get()) {
+					if (auto actor = actorPtr.get()) {
 						result.push_back(actor);
 					}
 				}

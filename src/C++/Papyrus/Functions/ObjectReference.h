@@ -331,7 +331,7 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
-        if (const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>()) {
+		if (const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>()) {
 			for (const auto& child : refChildren->children) {
 				if (child) {
 					const auto ref = child->activateRef.get();

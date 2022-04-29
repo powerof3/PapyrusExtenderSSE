@@ -423,12 +423,12 @@ namespace Event::GameEventHandler
 			{
 				auto appliedEffect = func(a_this, a_data);
 
-                if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr) {
+				if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr) {
 					const auto effect = a_data->effect;
 					if (const auto baseEffect = effect ? effect->baseEffect : nullptr) {
 						GameEventHolder::GetSingleton()->magicApply.QueueEvent(
 							target,
-							[=](const std::tuple<RE::FormID>& a_filter, bool a_match) { //capture by reference [&] bad
+							[=](const std::tuple<RE::FormID>& a_filter, bool a_match) {  //capture by reference [&] bad
 								auto& [effectFilterID] = a_filter;
 								return match_filter(baseEffect, RE::TESForm::LookupByID(effectFilterID), a_match);
 							},
@@ -439,8 +439,9 @@ namespace Event::GameEventHandler
 				return appliedEffect;
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
+
 		private:
-            static bool match_filter(RE::EffectSetting* a_effect, RE::TESForm* a_effectFilter, bool a_match)
+			static bool match_filter(RE::EffectSetting* a_effect, RE::TESForm* a_effectFilter, bool a_match)
 			{
 				if (a_effectFilter) {
 					switch (a_effectFilter->GetFormType()) {
@@ -454,7 +455,7 @@ namespace Event::GameEventHandler
 					case RE::FormType::FormList:
 						{
 							if (const auto list = a_effectFilter->As<RE::BGSListForm>()) {
-							    return a_match == a_effect->HasKeywordInList(list, false);
+								return a_match == a_effect->HasKeywordInList(list, false);
 							}
 						}
 						break;

@@ -4,7 +4,7 @@ namespace Serialization
 {
 	enum : std::uint32_t
 	{
-		kSerializationVersion = 5,
+		kSerializationVersion = 6,
 
 		kPapyrusExtender = 'P3PE',
 

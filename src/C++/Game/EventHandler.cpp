@@ -419,22 +419,55 @@ namespace Event::GameEventHandler
 	{
 		struct MagicTargetApply
 		{
-			static bool thunk(RE::MagicTarget* a_this, RE::MagicTarget::CreationData* a_data)
+			static bool thunk(RE::MagicTarget* a_this, RE::MagicTarget::AddTargetData* a_data)
 			{
-				auto result = func(a_this, a_data);
+				auto appliedEffect = func(a_this, a_data);
 
-				const auto target = a_this ? a_this->GetTargetStatsObject() : nullptr;
-				if (target && a_data) {
+                if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr) {
 					const auto effect = a_data->effect;
-					const auto baseEffect = effect ? effect->baseEffect : nullptr;
-					if (baseEffect) {
-						GameEventHolder::GetSingleton()->magicApply.QueueEvent(target, baseEffect, a_data->caster, baseEffect, a_data->magicItem, result);
+					if (const auto baseEffect = effect ? effect->baseEffect : nullptr) {
+						GameEventHolder::GetSingleton()->magicApply.QueueEvent(
+							target,
+							[=](const std::tuple<RE::FormID>& a_filter, bool a_match) { //capture by reference [&] bad
+								auto& [effectFilterID] = a_filter;
+								return match_filter(baseEffect, RE::TESForm::LookupByID(effectFilterID), a_match);
+							},
+							a_data->caster, baseEffect, a_data->magicItem, appliedEffect);
 					}
 				}
 
-				return result;
+				return appliedEffect;
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
+		private:
+            static bool match_filter(RE::EffectSetting* a_effect, RE::TESForm* a_effectFilter, bool a_match)
+			{
+				if (a_effectFilter) {
+					switch (a_effectFilter->GetFormType()) {
+					case RE::FormType::Keyword:
+						{
+							if (const auto keyword = a_effectFilter->As<RE::BGSKeyword>()) {
+								return a_match == a_effect->HasKeyword(keyword);
+							}
+						}
+						break;
+					case RE::FormType::FormList:
+						{
+							if (const auto list = a_effectFilter->As<RE::BGSListForm>()) {
+							    return a_match == a_effect->HasKeywordInList(list, false);
+							}
+						}
+						break;
+					case RE::FormType::MagicEffect:
+						{
+							return a_match == (a_effect == a_effectFilter);
+						}
+					default:
+						break;
+					}
+				}
+				return false;
+			}
 		};
 
 		static void Install()

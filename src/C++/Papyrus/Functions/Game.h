@@ -18,7 +18,7 @@ namespace Papyrus::Game
 
 			if (const auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 				for (const auto& form : dataHandler->GetFormArray<T>()) {
-					if (!form || !a_keywords.empty() && !form->HasKeywords(a_keywords, false)) {
+					if (!form || !a_keywords.empty() && !form->HasKeywordInArray(a_keywords, false)) {
 						continue;
 					}
 					result.push_back(form);
@@ -35,7 +35,7 @@ namespace Papyrus::Game
 
 			if (const auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 				for (const auto& form : dataHandler->GetFormArray<T>()) {
-					if (!form || !a_modInfo->IsFormInMod(form->formID) || !a_keywords.empty() && !form->HasKeywords(a_keywords, false)) {
+					if (!form || !a_modInfo->IsFormInMod(form->formID) || !a_keywords.empty() && !form->HasKeywordInArray(a_keywords, false)) {
 						continue;
 					}
 					result.push_back(form);
@@ -73,8 +73,7 @@ namespace Papyrus::Game
 			if (arr) {
 				for (auto& actorHandle : *arr) {
 					auto actorPtr = actorHandle.get();
-					auto actor = actorPtr.get();
-					if (actor) {
+                    if (auto actor = actorPtr.get()) {
 						result.push_back(actor);
 					}
 				}
@@ -97,7 +96,7 @@ namespace Papyrus::Game
 
 		if (const auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 			for (const auto& form : dataHandler->GetFormArray(formType)) {
-				if (!form || !a_keywords.empty() && !form->HasKeywords(a_keywords, false)) {
+				if (!form || !a_keywords.empty() && !form->HasKeywordInArray(a_keywords, false)) {
 					continue;
 				}
 				result.push_back(form);
@@ -121,7 +120,7 @@ namespace Papyrus::Game
 				for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
 					if (book && book->data.flags.all(RE::OBJ_BOOK::Flag::kTeachesSpell)) {
 						const auto spell = book->data.teaches.spell;
-						if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords, false)) {
+						if (!spell || !a_keywords.empty() && !spell->HasKeywordInArray(a_keywords, false)) {
 							continue;
 						}
 						result.push_back(spell);
@@ -156,7 +155,7 @@ namespace Papyrus::Game
 			const auto formType = static_cast<RE::FormType>(a_formType);
 
 			for (const auto& form : dataHandler->GetFormArray(formType)) {
-				if (!form || !modInfo->IsFormInMod(form->formID) || !a_keywords.empty() && !form->HasKeywords(a_keywords, false)) {
+				if (!form || !modInfo->IsFormInMod(form->formID) || !a_keywords.empty() && !form->HasKeywordInArray(a_keywords, false)) {
 					continue;
 				}
 				result.push_back(form);
@@ -196,7 +195,7 @@ namespace Papyrus::Game
 					continue;
 				}
 				const auto spell = book->data.teaches.spell;
-				if (!spell || !a_keywords.empty() && !spell->HasKeywords(a_keywords, false)) {
+				if (!spell || !a_keywords.empty() && !spell->HasKeywordInArray(a_keywords, false)) {
 					continue;
 				}
 				result.push_back(spell);

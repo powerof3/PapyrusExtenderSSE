@@ -285,7 +285,7 @@ namespace Papyrus::ObjectReference
 			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
 				bool success = false;
 				if (list) {
-					success = b_ref.HasKeywords(list, a_matchAll);
+					success = b_ref.HasKeywordInList(list, a_matchAll);
 				} else if (keyword) {
 					success = b_ref.HasKeyword(keyword);
 				}
@@ -331,10 +331,8 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
-		const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>();
-		if (refChildren) {
-			auto& children = refChildren->children;
-			for (const auto& child : children) {
+        if (const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>()) {
+			for (const auto& child : refChildren->children) {
 				if (child) {
 					const auto ref = child->activateRef.get();
 					if (ref) {

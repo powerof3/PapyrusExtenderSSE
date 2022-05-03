@@ -1,4 +1,4 @@
-#include "Script.h"
+#include "Papyrus/Util/Script.h"
 
 namespace SCRIPT
 {

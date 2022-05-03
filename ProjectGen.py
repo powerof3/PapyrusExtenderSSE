@@ -6,7 +6,7 @@ ALL_TYPES = HEADER_TYPES + SOURCE_TYPES
 
 def make_cmake():
 	tmp = list()
-	directories = ("include", "src")
+	directories = ("src","include")
 	for directory in directories:
 		for dirpath, dirnames, filenames in os.walk(directory):
 			for filename in filenames:

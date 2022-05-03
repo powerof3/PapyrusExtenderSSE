@@ -1,7 +1,7 @@
-#include "Manager.h"
+#include "Game/Manager.h"
 
-#include "Cache.h"
-#include "EventHandler.h"
+#include "Game/Cache.h"
+#include "Game/EventHandler.h"
 
 namespace Game
 {

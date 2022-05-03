@@ -1,4 +1,4 @@
-#include "Magic.h"
+#include "Papyrus/Util/Magic.h"
 
 namespace MAGIC
 {

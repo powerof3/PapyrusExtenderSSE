@@ -478,7 +478,7 @@ namespace Event
 		Reanimate::Install();
 		Weather::Install();
 
-        Combat::MagicEffectApply::Install();
+		Combat::MagicEffectApply::Install();
 		Combat::Hit::Magic::Install();
 		Combat::Hit::Weapon::Install();
 	}

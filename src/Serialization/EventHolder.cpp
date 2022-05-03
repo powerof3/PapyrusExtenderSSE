@@ -212,7 +212,7 @@ namespace Event::Filter
 			result = detail::passes_hit_filter(a_blockAttack, blockAttack);
 		}
 
-	    return result;
+		return result;
 	}
 }
 

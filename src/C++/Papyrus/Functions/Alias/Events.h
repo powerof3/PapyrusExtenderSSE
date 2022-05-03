@@ -191,7 +191,7 @@ namespace Papyrus::Alias::Events
 		}
 
 		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
-		regs.Register(a_alias, std::make_pair(a_effectFilter->GetFormID(), a_match));
+		regs.Register(a_alias, a_effectFilter->GetFormID(), a_match);
 	}
 
 	inline void RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
@@ -536,7 +536,7 @@ namespace Papyrus::Alias::Events
 		}
 
 		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
-		regs.Unregister(a_alias, std::make_pair(a_effectFilter->GetFormID(), a_match));
+		regs.Unregister(a_alias, a_effectFilter->GetFormID(), a_match);
 	}
 
 	inline void UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)

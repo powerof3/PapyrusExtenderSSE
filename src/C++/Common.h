@@ -28,25 +28,26 @@ namespace stl
 
 	inline bool read_string(SKSE::SerializationInterface* a_intfc, std::string& a_str)
 	{
-		std::uint32_t length = 0;
-		if (!a_intfc->ReadRecordData(&length, sizeof(length))) {
+		std::size_t size = 0;
+		if (!a_intfc->ReadRecordData(size)) {
 			return false;
 		}
-		char* buf = new char[length + 1];
-		if (!a_intfc->ReadRecordData(buf, length)) {
+		a_str.reserve(size);
+		if (!a_intfc->ReadRecordData(a_str.data(), static_cast<std::uint32_t>(size))) {
 			return false;
 		}
-		buf[length] = '\0';
-		a_str = std::string(buf);
-		delete[] buf;
 		return true;
 	}
 
-	inline void write_string(SKSE::SerializationInterface* a_intfc, const std::string& a_string)
+	inline bool write_string(SKSE::SerializationInterface* a_intfc, const std::string& a_str)
 	{
-		auto length = static_cast<std::uint32_t>(a_string.length());
-		a_intfc->WriteRecordData(&length, sizeof(length));
-		a_intfc->WriteRecordData(a_string.c_str(), length);
+		std::size_t size = a_str.length() + 1;
+		return a_intfc->WriteRecordData(size) && a_intfc->WriteRecordData(a_str.data(), static_cast<std::uint32_t>(size));
+	}
+
+	inline bool read_formID(SKSE::SerializationInterface* a_intfc, RE::FormID& a_formID)
+	{
+		return a_intfc->ReadRecordData(a_formID) && a_intfc->ResolveFormID(a_formID, a_formID);
 	}
 
 	template <class T>

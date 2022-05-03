@@ -129,10 +129,5 @@ namespace Event
 		}
 	};
 
-	namespace GameEventHandler
-	{
-		void Register();
-	}
-
 	void Register();
 }

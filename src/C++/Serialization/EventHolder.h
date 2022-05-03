@@ -24,11 +24,15 @@ namespace Event
 		};
 
 		SKSE::RegistrationSet<const RE::TESObjectCELL*> cellFullyLoaded{ "OnCellFullyLoaded"sv };
-		SKSE::RegistrationMap<const RE::TESQuest*> questStart{ "OnQuestStart"sv };
-		SKSE::RegistrationMap<const RE::TESQuest*> questStop{ "OnQuestStop"sv };
-		SKSE::RegistrationMap<const RE::TESQuest*, std::uint32_t> questStage{ "OnQuestStageChange"sv };
-		SKSE::RegistrationMap<const RE::TESObjectREFR*, RE::FormType> objectLoaded{ "OnObjectLoaded"sv };
-		SKSE::RegistrationMap<const RE::TESObjectREFR*, RE::FormType> objectUnloaded{ "OnObjectUnloaded"sv };
+
+		SKSE::RegistrationMap<RE::FormID, const RE::TESQuest*> questStart{ "OnQuestStart"sv };
+		SKSE::RegistrationMap<RE::FormID, const RE::TESQuest*> questStop{ "OnQuestStop"sv };
+
+		SKSE::RegistrationMap<RE::FormID, const RE::TESQuest*, std::uint32_t> questStage{ "OnQuestStageChange"sv };
+
+		SKSE::RegistrationMap<RE::FormType, const RE::TESObjectREFR*, RE::FormType> objectLoaded{ "OnObjectLoaded"sv };
+		SKSE::RegistrationMap<RE::FormType, const RE::TESObjectREFR*, RE::FormType> objectUnloaded{ "OnObjectUnloaded"sv };
+
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> objectGrab{ "OnObjectGrab"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> objectRelease{ "OnObjectRelease"sv };
 
@@ -98,6 +102,177 @@ namespace Event
 		StoryEventHolder& operator=(StoryEventHolder&&) = delete;
 	};
 
+	namespace Filter
+	{
+		struct detail
+		{
+			template <class T>
+			static bool passes_simple_filter(T* a_form, RE::TESForm* a_formFilter)
+			{
+				if (!a_formFilter) {
+					return true;
+				}
+				switch (a_formFilter->GetFormType()) {
+				case RE::FormType::Keyword:
+					{
+						if constexpr (std::is_base_of_v<RE::BGSKeywordForm, T>) {
+							if (const auto keyword = a_formFilter->As<RE::BGSKeyword>()) {
+								return a_form->HasKeyword(keyword);
+							}
+						}
+					}
+					break;
+				case RE::FormType::FormList:
+					{
+						if (const auto list = a_formFilter->As<RE::BGSListForm>()) {
+							if constexpr (std::is_base_of_v<RE::BGSKeywordForm, T>) {
+								if (list->ContainsOnlyType(RE::FormType::Keyword)) {
+									return a_form->HasKeywordInList(list, false);
+								}
+								return list->HasForm(a_form);
+							} else {
+								return list->HasForm(a_form);
+							}
+						}
+					}
+					break;
+				case T::FORMTYPE:
+					{
+						return a_form == a_formFilter;
+					}
+				default:
+					break;
+				}
+				return false;
+			}
+
+			static bool passes_ref_filter(RE::TESObjectREFR* a_ref, RE::TESForm* a_refFilter)
+			{
+				if (!a_refFilter) {
+					return true;
+				}
+
+				const auto actor = a_ref->As<RE::Actor>();
+
+				switch (a_refFilter->GetFormType()) {
+				case RE::FormType::Reference:
+				case RE::FormType::ActorCharacter:
+					{
+						return a_ref == a_refFilter;
+					}
+				case RE::FormType::Keyword:
+					{
+						if (const auto keyword = a_refFilter->As<RE::BGSKeyword>()) {
+							return a_ref->HasKeyword(keyword);
+						}
+						return false;
+					}
+				case RE::FormType::Faction:
+					{
+						if (const auto faction = a_refFilter->As<RE::TESFaction>()) {
+							return actor && actor->IsInFaction(faction);
+						}
+						return false;
+					}
+				case RE::FormType::Race:
+					{
+						if (const auto race = a_refFilter->As<RE::TESRace>()) {
+							return actor && actor->GetRace() == race;
+						}
+						return false;
+					}
+				case RE::FormType::FormList:
+					{
+						if (const auto list = a_refFilter->As<RE::BGSListForm>()) {
+							if (list->ContainsOnlyType(RE::FormType::Keyword)) {
+								return a_ref->HasKeywordInList(list, false);
+							} else {
+								bool result = false;
+								list->ForEachForm([&](RE::TESForm& a_form) {
+									result = passes_ref_filter(a_ref, &a_form);
+									return !result;
+								});
+								return result;
+							}
+						}
+						return false;
+					}
+				case RE::FormType::NPC:
+					{
+						if (actor) {
+							RE::TESNPC* actorbase = actor->GetActorBase();
+							if (const auto xLvlBase = actor->extraList.GetByType<RE::ExtraLeveledCreature>()) {
+								actorbase = skyrim_cast<RE::TESNPC*>(xLvlBase->originalBase);
+							}
+							return actorbase && actorbase == a_refFilter;
+						}
+						return false;
+					}
+				default:
+					{
+						return a_ref->GetBaseObject() == a_refFilter;
+					}
+				}
+			}
+
+			static bool passes_hit_filter(bool a_hitFlag, std::int32_t a_hitFilter)
+			{
+				switch (a_hitFilter) {
+				case -1:
+					return true;
+				case 0:
+					return a_hitFlag;
+				case 1:
+					return !a_hitFlag;
+				default:
+					return false;
+				}
+			}
+		};
+
+		struct MagicEffectApply
+		{
+			MagicEffectApply() = default;
+			MagicEffectApply(RE::FormID a_effectID) :
+				effectID(a_effectID)
+			{}
+
+			bool operator<(const MagicEffectApply& a_rhs) const
+			{
+				return effectID < a_rhs.effectID;
+			}
+
+			bool Load(SKSE::SerializationInterface* a_intfc);
+			bool Save(SKSE::SerializationInterface* a_intfc) const;
+			bool PassesFilter(RE::EffectSetting* a_baseEffect) const;
+
+			RE::FormID effectID{ 0 };
+		};
+
+		struct Hit
+		{
+			Hit() = default;
+
+			bool operator<(const Hit& a_rhs) const
+			{
+				return std::tie(aggressorID, sourceID, projectileID, powerAttack, sneakAttack, bashAttack, blockAttack) <
+				       std::tie(a_rhs.aggressorID, a_rhs.sourceID, a_rhs.projectileID, a_rhs.powerAttack, a_rhs.sneakAttack, a_rhs.bashAttack, a_rhs.blockAttack);
+			}
+
+			bool Load(SKSE::SerializationInterface* a_intfc);
+			bool Save(SKSE::SerializationInterface* a_intfc) const;
+			bool PassesFilter(RE::TESObjectREFR* a_aggressor, RE::TESForm* a_source, RE::BGSProjectile* a_projectile, bool a_powerAttack, bool a_sneakAttack, bool a_bashAttack, bool a_blockAttack) const;
+
+			RE::FormID aggressorID{ 0 };
+			RE::FormID sourceID{ 0 };
+			RE::FormID projectileID{ 0 };
+			std::int32_t powerAttack{ -1 };
+			std::int32_t sneakAttack{ -1 };
+			std::int32_t bashAttack{ -1 };
+			std::int32_t blockAttack{ -1 };
+		};
+	}
+
 	class GameEventHolder
 	{
 	public:
@@ -117,6 +292,7 @@ namespace Event
 			kItemCrafted = 'ITEM',
 			kWeatherChange = 'WEAT',
 			kMagicEffectApply = 'MGEF',
+			kHit = 'OHIT',
 			kWeaponHit = 'WHIT',
 			kMagicHit = 'MHIT',
 			kProjectileHit = 'PHIT'
@@ -129,7 +305,8 @@ namespace Event
 		SKSE::RegistrationSet<const RE::TESObjectBOOK*> booksRead{ "OnBookRead"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
 
-		SKSE::RegistrationFilter<RE::FormID>::MapUnique<void, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool> magicApply{ "OnMagicEffectApplyEx"sv };
+		SKSE::RegistrationMapUnique<Filter::MagicEffectApply, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool> magicApply{ "OnMagicEffectApplyEx"sv };
+		SKSE::RegistrationMapUnique<Filter::Hit, const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, bool, bool, bool, bool> onHit{ "OnHitEx"sv };
 
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> magicHit{ "OnMagicHit"sv };
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> projectileHit{ "OnProjectileHit"sv };

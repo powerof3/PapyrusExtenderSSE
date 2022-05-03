@@ -151,6 +151,71 @@ namespace Event
 	}
 }
 
+namespace Event::Filter
+{
+	bool MagicEffectApply::Load(SKSE::SerializationInterface* a_intfc)
+	{
+		return stl::read_formID(a_intfc, effectID);
+	}
+	bool MagicEffectApply::Save(SKSE::SerializationInterface* a_intfc) const
+	{
+		return a_intfc->WriteRecordData(effectID);
+	}
+	bool MagicEffectApply::PassesFilter(RE::EffectSetting* a_baseEffect) const
+	{
+		return detail::passes_simple_filter(a_baseEffect, RE::TESForm::LookupByID(effectID));
+	}
+
+	bool Hit::Load(SKSE::SerializationInterface* a_intfc)
+	{
+		if (!stl::read_formID(a_intfc, aggressorID) || !stl::read_formID(a_intfc, sourceID) || !stl::read_formID(a_intfc, projectileID)) {
+			return false;
+		}
+		if (!a_intfc->ReadRecordData(powerAttack) || !a_intfc->ReadRecordData(sneakAttack) || !a_intfc->ReadRecordData(bashAttack) || !a_intfc->ReadRecordData(blockAttack)) {
+			return false;
+		}
+		return true;
+	}
+	bool Hit::Save(SKSE::SerializationInterface* a_intfc) const
+	{
+		if (!a_intfc->WriteRecordData(aggressorID) || !a_intfc->WriteRecordData(sourceID) || !a_intfc->WriteRecordData(projectileID)) {
+			return false;
+		}
+		if (!a_intfc->WriteRecordData(powerAttack) || !a_intfc->WriteRecordData(sneakAttack) || !a_intfc->WriteRecordData(bashAttack) || !a_intfc->WriteRecordData(blockAttack)) {
+			return false;
+		}
+		return true;
+	}
+	bool Hit::PassesFilter(RE::TESObjectREFR* a_aggressor, RE::TESForm* a_source, RE::BGSProjectile* a_projectile, bool a_powerAttack, bool a_sneakAttack, bool a_bashAttack, bool a_blockAttack) const
+	{
+		bool result = true;
+
+		if (a_aggressor) {
+			result = detail::passes_ref_filter(a_aggressor, RE::TESForm::LookupByID(aggressorID));
+		}
+		if (result && a_source) {
+			result = detail::passes_simple_filter(a_source, RE::TESForm::LookupByID(sourceID));
+		}
+		if (result && a_projectile) {
+			result = detail::passes_simple_filter(a_projectile, RE::TESForm::LookupByID(projectileID));
+		}
+		if (result) {
+			result = detail::passes_hit_filter(a_powerAttack, powerAttack);
+		}
+		if (result) {
+			result = detail::passes_hit_filter(a_sneakAttack, sneakAttack);
+		}
+		if (result) {
+			result = detail::passes_hit_filter(a_bashAttack, bashAttack);
+		}
+		if (result) {
+			result = detail::passes_hit_filter(a_blockAttack, blockAttack);
+		}
+
+	    return result;
+	}
+}
+
 namespace Event
 {
 	void GameEventHolder::Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)

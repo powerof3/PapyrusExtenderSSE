@@ -331,11 +331,10 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
-		if (const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>()) {
+		if (const auto refChildren = a_ref->extraList.GetByType<RE::ExtraActivateRefChildren>(); refChildren) {
 			for (const auto& child : refChildren->children) {
 				if (child) {
-					const auto ref = child->activateRef.get();
-					if (ref) {
+					if (const auto ref = child->activateRef.get(); ref) {
 						result.push_back(ref.get());
 					}
 				}
@@ -560,8 +559,7 @@ namespace Papyrus::ObjectReference
 		if (const auto data = a_ref->extraList.GetByType<RE::ExtraLinkedRefChildren>(); data) {
 			for (const auto& child : data->linkedChildren) {
 				if (!a_keyword || child.keyword == a_keyword) {
-					const auto ref = child.refr.get();
-					if (ref) {
+					if (const auto ref = child.refr.get(); ref) {
 						result.push_back(ref.get());
 					}
 				}
@@ -915,7 +913,7 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-		if (auto actor = a_ref->As<RE::Actor>()) {
+		if (const auto actor = a_ref->As<RE::Actor>(); actor) {
 			return actor->IsCasting(magicItem);
 		} else {
 			const auto magicCaster = a_ref->GetMagicCaster(RE::MagicSystem::CastingSource::kInstant);
@@ -1040,7 +1038,7 @@ namespace Papyrus::ObjectReference
 
 		const auto handle = a_ref->CreateRefHandle();
 		SKSE::GetTaskInterface()->AddTask([handle, nearestVertex]() {
-			if (const auto ref = handle.get()) {
+			if (const auto ref = handle.get(); ref) {
 				ref->SetPosition(*nearestVertex);
 			}
 		});

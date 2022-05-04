@@ -12,19 +12,20 @@ namespace Papyrus::Furniture
 		}
 
 		const auto flags = a_furniture->furnFlags;
-		if (flags.all(FLAGS::kIsPerch)) {
+		if (flags.any(FLAGS::kIsPerch)) {
 			return 0;
 		}
-		if (flags.all(FLAGS::kCanLean)) {
+		if (flags.any(FLAGS::kCanLean)) {
 			return 1;
 		}
-		if (flags.all(FLAGS::kCanSit)) {
+		if (flags.any(FLAGS::kCanSit)) {
 			return 2;
 		}
-		if (flags.all(FLAGS::kCanSleep)) {
+		if (flags.any(FLAGS::kCanSleep)) {
 			return 3;
 		}
-		return -1;
+
+	    return -1;
 	}
 
 	inline void Bind(VM& a_vm)

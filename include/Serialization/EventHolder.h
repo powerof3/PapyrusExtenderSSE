@@ -116,7 +116,7 @@ namespace Event
 				case RE::FormType::Keyword:
 					{
 						if constexpr (std::is_base_of_v<RE::BGSKeywordForm, T>) {
-							if (const auto keyword = a_formFilter->As<RE::BGSKeyword>()) {
+							if (const auto keyword = a_formFilter->As<RE::BGSKeyword>(); keyword) {
 								return a_form->HasKeyword(keyword);
 							}
 						}
@@ -124,7 +124,7 @@ namespace Event
 					break;
 				case RE::FormType::FormList:
 					{
-						if (const auto list = a_formFilter->As<RE::BGSListForm>()) {
+						if (const auto list = a_formFilter->As<RE::BGSListForm>(); list) {
 							if constexpr (std::is_base_of_v<RE::BGSKeywordForm, T>) {
 								if (list->ContainsOnlyType(RE::FormType::Keyword)) {
 									return a_form->HasKeywordInList(list, false);
@@ -162,28 +162,28 @@ namespace Event
 					}
 				case RE::FormType::Keyword:
 					{
-						if (const auto keyword = a_refFilter->As<RE::BGSKeyword>()) {
+						if (const auto keyword = a_refFilter->As<RE::BGSKeyword>(); keyword) {
 							return a_ref->HasKeyword(keyword);
 						}
 						return false;
 					}
 				case RE::FormType::Faction:
 					{
-						if (const auto faction = a_refFilter->As<RE::TESFaction>()) {
+						if (const auto faction = a_refFilter->As<RE::TESFaction>(); faction) {
 							return actor && actor->IsInFaction(faction);
 						}
 						return false;
 					}
 				case RE::FormType::Race:
 					{
-						if (const auto race = a_refFilter->As<RE::TESRace>()) {
+						if (const auto race = a_refFilter->As<RE::TESRace>(); race) {
 							return actor && actor->GetRace() == race;
 						}
 						return false;
 					}
 				case RE::FormType::FormList:
 					{
-						if (const auto list = a_refFilter->As<RE::BGSListForm>()) {
+						if (const auto list = a_refFilter->As<RE::BGSListForm>(); list) {
 							if (list->ContainsOnlyType(RE::FormType::Keyword)) {
 								return a_ref->HasKeywordInList(list, false);
 							} else {
@@ -201,7 +201,7 @@ namespace Event
 					{
 						if (actor) {
 							RE::TESNPC* actorbase = actor->GetActorBase();
-							if (const auto xLvlBase = actor->extraList.GetByType<RE::ExtraLeveledCreature>()) {
+							if (const auto xLvlBase = actor->extraList.GetByType<RE::ExtraLeveledCreature>(); xLvlBase) {
 								actorbase = skyrim_cast<RE::TESNPC*>(xLvlBase->originalBase);
 							}
 							return actorbase && actorbase == a_refFilter;

@@ -30,7 +30,7 @@ namespace Papyrus::Enchantment
 			return;
 		}
 
-		MAGIC::MGEFData data = {
+		MAGIC::MGEFData data{
 			std::make_pair(a_mgef, a_mgef->GetFormID()),
 			a_mag,
 			a_area,
@@ -79,7 +79,7 @@ namespace Papyrus::Enchantment
 			return;
 		}
 
-		MAGIC::EffectData data = {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyEnchantment, a_copyEnchantment->GetFormID()),
 			a_index,
 			a_cost
@@ -105,7 +105,7 @@ namespace Papyrus::Enchantment
 			return;
 		}
 
-		MAGIC::MGEFData data = {
+		MAGIC::MGEFData data{
 			std::make_pair(a_mgef, a_mgef->GetFormID()),
 			a_mag,
 			a_area,
@@ -135,7 +135,7 @@ namespace Papyrus::Enchantment
 			return;
 		}
 
-		MAGIC::EffectData data = {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyEnchantment, a_copyEnchantment->GetFormID()),
 			a_index,
 			-1.0f

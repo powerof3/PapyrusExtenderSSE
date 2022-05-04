@@ -230,9 +230,9 @@ namespace Event::Combat
 			{
 				auto appliedEffect = func(a_this, a_data);
 
-				if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr) {
+				if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr; target) {
 					const auto effect = a_data->effect;
-					if (const auto baseEffect = effect ? effect->baseEffect : nullptr) {
+					if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
 						GameEventHolder::GetSingleton()->magicApply.QueueEvent(
 							target,
 							[=](const Filter::MagicEffectApply& a_filter, bool a_match) {  //capture by reference [&] bad

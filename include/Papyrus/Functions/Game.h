@@ -73,7 +73,7 @@ namespace Papyrus::Game
 			if (arr) {
 				for (auto& actorHandle : *arr) {
 					auto actorPtr = actorHandle.get();
-					if (auto actor = actorPtr.get()) {
+					if (auto actor = actorPtr.get(); actor) {
 						result.push_back(actor);
 					}
 				}
@@ -118,7 +118,7 @@ namespace Papyrus::Game
 
 			if (const auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 				for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
-					if (book && book->data.flags.all(RE::OBJ_BOOK::Flag::kTeachesSpell)) {
+					if (book && book->TeachesSpell()) {
 						const auto spell = book->data.teaches.spell;
 						if (!spell || !a_keywords.empty() && !spell->HasKeywordInArray(a_keywords, false)) {
 							continue;
@@ -212,8 +212,7 @@ namespace Papyrus::Game
 		std::vector<RE::TESObjectCELL*> result;
 
 		if (const auto TES = RE::TES::GetSingleton(); TES) {
-			auto cell = TES->interiorCell;
-			if (cell) {
+			if (auto cell = TES->interiorCell; cell) {
 				result.push_back(cell);
 			} else {
 				const auto gridCells = TES->gridCells;

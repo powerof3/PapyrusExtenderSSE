@@ -20,7 +20,7 @@ namespace Papyrus::Debug
 		if (player && dataHandler) {
 			for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
 				if (book && book->TeachesSpell()) {
-					if (const auto spell = book->GetSpell(); !spell->fullName.empty()) {
+					if (const auto spell = book->GetSpell(); spell && !spell->fullName.empty()) {
 						if (const auto mod = spell->GetDescriptionOwnerFile(); mod) {
 							auto modName{ "[" + std::string(mod->fileName).substr(0, 4) + "] " };
 							spell->fullName = modName + spell->fullName.c_str();
@@ -58,16 +58,16 @@ namespace Papyrus::Debug
 			return std::string("no value");
 		};
 
-		auto process = a_actor->currentProcess;
-		auto middle = process ? process->middleHigh : nullptr;
+		RE::BSTSmartPointer<RE::BSAnimationGraphManager> manager;
+		if (a_actor->GetAnimationGraphManager(manager)) {
+            const auto middleHigh = a_actor->currentProcess ? a_actor->currentProcess->middleHigh : nullptr;
+            const auto cache = middleHigh ? middleHigh->animationVariableCache : nullptr;
 
-		auto cache = middle ? middle->animationVariableCache : nullptr;
-		auto manager = middle ? middle->animationGraphManager : nullptr;
-
-		if (cache && manager) {
-			logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix);
-			for (auto& var : cache->variableCache) {
-				logger::info("	{} : {}", var.variableName, get_value(var));
+			if (cache && manager) {
+				logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix);
+				for (auto& var : cache->variableCache) {
+					logger::info("	{} : {}", var.variableName, get_value(var));
+				}
 			}
 		}
 	}

@@ -10,7 +10,7 @@ namespace Papyrus::Quest
 		}
 
 		std::vector<std::uint32_t> indices;
-		for (auto& objective : a_quest->objectives) {
+		for (const auto& objective : a_quest->objectives) {
 			if (objective) {
 				indices.push_back(objective->index);
 			}

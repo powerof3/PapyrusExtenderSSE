@@ -397,10 +397,9 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		if (const auto combatGroup = a_actor->GetCombatGroup()) {
+		if (const auto combatGroup = a_actor->GetCombatGroup(); combatGroup) {
 			for (auto& memberData : combatGroup->members) {
-				auto ally = memberData.memberHandle.get();
-				if (ally) {
+				if (auto ally = memberData.memberHandle.get(); ally) {
 					result.push_back(ally.get());
 				}
 			}
@@ -418,7 +417,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		if (const auto combatGroup = a_actor->GetCombatGroup()) {
+		if (const auto combatGroup = a_actor->GetCombatGroup(); combatGroup) {
 			for (auto& targetData : combatGroup->targets) {
 				auto target = targetData.targetHandle.get();
 				if (target) {
@@ -499,11 +498,11 @@ namespace Papyrus::Actor
 	{
 		static RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand)
 		{
-			if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand)) {
+			if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand); equippedEntryData) {
 				if (equippedEntryData->extraLists) {
 					for (const auto& xList : *equippedEntryData->extraLists) {
 						if (xList) {
-							if (const auto xPoison = xList->GetByType<RE::ExtraPoison>()) {
+							if (const auto xPoison = xList->GetByType<RE::ExtraPoison>(); xPoison) {
 								return xPoison;
 							}
 						}
@@ -1142,7 +1141,7 @@ namespace Papyrus::Actor
 						result.emplace_back(a_srcTXST->GetTexturePath(type));
 					}
 					result.emplace_back(armorID);
-					if (const auto newData = RE::NiStringsExtraData::Create(name, result)) {
+					if (const auto newData = RE::NiStringsExtraData::Create(name, result); newData) {
 						root->AddExtraData(newData);
 					}
 				}

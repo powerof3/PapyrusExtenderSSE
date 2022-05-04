@@ -41,19 +41,20 @@ namespace Papyrus::Weather
 		}
 
 		const auto flags = currentWeather->data.flags;
-		if (flags.all(Type::kPleasant)) {
+		if (flags.any(Type::kPleasant)) {
 			return 0;
 		}
-		if (flags.all(Type::kCloudy)) {
+		if (flags.any(Type::kCloudy)) {
 			return 1;
 		}
-		if (flags.all(Type::kRainy)) {
+		if (flags.any(Type::kRainy)) {
 			return 2;
 		}
-		if (flags.all(Type::kSnow)) {
+		if (flags.any(Type::kSnow)) {
 			return 3;
 		}
-		return -1;
+
+	    return -1;
 	}
 
 	inline void Bind(VM& a_vm)

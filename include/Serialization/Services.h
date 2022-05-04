@@ -276,7 +276,7 @@ namespace MAGIC
 
 			for (auto& [dataID, dataSet] : formMap) {
 				const auto form = RE::TESForm::LookupByID(dataID);
-				if (auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
+				if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr; magicItem) {
 					for (auto effectData : dataSet) {
 						auto& [mgef, mgefID] = effectData.mgef;
 						mgef = RE::TESForm::LookupByID<RE::EffectSetting>(mgefID);
@@ -554,7 +554,7 @@ namespace MAGIC
 
 			static bool remove_effect_item(RE::MagicItem* a_item, const EffectData& a_data)
 			{
-				if (const auto copyEffect = a_data.magicItem.first->effects[a_data.index]) {
+				if (const auto copyEffect = a_data.magicItem.first->effects[a_data.index]; copyEffect) {
 					const auto it = std::ranges::find_if(a_item->effects,
 						[&](const auto& effect) { return effect && detail::effect_is_match(effect, copyEffect); });
 

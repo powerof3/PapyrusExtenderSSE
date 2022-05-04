@@ -54,7 +54,7 @@ namespace Papyrus::Weather
 			return 3;
 		}
 
-	    return -1;
+		return -1;
 	}
 
 	inline void Bind(VM& a_vm)

@@ -12,7 +12,7 @@ namespace Papyrus::Faction
 		return a_faction->vendorData.merchantContainer;
 	}
 
-    inline void Bind(VM& a_vm)
+	inline void Bind(VM& a_vm)
 	{
 		BIND(GetVendorFactionContainer, true);
 

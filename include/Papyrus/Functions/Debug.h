@@ -60,8 +60,8 @@ namespace Papyrus::Debug
 
 		RE::BSTSmartPointer<RE::BSAnimationGraphManager> manager;
 		if (a_actor->GetAnimationGraphManager(manager)) {
-            const auto middleHigh = a_actor->currentProcess ? a_actor->currentProcess->middleHigh : nullptr;
-            const auto cache = middleHigh ? middleHigh->animationVariableCache : nullptr;
+			const auto middleHigh = a_actor->currentProcess ? a_actor->currentProcess->middleHigh : nullptr;
+			const auto cache = middleHigh ? middleHigh->animationVariableCache : nullptr;
 
 			if (cache && manager) {
 				logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix);

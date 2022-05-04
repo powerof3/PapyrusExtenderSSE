@@ -233,8 +233,8 @@ namespace Event
 		struct MagicEffectApply
 		{
 			MagicEffectApply() = default;
-			MagicEffectApply(RE::FormID a_effectID) :
-				effectID(a_effectID)
+			MagicEffectApply(RE::TESForm* a_effectFilter) :
+				effectID(a_effectFilter ? a_effectFilter->GetFormID() : 0)
 			{}
 
 			bool operator<(const MagicEffectApply& a_rhs) const
@@ -252,6 +252,15 @@ namespace Event
 		struct Hit
 		{
 			Hit() = default;
+			Hit(RE::TESForm* a_aggressor, RE::TESForm* a_source, RE::TESForm* a_projectile, std::int32_t powerAttack, std::int32_t sneakAttack, std::int32_t bashAttack, std::int32_t blockAttack) :
+				aggressorID(a_aggressor ? a_aggressor->GetFormID() : 0),
+				sourceID(a_source ? a_source->GetFormID() : 0),
+				projectileID(a_projectile ? a_projectile->GetFormID() : 0),
+				powerAttack(powerAttack),
+				sneakAttack(sneakAttack),
+				bashAttack(bashAttack),
+				blockAttack(blockAttack)
+			{}
 
 			bool operator<(const Hit& a_rhs) const
 			{

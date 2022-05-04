@@ -132,6 +132,25 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
+	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias,
+		RE::TESForm* a_aggressorFilter,
+		RE::TESForm* a_sourceFilter,
+		RE::TESForm* a_projectileFilter,
+		std::int32_t a_powerFilter,
+		std::int32_t a_sneakFilter,
+		std::int32_t a_bashFilter,
+		std::int32_t a_blockFilter,
+		bool a_match)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->onHit;
+		regs.Register(a_alias, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
+	}
+
 	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -185,13 +204,9 @@ namespace Papyrus::Alias::Events
 			a_vm->TraceStack("Alias is None", a_stackID);
 			return;
 		}
-		if (!a_effectFilter) {
-			a_vm->TraceStack("Effect Filter is None", a_stackID);
-			return;
-		}
 
 		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
-		regs.Register(a_alias, a_effectFilter->GetFormID(), a_match);
+		regs.Register(a_alias, a_effectFilter, a_match);
 	}
 
 	inline void RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
@@ -477,6 +492,36 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
+	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias,
+		RE::TESForm* a_aggressorFilter,
+		RE::TESForm* a_sourceFilter,
+		RE::TESForm* a_projectileFilter,
+		std::int32_t a_powerFilter,
+		std::int32_t a_sneakFilter,
+		std::int32_t a_bashFilter,
+		std::int32_t a_blockFilter,
+		bool a_match)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->onHit;
+		regs.Unregister(a_alias, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
+	}
+
+	inline void UnregisterForAllHitEventsEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->onHit;
+		regs.UnregisterAll(a_alias);
+	}
+
 	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -530,13 +575,9 @@ namespace Papyrus::Alias::Events
 			a_vm->TraceStack("Alias is None", a_stackID);
 			return;
 		}
-		if (!a_effectFilter) {
-			a_vm->TraceStack("Effect Filter is None", a_stackID);
-			return;
-		}
 
 		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
-		regs.Unregister(a_alias, a_effectFilter->GetFormID(), a_match);
+		regs.Unregister(a_alias, a_effectFilter, a_match);
 	}
 
 	inline void UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
@@ -584,7 +625,7 @@ namespace Papyrus::Alias::Events
 			return;
 		}
 
-		auto formType = static_cast<RE::FormType>(a_formType);
+        const auto formType = static_cast<RE::FormType>(a_formType);
 
 		auto& load = Event::ScriptEventHolder::GetSingleton()->objectLoaded;
 		load.Unregister(a_alias, formType);
@@ -760,6 +801,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
 		BIND_EVENT(RegisterForLevelIncrease, true);
@@ -788,6 +830,8 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForHitEventEx, true);
+		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);
 		BIND_EVENT(UnregisterForItemHarvested, true);
 		BIND_EVENT(UnregisterForLevelIncrease, true);

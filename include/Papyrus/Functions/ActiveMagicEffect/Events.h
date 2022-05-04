@@ -114,6 +114,25 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
+	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect,
+		RE::TESForm* a_aggressorFilter,
+		RE::TESForm* a_sourceFilter,
+		RE::TESForm* a_projectileFilter,
+		std::int32_t a_powerFilter,
+		std::int32_t a_sneakFilter,
+		std::int32_t a_bashFilter,
+		std::int32_t a_blockFilter,
+		bool a_match)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->onHit;
+		regs.Register(a_activeEffect, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
+	}
+
 	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -167,13 +186,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 			a_vm->TraceStack("Active Effect is None", a_stackID);
 			return;
 		}
-		if (!a_effectFilter) {
-			a_vm->TraceStack("Effect Filter is None", a_stackID);
-			return;
-		}
 
 		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
-		regs.Register(a_activeEffect, a_effectFilter->GetFormID(), a_match);
+		regs.Register(a_activeEffect, a_effectFilter, a_match);
 	}
 
 	inline void RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -201,8 +216,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		release.Register(a_activeEffect);
 	}
 
-	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::ActiveEffect* a_activeEffect,
+	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect,
 		std::uint32_t a_formType)
 	{
 		if (!a_activeEffect) {
@@ -441,6 +455,37 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
+	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::ActiveEffect* a_activeEffect,
+		RE::TESForm* a_aggressorFilter,
+		RE::TESForm* a_sourceFilter,
+		RE::TESForm* a_projectileFilter,
+		std::int32_t a_powerFilter,
+		std::int32_t a_sneakFilter,
+		std::int32_t a_bashFilter,
+		std::int32_t a_blockFilter,
+		bool a_match)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->onHit;
+		regs.Unregister(a_activeEffect, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
+	}
+
+	inline void UnregisterForAllHitEventsEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->onHit;
+		regs.UnregisterAll(a_activeEffect);
+	}
+
 	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -494,13 +539,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 			a_vm->TraceStack("Active Effect is None", a_stackID);
 			return;
 		}
-		if (!a_effectFilter) {
-			a_vm->TraceStack("Effect Filter is None", a_stackID);
-			return;
-		}
 
 		auto& regs = Event::GameEventHolder::GetSingleton()->magicApply;
-		regs.Unregister(a_activeEffect, a_effectFilter->GetFormID(), a_match);
+		regs.Unregister(a_activeEffect, a_effectFilter, a_match);
 	}
 
 	inline void UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
@@ -724,6 +765,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
 		BIND_EVENT(RegisterForLevelIncrease, true);
@@ -752,6 +794,8 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForHitEventEx, true);
+		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);
 		BIND_EVENT(UnregisterForItemHarvested, true);
 		BIND_EVENT(UnregisterForLevelIncrease, true);

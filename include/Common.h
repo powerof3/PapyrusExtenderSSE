@@ -47,7 +47,11 @@ namespace stl
 
 	inline bool read_formID(SKSE::SerializationInterface* a_intfc, RE::FormID& a_formID)
 	{
-		return a_intfc->ReadRecordData(a_formID) && a_intfc->ResolveFormID(a_formID, a_formID);
+		a_intfc->ReadRecordData(a_formID);
+		if (a_formID != 0) {
+			return a_intfc->ResolveFormID(a_formID, a_formID);
+		}
+		return true;
 	}
 
 	template <class T>

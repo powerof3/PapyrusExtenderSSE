@@ -2,7 +2,7 @@
 
 namespace Papyrus::ActiveMagicEffect::Functions
 {
-	inline bool IsScriptAttachedToActiveEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
+	inline bool IsScriptAttachedToActiveEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::ActiveEffect* a_activeEffect,
 		RE::BSFixedString a_scriptName)
 	{

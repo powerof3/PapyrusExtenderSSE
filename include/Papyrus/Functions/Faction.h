@@ -24,7 +24,7 @@ namespace Papyrus::Faction
 				return factionOwner;
 			}
 		}
-		
+
 		return nullptr;
 	}
 

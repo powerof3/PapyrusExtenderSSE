@@ -625,7 +625,7 @@ namespace Papyrus::Alias::Events
 			return;
 		}
 
-        const auto formType = static_cast<RE::FormType>(a_formType);
+		const auto formType = static_cast<RE::FormType>(a_formType);
 
 		auto& load = Event::ScriptEventHolder::GetSingleton()->objectLoaded;
 		load.Unregister(a_alias, formType);

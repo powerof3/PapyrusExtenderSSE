@@ -216,7 +216,8 @@ namespace Papyrus::ActiveMagicEffect::Events
 		release.Register(a_activeEffect);
 	}
 
-	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect,
+	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, 
+		const RE::ActiveEffect* a_activeEffect,
 		std::uint32_t a_formType)
 	{
 		if (!a_activeEffect) {

@@ -15,6 +15,7 @@
 #include "Papyrus/Functions/Enchantment.h"
 #include "Papyrus/Functions/Form/Events.h"
 #include "Papyrus/Functions/Form/Functions.h"
+#include "Papyrus/Functions/Faction.h"
 #include "Papyrus/Functions/Furniture.h"
 #include "Papyrus/Functions/Game.h"
 #include "Papyrus/Functions/Hazard.h"
@@ -45,7 +46,7 @@ namespace Papyrus
 			return false;
 		}
 
-		logger::info("{:*^30}", "Papyrus/Functions"sv);
+		logger::info("{:*^30}", "FUNCTIONS"sv);
 
 		ObjectTypes::Bind(*a_vm);
 
@@ -69,6 +70,7 @@ namespace Papyrus
 		Form::Events::Bind(*a_vm);
 		Form::Functions::Bind(*a_vm);
 
+		Faction::Bind(*a_vm);
 		Furniture::Bind(*a_vm);
 		Game::Bind(*a_vm);
 		Hazard::Bind(*a_vm);

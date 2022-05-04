@@ -18,6 +18,7 @@ set(headers ${headers}
 	include/Papyrus/Functions/Debug.h
 	include/Papyrus/Functions/EffectShader.h
 	include/Papyrus/Functions/Enchantment.h
+	include/Papyrus/Functions/Faction.h
 	include/Papyrus/Functions/Form/Events.h
 	include/Papyrus/Functions/Form/Functions.h
 	include/Papyrus/Functions/Furniture.h

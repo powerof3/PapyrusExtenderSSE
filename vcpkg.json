@@ -11,12 +11,5 @@
     "rsm-binary-io",
     "spdlog",
     "xbyak"
-  ],
-  "builtin-baseline": "ecd55433fd37129109f663548f3b11204e35e630",
-  "overrides": [
-    {
-      "name": "fmt",
-      "version": "8.0.1"
-    }
   ]
 }

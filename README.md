@@ -2,7 +2,7 @@
 
 SKSE64/VR plugin that expands Papyrus script functionality with 442 functions, 82 events, and 4 script objects for Skyrim Special Edition.
 
-Documentation for each function is listed within the Papyrus source files (.psc extension).
+Documentation for each function is listed in the [wiki](https://github.com/powerof3/PapyrusExtenderSSE/wiki).
 
 * **[Download on Nexus Mods!](https://www.nexusmods.com/skyrimspecialedition/mods/22854)**
 * [SKSEVR version](https://www.nexusmods.com/skyrimspecialedition/mods/58296)

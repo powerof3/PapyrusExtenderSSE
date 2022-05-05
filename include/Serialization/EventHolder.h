@@ -221,9 +221,9 @@ namespace Event
 				case -1:
 					return true;
 				case 0:
-					return a_hitFlag;
-				case 1:
 					return !a_hitFlag;
+				case 1:
+					return a_hitFlag;
 				default:
 					return false;
 				}

@@ -369,12 +369,12 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
                                     RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
                    0.0f;
 	}
 
@@ -843,12 +843,15 @@ namespace Papyrus::Actor
 		}
 
 		if (a_actor->currentProcess) {
-			const auto processLists = RE::ProcessLists::GetSingleton();
-			if (processLists) {
+			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 				for (auto& targetHandle : processLists->highActorHandles) {
-					auto target = targetHandle.get();
-					if (target && target->currentProcess && target->RequestDetectionLevel(a_actor) > 0) {
-						return true;
+					if (auto target = targetHandle.get(); target && target->currentProcess) {
+						if (auto base = target->GetActorBase(); base && !base->AffectsStealthMeter()) {
+							continue;
+						}
+						if (target->RequestDetectionLevel(a_actor) > 0) {
+							return true;
+						}
 					}
 				}
 			}
@@ -1459,7 +1462,7 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
                 charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;

@@ -741,9 +741,9 @@ namespace TEXTURE
 		std::ranges::transform(a_path, a_path.begin(),
 			[](char c) { return static_cast<char>(std::tolower(c)); });
 
-		a_path = std::regex_replace(a_path, std::regex("/+|\\\\+"), "\\");
-		a_path = std::regex_replace(a_path, std::regex("^\\\\+"), "");
-		a_path = std::regex_replace(a_path, std::regex(R"(.*?[^\s]textures\\|^textures\\)", std::regex_constants::icase), "");
+		a_path = srell::regex_replace(a_path, srell::regex("/+|\\\\+"), "\\");
+		a_path = srell::regex_replace(a_path, srell::regex("^\\\\+"), "");
+		a_path = srell::regex_replace(a_path, srell::regex(R"(.*?[^\s]textures\\|^textures\\)", srell::regex::icase), "");
 	}
 
 	RE::BSShaderTextureSet* create_textureset(char** a_value)

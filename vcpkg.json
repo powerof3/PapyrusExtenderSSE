@@ -9,6 +9,7 @@
     "frozen",
     "robin-hood-hashing",
     "rsm-binary-io",
+    "srell",
     "spdlog",
     "xbyak"
   ]

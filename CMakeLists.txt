@@ -141,6 +141,8 @@ else ()
 	)
 endif()
 
+find_path(SRELL_INCLUDE_DIRS "srell.hpp")
+
 find_package(frozen CONFIG REQUIRED)
 
 # ---- Add source files ----

@@ -169,8 +169,7 @@ namespace SET
 	void add_data_if_none(RE::NiAVObject* a_root, std::string_view a_type, D a_data)
 	{
 		if (const auto data = a_root->GetExtraData<T>(a_type); !data) {
-			const auto newData = T::Create(a_type, a_data);
-			if (newData) {
+            if (const auto newData = T::Create(a_type, a_data); newData) {
 				a_root->AddExtraData(newData);
 			}
 		}

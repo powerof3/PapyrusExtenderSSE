@@ -135,6 +135,8 @@ namespace Serialization
 
 				FORM_DELETE<DETECTION::TargetManager>(formID);
 				FORM_DELETE<DETECTION::SourceManager>(formID);
+
+				GameEventHolder::GetSingleton()->FormDelete(formID);
 			}
 
 			return EventResult::kContinue;

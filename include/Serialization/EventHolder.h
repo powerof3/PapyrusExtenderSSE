@@ -326,6 +326,7 @@ namespace Event
 		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);
 		void Revert(SKSE::SerializationInterface* a_intfc);
 		void FormDelete(RE::VMHandle a_handle);
+		void FormDelete(RE::FormID a_uniqueID);
 
 	private:
 		GameEventHolder() = default;

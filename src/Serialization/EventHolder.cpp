@@ -228,6 +228,7 @@ namespace Event
 		itemCrafted.Save(a_intfc, kItemCrafted, a_version);
 		magicApply.Save(a_intfc, kMagicEffectApply, a_version);
 		magicHit.Save(a_intfc, kMagicHit, a_version);
+		onHit.Save(a_intfc, kHit, a_version);
 		projectileHit.Save(a_intfc, kProjectileHit, a_version);
 		weaponHit.Save(a_intfc, kWeaponHit, a_version);
 		weatherChange.Save(a_intfc, kWeatherChange, a_version);
@@ -260,6 +261,9 @@ namespace Event
 		case kMagicHit:
 			magicHit.Load(a_intfc);
 			break;
+		case kHit:
+			onHit.Load(a_intfc);
+			break;
 		case kProjectileHit:
 			projectileHit.Load(a_intfc);
 			break;
@@ -284,6 +288,7 @@ namespace Event
 		itemCrafted.Revert(a_intfc);
 		magicApply.Revert(a_intfc);
 		magicHit.Revert(a_intfc);
+		onHit.Revert(a_intfc);
 		projectileHit.Revert(a_intfc);
 		weaponHit.Revert(a_intfc);
 		weatherChange.Revert(a_intfc);
@@ -299,8 +304,22 @@ namespace Event
 		itemCrafted.Unregister(a_handle);
 		magicApply.UnregisterAll(a_handle);
 		magicHit.Unregister(a_handle);
+		onHit.UnregisterAll(a_handle);
 		projectileHit.Unregister(a_handle);
 		weaponHit.Unregister(a_handle);
 		weatherChange.Unregister(a_handle);
+	}
+
+    void GameEventHolder::FormDelete(RE::FormID a_uniqueID)
+	{
+		actorFallLongDistance.Unregister(a_uniqueID);
+		actorReanimateStart.Unregister(a_uniqueID);
+		actorReanimateStop.Unregister(a_uniqueID);
+		actorResurrect.Unregister(a_uniqueID);
+		magicApply.UnregisterAll(a_uniqueID);
+		magicHit.Unregister(a_uniqueID);
+	    onHit.UnregisterAll(a_uniqueID);
+		projectileHit.Unregister(a_uniqueID);
+		weaponHit.Unregister(a_uniqueID);
 	}
 }

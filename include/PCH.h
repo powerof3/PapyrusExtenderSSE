@@ -48,8 +48,8 @@
 #include <frozen/map.h>
 #include <ranges>
 #include <robin_hood.h>
-#include <srell.hpp>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <srell.hpp>
 #include <xbyak/xbyak.h>
 
 #define DLLEXPORT __declspec(dllexport)

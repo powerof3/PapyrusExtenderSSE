@@ -641,7 +641,7 @@ namespace SET
 		const bool isActor = a_params[2];
 
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-			if (const bool hasNormals = a_geometry->vertexDesc.HasFlag(VertexFlags::VF_NORMAL); !hasNormals) {
+			if (!a_geometry->vertexDesc.HasFlag(VertexFlags::VF_NORMAL)) {
 				return RE::BSVisit::BSVisitControl::kContinue;
 			}
 			if (const auto parent = a_geometry->parent; parent && parent->AsFadeNode() && noWeap && isActor) {

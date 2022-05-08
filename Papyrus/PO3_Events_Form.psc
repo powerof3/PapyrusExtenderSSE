@@ -1,16 +1,27 @@
 Scriptname PO3_Events_Form  Hidden 
 
-;EVENTS SHOULD BE CALLED ON A FORM
+;EVENTS SHOULD BE CALLED ON A FORM - script that is attached to form/reference.
+;DOCUMENTATION IS AVAILABLE AT https://github.com/powerof3/PapyrusExtenderSSE/wiki
 
-;ACTOR KILL [DEPRECATED - use alias or active effect]
+;ACTOR FALL LONG DISTANCE
+;calling script must extend ObjectReference
+	
+	Function RegisterForActorFallLongDistance(Form akForm) global native	
+	Function UnregisterForActorFallLongDistance(Form akForm) global native
+	
+	Event OnActorFallLongDistance(Actor akTarget, float afFallDistance, float afFallDamage)
+	EndEvent
+
+;ACTOR KILL
 	
 	Function RegisterForActorKilled(Form akForm) global native	
 	Function UnregisterForActorKilled(Form akForm) global native
 	
 	Event OnActorKilled(Actor akVictim, Actor akKiller)
-	endEvent
+	EndEvent
 	
-;ACTOR REANIMATE [DEPRECATED - use alias or active effect]
+;ACTOR REANIMATE
+;calling script must extend ObjectReference
 	
 	Function RegisterForActorReanimateStart(Form akForm) global native	
 	Function UnregisterForActorReanimateStart(Form akForm) global native
@@ -19,18 +30,19 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForActorReanimateStop(Form akForm) global native
 	
 	Event OnActorReanimateStart(Actor akTarget, Actor akCaster)
-	endEvent
+	EndEvent
 	
 	Event OnActorReanimateStop(Actor akTarget, Actor akCaster)
-	endEvent		
+	EndEvent		
 	
-;ACTOR RESURRECT [DEPRECATED - use alias or active effect]
+;ACTOR RESURRECT
+;calling script must extend ObjectReference
 	
 	Function RegisterForActorResurrected(Form akForm) global native	
 	Function UnregisterForActorResurrected(Form akForm) global native
 	
 	Event OnActorResurrected(Actor akTarget, bool abResetInventory)
-	endEvent
+	EndEvent
 	
 ;BOOKS READ
 	
@@ -38,25 +50,23 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForBookRead(Form akForm) global native
 	
 	Event OnBookRead(Book akBook)
-	endEvent
+	EndEvent
 
 ;CELL FULLY LOADED
-;Can fire multiple times in exteriors, for each cell that is fully loaded.
 	
 	Function RegisterForCellFullyLoaded(Form akForm) global native	
 	Function UnregisterForCellFullyLoaded(Form akForm) global native
 	
 	Event OnCellFullyLoaded(Cell akCell)
-	endEvent
+	EndEvent
 	
 ;CRITICAL HIT
-;Player only event?
 	
 	Function RegisterForCriticalHit(Form akForm) global native	
 	Function UnregisterForCriticalHit(Form akForm) global native
 	
 	Event OnCriticalHit(Actor akAggressor, Weapon akWeapon, bool abSneakHit)
-	endEvent
+	EndEvent
 	
 ;DISARMED
 	
@@ -64,7 +74,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForDisarmed(Form akForm) global native
 	
 	Event OnDisarmed(Actor akSource, Weapon akTarget)
-	endEvent
+	EndEvent
 	
 ;DRAGON SOUL ABSORBED
 	
@@ -72,10 +82,23 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForDragonSoulGained(Form akForm) global native
 	
 	Event OnDragonSoulGained(float afSouls)
-	endEvent
+	EndEvent
+	
+;ON HIT EX
+;calling script must extend ObjectReference
+
+	Function RegisterForHitEventEx(Form akForm, Form akAggressorFilter = None, Form akSourceFilter = None, Form akProjectileFilter = None, \
+	int aiPowerFilter = -1, int aiSneakFilter = -1, int aiBashFilter = -1, int aiBlockFilter = -1, bool abMatch = true) global native	
+	
+	Function UnregisterForHitEventEx(Form akForm, Form akAggressorFilter = None, Form akSourceFilter = None, Form akProjectileFilter = None, \
+	int aiPowerFilter = -1, int aiSneakFilter = -1, int aiBashFilter = -1, int aiBlockFilter = -1, bool abMatch = true) global native
+	
+	Function UnregisterForAllHitEventsEx(Form akForm) global native
+		
+	Event OnHitEx(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
+	EndEvent
 	
 ;ITEM CRAFTED
-;Player only event
 	
 	Function RegisterForItemCrafted(Form akForm) global native	
 	Function UnregisterForItemCrafted(Form akForm) global native
@@ -84,13 +107,12 @@ Scriptname PO3_Events_Form  Hidden
 	EndEvent
 	
 ;ITEM HARVESTED
-;Player only event
 	
 	Function RegisterForItemHarvested(Form akForm) global native	
 	Function UnregisterForItemHarvested(Form akForm) global native
 	
 	Event OnItemHarvested(Form akProduce)
-	endEvent
+	EndEvent
 	
 ;LEVEL INCREASE
 	
@@ -98,7 +120,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForLevelIncrease(Form akForm) global native
 	
 	Event OnLevelIncrease(int aiLevel)
-	endEvent
+	EndEvent
 	
 ;LOCATION DISCOVERY
 	
@@ -106,32 +128,30 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForLocationDiscovery(Form akForm) global native
 	
 	Event OnLocationDiscovery(String asRegionName, String asWorldspaceName)
-	endEvent
+	EndEvent
 		
 ;OBJECT GRAB/RELEASE
-;Doesn't work with telekinesis and when the player grabs the same object in a row
 
 	Function RegisterForObjectGrab(Form akForm) global native	
 	Function UnregisterForObjectGrab(Form akForm) global native
 	
 	Event OnObjectGrab(ObjectReference akObjectRef)
-	endEvent
+	EndEvent
 	
 	Event OnObjectRelease(ObjectReference akObjectRef)
-	endEvent	
+	EndEvent	
 		
 ;OBJECT LOADED/UNLOADED
-;Not all objects fire this event. It is somewhat inconsistent.
 
 	Function RegisterForObjectLoaded(Form akForm, int formType) global native	
 	Function UnregisterForObjectLoaded(Form akForm, int formType) global native
 	Function UnregisterForAllObjectsLoaded(Form akForm) global native
 		
 	Event OnObjectLoaded(ObjectReference akRef, int aiFormType)
-	endEvent
+	EndEvent
 	
 	Event OnObjectUnloaded(ObjectReference akRef, int aiFormType)
-	endEvent	
+	EndEvent	
 	
 ;QUEST START/STOP
 
@@ -140,10 +160,10 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForAllQuests(Form akForm) global native
 	
 	Event OnQuestStart(Quest akQuest)
-	endEvent
+	EndEvent
 	
 	Event OnQuestStop(Quest akQuest)
-	endEvent
+	EndEvent
 	
 ;QUEST STAGE CHANGE
 
@@ -152,35 +172,31 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForAllQuestStages(Form akForm) global native
 	
 	Event OnQuestStageChange(Quest akQuest, Int aiNewStage)
-	endEvent
+	EndEvent
 	
 ;SHOUT ATTACK
-;Player only event
 
 	Function RegisterForShoutAttack(Form akForm) global native	
 	Function UnregisterForShoutAttack(Form akForm) global native
 	
-	Event OnShoutAttack(Shout akShout)
-	endEvent
-		
+	Event OnPlayerShoutAttack(Shout akShout)
+	EndEvent
+	
 ;SKILL INCREASE
-;4.5.6 - Event had its params changed from String to Int as a workaround for only the first registered event recieving any events
-;See https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/A/ActorValues.h
 
 	Function RegisterForSkillIncrease(Form akForm) global native	
 	Function UnregisterForSkillIncrease(Form akForm) global native
 	
 	Event OnSkillIncrease(Int aiSkill)
-	endEvent
+	EndEvent
 	
 ;SOUL TRAP
-;Event will fire after OnDying/OnDeath
 
 	Function RegisterForSoulTrapped(Form akForm) global native	
 	Function UnregisterForSoulTrapped(Form akForm) global native
 		
 	Event OnSoulTrapped(Actor akVictim, Actor akKiller)
-	endEvent
+	EndEvent
 	
 ;SPELL LEARNED
 
@@ -188,7 +204,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForSpellLearned(Form akForm) global native
 		
 	Event OnSpellLearned(Spell akSpell)
-	endEvent
+	EndEvent
 	
 ;WEATHER CHANGE
 
@@ -196,4 +212,42 @@ Scriptname PO3_Events_Form  Hidden
 	Function UnregisterForWeatherChange(Form akForm) global native
 		
 	Event OnWeatherChange(Weather akOldWeather, Weather akNewWeather)
-	endEvent
+	EndEvent
+	
+;MAGIC EFFECT APPLY
+;calling script must extend ObjectReference
+
+	Function RegisterForMagicEffectApplyEx(Form akForm, Form akEffectFilter, bool abMatch) global native	
+	Function UnregisterForMagicEffectApplyEx(Form akForm, Form akEffectFilter, bool abMatch) global native
+	Function UnregisterForAllMagicEffectApplyEx(Form akForm) global native
+		
+	Event OnMagicEffectApplyEx(ObjectReference akCaster, MagicEffect akEffect, Form akSource, bool abApplied)
+	EndEvent
+	
+;ON WEAPON HIT
+;calling script must extend ObjectReference
+	
+	Function RegisterForWeaponHit(Form akForm) global native	
+	Function UnregisterForWeaponHit(Form akForm) global native
+		
+	Event OnWeaponHit(ObjectReference akTarget, Form akSource, Projectile akProjectile, Int aiHitFlagMask)
+	EndEvent
+	
+;ON MAGIC HIT
+;calling script must extend ObjectReference
+
+	Function RegisterForMagicHit(Form akForm) global native	
+	Function UnregisterForMagicHit(Form akForm) global native
+		
+	Event OnMagicHit(ObjectReference akTarget, Form akSource, Projectile akProjectile)
+	EndEvent
+	
+;ON PROJECTILE HIT
+;calling script must extend ObjectReference
+
+	Function RegisterForProjectileHit(Form akForm) global native	
+	Function UnregisterForProjectileHit(Form akForm) global native
+		
+	Event OnProjectileHit(ObjectReference akTarget, Form akSource, Projectile akProjectile)
+	EndEvent
+	

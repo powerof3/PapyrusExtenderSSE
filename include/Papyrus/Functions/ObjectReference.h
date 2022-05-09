@@ -1056,7 +1056,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-	    const auto dataHandler = RE::TESDataHandler::GetSingleton();
+		const auto dataHandler = RE::TESDataHandler::GetSingleton();
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
 
 		if (!modInfo) {

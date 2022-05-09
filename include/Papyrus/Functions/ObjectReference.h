@@ -1044,6 +1044,53 @@ namespace Papyrus::ObjectReference
 		});
 	}
 
+	inline void RemoveAllModItems(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESObjectREFR* a_ref,
+		RE::BSFixedString a_modName,
+		bool a_unequip)
+	{
+		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
+
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return;
+		}
+
+	    const auto dataHandler = RE::TESDataHandler::GetSingleton();
+		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
+
+		if (!modInfo) {
+			return;
+		}
+
+		auto inv = a_ref->GetInventory([modInfo](RE::TESBoundObject& a_object) {
+			return modInfo->IsFormInMod(a_object.GetFormID());
+		});
+
+		if (a_unequip) {
+			auto actor = a_ref->As<RE::Actor>();
+			if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager && actor) {
+				std::ranges::for_each(inv,
+					[&](auto& invData) {
+						const auto& [item, data] = invData;
+						const auto& [count, entry] = data;
+						if (count > 0 && entry->IsWorn()) {
+							equipManager->UnequipObject(actor, item);
+						}
+					});
+			}
+		} else {
+			std::ranges::for_each(inv,
+				[&](auto& invData) {
+					const auto& [item, data] = invData;
+					const auto& [count, entry] = data;
+					if (count > 0 && entry->extraLists) {
+						a_ref->RemoveItem(item, count, RE::ITEM_REMOVE_REASON::kRemove, entry->extraLists->front(), nullptr);
+					}
+				});
+		}
+	}
+
 	inline bool RemoveKeywordFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		RE::BGSKeyword* a_keyword)
@@ -1714,6 +1761,7 @@ namespace Papyrus::ObjectReference
 		BIND(IsQuestItem);
 		BIND(IsVIP);
 		BIND(MoveToNearestNavmeshLocation);
+		BIND(RemoveAllModItems);
 		BIND(RemoveKeywordFromRef);
 		BIND(ReplaceKeywordOnRef);
 		BIND(PlayDebugShader);

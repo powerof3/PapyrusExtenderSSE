@@ -1084,8 +1084,8 @@ namespace Papyrus::ObjectReference
 				[&](auto& invData) {
 					const auto& [item, data] = invData;
 					const auto& [count, entry] = data;
-					if (count > 0 && entry->extraLists) {
-						a_ref->RemoveItem(item, count, RE::ITEM_REMOVE_REASON::kRemove, entry->extraLists->front(), nullptr);
+					if (count > 0) {
+						a_ref->RemoveItem(item, count, RE::ITEM_REMOVE_REASON::kRemove, entry->extraLists ? entry->extraLists->front() : nullptr, nullptr);
 					}
 				});
 		}

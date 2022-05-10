@@ -353,10 +353,10 @@ namespace Event::Combat
 						const auto source = RE::TESForm::LookupByID(a_source);
 
 						if (hitTarget) {
-							const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
-							const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
-							const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
-							const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
+							const auto powerAttack = a_data.flags.any(RE::HitData::Flag::kPowerAttack);
+							const auto sneakAttack = a_data.flags.any(RE::HitData::Flag::kSneakAttack);
+							const auto bashAttack = a_data.flags.any(RE::HitData::Flag::kBash, RE::HitData::Flag::kTimedBash);
+							const auto hitBlocked = a_data.flags.any(RE::HitData::Flag::kBlocked, RE::HitData::Flag::kBlockWithWeapon);
 
 							GameEventHolder::GetSingleton()->onHit.QueueEvent(
 								hitTarget,
@@ -367,7 +367,7 @@ namespace Event::Combat
 						}
 
 						if (aggressor) {
-							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, stl::to_underlying(a_data.flags));
+							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, stl::to_underlying(*a_data.flags));
 						}
 
 						func(a_holder, a_target, a_aggressor, a_source, a_projectile, a_data);

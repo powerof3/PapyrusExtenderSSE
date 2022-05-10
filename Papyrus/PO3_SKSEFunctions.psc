@@ -656,6 +656,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	Function MoveToNearestNavmeshLocation(ObjectReference akRef) global native
 				
+	Function RemoveAllModItems(ObjectReference akRef, String asModName, bool abOnlyUnequip = false) global native
+	
 	bool Function RemoveKeywordFromRef(ObjectReference akRef, Keyword akKeyword) global native
 	
 	Function ReplaceKeywordOnRef(ObjectReference akRef, Keyword akKeywordAdd, Keyword akKeywordRemove) global native

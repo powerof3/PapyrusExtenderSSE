@@ -210,25 +210,20 @@ namespace Papyrus::Actor
 		}
 
 		if (a_type == 0) {
-			if (!a_enable) {
-				a_actor->boolBits.set(BOOL_BITS::kProcessMe);  //enable AI first
-			}
 			if (const auto charController = a_actor->GetCharController(); charController) {
 				if (a_enable) {  //freeze
-					charController->flags.set(Flags::kNotPushable);
-					charController->flags.reset(Flags::kRecordHits);
-					charController->flags.reset(Flags::kHitFlags);
-					charController->flags.reset(Flags::kHitDamage);
+					charController->flags.set(Flags::kNotPushable, Flags::kNoCharacterCollisions);
+					charController->flags.reset(Flags::kRecordHits, Flags::kHitFlags, Flags::kHitDamage);
 				} else {  //unfreeze
-					charController->flags.reset(Flags::kNotPushable);
-					charController->flags.set(Flags::kRecordHits);
-					charController->flags.set(Flags::kHitFlags);
-					charController->flags.set(Flags::kHitDamage);
+					charController->flags.reset(Flags::kNotPushable, Flags::kNoCharacterCollisions);
+					charController->flags.set(Flags::kRecordHits, Flags::kHitFlags, Flags::kHitDamage);
 				}
-				charController->SetLinearVelocityImpl(0.0);
+				charController->SetLinearVelocityImpl(0.0f);
 			}
 			if (a_enable) {
-				a_actor->boolBits.reset(BOOL_BITS::kProcessMe);  //disable AI last
+				a_actor->boolBits.reset(BOOL_BITS::kProcessMe);  //disable AI
+			} else {
+				a_actor->boolBits.set(BOOL_BITS::kProcessMe);  //enable AI
 			}
 		} else if (a_type == 1) {
 			if (const auto charController = a_actor->GetCharController(); charController) {

@@ -75,7 +75,7 @@ namespace Event
 			return &singleton;
 		}
 
-//weird compile error with template function (it worked perfectly fine for ages???) 
+//weird compile error with template function (it worked perfectly fine for ages???)
 #define register_story_event(T)                                               \
 	{                                                                         \
 		if (const auto event = T::GetEventSource(); event) {                  \

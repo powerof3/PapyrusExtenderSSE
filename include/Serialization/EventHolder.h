@@ -106,44 +106,36 @@ namespace Event
 	{
 		struct detail
 		{
-			template <class T>
-			static bool passes_simple_filter(T* a_form, RE::TESForm* a_formFilter)
+			static bool passes_simple_filter(RE::TESForm* a_form, RE::TESForm* a_formFilter)
 			{
 				if (!a_formFilter) {
 					return true;
 				}
+
 				switch (a_formFilter->GetFormType()) {
 				case RE::FormType::Keyword:
 					{
-						if constexpr (std::is_base_of_v<RE::BGSKeywordForm, T>) {
-							if (const auto keyword = a_formFilter->As<RE::BGSKeyword>(); keyword) {
-								return a_form->HasKeyword(keyword);
+						if (const auto keyword = a_formFilter->As<RE::BGSKeyword>(); keyword) {
+							if (auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
+								return keywordForm->HasKeyword(keyword);
 							}
 						}
+						return false;
 					}
-					break;
 				case RE::FormType::FormList:
 					{
 						if (const auto list = a_formFilter->As<RE::BGSListForm>(); list) {
-							if constexpr (std::is_base_of_v<RE::BGSKeywordForm, T>) {
-								if (list->ContainsOnlyType(RE::FormType::Keyword)) {
-									return a_form->HasKeywordInList(list, false);
-								}
-								return list->HasForm(a_form);
-							} else {
-								return list->HasForm(a_form);
+							if (list->ContainsOnlyType(RE::FormType::Keyword)) {
+								return a_form->HasKeywordInList(list, false);
 							}
+							return list->HasForm(a_form);
+						} else {
+							return list->HasForm(a_form);
 						}
 					}
-					break;
-				case T::FORMTYPE:
-					{
-						return a_form == a_formFilter;
-					}
 				default:
-					break;
+					return a_form == a_formFilter;
 				}
-				return false;
 			}
 
 			static bool passes_ref_filter(RE::TESObjectREFR* a_ref, RE::TESForm* a_refFilter)
@@ -209,9 +201,7 @@ namespace Event
 						return false;
 					}
 				default:
-					{
-						return a_ref->GetBaseObject() == a_refFilter;
-					}
+					return a_ref->GetBaseObject() == a_refFilter;
 				}
 			}
 

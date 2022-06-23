@@ -456,8 +456,7 @@ namespace Papyrus::Actor
 		}
 
 		if (a_actor->IsCommandedActor()) {
-			const auto commanderPtr = a_actor->GetCommandingActor().get();
-			return commanderPtr.get();
+			return a_actor->GetCommandingActor().get();
 		}
 
 		return nullptr;

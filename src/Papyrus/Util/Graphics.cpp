@@ -18,20 +18,20 @@ namespace GRAPHICS
 		{
 			using Flags = RE::EffectShaderData::Flags;
 
-			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-				const auto handle = a_ref->CreateRefHandle();
-				processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
-					if (a_shaderEffect.target == handle) {
-						if (const auto effectData = a_shaderEffect.effectData; effectData &&
-																			   effectData->data.flags.all(Flags::kSkinOnly) &&
-																			   !effectData->holesTexture.textureName.empty()) {
-							a_shaderEffect.finished = true;
-						}
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+			const auto handle = a_ref->CreateRefHandle();
+			processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
+				if (a_shaderEffect.target == handle) {
+					if (const auto effectData = a_shaderEffect.effectData; effectData &&
+																		   effectData->data.flags.all(Flags::kSkinOnly) &&
+																		   !effectData->holesTexture.textureName.empty()) {
+						a_shaderEffect.finished = true;
 					}
-					return RE::BSContainer::ForEachResult::kContinue;
-				});
-			}
+				}
+				return RE::BSContainer::ForEachResult::kContinue;
+			});
 		}
+	}
 
 		std::pair<bool, ResetData> get_data(RE::NiAVObject* a_object)
 		{

@@ -16,7 +16,7 @@ namespace RESET
 		using Flags = RE::EffectShaderData::Flags;
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-            const auto handle = a_ref->CreateRefHandle();
+			const auto handle = a_ref->CreateRefHandle();
 			processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
 				if (a_shaderEffect.target == handle) {
 					if (const auto effectData = a_shaderEffect.effectData; effectData &&

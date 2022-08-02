@@ -6,8 +6,8 @@ namespace Papyrus::UI
 	{
 		RE::TESObjectREFR* container = nullptr;
 
-		const auto ui = RE::UI::GetSingleton();
-		const auto menu = ui ? ui->GetMenu<RE::ContainerMenu>() : nullptr;
+		const auto UI = RE::UI::GetSingleton();
+		const auto menu = UI ? UI->GetMenu<RE::ContainerMenu>() : nullptr;
 		if (menu) {
 			const auto refHandle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refr;
@@ -19,9 +19,25 @@ namespace Papyrus::UI
 		return container;
 	}
 
+	inline void HideMenu(RE::StaticFunctionTag*, RE::BSFixedString a_menuName)
+	{
+		if (const auto UIMsgQueue = RE::UIMessageQueue::GetSingleton(); UIMsgQueue) {
+			UIMsgQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+		}
+	}
+
+	inline void ShowMenu(RE::StaticFunctionTag*, RE::BSFixedString a_menuName)
+	{
+		if (const auto UIMsgQueue = RE::UIMessageQueue::GetSingleton(); UIMsgQueue) {
+			UIMsgQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kShow, nullptr);
+		}
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(GetMenuContainer);
+		BIND(HideMenu);
+		BIND(ShowMenu);
 
 		logger::info("Registered UI functions"sv);
 	}

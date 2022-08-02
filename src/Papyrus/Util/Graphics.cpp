@@ -2,7 +2,6 @@
 
 namespace GRAPHICS
 {
-
 	namespace MATERIAL
 	{
 		std::string_view get_material(MAT a_mat)
@@ -18,20 +17,20 @@ namespace GRAPHICS
 		{
 			using Flags = RE::EffectShaderData::Flags;
 
-		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
-				if (a_shaderEffect.target == handle) {
-					if (const auto effectData = a_shaderEffect.effectData; effectData &&
-																		   effectData->data.flags.all(Flags::kSkinOnly) &&
-																		   !effectData->holesTexture.textureName.empty()) {
-						a_shaderEffect.finished = true;
+			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+				const auto handle = a_ref->CreateRefHandle();
+				processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
+					if (a_shaderEffect.target == handle) {
+						if (const auto effectData = a_shaderEffect.effectData; effectData &&
+																			   effectData->data.flags.all(Flags::kSkinOnly) &&
+																			   !effectData->holesTexture.textureName.empty()) {
+							a_shaderEffect.finished = true;
+						}
 					}
-				}
-				return RE::BSContainer::ForEachResult::kContinue;
-			});
+					return RE::BSContainer::ForEachResult::kContinue;
+				});
+			}
 		}
-	}
 
 		std::pair<bool, ResetData> get_data(RE::NiAVObject* a_object)
 		{
@@ -471,7 +470,7 @@ namespace GRAPHICS
 
 			if (const auto data = a_root->GetExtraData<RE::NiStringsExtraData>(EXTRA::TOGGLE); data) {
 				a_cull ?
-					data->Insert(a_node->name) :
+                    data->Insert(a_node->name) :
                     data->Remove(a_node->name);
 			} else if (a_cull) {
 				std::vector<RE::BSFixedString> vec{ a_node->name };

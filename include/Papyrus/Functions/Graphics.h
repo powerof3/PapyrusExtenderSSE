@@ -4,7 +4,7 @@ namespace Papyrus::Graphics
 {
 	using namespace GRAPHICS;
 
-    inline void ApplyMaterialShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void ApplyMaterialShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		RE::BGSMaterialObject* a_shader,
 		float a_materialThresholdAngle)

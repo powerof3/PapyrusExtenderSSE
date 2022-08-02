@@ -757,7 +757,7 @@ namespace Papyrus::ObjectReference
 		if (xAliases && !xAliases->aliases.empty()) {
 			RE::BSReadLockGuard locker(xAliases->lock);
 
-		    result.reserve(xAliases->aliases.size());
+			result.reserve(xAliases->aliases.size());
 			for (const auto& aliasData : xAliases->aliases) {
 				if (aliasData && aliasData->alias) {
 					result.emplace_back(const_cast<RE::BGSBaseAlias*>(aliasData->alias));

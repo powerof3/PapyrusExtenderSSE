@@ -897,14 +897,14 @@ namespace Papyrus::Actor
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_actor->GetHandle();
-			processLists->GetModelEffects([&](const RE::ModelReferenceEffect& a_modelEffect) {
+			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.target == handle) {
 					if (const auto modelArt = a_modelEffect.artObject; modelArt && modelArt->GetFormID() == SoulTrapHitArtID) {
 						isBeingSoulTrapped = true;
-						return false;
+						return RE::BSContainer::ForEachResult::kStop;
 					}
 				}
-				return true;
+				return RE::BSContainer::ForEachResult::kContinue;
 			});
 		}
 

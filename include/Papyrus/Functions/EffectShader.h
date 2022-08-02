@@ -34,13 +34,13 @@ namespace Papyrus::EffectShader
 		}
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			processLists->GetShaderEffects([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
+			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
 				if (a_shaderEffect.effectData == a_effectShader) {
 					if (!a_active || !a_shaderEffect.finished) {
 						count++;
 					}
 				}
-				return true;
+				return RE::BSContainer::ForEachResult::kContinue;
 			});
 		}
 

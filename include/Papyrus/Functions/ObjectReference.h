@@ -155,61 +155,6 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void ApplyMaterialShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BGSMaterialObject* a_shader,
-		float a_materialThresholdAngle)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return;
-		}
-
-		if (!a_shader) {
-			a_vm->TraceStack("Material Object is None", a_stackID);
-			return;
-		}
-
-		const auto root = a_ref->Get3D();
-		if (!root) {
-			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
-			return;
-		}
-
-		const auto projectedUVParams = RE::NiColorA{
-			a_shader->directionalData.falloffScale,
-			a_shader->directionalData.falloffBias,
-			1.0f / a_shader->directionalData.noiseUVScale,
-			std::cosf(RE::deg_to_rad(a_materialThresholdAngle))
-		};
-
-		root->SetProjectedUVData(
-			projectedUVParams,
-			a_shader->directionalData.singlePassColor,
-			a_shader->directionalData.flags.any(RE::BSMaterialObject::DIRECTIONAL_DATA::Flag::kSnow));
-	}
-
-	//TO_DO
-	/*inline bool AttachModel(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_path,
-		RE::BSFixedString a_nodeName,
-		std::vector<float> a_translate,
-		std::vector<float> a_rotate,
-		float a_scale)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return false;
-		}
-
-		const auto root = a_ref->Get3D();
-		if (!root) {
-			a_vm->TraceForm(a_ref, "has no 3D", a_stackID, Severity::kInfo);
-			return false;
-		}
-	}*/
-
 	inline std::vector<RE::TESObjectREFR*> FindAllReferencesOfFormType(RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_origin,
 		std::uint32_t a_formType,
@@ -660,11 +605,11 @@ namespace Papyrus::ObjectReference
 
 					if (shapeData) {
 						for (const auto& meshMaterial : shapeData->meshMaterials) {
-							result.emplace_back(MATERIAL::get_material(meshMaterial.materialID));
+							result.emplace_back(GRAPHICS::MATERIAL::get_material(meshMaterial.materialID));
 						}
 					}
 				} else if (const auto bhkShape = hkpShape->userData; bhkShape) {
-					result.emplace_back(MATERIAL::get_material(bhkShape->materialID).data());
+					result.emplace_back(GRAPHICS::MATERIAL::get_material(bhkShape->materialID).data());
 				}
 			}
 		};
@@ -811,7 +756,8 @@ namespace Papyrus::ObjectReference
 		const auto xAliases = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>();
 		if (xAliases && !xAliases->aliases.empty()) {
 			RE::BSReadLockGuard locker(xAliases->lock);
-			result.reserve(xAliases->aliases.size());
+
+		    result.reserve(xAliases->aliases.size());
 			for (const auto& aliasData : xAliases->aliases) {
 				if (aliasData && aliasData->alias) {
 					result.emplace_back(const_cast<RE::BGSBaseAlias*>(aliasData->alias));
@@ -1108,33 +1054,6 @@ namespace Papyrus::ObjectReference
 		return form && FORM::KeywordManager::GetSingleton()->Remove(form, a_keyword);
 	}
 
-	inline void PlayDebugShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::vector<float> a_rgba)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return;
-		}
-
-		if (a_rgba.size() != 4) {
-			a_vm->TraceStack("RGBA array is not valid", a_stackID);
-			return;
-		}
-
-		const auto root = a_ref->Get3D();
-		if (!root) {
-			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
-			return;
-		}
-
-		RE::NiColorA color{ a_rgba[0], a_rgba[1], a_rgba[2], a_rgba[3] };
-
-		SKSE::GetTaskInterface()->AddTask([root, color]() {
-			root->TintScenegraph(color);
-		});
-	}
-
 	inline void ReplaceKeywordOnRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		const RE::BGSKeyword* a_remove,
@@ -1178,117 +1097,6 @@ namespace Papyrus::ObjectReference
 			}
 			if (found) {
 				keywordForm->keywords[removeIndex] = a_add;
-			}
-		}
-	}
-
-	inline void ScaleObject3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::string a_nodeName,
-		float a_scale)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return;
-		}
-
-		const auto root = a_ref->Get3D();
-		if (!root) {
-			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
-			return;
-		}
-
-		const auto scale_collision = [&](RE::bhkWorldObject* a_body) {
-			if (!a_body) {
-				return;
-			}
-
-			const auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
-			const auto hkpShape = hkpBody ? hkpBody->GetShape() : nullptr;
-
-			if (hkpShape) {
-				switch (hkpShape->type) {
-				case RE::hkpShapeType::kBox:
-					{
-						const auto boxShape = const_cast<RE::hkpBoxShape*>(static_cast<const RE::hkpBoxShape*>(hkpShape));
-						if (boxShape) {
-							boxShape->halfExtents = boxShape->halfExtents * RE::hkVector4(a_scale);
-						}
-					}
-					break;
-				case RE::hkpShapeType::kSphere:
-					{
-						const auto sphereShape = const_cast<RE::hkpSphereShape*>(static_cast<const RE::hkpSphereShape*>(hkpShape));
-						if (sphereShape) {
-							sphereShape->radius *= a_scale;
-						}
-					}
-					break;
-				case RE::hkpShapeType::kCapsule:
-					{
-						const auto capsuleShape = const_cast<RE::hkpCapsuleShape*>(static_cast<const RE::hkpCapsuleShape*>(hkpShape));
-						if (capsuleShape) {
-							const float radius = capsuleShape->radius * a_scale;
-
-							capsuleShape->radius = radius;
-							capsuleShape->vertexA.quad.m128_f32[3] = radius;
-							capsuleShape->vertexB.quad.m128_f32[3] = radius;
-						}
-					}
-					break;
-				default:
-					break;
-				}
-			}
-		};
-
-		if (!a_nodeName.empty()) {
-			if (const auto object = root->GetObjectByName(a_nodeName); object) {
-				SKSE::GetTaskInterface()->AddTask([object, a_scale]() {
-					object->local.scale *= a_scale;
-
-					RE::NiUpdateData updateData{ 0.0f, RE::NiUpdateData::Flag::kNone };
-					object->Update(updateData);
-				});
-
-				const auto cell = a_ref->GetParentCell();
-				const auto world = cell ? cell->GetbhkWorld() : nullptr;
-
-				if (world) {
-					RE::BSWriteLockGuard locker(world->worldLock);
-
-					if (const auto node = object->AsNode(); node) {
-						RE::BSVisit::TraverseScenegraphCollision(node, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-							scale_collision(a_col->body.get());
-
-							return RE::BSVisit::BSVisitControl::kContinue;
-						});
-					} else {
-						if (const auto col = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get()); col) {
-							scale_collision(col->body.get());
-						}
-					}
-				}
-			}
-		} else {
-			SKSE::GetTaskInterface()->AddTask([root, a_scale]() {
-				root->local.scale *= a_scale;
-
-				RE::NiUpdateData updateData{ 0.0f, RE::NiUpdateData::Flag::kNone };
-				root->Update(updateData);
-			});
-
-			const auto cell = a_ref->GetParentCell();
-			const auto world = cell ? cell->GetbhkWorld() : nullptr;
-
-			if (world) {
-				RE::BSWriteLockGuard locker(world->worldLock);
-
-				RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-					scale_collision(a_col->body.get());
-
-					return RE::BSVisit::BSVisitControl::kContinue;
-				});
 			}
 		}
 	}
@@ -1435,7 +1243,7 @@ namespace Papyrus::ObjectReference
 		auto newID = RE::MATERIAL_ID::kNone;
 		auto oldID = RE::MATERIAL_ID::kNone;
 
-		for (const auto& [id, matString] : MATERIAL::materialMap) {
+		for (const auto& [id, matString] : GRAPHICS::MATERIAL::materialMap) {
 			if (string::icontains(matString, a_newMaterialType)) {
 				newID = id;
 				break;
@@ -1502,98 +1310,6 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void SetShaderType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::TESObjectREFR* a_template,
-		RE::BSFixedString a_filter,
-		std::uint32_t a_shaderType,
-		std::int32_t a_textureType,
-		bool a_noWeapons,
-		bool a_noAlpha)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return;
-		}
-		if (!a_template) {
-			a_vm->TraceStack("Template is None", a_stackID);
-			return;
-		}
-		if (!a_ref->Is3DLoaded()) {
-			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
-			return;
-		}
-		if (!a_template->Is3DLoaded()) {
-			a_vm->TraceForm(a_template, "template object has no 3D", a_stackID);
-			return;
-		}
-
-		using Texture = RE::BSTextureSet::Texture;
-		using Feature = RE::BSShaderMaterial::Feature;
-
-		auto sourcePath{ std::string() };
-		if (!a_filter.empty()) {
-			sourcePath = a_filter.c_str();
-			TEXTURE::sanitize_path(sourcePath);
-		}
-
-		const std::vector<bool> params{ a_noWeapons, a_noAlpha, a_ref->Is(RE::FormType::ActorCharacter) };
-
-		const auto root = a_ref->Get3D()->AsNode();
-		const auto template_root = a_template->Get3D()->AsNode();
-		const auto feature = static_cast<Feature>(a_shaderType);
-
-		if (root && template_root) {
-			SKSE::GetTaskInterface()->AddTask([root, template_root, feature, sourcePath, a_textureType, params]() {
-				if (const auto template_geo = template_root->GetFirstGeometryOfShaderType(feature); template_geo) {
-					std::vector<RE::BSFixedString> result;
-					SET::ShaderType(root, template_geo, sourcePath, a_textureType, result, params);
-
-					if (!result.empty()) {
-						std::string name{ "PO3_SHADER | "sv };
-						name.append(std::to_string(stl::to_underlying(feature)));
-
-						SET::add_data_if_none<RE::NiStringsExtraData>(root, name, result);
-					}
-				}
-			});
-		}
-	}
-
-	inline void SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_bodyparts,
-		RE::Actor* a_actor)
-	{
-		if (!a_bodyparts) {
-			a_vm->TraceStack("BodyParts is None", a_stackID);
-			return;
-		}
-		if (!a_actor) {
-			a_vm->TraceStack("Actor is None", a_stackID);
-			return;
-		}
-
-		const auto root = a_bodyparts->Get3D();
-		if (!root) {
-			a_vm->TraceForm(a_bodyparts, "has no 3D", a_stackID);
-			return;
-		}
-
-		const auto actorbase = a_actor->GetActorBase();
-		const auto rootNode = root->AsFadeNode();
-
-		if (actorbase && rootNode) {
-			const auto actorRoot = a_actor->Get3D(false);
-			const auto data = actorRoot ? actorRoot->GetExtraData<RE::NiIntegerExtraData>(EXTRA::SKIN_TINT) : nullptr;
-
-			RE::NiColor color{ data ? data->value : actorbase->bodyTintColor };
-
-			SKSE::GetTaskInterface()->AddTask([root, color]() {
-				root->UpdateBodyTint(color);
-			});
-		}
-	}
-
 	inline void StopAllShaders(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
@@ -1630,101 +1346,6 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::string a_nodeName,
-		bool a_disable)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return;
-		}
-
-		const auto root = a_ref->Get3D();
-		if (!root) {
-			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
-			return;
-		}
-
-		SKSE::GetTaskInterface()->AddTask([root, a_nodeName, a_disable]() {
-			if (const auto object = root->GetObjectByName(a_nodeName); object) {
-				SET::Toggle(root, object, a_disable);
-			}
-		});
-	}
-
-	inline void UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::BGSArtObject* a_art,
-		RE::BSFixedString a_toNode,
-		std::vector<float> a_translate,
-		std::vector<float> a_rotate,
-		float a_scale)
-	{
-		if (!a_ref) {
-			a_vm->TraceStack("Object reference is None", a_stackID);
-			return;
-		}
-		if (!a_art) {
-			a_vm->TraceStack("Art is None", a_stackID);
-			return;
-		}
-		if (a_translate.size() != 3 || a_rotate.size() != 3) {
-			a_vm->TraceForm(a_ref, "invalid size", a_stackID);
-			return;
-		}
-
-		RE::ModelReferenceEffect* hitEffect = nullptr;
-
-		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachModelEffect([&](RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.target == handle && a_modelEffect.artObject == a_art) {
-					hitEffect = &a_modelEffect;
-					return RE::BSContainer::ForEachResult::kStop;
-				}
-				return RE::BSContainer::ForEachResult::kContinue;
-			});
-		}
-
-		const auto art = hitEffect ? hitEffect->hitEffectArtData.attachedArt : nullptr;
-
-		if (art) {
-			RE::NiMatrix3 rotate{};
-			const RE::NiPoint3 rot{ RE::deg_to_rad(a_rotate[0]), RE::deg_to_rad(a_rotate[1]), RE::deg_to_rad(a_rotate[2]) };
-			rotate.SetEulerAnglesXYZ(rot);
-
-			RE::NiTransform transform;
-			transform.translate = { a_translate[0], a_translate[1], a_translate[2] };
-			transform.rotate = rotate;
-			transform.scale = a_scale;
-
-			SKSE::GetTaskInterface()->AddTask([a_toNode, art, hitEffect, transform]() {
-				if (!a_toNode.empty() && hitEffect->hitEffectArtData.nodeName != a_toNode) {
-					const auto root = hitEffect->hitEffectArtData.current3DRoot;
-					const auto newObj = root ? root->GetObjectByName(a_toNode) : nullptr;
-					const auto newNode = newObj ? newObj->AsNode() : nullptr;
-
-					if (newNode) {
-						if (const auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData && attachTData->value[0]) {
-							std::string newNodeStr{ MAGIC::namedNode };
-							newNodeStr += a_toNode;
-							attachTData->Replace(attachTData->value[0], newNodeStr);
-						}
-						newNode->AttachChild(art.get(), true);
-						hitEffect->hitEffectArtData.nodeName = a_toNode;
-					}
-				}
-
-				for (const auto& nodes : art->children) {
-					if (nodes) {
-						nodes->local = transform;
-					}
-				}
-			});
-		}
-	}
-
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddAllItemsToArray);
@@ -1732,7 +1353,6 @@ namespace Papyrus::ObjectReference
 		BIND(AddItemsOfTypeToArray);
 		BIND(AddItemsOfTypeToList);
 		BIND(AddKeywordToRef);
-		BIND(ApplyMaterialShader);
 		BIND(FindAllReferencesOfFormType);
 		BIND(FindAllReferencesOfType);
 		BIND(FindAllReferencesWithKeyword);
@@ -1764,20 +1384,14 @@ namespace Papyrus::ObjectReference
 		BIND(RemoveAllModItems);
 		BIND(RemoveKeywordFromRef);
 		BIND(ReplaceKeywordOnRef);
-		BIND(PlayDebugShader);
-		BIND(ScaleObject3D);
 		BIND(SetBaseObject);
 		BIND(SetCollisionLayer);
 		BIND(SetDoorDestination);
 		BIND(SetEffectShaderDuration);
 		BIND(SetLinkedRef);
 		BIND(SetMaterialType);
-		BIND(SetShaderType);
-		BIND(SetupBodyPartGeometry);
 		BIND(StopAllShaders);
 		BIND(StopArtObject);
-		BIND(ToggleChildNode);
-		BIND(UpdateHitEffectArtNode);
 
 		logger::info("Registered object reference functions"sv);
 	}

@@ -179,7 +179,7 @@ namespace Papyrus::Form::Functions
 
 		if (const auto file =
 				a_lastModified ?
-					a_form->GetDescriptionOwnerFile() :
+                    a_form->GetDescriptionOwnerFile() :
                     a_form->GetFile(0);
 			file) {
 			return file->GetFilename();

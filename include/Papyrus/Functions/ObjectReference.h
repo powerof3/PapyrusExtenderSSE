@@ -41,7 +41,9 @@ namespace Papyrus::ObjectReference
 			}
 			const auto& [count, entry] = data;
 			if (count > 0 && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				result.push_back(item);
+				for (auto i = 0; i < count; i++) {
+					result.push_back(item);
+				}
 			}
 		}
 
@@ -99,7 +101,9 @@ namespace Papyrus::ObjectReference
 			}
 			const auto& [count, entry] = data;
 			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				result.push_back(item);
+				for (auto i = 0; i < count; i++) {
+					result.push_back(item);
+				}
 			}
 		}
 
@@ -166,9 +170,11 @@ namespace Papyrus::ObjectReference
 			const auto formType = static_cast<RE::FormType>(a_formType);
 
 			TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
-				const auto base = a_ref.GetBaseObject();
-				if (formType == RE::FormType::None || a_ref.Is(formType) || base && base->Is(formType)) {
-					result.push_back(&a_ref);
+				if (a_ref.Is3DLoaded()) {
+					const auto base = a_ref.GetBaseObject();
+					if (formType == RE::FormType::None || a_ref.Is(formType) || base && base->Is(formType)) {
+						result.push_back(&a_ref);
+					}
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
 			});
@@ -193,7 +199,7 @@ namespace Papyrus::ObjectReference
 			const auto list = a_formOrList->As<RE::BGSListForm>();
 
 			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
-				if (const auto base = b_ref.GetBaseObject(); base) {
+				if (const auto base = b_ref.GetBaseObject(); base && b_ref.Is3DLoaded()) {
 					if (list && list->HasForm(base) || a_formOrList == base) {
 						result.push_back(&b_ref);
 					}
@@ -228,14 +234,16 @@ namespace Papyrus::ObjectReference
 			}
 
 			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
-				bool success = false;
-				if (list) {
-					success = b_ref.HasKeywordInList(list, a_matchAll);
-				} else if (keyword) {
-					success = b_ref.HasKeyword(keyword);
-				}
-				if (success) {
-					result.push_back(&b_ref);
+				if (b_ref.Is3DLoaded()) {
+					bool success = false;
+					if (list) {
+						success = b_ref.HasKeywordInList(list, a_matchAll);
+					} else if (keyword) {
+						success = b_ref.HasKeyword(keyword);
+					}
+					if (success) {
+						result.push_back(&b_ref);
+					}
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
 			});
@@ -286,8 +294,7 @@ namespace Papyrus::ObjectReference
 			}
 		}
 
-		const auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingRefIDs>();
-		if (missingIDs && missingIDs->IDs && missingIDs->numIDs > 0) {
+		if (const auto missingIDs = a_ref->extraList.GetByType<RE::ExtraMissingRefIDs>(); missingIDs && missingIDs->IDs && missingIDs->numIDs > 0) {
 			std::span<RE::ActivateParentID> span(missingIDs->IDs, missingIDs->numIDs);
 			for (const auto& ID : span) {
 				const auto form = RE::TESForm::LookupByID(ID.refID);
@@ -753,8 +760,7 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
-		const auto xAliases = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>();
-		if (xAliases && !xAliases->aliases.empty()) {
+		if (const auto xAliases = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>(); xAliases && !xAliases->aliases.empty()) {
 			RE::BSReadLockGuard locker(xAliases->lock);
 
 			result.reserve(xAliases->aliases.size());
@@ -766,6 +772,16 @@ namespace Papyrus::ObjectReference
 		}
 
 		return result;
+	}
+
+	inline std::int32_t GetRefCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return -1;
+		}
+
+		return a_ref->extraList.GetCount();
 	}
 
 	inline std::int32_t GetStoredSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
@@ -894,6 +910,21 @@ namespace Papyrus::ObjectReference
 		}
 
 		return a_ref->HasQuestObject();
+	}
+
+	inline bool IsRefInWater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return false;
+		}
+
+		if (const auto actor = a_ref->As<RE::Actor>(); actor) {
+			const float waterLevel = actor->IsPointDeepUnderWater(actor->GetPositionZ(), actor->GetParentCell());
+			return waterLevel >= 0.01f;
+		}
+
+		return a_ref->IsInWater();
 	}
 
 	inline bool IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
@@ -1372,6 +1403,7 @@ namespace Papyrus::ObjectReference
 		BIND(GetRandomActorFromRef);
 		BIND(GetQuestItems);
 		BIND(GetRefAliases);
+		BIND(GetRefCount);
 		BIND(GetStoredSoulSize);
 		BIND(HasArtObject);
 		BIND(HasEffectShader);
@@ -1379,6 +1411,7 @@ namespace Papyrus::ObjectReference
 		BIND(IsCasting);
 		BIND(IsLoadDoor, true);
 		BIND(IsQuestItem);
+		BIND(IsRefInWater);
 		BIND(IsVIP);
 		BIND(MoveToNearestNavmeshLocation);
 		BIND(RemoveAllModItems);

@@ -170,6 +170,24 @@ namespace Papyrus::Form::Functions
 		return Cache::EditorID::GetSingleton()->GetEditorID(a_form->GetFormID());
 	}
 
+	inline RE::BSFixedString GetFormModName(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, bool a_lastModified)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return RE::BSFixedString();
+		}
+
+		if (const auto file =
+				a_lastModified ?
+					a_form->GetDescriptionOwnerFile() :
+                    a_form->GetFile(0);
+			file) {
+			return file->GetFilename();
+		}
+
+		return RE::BSFixedString();
+	}
+
 	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)
 	{
 		if (!a_form) {
@@ -412,6 +430,7 @@ namespace Papyrus::Form::Functions
 		BIND(GetConditionList);
 		BIND(GetDescription);
 		BIND(GetFormEditorID);
+		BIND(GetFormModName, true);
 		BIND(IsFormInMod, true);
 		BIND(IsGeneratedForm, true);
 		BIND(IsRecordFlagSet);

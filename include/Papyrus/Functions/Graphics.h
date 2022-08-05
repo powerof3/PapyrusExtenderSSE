@@ -936,6 +936,6 @@ namespace Papyrus::Graphics
 		BIND(ToggleHairWigs);
 		BIND(UpdateHitEffectArtNode);
 
-		logger::info("Registered actor functions"sv);
+		logger::info("Registered graphic functions"sv);
 	}
 }

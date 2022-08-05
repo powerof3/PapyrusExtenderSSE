@@ -78,6 +78,33 @@ namespace Papyrus::Actor
 		return result;
 	}
 
+	inline bool ApplyPoisonToEquippedWeapon(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		RE::AlchemyItem* a_poison,
+		std::uint32_t a_count,
+		bool a_leftHand)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+		if (!a_poison) {
+			a_vm->TraceStack("Poison is None", a_stackID);
+			return false;
+		}
+
+		if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand); equippedEntryData) {
+			if (equippedEntryData->IsPoisoned()) {
+				return false;
+			}
+			equippedEntryData->PoisonObject(a_poison, a_count);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	inline void DecapitateActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -197,6 +224,16 @@ namespace Papyrus::Actor
 		return middleProcess ? middleProcess->alphaMult : 1.0f;
 	}
 
+	inline std::int32_t GetActorKnockState(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return -1;
+		}
+
+		return stl::to_underlying(a_actor->GetKnockState());
+	}
+
 	inline float GetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -242,12 +279,12 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
                                     RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
                    0.0f;
 	}
 
@@ -859,6 +896,44 @@ namespace Papyrus::Actor
 		}
 	}
 
+	inline bool SetEquippedWeaponPoison(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		RE::AlchemyItem* a_poison,
+		bool a_leftHand)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+		if (const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
+			xPoison->poison = a_poison;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	inline bool SetEquippedWeaponPoisonCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		std::uint32_t a_count,
+		bool a_leftHand)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+		if (const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
+			xPoison->count = a_count;
+
+			return true;
+		}
+
+		return false;
+	}
+
 	inline void SetLinearVelocity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
 		float a_x,
@@ -889,7 +964,7 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
                 charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
@@ -957,10 +1032,12 @@ namespace Papyrus::Actor
 		BIND(AddBasePerk);
 		BIND(AddBaseSpell);
 		BIND(AddAllEquippedItemsToArray);
+		BIND(ApplyPoisonToEquippedWeapon);
 		BIND(DecapitateActor);
 		BIND(FreezeActor);
 		BIND(GetActiveEffects);
 		BIND(GetActorAlpha);
+		BIND(GetActorKnockState);
 		BIND(GetActorRefraction);
 		BIND(GetActorSoulSize, true);
 		BIND(GetActorState);
@@ -1000,6 +1077,8 @@ namespace Papyrus::Actor
 		BIND(RemoveBasePerk);
 		BIND(RemoveBaseSpell);
 		BIND(SetActorRefraction);
+		BIND(SetEquippedWeaponPoison);
+		BIND(SetEquippedWeaponPoisonCount);
 		BIND(SetLinearVelocity);
 		BIND(SetLocalGravityActor);
 		BIND(SetSoulTrapped);

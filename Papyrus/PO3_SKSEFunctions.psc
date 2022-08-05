@@ -20,6 +20,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	float Function GetActorAlpha(Actor akActor) global native
 	
+	int Function GetActorKnockState(Actor akActor) global native
+	
 	float Function GetActorRefraction(Actor akActor) global native
 	
 	int Function GetActorState(Actor akActor) global native
@@ -92,6 +94,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	;SETTERS
 	;-------
 	
+	bool Function ApplyPoisonToEquippedWeapon(Actor akActor, Potion akPoison, int aiCount, bool abLeftHand) global native
+	
 	Form[] Function AddAllEquippedItemsToArray(Actor akActor) global native
 	
 	bool Function AddBasePerk(Actor akActor, Perk akPerk) global native
@@ -124,6 +128,10 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function ResetActor3D(Actor akActor, String asFolderName) global native
 	
 	Function SetActorRefraction(Actor akActor, float afRefraction) global native
+	
+	bool Function SetEquippedWeaponPoison(Actor akActor, Potion akPoison, bool abLeftHand) global native	
+	
+	bool Function SetEquippedWeaponPoisonCount(Actor akActor, int aiCount, bool abLeftHand) global native	
 	
 	Function SetHairColor(Actor akActor, ColorForm akColor) global native
 	
@@ -349,6 +357,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	String Function GetDescription(Form akForm) global native
 	
 	String Function GetFormEditorID(Form akForm) global native
+	
+	String Function GetFormModName(Form akForm, bool abLastModified) global native
 	
 	bool Function IsFormInMod(Form akForm, String asModName) global native
 	
@@ -629,6 +639,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Form[] Function GetQuestItems(ObjectReference akRef, bool abNoEquipped = false, bool abNoFavorited = false) global native
 	
 	Alias[] Function GetRefAliases(ObjectReference akRef) global native
+	
+	int Function GetRefCount(ObjectReference akRef) global native
 		
 	int Function GetStoredSoulSize(ObjectReference akRef) global native
 	
@@ -643,6 +655,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function IsLoadDoor(ObjectReference akRef) global native
 	
 	bool Function IsQuestItem(ObjectReference akRef) global native
+	
+	bool Function IsRefInWater(ObjectReference akRef) global native
 	
 	bool Function IsVIP(ObjectReference akRef) global native
 	
@@ -821,6 +835,10 @@ Scriptname PO3_SKSEFunctions Hidden
 ;----------------------------------------------------------------------------------------------------------
 	
 	ObjectReference Function GetMenuContainer() global native
+	
+	Function ShowMenu(String asMenuName) global native
+	
+	Function HideMenu(String asMenuName) global native
 	
 ;----------------------------------------------------------------------------------------------------------
 ;UTILITY

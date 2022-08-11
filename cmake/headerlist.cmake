@@ -16,6 +16,7 @@ set(headers ${headers}
 	include/Papyrus/Functions/Book.h
 	include/Papyrus/Functions/Cell.h
 	include/Papyrus/Functions/Debug.h
+	include/Papyrus/Functions/Detection.h
 	include/Papyrus/Functions/EffectShader.h
 	include/Papyrus/Functions/Enchantment.h
 	include/Papyrus/Functions/Faction.h
@@ -23,6 +24,7 @@ set(headers ${headers}
 	include/Papyrus/Functions/Form/Functions.h
 	include/Papyrus/Functions/Furniture.h
 	include/Papyrus/Functions/Game.h
+	include/Papyrus/Functions/Graphics.h
 	include/Papyrus/Functions/Hazard.h
 	include/Papyrus/Functions/Light.h
 	include/Papyrus/Functions/Location.h

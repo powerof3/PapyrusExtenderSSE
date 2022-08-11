@@ -181,8 +181,10 @@ namespace Event
 							} else {
 								bool result = false;
 								list->ForEachForm([&](RE::TESForm& a_form) {
-									result = passes_ref_filter(a_ref, &a_form);
-									return !result;
+									if (result = passes_ref_filter(a_ref, &a_form); result == true) {
+										return RE::BSContainer::ForEachResult::kStop;
+									}
+									return RE::BSContainer::ForEachResult::kContinue;
 								});
 								return result;
 							}

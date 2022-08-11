@@ -11,6 +11,7 @@
 #include "Papyrus/Functions/Book.h"
 #include "Papyrus/Functions/Cell.h"
 #include "Papyrus/Functions/Debug.h"
+#include "Papyrus/Functions/Detection.h"
 #include "Papyrus/Functions/EffectShader.h"
 #include "Papyrus/Functions/Enchantment.h"
 #include "Papyrus/Functions/Faction.h"
@@ -18,6 +19,7 @@
 #include "Papyrus/Functions/Form/Functions.h"
 #include "Papyrus/Functions/Furniture.h"
 #include "Papyrus/Functions/Game.h"
+#include "Papyrus/Functions/Graphics.h"
 #include "Papyrus/Functions/Hazard.h"
 #include "Papyrus/Functions/Light.h"
 #include "Papyrus/Functions/Location.h"
@@ -64,6 +66,7 @@ namespace Papyrus
 		Book::Bind(*a_vm);
 		Cell::Bind(*a_vm);
 		Debug::Bind(*a_vm);
+		Detection::Bind(*a_vm);
 		EffectShader::Bind(*a_vm);
 		Enchantment::Bind(*a_vm);
 
@@ -73,6 +76,7 @@ namespace Papyrus
 		Faction::Bind(*a_vm);
 		Furniture::Bind(*a_vm);
 		Game::Bind(*a_vm);
+		Graphics::Bind(*a_vm);
 		Hazard::Bind(*a_vm);
 		Light::Bind(*a_vm);
 		Location::Bind(*a_vm);

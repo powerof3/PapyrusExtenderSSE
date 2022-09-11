@@ -467,6 +467,118 @@ namespace Event::Combat
 
 namespace Event
 {
+	namespace FastTravel
+	{
+		template <class T>
+		RE::TESObjectREFR* GetMapMarkerfromObject(RE::TESObjectREFR* a_refr)
+		{
+			const auto marker = a_refr->extraList.GetByType<RE::ExtraMapMarker>();
+			if (marker && marker->mapData) {
+				logger::debug("Found candidate map marker {} {}", marker->mapData->locationName.GetFullName(), marker->mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo));
+				logger::info("Found mapmarker match for {} target {} {} ({:x})", typeid(T).name(), marker->mapData->locationName.GetFullName(), marker->mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo), a_refr->GetFormID());
+				return a_refr;
+			}
+			return nullptr;
+		}
+		RE::TESObjectREFR* GetMapMarkerObject(RE::TESObjectREFR* a_refr)
+		{
+			return GetMapMarkerfromObject<RE::TESObjectREFR>(a_refr);
+		}
+
+		RE::TESObjectREFR* GetMapMarkerObject(const RE::FormID a_formID)
+		{
+			RE::TESObjectREFR* refr = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_formID);
+
+			return GetMapMarkerfromObject<RE::FormID>(refr);
+		}
+
+		RE::TESObjectREFR* GetMapMarkerObject(const char* a_name)
+		{
+			const auto player = RE::PlayerCharacter::GetSingleton();
+			const auto& mapMarkers = player->currentMapMarkers;
+			for (auto mapMarker : mapMarkers) {
+				const auto refr = mapMarker.get().get();
+				const auto marker = refr->extraList.GetByType<RE::ExtraMapMarker>();
+				if (marker && marker->mapData && strcmp(marker->mapData->locationName.GetFullName(), a_name) == 0) {
+					return GetMapMarkerfromObject<char*>(refr);
+				}
+			}
+			return nullptr;
+		}
+
+		struct ChangeFastTravelTarget
+		{
+			static bool thunk(RE::FastTravelConfirmCallback* a_this, bool a_arg1)
+			{
+				auto result = func(a_this, a_arg1);
+				if (result) {
+					if (a_this && a_this->mapMenu && newDestination) {
+						a_this->mapMenu->mapMarker.reset();
+						a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
+						logger::info("Changed Fast Travel target to {}", newDestination->GetDisplayFullName());
+						newDestination = nullptr;
+					}
+				}
+				return result;
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+			static inline RE::TESObjectREFR* newDestination = nullptr;
+		};
+
+		struct GetFastTravelTarget
+		{
+			static void thunk(RE::BSString* a_buffer, char* a_template, char* a_target, std::uint32_t a_4)
+			{
+				if (a_target) {
+					const auto refr = GetMapMarkerObject(a_target);
+					const auto formID = refr ? refr->GetFormID() : 0;
+					logger::info("Found Fast Travel target to {} {:x}", a_target, formID);
+					GameEventHolder::GetSingleton()->fastTravelPrompt.QueueEvent(a_target, GetMapMarkerObject(a_target));
+					Event::FastTravel::ChangeFastTravelTarget::newDestination = nullptr;
+				}
+				func(a_buffer, a_template, a_target, a_4);
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		bool SetFastTravelTarget(RE::TESObjectREFR* a_refr)
+		{
+			ChangeFastTravelTarget::newDestination = a_refr;
+			if (ChangeFastTravelTarget::newDestination) {
+				const auto mapmarker = ChangeFastTravelTarget::newDestination->extraList.GetByType<RE::ExtraMapMarker>();
+				if (mapmarker) {
+					const auto name = mapmarker->mapData->locationName.GetFullName();
+					logger::info("Set new Fast Travel target {}", name);
+				}
+			}
+			else
+				logger::info("Cleared Fast Travel target");
+			return (ChangeFastTravelTarget::newDestination != nullptr);
+		};
+
+		bool SetFastTravelTarget(const char* a_name)
+		{
+			return SetFastTravelTarget(GetMapMarkerObject(a_name));
+		};
+
+		bool SetFastTravelTarget(const RE::FormID a_formID)
+		{
+			return SetFastTravelTarget(GetMapMarkerObject(a_formID));
+		};
+
+		inline void Install()
+		{
+			REL::Relocation<std::uintptr_t> FastTravelConfirmCallback_run{ RE::FastTravelConfirmCallback::VTABLE[0] };
+			stl::write_vfunc<RE::FastTravelConfirmCallback, 0x1, ChangeFastTravelTarget>();
+
+			REL::Relocation<std::uintptr_t> map_click{ REL_ID(52208, 53127), OFFSET_3(0x342, 0x342, 3d9) };  // BSString::unknown has potential target as string as param 3
+			stl::write_thunk_call<GetFastTravelTarget>(map_click.address());
+
+			logger::info("Hooked Fast Travel"sv);
+		}
+
+	}
+
 	void RegisterHookEvents()
 	{
 		logger::info("{:*^30}", "HOOKED EVENTS"sv);
@@ -481,5 +593,7 @@ namespace Event
 		Combat::MagicEffectApply::Install();
 		Combat::Hit::Magic::Install();
 		Combat::Hit::Weapon::Install();
+
+		FastTravel::Install();
 	}
 }

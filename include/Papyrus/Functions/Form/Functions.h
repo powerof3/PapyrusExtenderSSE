@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Game/Cache.h"
+#include "Game/HookedEventHandler.h"
 #include "Serialization/Services.h"
 
 namespace Papyrus::Form::Functions
@@ -377,6 +378,38 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
+	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		const RE::FormID a_formID)
+	{
+		if (!a_formID) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return false;
+		}
+		return Event::FastTravel::SetFastTravelTarget(a_formID);
+	}
+
+	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESObjectREFR* a_ref
+	)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return false;
+		}
+		return Event::FastTravel::SetFastTravelTarget(a_ref);
+	}
+
+	inline bool SetFastTravelTargetString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::BSFixedString a_name)
+	{
+		if (a_name.empty()) {
+			a_vm->TraceStack("Name is empty", a_stackID);
+			return false;
+		}
+		return Event::FastTravel::SetFastTravelTarget(a_name.c_str());
+	}
+
+
 	inline void SetRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESForm* a_form,
 		std::uint32_t a_flag)
@@ -438,6 +471,9 @@ namespace Papyrus::Form::Functions
 		BIND(MarkItemAsFavorite);
 		BIND(RemoveKeywordOnForm);
 		BIND(ReplaceKeywordOnForm);
+		BIND(SetFastTravelTargetFormID);
+		BIND(SetFastTravelTargetRef);
+		BIND(SetFastTravelTargetString);
 		BIND(SetRecordFlag);
 		BIND(UnmarkItemAsFavorite);
 

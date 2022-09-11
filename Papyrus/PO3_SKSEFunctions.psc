@@ -340,6 +340,14 @@ Scriptname PO3_SKSEFunctions Hidden
 		
 	ObjectReference Function GetVendorFactionContainer(Faction akVendorFaction)  global native	
 	
+;----------------------------------------------------------------------------------------------------------
+;FASTTRAVEL
+;----------------------------------------------------------------------------------------------------------
+
+	bool Function SetFastTravelTargetFormID(int aiDestinationFormID) global native
+	bool Function SetFastTravelTargetRef(ObjectReference akDestination) global native
+	bool Function SetFastTravelTargetString(String asDestinationName) global native
+
 ;----------------------------------------------------------------------------------------------------------	
 ;FORM
 ;----------------------------------------------------------------------------------------------------------

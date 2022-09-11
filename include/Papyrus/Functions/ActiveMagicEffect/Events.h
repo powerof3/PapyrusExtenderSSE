@@ -114,6 +114,17 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
+	inline void RegisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelPrompt;
+		regs.Register(a_activeEffect);
+	}
+
 	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -456,6 +467,17 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
+	inline void UnregisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelPrompt;
+		regs.Unregister(a_activeEffect);
+	}
+
 	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::ActiveEffect* a_activeEffect,
 		RE::TESForm* a_aggressorFilter,
@@ -766,6 +788,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForFastTravelPrompt, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -795,6 +818,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForFastTravelPrompt, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

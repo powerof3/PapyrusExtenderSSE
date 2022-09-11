@@ -81,6 +81,14 @@ Scriptname PO3_Events_AME  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;FAST TRAVEL PROMPT
+
+	Function RegisterForFastTravelPrompt(Alias akAlias) global native
+	Function UnregisterForFastTravelPrompt(Alias akAlias) global native
+
+	Event OnFastTravelPrompt(String asMarkerName, ObjectReference asMarkerReference)
+	EndEvent
+
 ;ON HIT EX
 
 	Function RegisterForHitEventEx(ActiveMagicEffect akActiveEffect, Form akAggressorFilter = None, Form akSourceFilter = None, Form akProjectileFilter = None, \

@@ -132,6 +132,17 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
+	inline void RegisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelPrompt;
+		regs.Register(a_alias);
+	}
+
 	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -492,6 +503,17 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
+	inline void UnregisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelPrompt;
+		regs.Unregister(a_alias);
+	}
+
 	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -801,6 +823,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForFastTravelPrompt, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -830,6 +853,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForFastTravelPrompt, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

@@ -84,6 +84,14 @@ Scriptname PO3_Events_Form  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;FAST TRAVEL PROMPT
+
+	Function RegisterForFastTravelPrompt(Alias akAlias) global native
+	Function UnregisterForFastTravelPrompt(Alias akAlias) global native
+
+	Event OnFastTravelPrompt(String asMarkerName, ObjectReference asMarkerReference)
+	EndEvent
+
 ;ON HIT EX
 ;calling script must extend ObjectReference
 

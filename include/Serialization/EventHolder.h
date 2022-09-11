@@ -290,6 +290,7 @@ namespace Event
 			kActorReanimateStart = 'RSTA',
 			kActorReanimateStop = 'REND',
 			kBookRead = 'BOOK',
+			kFastTravelPrompt = 'FTPT',
 			kItemCrafted = 'ITEM',
 			kWeatherChange = 'WEAT',
 			kMagicEffectApply = 'MGEF',
@@ -304,6 +305,8 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
 		SKSE::RegistrationSet<const RE::TESObjectBOOK*> booksRead{ "OnBookRead"sv };
+		SKSE::RegistrationSet<RE::BSFixedString, const RE::TESObjectREFR*> fastTravelPrompt{ "OnFastTravelPrompt"sv };
+
 		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
 
 		SKSE::RegistrationMapUnique<Filter::MagicEffectApply, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool> magicApply{ "OnMagicEffectApplyEx"sv };

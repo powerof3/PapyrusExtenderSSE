@@ -389,8 +389,7 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref
-	)
+		RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -408,7 +407,6 @@ namespace Papyrus::Form::Functions
 		}
 		return Event::FastTravel::SetFastTravelTarget(a_name.c_str());
 	}
-
 
 	inline void SetRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESForm* a_form,

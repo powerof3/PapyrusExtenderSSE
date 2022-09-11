@@ -550,8 +550,7 @@ namespace Event
 					const auto name = mapmarker->mapData->locationName.GetFullName();
 					logger::info("Set new Fast Travel target {}", name);
 				}
-			}
-			else
+			} else
 				logger::info("Cleared Fast Travel target");
 			return (ChangeFastTravelTarget::newDestination != nullptr);
 		};

@@ -83,8 +83,8 @@ Scriptname PO3_Events_AME  Hidden
 	
 ;FAST TRAVEL PROMPT
 
-	Function RegisterForFastTravelPrompt(Alias akAlias) global native
-	Function UnregisterForFastTravelPrompt(Alias akAlias) global native
+	Function RegisterForFastTravelPrompt(ActiveMagicEffect akActiveEffect) global native
+	Function UnregisterForFastTravelPrompt(ActiveMagicEffect akActiveEffect) global native
 
 	Event OnFastTravelPrompt(String asMarkerName, ObjectReference asMarkerReference)
 	EndEvent

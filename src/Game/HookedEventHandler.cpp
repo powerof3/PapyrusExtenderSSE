@@ -510,16 +510,14 @@ namespace Event
 		{
 			static bool thunk(RE::FastTravelConfirmCallback* a_this, bool a_arg1)
 			{
-				auto result = func(a_this, a_arg1);
-				if (result) {
-					if (a_this && a_this->mapMenu && newDestination) {
-						a_this->mapMenu->mapMarker.reset();
-						a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
-						logger::info("Changed Fast Travel target to {}", newDestination->GetDisplayFullName());
-						newDestination = nullptr;
-					}
+				if (a_this && a_this->mapMenu && newDestination) {
+					a_this->mapMenu->mapMarker.reset();
+					a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
+					const auto name = a_this->mapMenu->mapMarker.get().get()->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName();
+					const auto formID = a_this->mapMenu->mapMarker.get().get()->GetFormID();
+					logger::info("Changed Fast Travel target to {} ({:x})", name, formID);
 				}
-				return result;
+				return func(a_this, a_arg1);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 			static inline RE::TESObjectREFR* newDestination = nullptr;

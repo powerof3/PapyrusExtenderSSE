@@ -89,7 +89,7 @@ Scriptname PO3_Events_Form  Hidden
 	Function RegisterForFastTravelPrompt(Form akForm) global native
 	Function UnregisterForFastTravelPrompt(Form akForm) global native
 
-	Event OnFastTravelPrompt(String asMarkerName, ObjectReference asMarkerReference)
+	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
 	EndEvent
 
 ;ON HIT EX

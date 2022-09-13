@@ -87,7 +87,7 @@ Scriptname PO3_Events_Alias  Hidden
 	Function RegisterForFastTravelPrompt(Alias akAlias) global native
 	Function UnregisterForFastTravelPrompt(Alias akAlias) global native
 
-	Event OnFastTravelPrompt(String asMarkerName, ObjectReference asMarkerReference)
+	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
 	EndEvent
 
 ;ON HIT EX

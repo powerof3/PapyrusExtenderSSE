@@ -305,7 +305,7 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
 		SKSE::RegistrationSet<const RE::TESObjectBOOK*> booksRead{ "OnBookRead"sv };
-		SKSE::RegistrationSet<RE::BSFixedString, const RE::TESObjectREFR*> fastTravelPrompt{ "OnFastTravelPrompt"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*> fastTravelPrompt{ "OnFastTravelPrompt"sv };
 
 		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
 

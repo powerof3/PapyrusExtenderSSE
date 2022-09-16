@@ -568,7 +568,7 @@ namespace Event
 			REL::Relocation<std::uintptr_t> FastTravelConfirmCallback_run{ RE::FastTravelConfirmCallback::VTABLE[0] };
 			stl::write_vfunc<RE::FastTravelConfirmCallback, 0x1, ChangeFastTravelTarget>();
 
-			REL::Relocation<std::uintptr_t> map_click{ REL_ID(52208, 53127), OFFSET_3(0x342, 0x342, 0x3d9) };  // BSString::unknown has potential target as string as param 3
+			REL::Relocation<std::uintptr_t> map_click{ REL_ID(52208, 53095), OFFSET_3(0x342, 0x3a6, 0x3d9) };  // BSString::unknown has potential target as string as param 3
 			stl::write_thunk_call<GetFastTravelTarget>(map_click.address());
 
 			logger::info("Hooked Fast Travel"sv);

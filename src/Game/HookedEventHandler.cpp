@@ -563,6 +563,37 @@ namespace Event
 			return SetFastTravelTarget(GetMapMarkerObject(a_formID));
 		};
 
+#ifdef SKYRIMVR
+		struct FastTravelEndEvent
+		{
+			static void thunk(RE::AIProcess* a_1)
+			{
+				func(a_1);
+				GameEventHolder::GetSingleton()->fastTravelEnd.QueueEvent(afTravelGameTimeHours);
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+			static inline float afTravelGameTimeHours = 0;
+		};
+
+		struct Calendar__FUN_1405a6230  // use this hook to calculate afTravelGameTimeHours
+		{
+			static void thunk(RE::Calendar* a_calendar, float a_2, void* a_3, void* a_4, void* a_5, void* a_6)
+			{
+				/*SSE function for calculating afTravelGameTimeHours occurs around this call
+				Calendar__FUN_1405a6230(g_Calendar,gameDaysPassedPreTravel,(longlong)plVar18,uVar22,uVar23,pPVar27);
+				gameDaysPassedPostTravel = Calendar::GetGameDaysPassed(g_Calendar); // 35408 , 0x1405adbb0 VR
+				afTravelGameTimeHours = (gameDaysPassedPostTravel - gameDaysPassedPreTravel)* 24.0 ;
+				*/
+				const auto GameDaysPassedPreTravel = a_calendar->gameDaysPassed->value;
+				func(a_calendar, a_2, a_3, a_4, a_5, a_6); // travel function will modify calendar
+				const auto gameDaysPassedPostTravel = a_calendar->gameDaysPassed;
+				const auto result = gameDaysPassedPostTravel ? (gameDaysPassedPostTravel->value - GameDaysPassedPreTravel) * 24.0f: 0.0f;
+				FastTravelEndEvent::afTravelGameTimeHours = result;
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+#endif
 		inline void Install()
 		{
 			REL::Relocation<std::uintptr_t> FastTravelConfirmCallback_run{ RE::FastTravelConfirmCallback::VTABLE[0] };
@@ -570,8 +601,18 @@ namespace Event
 
 			REL::Relocation<std::uintptr_t> map_click{ REL_ID(52208, 53095), OFFSET_3(0x342, 0x3a6, 0x3d9) };  // BSString::unknown has potential target as string as param 3
 			stl::write_thunk_call<GetFastTravelTarget>(map_click.address());
+			logger::info("Hooked Fast Travel Start"sv);
 
-			logger::info("Hooked Fast Travel"sv);
+#ifdef SKYRIMVR  // replicate Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
+
+			REL::Relocation<std::uintptr_t> FastTravelEnd_event{ REL::ID(39373), 0xa22 };  //last function call before SSE call FUN_140663690(ActorProcess *param_1). Should trigger right on exit
+			stl::write_thunk_call<FastTravelEndEvent>(FastTravelEnd_event.address());
+
+			REL::Relocation<std::uintptr_t> calculateTravelTime{ REL::ID(39373), 0x29f };  // hook Calendar__FUN_1405a6230 to calculate travel time. SSE calculates around this function
+			stl::write_thunk_call<Calendar__FUN_1405a6230>(calculateTravelTime.address());
+
+			logger::info("Hooked Fast Travel End for VR"sv);
+#endif
 		}
 
 	}

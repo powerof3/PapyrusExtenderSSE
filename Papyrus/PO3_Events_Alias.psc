@@ -82,6 +82,14 @@ Scriptname PO3_Events_Alias  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;FAST TRAVEL END (only needed for VR but safe for SSE/AE)
+
+	Function RegisterForOnPlayerFastTravelEnd(Alias akAlias) global native
+	Function UnregisterForOnPlayerFastTravelEnd(Alias akAlias) global native
+
+	Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
+	EndEvent
+
 ;FAST TRAVEL PROMPT
 
 	Function RegisterForFastTravelPrompt(Alias akAlias) global native

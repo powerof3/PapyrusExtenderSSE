@@ -123,7 +123,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 #ifdef SKYRIMVR
 		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelEnd;
 		regs.Register(a_activeEffect);
-#else // dummy function to avoid papyrus error Unbound native function
+#else  // dummy function to avoid papyrus error Unbound native function
 #endif
 	}
 

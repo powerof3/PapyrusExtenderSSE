@@ -585,9 +585,9 @@ namespace Event
 				afTravelGameTimeHours = (gameDaysPassedPostTravel - gameDaysPassedPreTravel)* 24.0 ;
 				*/
 				const auto GameDaysPassedPreTravel = a_calendar->gameDaysPassed->value;
-				func(a_calendar, a_2, a_3, a_4, a_5, a_6); // travel function will modify calendar
+				func(a_calendar, a_2, a_3, a_4, a_5, a_6);  // travel function will modify calendar
 				const auto gameDaysPassedPostTravel = a_calendar->gameDaysPassed;
-				const auto result = gameDaysPassedPostTravel ? (gameDaysPassedPostTravel->value - GameDaysPassedPreTravel) * 24.0f: 0.0f;
+				const auto result = gameDaysPassedPostTravel ? (gameDaysPassedPostTravel->value - GameDaysPassedPreTravel) * 24.0f : 0.0f;
 				FastTravelEndEvent::afTravelGameTimeHours = result;
 			}
 			static inline REL::Relocation<decltype(thunk)> func;

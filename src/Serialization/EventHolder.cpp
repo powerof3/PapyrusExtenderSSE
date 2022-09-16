@@ -260,7 +260,7 @@ namespace Event
 			fastTravelPrompt.Load(a_intfc);
 			break;
 #ifdef SKYRIMVR
-		case kFastTravelEnd :
+		case kFastTravelEnd:
 			fastTravelEnd.Load(a_intfc);
 			break;
 #endif

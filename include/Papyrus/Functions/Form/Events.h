@@ -114,6 +114,30 @@ namespace Papyrus::Form::Events
 		regs.Register(a_form);
 	}
 
+	inline void RegisterForOnPlayerFastTravelEnd(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+#ifdef SKYRIMVR
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelEnd;
+		regs.Register(a_form);
+#else  // dummy function to avoid papyrus error Unbound native function
+#endif
+	}
+
+	inline void RegisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelPrompt;
+		regs.Register(a_form);
+	}
+
 	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -456,6 +480,30 @@ namespace Papyrus::Form::Events
 		regs.Unregister(a_form);
 	}
 
+	inline void UnregisterForOnPlayerFastTravelEnd(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+#ifdef SKYRIMVR
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelEnd;
+		regs.Unregister(a_form);
+#else  // dummy function to avoid papyrus error Unbound native function
+#endif
+	}
+
+	inline void UnregisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelPrompt;
+		regs.Unregister(a_form);
+	}
+
 	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESForm* a_form,
 		RE::TESForm* a_aggressorFilter,
@@ -766,6 +814,8 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(RegisterForCriticalHit, true);
 		BIND_EVENT(RegisterForDisarmed, true);
 		BIND_EVENT(RegisterForDragonSoulGained, true);
+		BIND_EVENT(RegisterForOnPlayerFastTravelEnd, true);
+		BIND_EVENT(RegisterForFastTravelPrompt, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -795,6 +845,8 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(UnregisterForCriticalHit, true);
 		BIND_EVENT(UnregisterForDisarmed, true);
 		BIND_EVENT(UnregisterForDragonSoulGained, true);
+		BIND_EVENT(UnregisterForOnPlayerFastTravelEnd, true);
+		BIND_EVENT(UnregisterForFastTravelPrompt, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

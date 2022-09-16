@@ -225,6 +225,10 @@ namespace Event
 		actorReanimateStop.Save(a_intfc, kActorReanimateStop, a_version);
 		actorResurrect.Save(a_intfc, kActorResurrect, a_version);
 		booksRead.Save(a_intfc, kBookRead, a_version);
+		fastTravelPrompt.Save(a_intfc, kFastTravelPrompt, a_version);
+#ifdef SKYRIMVR
+		fastTravelEnd.Save(a_intfc, kFastTravelEnd, a_version);
+#endif
 		itemCrafted.Save(a_intfc, kItemCrafted, a_version);
 		magicApply.Save(a_intfc, kMagicEffectApply, a_version);
 		magicHit.Save(a_intfc, kMagicHit, a_version);
@@ -252,6 +256,14 @@ namespace Event
 		case kBookRead:
 			booksRead.Load(a_intfc);
 			break;
+		case kFastTravelPrompt:
+			fastTravelPrompt.Load(a_intfc);
+			break;
+#ifdef SKYRIMVR
+		case kFastTravelEnd:
+			fastTravelEnd.Load(a_intfc);
+			break;
+#endif
 		case kItemCrafted:
 			itemCrafted.Load(a_intfc);
 			break;
@@ -285,6 +297,10 @@ namespace Event
 		actorReanimateStop.Revert(a_intfc);
 		actorResurrect.Revert(a_intfc);
 		booksRead.Revert(a_intfc);
+		fastTravelPrompt.Revert(a_intfc);
+#ifdef SKYRIMVR
+		fastTravelEnd.Revert(a_intfc);
+#endif
 		itemCrafted.Revert(a_intfc);
 		magicApply.Revert(a_intfc);
 		magicHit.Revert(a_intfc);
@@ -301,6 +317,10 @@ namespace Event
 		actorReanimateStop.Unregister(a_handle);
 		actorResurrect.Unregister(a_handle);
 		booksRead.Unregister(a_handle);
+		fastTravelPrompt.Unregister(a_handle);
+#ifdef SKYRIMVR
+		fastTravelEnd.Unregister(a_handle);
+#endif
 		itemCrafted.Unregister(a_handle);
 		magicApply.UnregisterAll(a_handle);
 		magicHit.Unregister(a_handle);
@@ -316,6 +336,10 @@ namespace Event
 		actorReanimateStart.Unregister(a_uniqueID);
 		actorReanimateStop.Unregister(a_uniqueID);
 		actorResurrect.Unregister(a_uniqueID);
+		fastTravelPrompt.Unregister(a_uniqueID);
+#ifdef SKYRIMVR
+		fastTravelEnd.Unregister(a_uniqueID);
+#endif
 		magicApply.UnregisterAll(a_uniqueID);
 		magicHit.Unregister(a_uniqueID);
 		onHit.UnregisterAll(a_uniqueID);

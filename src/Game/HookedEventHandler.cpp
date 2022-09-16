@@ -467,6 +467,156 @@ namespace Event::Combat
 
 namespace Event
 {
+	namespace FastTravel
+	{
+		template <class T>
+		RE::TESObjectREFR* GetMapMarkerfromObject(RE::TESObjectREFR* a_refr)
+		{
+			const auto marker = a_refr->extraList.GetByType<RE::ExtraMapMarker>();
+			if (marker && marker->mapData) {
+				logger::debug("Found candidate map marker {} {}", marker->mapData->locationName.GetFullName(), marker->mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo));
+				logger::info("Found mapmarker match for {} target {} {} ({:x})", typeid(T).name(), marker->mapData->locationName.GetFullName(), marker->mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo), a_refr->GetFormID());
+				return a_refr;
+			}
+			return nullptr;
+		}
+		RE::TESObjectREFR* GetMapMarkerObject(RE::TESObjectREFR* a_refr)
+		{
+			return GetMapMarkerfromObject<RE::TESObjectREFR>(a_refr);
+		}
+
+		RE::TESObjectREFR* GetMapMarkerObject(const RE::FormID a_formID)
+		{
+			RE::TESObjectREFR* refr = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_formID);
+
+			return GetMapMarkerfromObject<RE::FormID>(refr);
+		}
+
+		RE::TESObjectREFR* GetMapMarkerObject(const char* a_name)
+		{
+			const auto player = RE::PlayerCharacter::GetSingleton();
+			const auto& mapMarkers = player->currentMapMarkers;
+			for (auto mapMarker : mapMarkers) {
+				const auto refr = mapMarker.get().get();
+				const auto marker = refr->extraList.GetByType<RE::ExtraMapMarker>();
+				if (marker && marker->mapData && strcmp(marker->mapData->locationName.GetFullName(), a_name) == 0) {
+					return GetMapMarkerfromObject<char*>(refr);
+				}
+			}
+			return nullptr;
+		}
+
+		struct ChangeFastTravelTarget
+		{
+			static bool thunk(RE::FastTravelConfirmCallback* a_this, bool a_arg1)
+			{
+				if (a_this && a_this->mapMenu && newDestination) {
+					a_this->mapMenu->mapMarker.reset();
+					a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
+					const auto name = a_this->mapMenu->mapMarker.get().get()->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName();
+					const auto formID = a_this->mapMenu->mapMarker.get().get()->GetFormID();
+					logger::info("Changed Fast Travel target to {} ({:x})", name, formID);
+				}
+				return func(a_this, a_arg1);
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+			static inline RE::TESObjectREFR* newDestination = nullptr;
+		};
+
+		struct GetFastTravelTarget
+		{
+			static void thunk(RE::BSString* a_buffer, char* a_template, char* a_target, std::uint32_t a_4)
+			{
+				if (a_target) {
+					const auto refr = GetMapMarkerObject(a_target);
+					const auto formID = refr ? refr->GetFormID() : 0;
+					logger::info("Found Fast Travel target to {} {:x}", a_target, formID);
+					Event::FastTravel::ChangeFastTravelTarget::newDestination = nullptr;
+					GameEventHolder::GetSingleton()->fastTravelPrompt.QueueEvent(GetMapMarkerObject(a_target));
+				}
+				func(a_buffer, a_template, a_target, a_4);
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		bool SetFastTravelTarget(RE::TESObjectREFR* a_refr)
+		{
+			ChangeFastTravelTarget::newDestination = a_refr;
+			if (ChangeFastTravelTarget::newDestination) {
+				const auto mapmarker = ChangeFastTravelTarget::newDestination->extraList.GetByType<RE::ExtraMapMarker>();
+				if (mapmarker) {
+					const auto name = mapmarker->mapData->locationName.GetFullName();
+					logger::info("Set new Fast Travel target {}", name);
+				}
+			} else
+				logger::info("Cleared Fast Travel target");
+			return (ChangeFastTravelTarget::newDestination != nullptr);
+		};
+
+		bool SetFastTravelTarget(const char* a_name)
+		{
+			return SetFastTravelTarget(GetMapMarkerObject(a_name));
+		};
+
+		bool SetFastTravelTarget(const RE::FormID a_formID)
+		{
+			return SetFastTravelTarget(GetMapMarkerObject(a_formID));
+		};
+
+#ifdef SKYRIMVR
+		struct FastTravelEndEvent
+		{
+			static void thunk(RE::AIProcess* a_1)
+			{
+				func(a_1);
+				GameEventHolder::GetSingleton()->fastTravelEnd.QueueEvent(afTravelGameTimeHours);
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+			static inline float afTravelGameTimeHours = 0;
+		};
+
+		struct Calendar__FUN_1405a6230  // use this hook to calculate afTravelGameTimeHours
+		{
+			static void thunk(RE::Calendar* a_calendar, float a_2, void* a_3, void* a_4, void* a_5, void* a_6)
+			{
+				/*SSE function for calculating afTravelGameTimeHours occurs around this call
+				Calendar__FUN_1405a6230(g_Calendar,gameDaysPassedPreTravel,(longlong)plVar18,uVar22,uVar23,pPVar27);
+				gameDaysPassedPostTravel = Calendar::GetGameDaysPassed(g_Calendar); // 35408 , 0x1405adbb0 VR
+				afTravelGameTimeHours = (gameDaysPassedPostTravel - gameDaysPassedPreTravel)* 24.0 ;
+				*/
+				const auto GameDaysPassedPreTravel = a_calendar->gameDaysPassed->value;
+				func(a_calendar, a_2, a_3, a_4, a_5, a_6);  // travel function will modify calendar
+				const auto gameDaysPassedPostTravel = a_calendar->gameDaysPassed;
+				const auto result = gameDaysPassedPostTravel ? (gameDaysPassedPostTravel->value - GameDaysPassedPreTravel) * 24.0f : 0.0f;
+				FastTravelEndEvent::afTravelGameTimeHours = result;
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+#endif
+		inline void Install()
+		{
+			REL::Relocation<std::uintptr_t> FastTravelConfirmCallback_run{ RE::FastTravelConfirmCallback::VTABLE[0] };
+			stl::write_vfunc<RE::FastTravelConfirmCallback, 0x1, ChangeFastTravelTarget>();
+
+			REL::Relocation<std::uintptr_t> map_click{ REL_ID(52208, 53095), OFFSET_3(0x342, 0x3a6, 0x3d9) };  // BSString::unknown has potential target as string as param 3
+			stl::write_thunk_call<GetFastTravelTarget>(map_click.address());
+			logger::info("Hooked Fast Travel Start"sv);
+
+#ifdef SKYRIMVR  // replicate Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
+
+			REL::Relocation<std::uintptr_t> FastTravelEnd_event{ REL::ID(39373), 0xa22 };  //last function call before SSE call FUN_140663690(ActorProcess *param_1). Should trigger right on exit
+			stl::write_thunk_call<FastTravelEndEvent>(FastTravelEnd_event.address());
+
+			REL::Relocation<std::uintptr_t> calculateTravelTime{ REL::ID(39373), 0x29f };  // hook Calendar__FUN_1405a6230 to calculate travel time. SSE calculates around this function
+			stl::write_thunk_call<Calendar__FUN_1405a6230>(calculateTravelTime.address());
+
+			logger::info("Hooked Fast Travel End for VR"sv);
+#endif
+		}
+
+	}
+
 	void RegisterHookEvents()
 	{
 		logger::info("{:*^30}", "HOOKED EVENTS"sv);
@@ -481,5 +631,7 @@ namespace Event
 		Combat::MagicEffectApply::Install();
 		Combat::Hit::Magic::Install();
 		Combat::Hit::Weapon::Install();
+
+		FastTravel::Install();
 	}
 }

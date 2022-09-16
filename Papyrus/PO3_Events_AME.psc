@@ -81,6 +81,22 @@ Scriptname PO3_Events_AME  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;FAST TRAVEL END (only needed for VR but safe for SSE/AE)
+
+	Function RegisterForOnPlayerFastTravelEnd(ActiveMagicEffect akActiveEffect) global native
+	Function UnregisterForOnPlayerFastTravelEnd(ActiveMagicEffect akActiveEffect) global native
+
+	Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
+	EndEvent
+
+;FAST TRAVEL PROMPT
+
+	Function RegisterForFastTravelPrompt(ActiveMagicEffect akActiveEffect) global native
+	Function UnregisterForFastTravelPrompt(ActiveMagicEffect akActiveEffect) global native
+
+	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
+	EndEvent
+
 ;ON HIT EX
 
 	Function RegisterForHitEventEx(ActiveMagicEffect akActiveEffect, Form akAggressorFilter = None, Form akSourceFilter = None, Form akProjectileFilter = None, \

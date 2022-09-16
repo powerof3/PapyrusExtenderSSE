@@ -84,6 +84,22 @@ Scriptname PO3_Events_Form  Hidden
 	Event OnDragonSoulGained(float afSouls)
 	EndEvent
 	
+;FAST TRAVEL END (only needed for VR but safe for SSE/AE)
+
+	Function RegisterForOnPlayerFastTravelEnd(Form akForm) global native
+	Function UnregisterForOnPlayerFastTravelEnd(Form akForm) global native
+
+	Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
+	EndEvent
+
+;FAST TRAVEL PROMPT
+
+	Function RegisterForFastTravelPrompt(Form akForm) global native
+	Function UnregisterForFastTravelPrompt(Form akForm) global native
+
+	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
+	EndEvent
+
 ;ON HIT EX
 ;calling script must extend ObjectReference
 

@@ -378,6 +378,12 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
+	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*,
+		bool a_disable)
+	{
+		return Event::FastTravel::SetFastTravelDisabled(a_disable);
+	}
+
 	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::FormID a_formID)
 	{
@@ -475,6 +481,7 @@ namespace Papyrus::Form::Functions
 		BIND(MarkItemAsFavorite);
 		BIND(RemoveKeywordOnForm);
 		BIND(ReplaceKeywordOnForm);
+		BIND(SetFastTravelDisabled);
 		BIND(SetFastTravelTargetFormID);
 		BIND(SetFastTravelTargetRef);
 		BIND(SetFastTravelTargetString);

@@ -518,6 +518,10 @@ namespace Event
 					const auto formID = refr ? refr->GetFormID() : 0;
 					logger::info("Found Fast Travel Confirmed target to {} ({:x})", name, formID);
 				}
+				if (disableFastTravel) {
+					logger::info("Fast Travel is disabled; cancelling trip");
+					return func(a_this, false);
+				}
 				auto start = std::chrono::steady_clock::now();
 				if (!newDestination && defaultTimeout > 0.f)
 					logger::info("Waiting for newDestination for {:.2f} seconds", defaultTimeout);
@@ -547,6 +551,7 @@ namespace Event
 			static inline REL::Relocation<decltype(thunk)> func;
 			static inline RE::TESObjectREFR* newDestination = nullptr;
 			static inline float defaultTimeout = 0.0f;
+			static inline bool disableFastTravel = false;
 		};
 
 		struct GetFastTravelTarget
@@ -563,6 +568,15 @@ namespace Event
 				func(a_buffer, a_template, a_target, a_4);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		bool SetFastTravelDisabled(const bool a_disable)
+		{
+			if (ChangeFastTravelTarget::disableFastTravel != a_disable) {
+				logger::info("Set Fast Travel Disabled {} -> {}", ChangeFastTravelTarget::disableFastTravel, a_disable);
+				ChangeFastTravelTarget::disableFastTravel = a_disable;
+			}
+			return ChangeFastTravelTarget::disableFastTravel;
 		};
 
 		float SetFastTravelWaitTimeout(const float a_timeout)

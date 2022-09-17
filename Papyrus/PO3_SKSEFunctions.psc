@@ -344,6 +344,7 @@ Scriptname PO3_SKSEFunctions Hidden
 ;FASTTRAVEL
 ;----------------------------------------------------------------------------------------------------------
 
+	bool Function SetFastTravelDisabled(bool abDisable) global native
 	bool Function SetFastTravelTargetFormID(int aiDestinationFormID) global native
 	bool Function SetFastTravelTargetRef(ObjectReference akDestination) global native
 	bool Function SetFastTravelTargetString(String asDestination) global native

@@ -508,19 +508,48 @@ namespace Event
 
 		struct ChangeFastTravelTarget
 		{
-			static bool thunk(RE::FastTravelConfirmCallback* a_this, bool a_arg1)
+			static bool thunk(RE::FastTravelConfirmCallback* a_this, bool a_confirmed)
 			{
+				if (a_confirmed) {
+					const auto refr = GetMapMarkerObject(a_this->mapMenu->mapMarker.get().get());
+					GameEventHolder::GetSingleton()->fastTravelConfirmed.QueueEvent(refr);
+					const auto name = refr && refr->extraList.GetByType<RE::ExtraMapMarker>() && refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData ? refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName() : "Unknown";
+					const auto formID = refr ? refr->GetFormID() : 0;
+					logger::info("Found Fast Travel Confirmed target to {} ({:x})", name, formID);
+				}
+				if (disableFastTravel) {
+					logger::info("Fast Travel is disabled; cancelling trip");
+					return func(a_this, false);
+				}
+				auto start = std::chrono::steady_clock::now();
+				if (!newDestination && defaultTimeout > 0.f)
+					logger::info("Waiting for newDestination for {:.2f} seconds", defaultTimeout);
+				while (defaultTimeout > 0.f) {
+					std::chrono::duration<float> elapsed_seconds = std::chrono::steady_clock::now() - start;
+					if (newDestination) {
+						logger::info("newDestination received after {:.2f} seconds", (float)elapsed_seconds.count());
+						break;
+					}
+					if (elapsed_seconds.count() > defaultTimeout) {
+						logger::info("newDestination not received after {:.2f} seconds; proceeding", (float)elapsed_seconds.count());
+						break;
+					}
+					Sleep(1);
+				}
 				if (a_this && a_this->mapMenu && newDestination) {
 					a_this->mapMenu->mapMarker.reset();
 					a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
-					const auto name = a_this->mapMenu->mapMarker.get().get()->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName();
-					const auto formID = a_this->mapMenu->mapMarker.get().get()->GetFormID();
+					const auto refr = GetMapMarkerObject(a_this->mapMenu->mapMarker.get().get());
+					const auto name = refr && refr->extraList.GetByType<RE::ExtraMapMarker>() && refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData ? refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName() : "Unknown";
+					const auto formID = refr ? refr->GetFormID() : 0;
 					logger::info("Changed Fast Travel target to {} ({:x})", name, formID);
 				}
-				return func(a_this, a_arg1);
+				return func(a_this, a_confirmed);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 			static inline RE::TESObjectREFR* newDestination = nullptr;
+			static inline float defaultTimeout = 0.0f;
+			static inline bool disableFastTravel = false;
 		};
 
 		struct GetFastTravelTarget
@@ -530,13 +559,31 @@ namespace Event
 				if (a_target) {
 					const auto refr = GetMapMarkerObject(a_target);
 					const auto formID = refr ? refr->GetFormID() : 0;
-					logger::info("Found Fast Travel target to {} {:x}", a_target, formID);
+					logger::info("Found Fast Travel Prompt target to {} ({:x})", a_target, formID);
 					Event::FastTravel::ChangeFastTravelTarget::newDestination = nullptr;
 					GameEventHolder::GetSingleton()->fastTravelPrompt.QueueEvent(GetMapMarkerObject(a_target));
 				}
 				func(a_buffer, a_template, a_target, a_4);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		bool SetFastTravelDisabled(const bool a_disable)
+		{
+			if (ChangeFastTravelTarget::disableFastTravel != a_disable) {
+				logger::info("Set Fast Travel Disabled {} -> {}", ChangeFastTravelTarget::disableFastTravel, a_disable);
+				ChangeFastTravelTarget::disableFastTravel = a_disable;
+			}
+			return ChangeFastTravelTarget::disableFastTravel;
+		};
+
+		float SetFastTravelWaitTimeout(const float a_timeout)
+		{
+			if (ChangeFastTravelTarget::defaultTimeout != a_timeout) {
+				logger::info("Set Fast Travel Wait Timeout {:.2f} -> {:.2f}", ChangeFastTravelTarget::defaultTimeout, a_timeout);
+				ChangeFastTravelTarget::defaultTimeout = a_timeout;
+			}
+			return ChangeFastTravelTarget::defaultTimeout;
 		};
 
 		bool SetFastTravelTarget(RE::TESObjectREFR* a_refr)

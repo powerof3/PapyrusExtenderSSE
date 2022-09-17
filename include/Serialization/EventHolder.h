@@ -290,6 +290,7 @@ namespace Event
 			kActorReanimateStart = 'RSTA',
 			kActorReanimateStop = 'REND',
 			kBookRead = 'BOOK',
+			kFastTravelConfirmed = 'FTCD',
 			kFastTravelPrompt = 'FTPT',
 #ifdef SKYRIMVR
 			kFastTravelEnd = 'FTED',
@@ -309,6 +310,7 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
 		SKSE::RegistrationSet<const RE::TESObjectBOOK*> booksRead{ "OnBookRead"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> fastTravelPrompt{ "OnFastTravelPrompt"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*> fastTravelConfirmed{ "OnFastTravelConfirmed"sv };
 #ifdef SKYRIMVR
 		SKSE::RegistrationSet<float> fastTravelEnd{ "OnPlayerFastTravelEnd"sv };
 #endif

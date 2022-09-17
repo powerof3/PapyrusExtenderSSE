@@ -378,6 +378,12 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
+	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*,
+		bool a_disable)
+	{
+		return Event::FastTravel::SetFastTravelDisabled(a_disable);
+	}
+
 	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::FormID a_formID)
 	{
@@ -406,6 +412,12 @@ namespace Papyrus::Form::Functions
 			return false;
 		}
 		return Event::FastTravel::SetFastTravelTarget(a_name.c_str());
+	}
+
+	inline float SetFastTravelWaitTimeout(VM*, StackID, RE::StaticFunctionTag*,
+		float a_timeout)
+	{
+		return Event::FastTravel::SetFastTravelWaitTimeout(a_timeout);
 	}
 
 	inline void SetRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -469,9 +481,11 @@ namespace Papyrus::Form::Functions
 		BIND(MarkItemAsFavorite);
 		BIND(RemoveKeywordOnForm);
 		BIND(ReplaceKeywordOnForm);
+		BIND(SetFastTravelDisabled);
 		BIND(SetFastTravelTargetFormID);
 		BIND(SetFastTravelTargetRef);
 		BIND(SetFastTravelTargetString);
+		BIND(SetFastTravelWaitTimeout);
 		BIND(SetRecordFlag);
 		BIND(UnmarkItemAsFavorite);
 

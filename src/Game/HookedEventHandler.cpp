@@ -513,8 +513,7 @@ namespace Event
 				if (a_confirmed) {
 					const auto refr = GetMapMarkerObject(a_this->mapMenu->mapMarker.get().get());
 					GameEventHolder::GetSingleton()->fastTravelConfirmed.QueueEvent(refr);
-					const auto name = refr && refr->extraList.GetByType<RE::ExtraMapMarker>() && refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData
-						? refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName() : "Unknown";
+					const auto name = refr && refr->extraList.GetByType<RE::ExtraMapMarker>() && refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData ? refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName() : "Unknown";
 					const auto formID = refr ? refr->GetFormID() : 0;
 					logger::info("Found Fast Travel Confirmed target to {} ({:x})", name, formID);
 				}
@@ -541,8 +540,7 @@ namespace Event
 					a_this->mapMenu->mapMarker.reset();
 					a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
 					const auto refr = GetMapMarkerObject(a_this->mapMenu->mapMarker.get().get());
-					const auto name = refr && refr->extraList.GetByType<RE::ExtraMapMarker>() && refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData
-						? refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName() : "Unknown";
+					const auto name = refr && refr->extraList.GetByType<RE::ExtraMapMarker>() && refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData ? refr->extraList.GetByType<RE::ExtraMapMarker>()->mapData->locationName.GetFullName() : "Unknown";
 					const auto formID = refr ? refr->GetFormID() : 0;
 					logger::info("Changed Fast Travel target to {} ({:x})", name, formID);
 				}

@@ -546,7 +546,7 @@ namespace Event
 				if (a_target) {
 					const auto refr = GetMapMarkerObject(a_target);
 					const auto formID = refr ? refr->GetFormID() : 0;
-					logger::info("Found Fast Travel target to {} {:x}", a_target, formID);
+					logger::info("Found Fast Travel target to {} ({:x})", a_target, formID);
 					Event::FastTravel::ChangeFastTravelTarget::newDestination = nullptr;
 					GameEventHolder::GetSingleton()->fastTravelPrompt.QueueEvent(GetMapMarkerObject(a_target));
 				}

@@ -13,6 +13,7 @@ namespace Event
 		bool SetFastTravelTarget(const RE::FormID a_formID);
 		bool SetFastTravelTarget(RE::TESObjectREFR* a_refr);
 		bool SetFastTravelTarget(const char* a_name);
+		float SetFastTravelWaitTimeout(const float a_timeout);
 
 	};
 }

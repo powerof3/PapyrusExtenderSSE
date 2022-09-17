@@ -347,6 +347,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function SetFastTravelTargetFormID(int aiDestinationFormID) global native
 	bool Function SetFastTravelTargetRef(ObjectReference akDestination) global native
 	bool Function SetFastTravelTargetString(String asDestination) global native
+	float Function SetFastTravelWaitTimeout(float afTimeout) global native
 
 ;----------------------------------------------------------------------------------------------------------	
 ;FORM

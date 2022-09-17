@@ -510,6 +510,21 @@ namespace Event
 		{
 			static bool thunk(RE::FastTravelConfirmCallback* a_this, bool a_arg1)
 			{
+				auto start = std::chrono::steady_clock::now();
+				if (!newDestination && defaultTimeout > 0.f)
+					logger::info("Waiting for newDestination for {:.2f} seconds", defaultTimeout);
+				while (defaultTimeout > 0.f) {
+					std::chrono::duration<float> elapsed_seconds = std::chrono::steady_clock::now() - start; 
+					if (newDestination) {
+						logger::info("newDestination received after {:.2f} seconds", (float) elapsed_seconds.count());
+						break;
+					}
+					if (elapsed_seconds.count() > defaultTimeout) {
+						logger::info("newDestination not received after {:.2f} seconds; proceeding", (float) elapsed_seconds.count());	
+						break;
+					}
+					Sleep(1);
+				}				
 				if (a_this && a_this->mapMenu && newDestination) {
 					a_this->mapMenu->mapMarker.reset();
 					a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);
@@ -521,6 +536,7 @@ namespace Event
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 			static inline RE::TESObjectREFR* newDestination = nullptr;
+			static inline float defaultTimeout = 0.0f;
 		};
 
 		struct GetFastTravelTarget
@@ -537,6 +553,15 @@ namespace Event
 				func(a_buffer, a_template, a_target, a_4);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		float SetFastTravelWaitTimeout(const float a_timeout)
+		{
+			if (ChangeFastTravelTarget::defaultTimeout != a_timeout) {
+				logger::info("Set Fast Travel Wait Timeout {:.2f} -> {:.2f}", ChangeFastTravelTarget::defaultTimeout, a_timeout);
+				ChangeFastTravelTarget::defaultTimeout = a_timeout;
+			}
+			return ChangeFastTravelTarget::defaultTimeout;
 		};
 
 		bool SetFastTravelTarget(RE::TESObjectREFR* a_refr)

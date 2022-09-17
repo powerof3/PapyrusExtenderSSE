@@ -514,17 +514,17 @@ namespace Event
 				if (!newDestination && defaultTimeout > 0.f)
 					logger::info("Waiting for newDestination for {:.2f} seconds", defaultTimeout);
 				while (defaultTimeout > 0.f) {
-					std::chrono::duration<float> elapsed_seconds = std::chrono::steady_clock::now() - start; 
+					std::chrono::duration<float> elapsed_seconds = std::chrono::steady_clock::now() - start;
 					if (newDestination) {
-						logger::info("newDestination received after {:.2f} seconds", (float) elapsed_seconds.count());
+						logger::info("newDestination received after {:.2f} seconds", (float)elapsed_seconds.count());
 						break;
 					}
 					if (elapsed_seconds.count() > defaultTimeout) {
-						logger::info("newDestination not received after {:.2f} seconds; proceeding", (float) elapsed_seconds.count());	
+						logger::info("newDestination not received after {:.2f} seconds; proceeding", (float)elapsed_seconds.count());
 						break;
 					}
 					Sleep(1);
-				}				
+				}
 				if (a_this && a_this->mapMenu && newDestination) {
 					a_this->mapMenu->mapMarker.reset();
 					a_this->mapMenu->mapMarker = RE::ObjectRefHandle(newDestination);

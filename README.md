@@ -57,7 +57,6 @@ cmake --build buildae --config Release
 cmake --preset vs2022-windows-vcpkg-vr # for vs2019 use vs2019-windows-vcpkg-vr
 cmake --build buildvr --config Release
 ```
-For VR, if you run into namespace errors/ambiguous references for stl or FORM. You may need to add :: in front of stl or FORM throughout. Cherry-pick `784293df6f8da93c2b8b114f578ec043a84cdd74` from https://github.com/alandtse/PapyrusExtenderSSE/tree/ambiguous_references to fix.
 
 ## License
 [MIT](LICENSE)

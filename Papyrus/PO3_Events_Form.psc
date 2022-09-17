@@ -92,6 +92,14 @@ Scriptname PO3_Events_Form  Hidden
 	Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
 	EndEvent
 
+;FAST TRAVEL CONFIRMED
+
+	Function RegisterForFastTravelConfirmed(Form akForm) global native
+	Function UnregisterForFastTravelConfirmed(Form akForm) global native
+
+	Event OnFastTravelConfirmed(ObjectReference asMarkerReference)
+	EndEvent
+
 ;FAST TRAVEL PROMPT
 
 	Function RegisterForFastTravelPrompt(Form akForm) global native

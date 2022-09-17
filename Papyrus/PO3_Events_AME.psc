@@ -89,6 +89,14 @@ Scriptname PO3_Events_AME  Hidden
 	Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
 	EndEvent
 
+;FAST TRAVEL CONFIRMED
+
+	Function RegisterForFastTravelConfirmed(ActiveMagicEffect akActiveEffect) global native
+	Function UnregisterForFastTravelConfirmed(ActiveMagicEffect akActiveEffect) global native
+
+	Event OnFastTravelConfirmed(ObjectReference asMarkerReference)
+	EndEvent
+
 ;FAST TRAVEL PROMPT
 
 	Function RegisterForFastTravelPrompt(ActiveMagicEffect akActiveEffect) global native

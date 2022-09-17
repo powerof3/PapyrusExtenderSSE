@@ -90,6 +90,14 @@ Scriptname PO3_Events_Alias  Hidden
 	Event OnPlayerFastTravelEnd(float afTravelGameTimeHours)
 	EndEvent
 
+;FAST TRAVEL CONFIRMED
+
+	Function RegisterForFastTravelConfirmed(Alias akAlias) global native
+	Function UnregisterForFastTravelConfirmed(Alias akAlias) global native
+
+	Event OnFastTravelConfirmed(ObjectReference asMarkerReference)
+	EndEvent
+
 ;FAST TRAVEL PROMPT
 
 	Function RegisterForFastTravelPrompt(Alias akAlias) global native

@@ -520,7 +520,7 @@ namespace Event
 				if (disableFastTravel) {
 					logger::info("Fast Travel is disabled; cancelling trip");
 					const auto result = func(a_this, false);
-					RE::UIMessageQueue::GetSingleton()->AddMessage(a_this->mapMenu->MENU_NAME.data(), RE::UI_MESSAGE_TYPE::kHide,nullptr);
+					RE::UIMessageQueue::GetSingleton()->AddMessage(a_this->mapMenu->MENU_NAME.data(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
 					return result;
 				}
 				auto start = std::chrono::steady_clock::now();

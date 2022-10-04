@@ -919,12 +919,17 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-		if (const auto actor = a_ref->As<RE::Actor>(); actor) {
-			const float waterLevel = actor->IsPointDeepUnderWater(actor->GetPositionZ(), actor->GetParentCell());
-			return waterLevel >= 0.01f;
+		return a_ref->IsPointSubmergedMoreThan(a_ref->GetPosition(), a_ref->GetParentCell(), 0.01f);
+	}
+
+	inline bool IsRefUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return false;
 		}
 
-		return a_ref->IsInWater();
+		return a_ref->IsPointSubmergedMoreThan(a_ref->GetPosition(), a_ref->GetParentCell(), 0.875f);
 	}
 
 	inline bool IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
@@ -1412,6 +1417,7 @@ namespace Papyrus::ObjectReference
 		BIND(IsLoadDoor, true);
 		BIND(IsQuestItem);
 		BIND(IsRefInWater);
+		BIND(IsRefUnderwater);
 		BIND(IsVIP);
 		BIND(MoveToNearestNavmeshLocation);
 		BIND(RemoveAllModItems);

@@ -662,8 +662,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const float waterLevel = a_actor->IsPointDeepUnderWater(a_actor->GetPositionZ(), a_actor->GetParentCell());
-		return waterLevel >= 0.01f;
+		return a_actor->IsPointSubmergedMoreThan(a_actor->GetPosition(), a_actor->GetParentCell(), 0.01f);
 	}
 
 	inline bool IsActorUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
@@ -673,8 +672,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const float waterLevel = a_actor->IsPointDeepUnderWater(a_actor->GetPositionZ(), a_actor->GetParentCell());
-		return waterLevel >= 0.875f;
+		return a_actor->IsPointSubmergedMoreThan(a_actor->GetPosition(), a_actor->GetParentCell(), 0.875f);
 	}
 
 	inline bool IsLimbGone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

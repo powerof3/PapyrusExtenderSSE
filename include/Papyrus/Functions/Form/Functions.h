@@ -168,7 +168,7 @@ namespace Papyrus::Form::Functions
 			return RE::BSFixedString();
 		}
 
-		return Cache::EditorID::GetSingleton()->GetEditorID(a_form->GetFormID());
+		return Cache::EditorID::GetFormEditorID(a_form);
 	}
 
 	inline RE::BSFixedString GetFormModName(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, bool a_lastModified)

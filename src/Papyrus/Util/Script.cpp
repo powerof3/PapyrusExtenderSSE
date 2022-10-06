@@ -11,17 +11,13 @@ namespace SCRIPT
 				return a_vm.FindBoundObject(a_handle, a_scriptName.c_str(), object) && object;
 			}
 			RE::BSSpinLockGuard locker(a_vm.attachedScriptsLock);
-			return std::ranges::any_of(a_vm.attachedScripts, [&](const auto& attachedScript) {
-				const auto& [handle, scripts] = attachedScript;
-				if (handle == a_handle) {
-					RE::BSScript::ObjectTypeInfo* typeInfo = nullptr;
-					return std::ranges::none_of(scripts, [&](const auto& script) {
-						typeInfo = script ? script->GetTypeInfo() : nullptr;
-						return typeInfo && std::find(baseScripts.begin(), baseScripts.end(), typeInfo->name) != baseScripts.end();
-					});
-				}
-				return false;
-			});
+			if (const auto it = a_vm.attachedScripts.find(a_handle); it != a_vm.attachedScripts.end()) {
+				return std::ranges::any_of(it->second, [&](const auto& script) {
+					auto typeInfo = script ? script->GetTypeInfo() : nullptr;
+					return typeInfo && std::find(baseScripts.begin(), baseScripts.end(), typeInfo->name) == baseScripts.end(); // is not a base script
+				});
+			}
+			return false;
 		}
 	};
 

@@ -1,32 +1,8 @@
 #pragma once
 
-//implements https://github.com/Ryan-rsm-McKenzie/CCExtender/blob/master/src/EditorIDCache.h
-namespace Cache
+namespace Cache::EditorID
 {
-	class EditorID
-	{
-	public:
-		static EditorID* GetSingleton();
+	using _GetFormEditorID = const char* (*)(std::uint32_t);
 
-		void FillMap();
-
-		std::string GetEditorID(RE::FormID a_formID);
-
-	private:
-		using Lock = std::mutex;
-		using Locker = std::scoped_lock<Lock>;
-
-		EditorID() = default;
-		EditorID(const EditorID&) = delete;
-		EditorID(EditorID&&) = delete;
-		~EditorID() = default;
-
-		EditorID& operator=(const EditorID&) = delete;
-		EditorID& operator=(EditorID&&) = delete;
-
-		mutable Lock _lock;
-		robin_hood::unordered_flat_map<RE::FormID, std::string> _formIDToEditorIDMap;
-	};
-
-	void Register();
+	std::string GetFormEditorID(const RE::TESForm* a_form);
 }

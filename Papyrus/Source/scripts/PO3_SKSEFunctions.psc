@@ -345,9 +345,13 @@ Scriptname PO3_SKSEFunctions Hidden
 ;----------------------------------------------------------------------------------------------------------
 
 	bool Function SetFastTravelDisabled(bool abDisable) global native
+	
 	bool Function SetFastTravelTargetFormID(int aiDestinationFormID) global native
+	
 	bool Function SetFastTravelTargetRef(ObjectReference akDestination) global native
+	
 	bool Function SetFastTravelTargetString(String asDestination) global native
+	
 	float Function SetFastTravelWaitTimeout(float afTimeout) global native
 
 ;----------------------------------------------------------------------------------------------------------
@@ -453,6 +457,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function ClearCachedFactionFightReactions() global native
 
 	Function SetLocalGravity(float afXAxis, float afYAxis, float afZAxis) global native
+	
+	Function UpdateCrosshairs()  global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;HAZARD
@@ -667,6 +673,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function IsQuestItem(ObjectReference akRef) global native
 
 	bool Function IsRefInWater(ObjectReference akRef) global native
+	
+	bool Function IsRefUnderwater(ObjectReference akRef) global native
 
 	bool Function IsVIP(ObjectReference akRef) global native
 
@@ -738,7 +746,7 @@ Scriptname PO3_SKSEFunctions Hidden
 ;PAPYRUS EXTENDER
 ;----------------------------------------------------------------------------------------------------------
 
-	;(major,minor,patch / 5,1,0)
+	;(major,minor,patch / 5,3,0)
 	int[] Function GetPapyrusExtenderVersion() global native
 
 ;-----------------------------------------------------------------------------------------------------------

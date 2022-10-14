@@ -1,0 +1,24 @@
+name: Main
+
+on:
+  push:
+    branches: '**'
+    tags: '*'
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run:
+    uses: adya/pack-skse-mod/.github/workflows/pack.yml@main
+    with:
+      CMAKE_VR_CONFIG_PRESET: ''
+      CMAKE_VR_BUILD_PRESET: ''
+      AE_353_BRANCH: master-1.6.353
+      FOMOD_INCLUDE_PDB: true
+      FOMOD_MOD_NAME: "powerofthree's Papyrus Extender"
+      FOMOD_MOD_AUTHOR: "powerofthree"
+      FOMOD_MOD_NEXUS_ID: "22854"
+      FOMOD_REQUIRED_INSTALLATION_DIR: "Papyrus"
+      PUBLISH_ARCHIVE_TYPE: '7z'

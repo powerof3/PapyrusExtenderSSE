@@ -684,7 +684,7 @@ namespace Papyrus::ObjectReference
 		float a_radius,
 		bool a_ignorePlayer)
 	{
-		using RNG = SKSE::stl::RNG;
+		using RNG = stl::RNG;
 
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);

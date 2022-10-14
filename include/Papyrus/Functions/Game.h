@@ -140,8 +140,8 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		return modInfo ?
-                   forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
-                   std::vector<RE::EnchantmentItem*>();
+		           forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
+		           std::vector<RE::EnchantmentItem*>();
 	}
 
 	inline std::vector<RE::TESForm*> GetAllFormsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::int32_t a_formType, std::vector<RE::BGSKeyword*> a_keywords)
@@ -171,8 +171,8 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		return modInfo ?
-                   forms::get_in_mod<RE::TESRace>(modInfo, a_keywords) :
-                   std::vector<RE::TESRace*>();
+		           forms::get_in_mod<RE::TESRace>(modInfo, a_keywords) :
+		           std::vector<RE::TESRace*>();
 	}
 
 	inline std::vector<RE::SpellItem*> GetAllSpellsInMod(RE::StaticFunctionTag*,
@@ -352,6 +352,13 @@ namespace Papyrus::Game
 		}
 	}
 
+	inline void UpdateCrosshairs(RE::StaticFunctionTag*)
+	{
+		SKSE::GetTaskInterface()->AddTask([]() {
+			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
+		});
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(ClearCachedFactionFightReactions);
@@ -375,6 +382,7 @@ namespace Papyrus::Game
 		BIND(IsSurvivalModeActive, true);
 		BIND(IsPluginFound, true);
 		BIND(SetLocalGravity);
+		BIND(UpdateCrosshairs);
 
 		logger::info("Registered game functions"sv);
 	}

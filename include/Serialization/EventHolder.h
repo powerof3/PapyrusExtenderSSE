@@ -116,7 +116,7 @@ namespace Event
 				case RE::FormType::Keyword:
 					{
 						if (const auto keyword = a_formFilter->As<RE::BGSKeyword>(); keyword) {
-							if (auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
+							if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 								return keywordForm->HasKeyword(keyword);
 							}
 						}
@@ -127,11 +127,18 @@ namespace Event
 						if (const auto list = a_formFilter->As<RE::BGSListForm>(); list) {
 							if (list->ContainsOnlyType(RE::FormType::Keyword)) {
 								return a_form->HasKeywordInList(list, false);
+							} else {
+								bool result = false;
+								list->ForEachForm([&](const RE::TESForm& a_formInList) {
+									if (result = (a_form == &a_formInList); result == true) {
+										return RE::BSContainer::ForEachResult::kStop;
+									}
+									return RE::BSContainer::ForEachResult::kContinue;
+								});
+								return result;
 							}
-							return list->HasForm(a_form);
-						} else {
-							return list->HasForm(a_form);
 						}
+						return false;
 					}
 				default:
 					return a_form == a_formFilter;
@@ -180,8 +187,8 @@ namespace Event
 								return a_ref->HasKeywordInList(list, false);
 							} else {
 								bool result = false;
-								list->ForEachForm([&](RE::TESForm& a_form) {
-									if (result = passes_ref_filter(a_ref, &a_form); result == true) {
+								list->ForEachForm([&](RE::TESForm& a_formInList) {
+									if (result = passes_ref_filter(a_ref, &a_formInList); result == true) {
 										return RE::BSContainer::ForEachResult::kStop;
 									}
 									return RE::BSContainer::ForEachResult::kContinue;

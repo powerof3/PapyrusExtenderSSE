@@ -2,8 +2,8 @@ name: Main
 
 on:
   push:
-    branches: '**'
-    tags: '*'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 concurrency:
   group: ${{ github.ref }}

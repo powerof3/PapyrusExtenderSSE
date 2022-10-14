@@ -66,7 +66,7 @@ namespace Papyrus::Debug
 			if (cache) {
 				logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix);
 
-			    RE::BSSpinLockGuard locker(cache->updateLock);
+				RE::BSSpinLockGuard locker(cache->updateLock);
 				for (auto& var : cache->variableCache) {
 					logger::info("	{} : {}", var.variableName, get_value(var));
 				}

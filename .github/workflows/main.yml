@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   run:
+    if: github.repository_owner == 'powerof3'
     uses: adya/pack-skse-mod/.github/workflows/pack.yml@main
     with:
       CMAKE_VR_CONFIG_PRESET: ''

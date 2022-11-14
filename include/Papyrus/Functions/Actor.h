@@ -279,13 +279,13 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
-                                    RE::ActorValue::kNone;
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
+		                            RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
-                   0.0f;
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
+		           0.0f;
 	}
 
 	inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
@@ -398,7 +398,7 @@ namespace Papyrus::Actor
 		}
 		auto biped_slot = (a_slot - 30) >= 0 ? 1 << (a_slot - 30) : 0;
 		auto result = a_actor->GetWornArmor(static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(biped_slot));
-		logger::info("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
+		logger::debug("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
 		return result;
 	}
 #endif
@@ -578,6 +578,38 @@ namespace Papyrus::Actor
 		}
 
 		return a_actor->GetVendorFaction();
+	}
+
+	inline bool HasActiveMagicEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		const RE::EffectSetting* a_mgef)
+	{
+		using AE = RE::ActiveEffect::Flag;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+		if (!a_mgef) {
+			a_vm->TraceStack("Magic Effect is None", a_stackID);
+			return false;
+		}
+#ifndef SKYRIMVR
+		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+#else
+		const auto activeEffects = new std::vector<RE::ActiveEffect*>;
+		a_actor->VisitActiveEffects([&](RE::ActiveEffect* ae) -> RE::BSContainer::ForEachResult {
+			if (ae)
+				activeEffects->push_back(ae);
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
+		if (activeEffects) {
+#endif
+			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
+				return ae && ae->effect && ae->effect->baseEffect == a_mgef && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
+			});
+		}
+		return false;
 	}
 
 	inline bool HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -962,8 +994,8 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
-                charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
 		}
@@ -1013,15 +1045,11 @@ namespace Papyrus::Actor
 			return false;
 		});
 
-		if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager) {
-			std::ranges::for_each(inv,
-				[&](auto& invData) {
-					const auto& [item, data] = invData;
-					const auto& [count, entry] = data;
-					if (count > 0 && entry->IsWorn()) {
-						equipManager->UnequipObject(a_actor, item);
-					}
-				});
+		for (auto& [item, data] : inv) {
+			const auto& [count, entry] = data;
+			if (count > 0 && entry->IsWorn()) {
+				RE::ActorEquipManager::GetSingleton()->UnequipObject(a_actor, item);
+			}
 		}
 	}
 
@@ -1062,6 +1090,7 @@ namespace Papyrus::Actor
 		BIND(GetTimeDead);
 		BIND(GetTimeOfDeath);
 		BIND(GetVendorFaction);
+		BIND(HasActiveMagicEffect);
 		BIND(HasActiveSpell);
 		BIND(IsQuadruped, true);
 		BIND(HasDeferredKill);

@@ -166,7 +166,7 @@ namespace Papyrus::Spell
 			return;
 		}
 
-		a_spell->data.castingType = type;
+		a_spell->SetCastingType(type);
 		for (const auto& effect : a_spell->effects) {
 			if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
 				baseEffect->data.castingType = type;
@@ -188,12 +188,29 @@ namespace Papyrus::Spell
 			return;
 		}
 
-		a_spell->data.delivery = type;
+		a_spell->SetDelivery(type);
 		for (const auto& effect : a_spell->effects) {
 			if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
 				baseEffect->data.delivery = type;
 			}
 		}
+	}
+
+	inline void SetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::SpellItem* a_spell,
+		std::uint32_t a_type)
+	{
+		if (!a_spell) {
+			a_vm->TraceStack("Spell is None", a_stackID);
+			return;
+		}
+
+		const auto type = static_cast<RE::MagicSystem::SpellType>(a_type);
+		if (a_spell->GetSpellType() == type) {
+			return;
+		}
+
+		a_spell->data.spellType = type;
 	}
 
 	inline void Bind(VM& a_vm)
@@ -205,6 +222,7 @@ namespace Papyrus::Spell
 		BIND(RemoveEffectItemFromSpell);
 		BIND(SetSpellCastingType);
 		BIND(SetSpellDeliveryType);
+		BIND(SetSpellType);
 
 		logger::info("Registered spell functions"sv);
 	}

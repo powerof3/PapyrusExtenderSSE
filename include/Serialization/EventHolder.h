@@ -129,8 +129,8 @@ namespace Event
 								return a_form->HasKeywordInList(list, false);
 							} else {
 								bool result = false;
-								list->ForEachForm([&](const RE::TESForm& a_formInList) {
-									if (result = (a_form == &a_formInList); result == true) {
+								list->ForEachForm([&](RE::TESForm& a_formInList) {
+									if (result = passes_simple_filter(a_form, &a_formInList); result == true) {
 										return RE::BSContainer::ForEachResult::kStop;
 									}
 									return RE::BSContainer::ForEachResult::kContinue;

@@ -15,7 +15,7 @@ namespace Papyrus::Strings
 		std::int32_t value = -1;
 		if (!a_string.empty()) {
 			try {
-				value = string::lexical_cast<std::int32_t>(a_string.c_str());
+				value = string::to_num<std::int32_t>(a_string.c_str());
 			} catch (...) {
 				a_vm->TraceStack("String is out of range - cannot be converted to an integer", a_stackID);
 			}

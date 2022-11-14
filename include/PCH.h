@@ -42,11 +42,15 @@
 #define NODEFERWINDOWPOS
 #define NOMCX
 
+#include <ranges>
+
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 
+#include <ClibUtil/numeric.hpp>
+#include <ClibUtil/rng.hpp>
+#include <ClibUtil/string.hpp>
 #include <frozen/map.h>
-#include <ranges>
 #include <robin_hood.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>
@@ -55,8 +59,8 @@
 #define DLLEXPORT __declspec(dllexport)
 
 namespace logger = SKSE::log;
-namespace numeric = SKSE::stl::numeric;
-namespace string = SKSE::stl::string;
+namespace numeric = clib_util::numeric;
+namespace string = clib_util::string;
 namespace WinAPI = SKSE::WinAPI;
 
 using namespace std::literals;

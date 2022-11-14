@@ -586,7 +586,7 @@ namespace CONDITION
 				} else {
 					const auto split_param = string::split(a_str, " ~ ");
 					if (split_param.size() > 1) {
-						const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+						const auto formID = string::to_num<RE::FormID>(split_param.at(kFormID), true);
 						const auto& esp = split_param.at(kESP);
 
 						const auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -596,7 +596,7 @@ namespace CONDITION
 							result = true;
 						}
 					} else {
-						const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+						const auto formID = string::to_num<RE::FormID>(split_param.at(kFormID), true);
 						const auto form = RE::TESForm::LookupByID(formID);
 						if (form) {
 							a_param = form;
@@ -640,7 +640,7 @@ namespace CONDITION
 			{
 				const auto split_param = string::split(a_str, " ~ ");
 				if (split_param.size() > 1) {
-					const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+					const auto formID = string::to_num<RE::FormID>(split_param.at(kFormID), true);
 					const auto& esp = split_param.at(kESP);
 
 					const auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -650,7 +650,7 @@ namespace CONDITION
 						result = true;
 					}
 				} else {
-					const auto formID = string::lexical_cast<RE::FormID>(split_param.at(kFormID), true);
+					const auto formID = string::to_num<RE::FormID>(split_param.at(kFormID), true);
 					const auto form = RE::TESForm::LookupByID(formID);
 					if (form) {
 						a_param = form;
@@ -824,9 +824,7 @@ namespace CONDITION
 				if (const auto player = static_cast<RE::PlayerCharacter*>(a_param); player) {
 					a_str += "PlayerRef"sv;
 				} else if (const auto form = static_cast<RE::TESForm*>(a_param); form) {
-					std::stringstream formID;
-					formID << "0x" << std::uppercase << std::hex << form->GetLocalFormID();
-					a_str += formID.str();
+					a_str += fmt::format("0x{:X}", form->GetLocalFormID());
 					a_str += " ~ "sv;
 					a_str += form->GetFile(0)->fileName;
 
@@ -870,9 +868,7 @@ namespace CONDITION
 			{
 				const auto form = static_cast<RE::TESForm*>(a_param);
 				if (form) {
-					std::stringstream formID;
-					formID << "0x" << std::uppercase << std::hex << form->GetLocalFormID();
-					a_str += formID.str();
+					a_str += fmt::format("0x{:X}", form->GetLocalFormID());
 					a_str += " ~ "sv;
 					a_str += form->GetFile(0)->fileName;
 
@@ -913,7 +909,7 @@ namespace CONDITION
 		}
 
 		if (conditionVec.empty()) {
-			return std::vector<std::string>();
+			return {};
 		}
 
 		std::vector<std::string> vec;

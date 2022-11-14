@@ -698,8 +698,6 @@ namespace Papyrus::ObjectReference
 		float a_radius,
 		bool a_ignorePlayer)
 	{
-		using RNG = stl::RNG;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
 			return nullptr;
@@ -732,7 +730,7 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				return result[RNG::GetSingleton()->Generate<size_t>(0, result.size() - 1)];
+				return result[RNG.Generate<size_t>(0, result.size() - 1)];
 			}
 		}
 

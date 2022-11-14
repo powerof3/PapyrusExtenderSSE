@@ -19,6 +19,20 @@ namespace Papyrus::ObjectReference
 			}
 			return true;
 		}
+
+		inline void remove_item(
+			RE::TESObjectREFR* a_ref,
+			RE::TESBoundObject* a_item,
+			std::uint32_t a_count,
+			bool a_silent,
+			RE::TESObjectREFR* a_otherContainer,
+			StackID a_stackID,
+			VM* a_vm)
+		{
+			using func_t = decltype(&inv_util::remove_item);
+			REL::Relocation<func_t> func{ RELOCATION_ID(56261, 56647) };
+			return func(a_ref, a_item, a_count, a_silent, a_otherContainer, a_stackID, a_vm);
+		}
 	}
 
 	inline std::vector<RE::TESForm*> AddAllItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1045,31 +1059,27 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto inv = a_ref->GetInventory([modInfo](RE::TESBoundObject& a_object) {
+		auto inv = a_ref->GetInventory([&](const RE::TESBoundObject& a_object) {
 			return modInfo->IsFormInMod(a_object.GetFormID());
 		});
 
+		if (inv.empty()) {
+			return;
+		}
+
 		if (a_unequip) {
-			auto actor = a_ref->As<RE::Actor>();
-			if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager && actor) {
-				std::ranges::for_each(inv,
-					[&](auto& invData) {
-						const auto& [item, data] = invData;
-						const auto& [count, entry] = data;
-						if (count > 0 && entry->IsWorn()) {
-							equipManager->UnequipObject(actor, item);
-						}
-					});
+			if (const auto actor = a_ref->As<RE::Actor>()) {
+				for (const auto& [item, data] : inv) {
+					const auto& [count, entry] = data;
+					if (count > 0 && entry->IsWorn()) {
+						RE::ActorEquipManager::GetSingleton()->UnequipObject(actor, item);
+					}
+				}
 			}
 		} else {
-			std::ranges::for_each(inv,
-				[&](auto& invData) {
-					const auto& [item, data] = invData;
-					const auto& [count, entry] = data;
-					if (count > 0) {
-						a_ref->RemoveItem(item, count, RE::ITEM_REMOVE_REASON::kRemove, entry->extraLists ? entry->extraLists->front() : nullptr, nullptr);
-					}
-				});
+			for (const auto& [item, data] : inv) {
+				inv_util::remove_item(a_ref, item, data.first, false, nullptr, a_stackID, a_vm);
+			}
 		}
 	}
 

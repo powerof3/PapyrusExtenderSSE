@@ -773,11 +773,11 @@ namespace Papyrus::Actor
 		auto dataHandler = RE::TESDataHandler::GetSingleton();
 		auto mod = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
 
-		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywords, bool a_matchAll) {
+		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywordArray, bool a_matchAll) {
 			if (a_matchAll) {
-				return std::ranges::all_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+				return std::ranges::all_of(a_keywordArray, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 			}
-			return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+			return std::ranges::any_of(a_keywordArray, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 		};
 
 		for (auto& spell : a_actor->addedSpells | std::views::reverse) {

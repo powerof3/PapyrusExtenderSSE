@@ -9,7 +9,7 @@ namespace Papyrus::Weather
 			return 0.0f;
 		}
 
-		return static_cast<float>(a_weather->data.windSpeed / 255.0f);
+		return a_weather->data.windSpeed / 255.0f;
 	}
 
 	inline std::int32_t GetWindSpeedAsInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESWeather* a_weather)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Serialization/Services.h"
+#include "Papyrus/Util/Inventory.h"
 
 namespace Papyrus::Actor
 {
@@ -403,26 +404,6 @@ namespace Papyrus::Actor
 	}
 #endif
 
-	struct poison_util
-	{
-		static RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand)
-		{
-			if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand); equippedEntryData) {
-				if (equippedEntryData->extraLists) {
-					for (const auto& xList : *equippedEntryData->extraLists) {
-						if (xList) {
-							if (const auto xPoison = xList->GetByType<RE::ExtraPoison>(); xPoison) {
-								return xPoison;
-							}
-						}
-					}
-				}
-			}
-
-			return nullptr;
-		}
-	};
-
 	inline bool GetEquippedWeaponIsPoisoned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
 		bool a_leftHand)
@@ -445,7 +426,7 @@ namespace Papyrus::Actor
 			return nullptr;
 		}
 
-		const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand);
+		const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand);
 		return xPoison ? xPoison->poison : nullptr;
 	}
 
@@ -458,7 +439,7 @@ namespace Papyrus::Actor
 			return 0;
 		}
 
-		const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand);
+		const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand);
 		return xPoison ? xPoison->count : 0;
 	}
 
@@ -822,6 +803,42 @@ namespace Papyrus::Actor
 		}
 	}
 
+	inline void RemoveArmorOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		std::uint32_t a_armorType,
+		std::vector<std::uint32_t> a_slotsToSkip,
+		bool a_equippedOnly)
+	{
+		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return;
+		}
+
+		const auto armorType = static_cast<RE::BGSBipedObjectForm::ArmorType>(a_armorType);
+
+		auto inv = a_actor->GetInventory([armorType, a_slotsToSkip](RE::TESBoundObject& a_object) {
+			const auto armor = a_object.As<RE::TESObjectARMO>();
+			if (armor && armor->GetArmorType() == armorType) {
+				if (a_slotsToSkip.empty() || std::ranges::none_of(a_slotsToSkip,
+												 [&](const auto& slot) {
+													 return armor->HasPartOf(static_cast<Slot>(slot));
+												 })) {
+					return true;
+				}
+			}
+			return false;
+		});
+
+		for (auto& [item, data] : inv) {
+			const auto& [count, entry] = data;
+			if (!entry->IsQuestObject() && (!a_equippedOnly || entry->IsWorn())) {
+				INV::remove_item(a_actor, item, count, true, nullptr, a_stackID, a_vm);
+			}
+		}
+	}
+
 	inline bool RemoveBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
 		RE::BGSPerk* a_perk)
@@ -936,7 +953,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
+		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->poison = a_poison;
 
 			return true;
@@ -955,7 +972,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
+		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->count = a_count;
 
 			return true;
@@ -1101,6 +1118,7 @@ namespace Papyrus::Actor
 		BIND(IsSoulTrapped);
 		BIND(KillNoWait);
 		BIND(RemoveAddedSpells);
+		BIND(RemoveArmorOfType);
 		BIND(RemoveBasePerk);
 		BIND(RemoveBaseSpell);
 		BIND(SetActorRefraction);

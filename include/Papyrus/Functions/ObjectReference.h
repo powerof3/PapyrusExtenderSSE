@@ -1,40 +1,10 @@
 #pragma once
 
 #include "Serialization/Services.h"
+#include "Papyrus/Util/Inventory.h"
 
 namespace Papyrus::ObjectReference
 {
-	namespace inv_util
-	{
-		inline bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
-		{
-			if (a_noEquipped && a_entry->IsWorn()) {
-				return false;
-			}
-			if (a_noFavourited && a_entry->IsFavorited()) {
-				return false;
-			}
-			if (a_noQuestItem && a_entry->IsQuestObject()) {
-				return false;
-			}
-			return true;
-		}
-
-		inline void remove_item(
-			RE::TESObjectREFR* a_ref,
-			RE::TESBoundObject* a_item,
-			std::uint32_t a_count,
-			bool a_silent,
-			RE::TESObjectREFR* a_otherContainer,
-			StackID a_stackID,
-			VM* a_vm)
-		{
-			using func_t = decltype(&inv_util::remove_item);
-			REL::Relocation<func_t> func{ RELOCATION_ID(56261, 56647) };
-			return func(a_ref, a_item, a_count, a_silent, a_otherContainer, a_stackID, a_vm);
-		}
-	}
-
 	inline std::vector<RE::TESForm*> AddAllItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		bool a_noEquipped,
@@ -54,7 +24,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				for (auto i = 0; i < count; i++) {
 					result.push_back(item);
 				}
@@ -86,7 +56,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				a_list->AddForm(item);
 			}
 		}
@@ -114,7 +84,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				for (auto i = 0; i < count; i++) {
 					result.push_back(item);
 				}
@@ -149,7 +119,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				a_list->AddForm(item);
 			}
 		}
@@ -755,7 +725,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsQuestObject() && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, false)) {
+			if (count > 0 && entry->IsQuestObject() && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, false)) {
 				result.push_back(item);
 			}
 		}
@@ -1076,7 +1046,7 @@ namespace Papyrus::ObjectReference
 			}
 		} else {
 			for (const auto& [item, data] : inv) {
-				inv_util::remove_item(a_ref, item, data.first, false, nullptr, a_stackID, a_vm);
+				INV::remove_item(a_ref, item, data.first, true, nullptr, a_stackID, a_vm);
 			}
 		}
 	}

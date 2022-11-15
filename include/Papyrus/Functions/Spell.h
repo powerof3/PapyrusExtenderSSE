@@ -217,7 +217,7 @@ namespace Papyrus::Spell
 	{
 		BIND(AddMagicEffectToSpell);
 		BIND(AddEffectItemToSpell);
-		BIND(GetSpellType, true);
+		BIND(GetSpellType);
 		BIND(RemoveMagicEffectFromSpell);
 		BIND(RemoveEffectItemFromSpell);
 		BIND(SetSpellCastingType);

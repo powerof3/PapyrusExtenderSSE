@@ -85,5 +85,5 @@ namespace Papyrus
 
 	inline constexpr auto script = "PO3_SKSEFunctions"sv;
 
-    inline clib_util::RNG RNG{};
+	inline clib_util::RNG RNG{};
 }

@@ -59,7 +59,7 @@ namespace Papyrus::Scroll
 			return;
 		}
 
-		MAGIC::EffectData data {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyScroll, a_copyScroll->GetFormID()),
 			a_index,
 			a_cost

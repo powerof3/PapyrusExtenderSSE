@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Serialization/Services.h"
 #include "Papyrus/Util/Inventory.h"
+#include "Serialization/Services.h"
 
 namespace Papyrus::ObjectReference
 {

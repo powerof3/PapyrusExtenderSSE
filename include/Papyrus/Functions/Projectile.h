@@ -71,7 +71,7 @@ namespace Papyrus::Projectile
 			return 7;
 		}
 
-	    return 0;
+		return 0;
 	}
 
 	inline void SetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

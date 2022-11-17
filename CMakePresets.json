@@ -56,6 +56,21 @@
       "toolset": "v143"
     },
     {
+      "binaryDir": "${sourceDir}/buildvr",
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /WX /external:W0 $penv{CXXFLAGS}",
+        "BUILD_SKYRIMVR": true
+      },
+      "generator": "Visual Studio 17 2022",
+      "inherits": [
+        "cmake-dev",
+        "vcpkg",
+        "windows"
+      ],
+      "name": "vs2022-windows-vcpkg-vr",
+      "toolset": "v143"
+    },
+    {
       "binaryDir": "${sourceDir}/buildae",
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /WX /external:W0 $penv{CXXFLAGS}",

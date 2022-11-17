@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "po3_PapyrusExtender" CACHE STRING "")
-set(VERSION 5.3.0 CACHE STRING "")
+set(VERSION 5.4.0 CACHE STRING "")
 set(VR_VERSION 1)
 set(AE_VERSION 1)
 
@@ -133,6 +133,7 @@ else ()
 endif()
 
 find_path(SRELL_INCLUDE_DIRS "srell.hpp")
+find_path(CLIB_UTIL_INCLUDE_DIRS "ClibUtil/utils.hpp")
 
 find_package(frozen CONFIG REQUIRED)
 
@@ -187,6 +188,7 @@ target_include_directories(
 		${CMAKE_CURRENT_BINARY_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${SRELL_INCLUDE_DIRS}
+		${CLIB_UTIL_INCLUDE_DIRS}
 )
 
 target_link_libraries(

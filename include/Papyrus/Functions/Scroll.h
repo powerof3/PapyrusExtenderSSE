@@ -32,7 +32,7 @@ namespace Papyrus::Scroll
 			a_area,
 			a_dur,
 			a_cost,
-			a_conditionList
+			std::move(a_conditionList)
 		};
 
 		if (MAGIC::MGEFManager::GetSingleton()->Add(a_scroll, data)) {
@@ -59,7 +59,7 @@ namespace Papyrus::Scroll
 			return;
 		}
 
-		MAGIC::EffectData data = {
+		MAGIC::EffectData data{
 			std::make_pair(a_copyScroll, a_copyScroll->GetFormID()),
 			a_index,
 			a_cost

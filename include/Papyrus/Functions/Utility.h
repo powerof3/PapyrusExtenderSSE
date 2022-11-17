@@ -2,16 +2,14 @@
 
 namespace Papyrus::Utility
 {
-	using RNG = SKSE::stl::RNG;
-
 	inline float GenerateRandomFloat(RE::StaticFunctionTag*, float a_min, float a_max)
 	{
-		return RNG::GetSingleton()->Generate<float>(a_min, a_max);
+		return RNG.Generate<float>(a_min, a_max);
 	}
 
 	inline std::uint32_t GenerateRandomInt(RE::StaticFunctionTag*, std::uint32_t a_min, std::uint32_t a_max)
 	{
-		return RNG::GetSingleton()->Generate<std::uint32_t>(a_min, a_max);
+		return RNG.Generate<std::uint32_t>(a_min, a_max);
 	}
 
 	inline std::vector<std::int32_t> GetSystemTime(RE::StaticFunctionTag*)

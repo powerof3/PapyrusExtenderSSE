@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Papyrus/Util/Inventory.h"
 #include "Serialization/Services.h"
 
 namespace Papyrus::Actor
@@ -398,30 +399,10 @@ namespace Papyrus::Actor
 		}
 		auto biped_slot = (a_slot - 30) >= 0 ? 1 << (a_slot - 30) : 0;
 		auto result = a_actor->GetWornArmor(static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(biped_slot));
-		logger::info("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
+		logger::debug("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
 		return result;
 	}
 #endif
-
-	struct poison_util
-	{
-		static RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand)
-		{
-			if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand); equippedEntryData) {
-				if (equippedEntryData->extraLists) {
-					for (const auto& xList : *equippedEntryData->extraLists) {
-						if (xList) {
-							if (const auto xPoison = xList->GetByType<RE::ExtraPoison>(); xPoison) {
-								return xPoison;
-							}
-						}
-					}
-				}
-			}
-
-			return nullptr;
-		}
-	};
 
 	inline bool GetEquippedWeaponIsPoisoned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
@@ -445,7 +426,7 @@ namespace Papyrus::Actor
 			return nullptr;
 		}
 
-		const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand);
+		const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand);
 		return xPoison ? xPoison->poison : nullptr;
 	}
 
@@ -458,7 +439,7 @@ namespace Papyrus::Actor
 			return 0;
 		}
 
-		const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand);
+		const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand);
 		return xPoison ? xPoison->count : 0;
 	}
 
@@ -578,6 +559,38 @@ namespace Papyrus::Actor
 		}
 
 		return a_actor->GetVendorFaction();
+	}
+
+	inline bool HasActiveMagicEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		const RE::EffectSetting* a_mgef)
+	{
+		using AE = RE::ActiveEffect::Flag;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+		if (!a_mgef) {
+			a_vm->TraceStack("Magic Effect is None", a_stackID);
+			return false;
+		}
+#ifndef SKYRIMVR
+		if (const auto activeEffects = a_actor->GetActiveEffectList(); activeEffects) {
+#else
+		const auto activeEffects = new std::vector<RE::ActiveEffect*>;
+		a_actor->VisitActiveEffects([&](RE::ActiveEffect* ae) -> RE::BSContainer::ForEachResult {
+			if (ae)
+				activeEffects->push_back(ae);
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
+		if (activeEffects) {
+#endif
+			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
+				return ae && ae->effect && ae->effect->baseEffect == a_mgef && ae->flags.none(AE::kInactive) && ae->flags.none(AE::kDispelled);
+			});
+		}
+		return false;
 	}
 
 	inline bool HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -760,11 +773,11 @@ namespace Papyrus::Actor
 		auto dataHandler = RE::TESDataHandler::GetSingleton();
 		auto mod = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
 
-		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywords, bool a_matchAll) {
+		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywordArray, bool a_matchAll) {
 			if (a_matchAll) {
-				return std::ranges::all_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+				return std::ranges::all_of(a_keywordArray, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 			}
-			return std::ranges::any_of(a_keywords, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
+			return std::ranges::any_of(a_keywordArray, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 		};
 
 		for (auto& spell : a_actor->addedSpells | std::views::reverse) {
@@ -786,6 +799,42 @@ namespace Papyrus::Actor
 			auto actorHandle = a_actor->CreateRefHandle();
 			for (const auto& spell : spells) {
 				taskQueue->QueueRemoveSpell(actorHandle, spell);
+			}
+		}
+	}
+
+	inline void RemoveArmorOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::Actor* a_actor,
+		std::uint32_t a_armorType,
+		std::vector<std::uint32_t> a_slotsToSkip,
+		bool a_equippedOnly)
+	{
+		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return;
+		}
+
+		const auto armorType = static_cast<RE::BGSBipedObjectForm::ArmorType>(a_armorType);
+
+		auto inv = a_actor->GetInventory([armorType, a_slotsToSkip](RE::TESBoundObject& a_object) {
+			const auto armor = a_object.As<RE::TESObjectARMO>();
+			if (armor && armor->GetArmorType() == armorType) {
+				if (a_slotsToSkip.empty() || std::ranges::none_of(a_slotsToSkip,
+												 [&](const auto& slot) {
+													 return armor->HasPartOf(static_cast<Slot>(slot));
+												 })) {
+					return true;
+				}
+			}
+			return false;
+		});
+
+		for (auto& [item, data] : inv) {
+			const auto& [count, entry] = data;
+			if (!entry->IsQuestObject() && (!a_equippedOnly || entry->IsWorn())) {
+				INV::remove_item(a_actor, item, count, true, nullptr, a_stackID, a_vm);
 			}
 		}
 	}
@@ -904,7 +953,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
+		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->poison = a_poison;
 
 			return true;
@@ -923,7 +972,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (const auto xPoison = poison_util::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
+		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->count = a_count;
 
 			return true;
@@ -1013,15 +1062,11 @@ namespace Papyrus::Actor
 			return false;
 		});
 
-		if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager) {
-			std::ranges::for_each(inv,
-				[&](auto& invData) {
-					const auto& [item, data] = invData;
-					const auto& [count, entry] = data;
-					if (count > 0 && entry->IsWorn()) {
-						equipManager->UnequipObject(a_actor, item);
-					}
-				});
+		for (auto& [item, data] : inv) {
+			const auto& [count, entry] = data;
+			if (count > 0 && entry->IsWorn()) {
+				RE::ActorEquipManager::GetSingleton()->UnequipObject(a_actor, item);
+			}
 		}
 	}
 
@@ -1062,6 +1107,7 @@ namespace Papyrus::Actor
 		BIND(GetTimeDead);
 		BIND(GetTimeOfDeath);
 		BIND(GetVendorFaction);
+		BIND(HasActiveMagicEffect);
 		BIND(HasActiveSpell);
 		BIND(IsQuadruped, true);
 		BIND(HasDeferredKill);
@@ -1072,6 +1118,7 @@ namespace Papyrus::Actor
 		BIND(IsSoulTrapped);
 		BIND(KillNoWait);
 		BIND(RemoveAddedSpells);
+		BIND(RemoveArmorOfType);
 		BIND(RemoveBasePerk);
 		BIND(RemoveBaseSpell);
 		BIND(SetActorRefraction);

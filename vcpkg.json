@@ -1,11 +1,12 @@
 {
   "name": "papyrusextender",
-  "version-string": "5.3.0",
+  "version-string": "5.4.0",
   "description": "Papyrus Function Library",
   "homepage": "https://github.com/powerof3/PapyrusExtenderSSE",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
+    "clib-util",
     "frozen",
     "robin-hood-hashing",
     "rsm-binary-io",

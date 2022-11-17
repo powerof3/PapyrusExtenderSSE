@@ -69,6 +69,12 @@ namespace stl
 		REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[0] };
 		T::func = vtbl.write_vfunc(idx, T::thunk);
 	}
+
+	template <typename First, typename... T>
+	[[nodiscard]] bool is_in(First&& first, T&&... t)
+	{
+		return ((first == t) || ...);
+	}
 }
 
 namespace Papyrus
@@ -78,4 +84,6 @@ namespace Papyrus
 	using Severity = RE::BSScript::ErrorLogger::Severity;
 
 	inline constexpr auto script = "PO3_SKSEFunctions"sv;
+
+	inline clib_util::RNG RNG{};
 }

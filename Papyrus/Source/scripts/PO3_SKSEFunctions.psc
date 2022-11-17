@@ -71,6 +71,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	float Function GetTimeOfDeath(Actor akActor) global native
 
 	Faction Function GetVendorFaction(Actor akActor) global native
+	
+	bool Function HasActiveMagicEffect(Actor akActor, MagicEffect akEffect) global native
 
 	bool Function HasActiveSpell(Actor akActor, Spell akSpell) global native
 
@@ -114,6 +116,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
 
 	Function RemoveAddedSpells(Actor akActor, String modName, Keyword[] keywords, bool abMatchAll) global native
+	
+	Function RemoveArmorOfType(Actor akActor, int afArmorType, int[] aiSlotsToSkip, bool abEquippedOnly) global native
 
 	bool Function RemoveBasePerk(Actor akActor, Perk akPerk) global native
 
@@ -839,6 +843,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function SetSpellCastingType(Spell akSpell, int aiType) global native
 
 	Function SetSpellDeliveryType(Spell akSpell, int aiType) global native
+	
+	Function SetSpellType(Spell akSpell, int aiType) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;STRINGS

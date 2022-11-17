@@ -250,7 +250,7 @@ namespace GRAPHICS
 					RE::FormID formID = 0;
 					if (std::string armorID{ data->value[data->size - 1] }; !armorID.empty()) {
 						try {
-							formID = string::lexical_cast<RE::FormID>(armorID, true);
+							formID = string::to_num<RE::FormID>(armorID, true);
 						} catch (...) {
 							continue;
 						}
@@ -287,7 +287,7 @@ namespace GRAPHICS
 					auto slot = Slot::kNone;
 					if (std::string slotMaskstr{ data->value[data->size - 1] }; !slotMaskstr.empty()) {
 						try {
-							slot = string::lexical_cast<Slot>(slotMaskstr);
+							slot = string::to_num<Slot>(slotMaskstr);
 						} catch (...) {
 							continue;
 						}
@@ -317,11 +317,11 @@ namespace GRAPHICS
 				if (const auto new_txst = TEXTURE::create_textureset(a_data->value); new_txst) {
 					try {
 						textureSet = new_txst;
-						feature = string::lexical_cast<Feature>(a_data->value[9]);
-						flags = string::lexical_cast<std::uint64_t>(a_data->value[10]);
+						feature = string::to_num<Feature>(a_data->value[9]);
+						flags = string::to_num<std::uint64_t>(a_data->value[10]);
 						emissiveColor = RE::NiColor(
-							string::lexical_cast<std::uint32_t>(a_data->value[11]));
-						emissiveMult = string::lexical_cast<float>(a_data->value[12]);
+							string::to_num<std::uint32_t>(a_data->value[11]));
+						emissiveMult = string::to_num<float>(a_data->value[12]);
 					} catch (...) {
 						result = false;
 					}
@@ -455,10 +455,10 @@ namespace GRAPHICS
 		{
 			if (const auto data = a_root->GetExtraData<RE::NiIntegerExtraData>(a_name); data) {
 				if (a_color != RE::NiColor(data->value)) {
-					data->value = RE::NiColor::ColorToInt(a_color);
+					data->value = a_color.ToInt();
 				}
 			} else {
-				if (const auto newData = RE::NiIntegerExtraData::Create(a_name, RE::NiColor::ColorToInt(a_color)); newData) {
+				if (const auto newData = RE::NiIntegerExtraData::Create(a_name, a_color.ToInt()); newData) {
 					a_root->AddExtraData(newData);
 				}
 			}
@@ -676,7 +676,7 @@ namespace GRAPHICS
 
 							const auto oldFeature = material->GetFeature();
 							const auto oldFlags = lightingShader->flags.get();
-							const auto oldEmissiveColor = lightingShader->emissiveColor ? RE::NiColor::ColorToString(*lightingShader->emissiveColor) : "000000";
+							const auto oldEmissiveColor = lightingShader->emissiveColor ? lightingShader->emissiveColor->ToHex() : "000000";
 							const auto oldEmissiveMult = lightingShader->emissiveMult;
 
 							const auto newFeature = tempMaterial->GetFeature();

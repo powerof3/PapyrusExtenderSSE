@@ -89,7 +89,7 @@ namespace Papyrus::ActorBase
 			return;
 		}
 
-		a_actorbase->deathItem = static_cast<RE::TESLevItem*>(a_item);
+		a_actorbase->deathItem = a_item;
 	}
 
 	inline void Bind(VM& a_vm)

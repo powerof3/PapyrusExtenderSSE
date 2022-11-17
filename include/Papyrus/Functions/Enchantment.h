@@ -36,7 +36,7 @@ namespace Papyrus::Enchantment
 			a_area,
 			a_dur,
 			a_cost,
-			a_conditionList
+			std::move(a_conditionList)
 		};
 
 		MAGIC::MGEFManager::GetSingleton()->Add(a_enchantment, data);

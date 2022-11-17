@@ -49,7 +49,29 @@ namespace Papyrus::Projectile
 			return 0;
 		}
 
-		return a_projectile->GetType();
+		if (a_projectile->IsMissile()) {
+			return 1;
+		}
+		if (a_projectile->IsGrenade()) {
+			return 2;
+		}
+		if (a_projectile->IsBeam()) {
+			return 3;
+		}
+		if (a_projectile->IsFlamethrower()) {
+			return 4;
+		}
+		if (a_projectile->IsCone()) {
+			return 5;
+		}
+		if (a_projectile->IsBarrier()) {
+			return 6;
+		}
+		if (a_projectile->IsArrow()) {
+			return 7;
+		}
+
+		return 0;
 	}
 
 	inline void SetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

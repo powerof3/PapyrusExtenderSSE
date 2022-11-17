@@ -32,7 +32,7 @@ namespace Papyrus::Potion
 			a_area,
 			a_dur,
 			a_cost,
-			a_conditionList
+			std::move(a_conditionList)
 		};
 
 		if (MAGIC::MGEFManager::GetSingleton()->Add(a_potion, data)) {

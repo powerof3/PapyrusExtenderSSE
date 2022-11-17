@@ -1,26 +1,10 @@
 #pragma once
 
+#include "Papyrus/Util/Inventory.h"
 #include "Serialization/Services.h"
 
 namespace Papyrus::ObjectReference
 {
-	namespace inv_util
-	{
-		inline bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
-		{
-			if (a_noEquipped && a_entry->IsWorn()) {
-				return false;
-			}
-			if (a_noFavourited && a_entry->IsFavorited()) {
-				return false;
-			}
-			if (a_noQuestItem && a_entry->IsQuestObject()) {
-				return false;
-			}
-			return true;
-		}
-	}
-
 	inline std::vector<RE::TESForm*> AddAllItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		bool a_noEquipped,
@@ -40,7 +24,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				for (auto i = 0; i < count; i++) {
 					result.push_back(item);
 				}
@@ -72,7 +56,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				a_list->AddForm(item);
 			}
 		}
@@ -100,7 +84,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				for (auto i = 0; i < count; i++) {
 					result.push_back(item);
 				}
@@ -135,7 +119,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				a_list->AddForm(item);
 			}
 		}
@@ -684,8 +668,6 @@ namespace Papyrus::ObjectReference
 		float a_radius,
 		bool a_ignorePlayer)
 	{
-		using RNG = stl::RNG;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
 			return nullptr;
@@ -718,7 +700,7 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				return result[RNG::GetSingleton()->Generate<size_t>(0, result.size() - 1)];
+				return result[RNG.Generate<size_t>(0, result.size() - 1)];
 			}
 		}
 
@@ -743,7 +725,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsQuestObject() && inv_util::can_be_taken(entry, a_noEquipped, a_noFavourited, false)) {
+			if (count > 0 && entry->IsQuestObject() && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, false)) {
 				result.push_back(item);
 			}
 		}
@@ -1045,31 +1027,27 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto inv = a_ref->GetInventory([modInfo](RE::TESBoundObject& a_object) {
+		auto inv = a_ref->GetInventory([&](const RE::TESBoundObject& a_object) {
 			return modInfo->IsFormInMod(a_object.GetFormID());
 		});
 
+		if (inv.empty()) {
+			return;
+		}
+
 		if (a_unequip) {
-			auto actor = a_ref->As<RE::Actor>();
-			if (const auto equipManager = RE::ActorEquipManager::GetSingleton(); equipManager && actor) {
-				std::ranges::for_each(inv,
-					[&](auto& invData) {
-						const auto& [item, data] = invData;
-						const auto& [count, entry] = data;
-						if (count > 0 && entry->IsWorn()) {
-							equipManager->UnequipObject(actor, item);
-						}
-					});
+			if (const auto actor = a_ref->As<RE::Actor>()) {
+				for (const auto& [item, data] : inv) {
+					const auto& [count, entry] = data;
+					if (count > 0 && entry->IsWorn()) {
+						RE::ActorEquipManager::GetSingleton()->UnequipObject(actor, item);
+					}
+				}
 			}
 		} else {
-			std::ranges::for_each(inv,
-				[&](auto& invData) {
-					const auto& [item, data] = invData;
-					const auto& [count, entry] = data;
-					if (count > 0) {
-						a_ref->RemoveItem(item, count, RE::ITEM_REMOVE_REASON::kRemove, entry->extraLists ? entry->extraLists->front() : nullptr, nullptr);
-					}
-				});
+			for (const auto& [item, data] : inv) {
+				INV::remove_item(a_ref, item, data.first, true, nullptr, a_stackID, a_vm);
+			}
 		}
 	}
 

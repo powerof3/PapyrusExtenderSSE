@@ -500,8 +500,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 #ifdef SKYRIMVR
 		auto& regs = Event::GameEventHolder::GetSingleton()->fastTravelEnd;
 		regs.Unregister(a_activeEffect);
-#else  // dummy function to avoid papyrus error Unbound native function
-#endif SKYRIMVR
+#else
+		// dummy function to avoid papyrus error Unbound native function
+#endif
 	}
 
 	inline void UnregisterForFastTravelConfirmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)

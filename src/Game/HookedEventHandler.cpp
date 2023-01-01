@@ -399,7 +399,7 @@ namespace Event
 		struct GetFastTravelTarget
 		{
 			// BSString::SPrintF
-		    static int thunk(RE::BSString* a_buffer, const char* a_template, const char* a_target)
+			static int thunk(RE::BSString* a_buffer, const char* a_template, const char* a_target)
 			{
 				if (a_target) {
 					const auto refr = GetMapMarkerObject(a_target);
@@ -483,9 +483,9 @@ namespace Event
 				*/
 				const auto GameDaysPassedPreTravel = a_calendar->gameDaysPassed->value;
 
-			    func(a_calendar, a_seconds);  // travel function will modify calendar
+				func(a_calendar, a_seconds);  // travel function will modify calendar
 
-			    const auto gameDaysPassedPostTravel = a_calendar->gameDaysPassed;
+				const auto gameDaysPassedPostTravel = a_calendar->gameDaysPassed;
 				const auto result = gameDaysPassedPostTravel ? (gameDaysPassedPostTravel->value - GameDaysPassedPreTravel) * 24.0f : 0.0f;
 				FastTravelEndEvent::afTravelGameTimeHours = result;
 			}

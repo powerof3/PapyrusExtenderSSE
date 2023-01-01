@@ -15,7 +15,8 @@ namespace Papyrus::Strings
 		std::int32_t value = -1;
 		if (!a_string.empty()) {
 			try {
-				value = string::to_num<std::int32_t>(a_string.c_str());
+				const std::string string = a_string.c_str();
+				value = string::to_num<std::int32_t>(string, string::is_only_hex(string, true));
 			} catch (...) {
 				a_vm->TraceStack("String is out of range - cannot be converted to an integer", a_stackID);
 			}

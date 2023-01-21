@@ -2,6 +2,7 @@
 
 #include "Game/Cache.h"
 #include "Game/HookedEventHandler.h"
+#include "Papyrus/Util/Inventory.h"
 #include "Serialization/Services.h"
 
 namespace Papyrus::Form::Functions
@@ -180,8 +181,8 @@ namespace Papyrus::Form::Functions
 
 		if (const auto file =
 				a_lastModified ?
-                    a_form->GetDescriptionOwnerFile() :
-                    a_form->GetFile(0);
+					a_form->GetDescriptionOwnerFile() :
+					a_form->GetFile(0);
 			file) {
 			return file->GetFilename();
 		}
@@ -212,81 +213,27 @@ namespace Papyrus::Form::Functions
 		return a_form->IsDynamicForm();
 	}
 
-	namespace fave_util
-	{
-		namespace item
-		{
-			inline void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
-			{
-				using func_t = decltype(&favorite);
-				REL::Relocation<func_t> func{ REL_ID(15858, 16098) };
-				return func(a_changes, a_entryData, a_list);
-			}
-
-			inline void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
-			{
-				using func_t = decltype(&unfavorite);
-				REL::Relocation<func_t> func{ REL_ID(15859, 16099) };
-				return func(a_changes, a_entryData, a_list);
-			}
-
-			inline RE::ExtraDataList* get_hotkeyed(RE::InventoryEntryData* a_changes)
-			{
-				if (a_changes->extraLists) {
-					for (const auto& xList : *a_changes->extraLists) {
-						const auto hotkey = xList->HasType<RE::ExtraHotkey>();
-						if (hotkey) {
-							return xList;
-						}
-					}
-				}
-				return nullptr;
-			}
-		}
-
-		namespace magic
-		{
-			inline void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
-			{
-				using func_t = decltype(&favorite);
-				REL::Relocation<func_t> func{ REL_ID(51121, 52004) };
-				return func(a_magicFavorites, a_form);
-			}
-
-			inline void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
-			{
-				using func_t = decltype(&unfavorite);
-				REL::Relocation<func_t> func{ REL_ID(51122, 52005) };
-				return func(a_magicFavorites, a_form);
-			}
-		}
-	}
-
 	inline void MarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
-		using namespace fave_util;
-
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return;
 		}
 
 		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
-			if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) == magicFavorites->spells.end()) {
-				magic::favorite(magicFavorites, a_form);
+			const auto magicFavorites = RE::MagicFavorites::GetSingleton();
+			if (magicFavorites && std::ranges::find(magicFavorites->spells, a_form) == magicFavorites->spells.end()) {
+				magicFavorites->SetFavorite(a_form);
 			}
 		} else {
 			const auto player = RE::PlayerCharacter::GetSingleton();
-			const auto xContainer = player ? player->extraList.GetByType<RE::ExtraContainerChanges>() : nullptr;
-			const auto invChanges = xContainer ? xContainer->changes : nullptr;
-
-			if (invChanges) {
+			if (const auto invChanges = player->GetInventoryChanges()) {
 				auto inv = player->GetInventory();
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
 					if (count > 0 && item == a_form && !entry->IsFavorited()) {
 						const auto extralist = entry->extraLists ? entry->extraLists->front() : nullptr;
-						item::favorite(invChanges, entry.get(), extralist);
+						invChanges->SetFavorite(entry.get(), extralist);
 						break;
 					}
 				}
@@ -434,29 +381,25 @@ namespace Papyrus::Form::Functions
 
 	inline void UnmarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
-		using namespace fave_util;
-
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return;
 		}
 
 		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
-			if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) != magicFavorites->spells.end()) {
-				magic::unfavorite(magicFavorites, a_form);
+			const auto magicFavorites = RE::MagicFavorites::GetSingleton();
+			if (magicFavorites && std::ranges::find(magicFavorites->spells, a_form) != magicFavorites->spells.end()) {
+				magicFavorites->RemoveFavorite(a_form);
 			}
 		} else {
 			const auto player = RE::PlayerCharacter::GetSingleton();
-			const auto xContainer = player ? player->extraList.GetByType<RE::ExtraContainerChanges>() : nullptr;
-			const auto invChanges = xContainer ? xContainer->changes : nullptr;
-
-			if (invChanges) {
+			if (const auto invChanges = player->GetInventoryChanges()) {
 				auto inv = player->GetInventory();
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
 					if (count > 0 && item == a_form) {
-						if (const auto extralist = item::get_hotkeyed(entry.get()); extralist) {
-							item::unfavorite(invChanges, entry.get(), extralist);
+						if (const auto extralist = INV::get_hotkey_extralist(entry.get()); extralist) {
+							invChanges->RemoveFavorite(entry.get(), extralist);
 						}
 						break;
 					}

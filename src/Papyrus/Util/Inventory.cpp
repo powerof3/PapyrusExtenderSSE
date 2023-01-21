@@ -33,7 +33,19 @@ namespace INV
 		return nullptr;
 	}
 
-	void remove_item(RE::TESObjectREFR* a_ref, RE::TESBoundObject* a_item, std::uint32_t a_count, bool a_silent, RE::TESObjectREFR* a_otherContainer, Papyrus::StackID a_stackID, Papyrus::VM* a_vm)
+    RE::ExtraDataList* get_hotkey_extralist(RE::InventoryEntryData* a_changes)
+    {
+        if (a_changes->extraLists) {
+            for (const auto& xList : *a_changes->extraLists) {
+                if (const auto hotkey = xList->HasType<RE::ExtraHotkey>()) {
+                    return xList;
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    void remove_item(RE::TESObjectREFR* a_ref, RE::TESBoundObject* a_item, std::uint32_t a_count, bool a_silent, RE::TESObjectREFR* a_otherContainer, Papyrus::StackID a_stackID, Papyrus::VM* a_vm)
 	{
 		using func_t = decltype(&remove_item);
 		REL::Relocation<func_t> func{ RELOCATION_ID(56261, 56647) };

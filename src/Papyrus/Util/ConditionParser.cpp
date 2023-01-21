@@ -980,7 +980,7 @@ namespace CONDITION
 		case RE::FormType::MagicEffect:
 			{
 				const auto effect = a_form.As<RE::EffectSetting>();
-				condition = effect ? &effect->conditions : nullptr;
+				condition = &effect->conditions;
 			}
 			break;
 		case RE::FormType::Spell:
@@ -990,12 +990,31 @@ namespace CONDITION
 		case RE::FormType::Scroll:
 			{
 				const auto magicItem = a_form.As<RE::MagicItem>();
-				condition = magicItem && a_index < magicItem->effects.size() ? &magicItem->effects[a_index]->conditions : nullptr;
+				condition = a_index < magicItem->effects.size() ? &magicItem->effects[a_index]->conditions : nullptr;
+			}
+			break;
+		case RE::FormType::Info:
+			{
+				const auto topic = a_form.As<RE::TESTopicInfo>();
+				condition = &topic->objConditions;
+			}
+			break;
+		case RE::FormType::Package:
+			{
+				const auto package = a_form.As<RE::TESPackage>();
+				condition = &package->packConditions;
+			}
+			break;
+		case RE::FormType::Perk:
+			{
+				const auto perk = a_form.As<RE::BGSPerk>();
+				condition = &perk->perkConditions;
 			}
 			break;
 		default:
 			break;
 		}
+
 		return condition;
 	}
 }

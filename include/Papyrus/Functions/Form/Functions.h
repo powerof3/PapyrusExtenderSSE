@@ -64,7 +64,7 @@ namespace Papyrus::Form::Functions
 		case RE::FormType::AlchemyItem:
 		case RE::FormType::Scroll:
 			{
-				if (const auto magicItem = a_form->As<RE::MagicItem>(); magicItem) {
+				if (const auto magicItem = a_form->As<RE::MagicItem>()) {
 					for (const auto& effect : magicItem->effects) {
 						if (result) {
 							break;
@@ -87,33 +87,25 @@ namespace Papyrus::Form::Functions
 		case RE::FormType::MagicEffect:
 			{
 				const auto effect = a_form->As<RE::EffectSetting>();
-				if (effect && effect->conditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = effect->conditions.IsTrue(a_actionRef, a_target))
 			}
 			break;
 		case RE::FormType::Info:
 			{
 				const auto topic = a_form->As<RE::TESTopicInfo>();
-				if (topic && topic->objConditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = topic->objConditions.IsTrue(a_actionRef, a_target))
 			}
 			break;
 		case RE::FormType::Package:
 			{
 				const auto package = a_form->As<RE::TESPackage>();
-				if (package && package->packConditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = package->packConditions.IsTrue(a_actionRef, a_target))
 			}
 			break;
 		case RE::FormType::Perk:
 			{
 				const auto perk = a_form->As<RE::BGSPerk>();
-				if (perk && perk->perkConditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result =perk->perkConditions.IsTrue(a_actionRef, a_target))
 			}
 			break;
 		default:
@@ -134,7 +126,8 @@ namespace Papyrus::Form::Functions
 			a_vm->TraceStack("Form is None", a_stackID);
 			return result;
 		}
-		auto condition = CONDITION::GetCondition(*a_form, a_index);
+
+		const auto condition = CONDITION::GetCondition(*a_form, a_index);
 		if (!condition) {
 			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
 			return result;
@@ -325,6 +318,53 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
+	inline void SetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESForm* a_form,
+		std::uint32_t a_index,
+		std::vector<std::string> a_conditionList)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		if (a_conditionList.empty() || a_conditionList.front().empty()) {
+			a_vm->TraceStack("Condition List is empty", a_stackID);
+			return;
+		}
+
+		const auto condition = CONDITION::GetCondition(*a_form, a_index);
+		if (!condition) {
+			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
+			return;
+		}
+
+        if (auto conditions = CONDITION::ParseConditions(a_conditionList); !conditions.empty()) {
+			for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
+                if (const auto newNode = new RE::TESConditionItem) {
+					newNode->next = nullptr;
+					newNode->data.object = object;
+					newNode->data.functionData.function = functionID;
+					newNode->data.functionData.params[0] = param1;
+					newNode->data.functionData.params[1] = param2;
+					newNode->data.flags.opCode = opCode;
+					newNode->data.comparisonValue.f = value;
+					newNode->data.flags.isOR = ANDOR;
+
+					if (condition->head == nullptr) {
+						condition->head = newNode;
+					} else {
+						auto* current = condition->head;
+						while (current->next != nullptr) {
+							current = current->next;
+						}
+						current->next = newNode;
+					}
+				}
+			}
+		}
+	}
+
 	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*,
 		bool a_disable)
 	{
@@ -424,6 +464,7 @@ namespace Papyrus::Form::Functions
 		BIND(MarkItemAsFavorite);
 		BIND(RemoveKeywordOnForm);
 		BIND(ReplaceKeywordOnForm);
+		BIND(SetConditionList);
 		BIND(SetFastTravelDisabled);
 		BIND(SetFastTravelTargetFormID);
 		BIND(SetFastTravelTargetRef);

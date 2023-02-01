@@ -1156,7 +1156,7 @@ namespace Papyrus::ObjectReference
 		if (a_nodeName.empty()) {
 			root->SetCollisionLayer(colLayer);
 		} else {
-            if (const auto object = root->GetObjectByName(a_nodeName)) {
+			if (const auto object = root->GetObjectByName(a_nodeName)) {
 				object->SetCollisionLayer(colLayer);
 			}
 		}

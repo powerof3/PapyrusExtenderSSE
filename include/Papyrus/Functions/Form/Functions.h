@@ -87,25 +87,25 @@ namespace Papyrus::Form::Functions
 		case RE::FormType::MagicEffect:
 			{
 				const auto effect = a_form->As<RE::EffectSetting>();
-				result = effect->conditions.IsTrue(a_actionRef, a_target))
+				result = effect->conditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		case RE::FormType::Info:
 			{
 				const auto topic = a_form->As<RE::TESTopicInfo>();
-				result = topic->objConditions.IsTrue(a_actionRef, a_target))
+				result = topic->objConditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		case RE::FormType::Package:
 			{
 				const auto package = a_form->As<RE::TESPackage>();
-				result = package->packConditions.IsTrue(a_actionRef, a_target))
+				result = package->packConditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		case RE::FormType::Perk:
 			{
 				const auto perk = a_form->As<RE::BGSPerk>();
-				result =perk->perkConditions.IsTrue(a_actionRef, a_target))
+				result = perk->perkConditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		default:

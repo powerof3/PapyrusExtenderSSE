@@ -2,13 +2,10 @@
 
 namespace GRAPHICS
 {
-	namespace MATERIAL
+	RE::MATERIAL_ID MATERIAL::get_material(const std::string& a_mat)
 	{
-		std::string_view get_material(MAT a_mat)
-		{
-			auto it = materialMap.find(a_mat);
-			return it != materialMap.end() ? it->second : "";
-		}
+        const auto it = materialMap.find(a_mat);
+		return it != materialMap.end() ? it->second : RE::MATERIAL_ID::kNone;
 	}
 
 	namespace RESET
@@ -470,8 +467,8 @@ namespace GRAPHICS
 
 			if (const auto data = a_root->GetExtraData<RE::NiStringsExtraData>(EXTRA::TOGGLE); data) {
 				a_cull ?
-                    data->Insert(a_node->name) :
-                    data->Remove(a_node->name);
+					data->Insert(a_node->name) :
+					data->Remove(a_node->name);
 			} else if (a_cull) {
 				std::vector<RE::BSFixedString> vec{ a_node->name };
 				if (const auto newData = RE::NiStringsExtraData::Create(EXTRA::TOGGLE, vec); newData) {

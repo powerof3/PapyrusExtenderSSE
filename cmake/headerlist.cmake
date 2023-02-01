@@ -47,7 +47,6 @@ set(headers ${headers}
 	include/Papyrus/Util/ConditionParser.h
 	include/Papyrus/Util/Graphics.h
 	include/Papyrus/Util/Inventory.h
-	include/Papyrus/Util/Magic.h
 	include/Papyrus/Util/Script.h
 	include/Serialization/EventHolder.h
 	include/Serialization/Manager.h

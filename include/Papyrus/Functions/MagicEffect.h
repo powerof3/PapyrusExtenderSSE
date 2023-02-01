@@ -29,7 +29,7 @@ namespace Papyrus::MagicEffect
 			return RE::BSFixedString();
 		}
 
-		return MAGIC::get_archetype_as_string(a_mgef->GetArchetype());
+		return RE::EffectArchetypeToString(a_mgef->GetArchetype());
 	}
 
 	inline RE::BGSSoundDescriptorForm* GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,

@@ -662,7 +662,7 @@ namespace Papyrus::Actor
 #endif
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				const auto mgef = ae ? ae->GetBaseObject() : nullptr;
-				return mgef && MAGIC::get_archetype_as_string(mgef->GetArchetype()) == a_archetype;
+				return mgef && RE::EffectArchetypeToString(mgef->GetArchetype()) == a_archetype;
 			});
 		}
 		return false;

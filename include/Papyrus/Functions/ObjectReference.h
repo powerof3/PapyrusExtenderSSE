@@ -596,11 +596,11 @@ namespace Papyrus::ObjectReference
 
 					if (shapeData) {
 						for (const auto& meshMaterial : shapeData->meshMaterials) {
-							result.emplace_back(GRAPHICS::MATERIAL::get_material(meshMaterial.materialID));
+							result.emplace_back(RE::MaterialIDToString(meshMaterial.materialID));
 						}
 					}
 				} else if (const auto bhkShape = hkpShape->userData; bhkShape) {
-					result.emplace_back(GRAPHICS::MATERIAL::get_material(bhkShape->materialID).data());
+					result.emplace_back(MaterialIDToString(bhkShape->materialID).data());
 				}
 			}
 		};
@@ -1156,8 +1156,7 @@ namespace Papyrus::ObjectReference
 		if (a_nodeName.empty()) {
 			root->SetCollisionLayer(colLayer);
 		} else {
-			auto object = root->GetObjectByName(a_nodeName);
-			if (object) {
+            if (const auto object = root->GetObjectByName(a_nodeName)) {
 				object->SetCollisionLayer(colLayer);
 			}
 		}
@@ -1254,19 +1253,8 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto newID = RE::MATERIAL_ID::kNone;
-		auto oldID = RE::MATERIAL_ID::kNone;
-
-		for (const auto& [id, matString] : GRAPHICS::MATERIAL::materialMap) {
-			if (string::icontains(matString, a_newMaterialType)) {
-				newID = id;
-				break;
-			}
-			if (!a_oldMaterialType.empty() && string::icontains(matString, a_oldMaterialType)) {
-				oldID = id;
-				break;
-			}
-		}
+		auto newID = GRAPHICS::MATERIAL::get_material(a_newMaterialType);
+		auto oldID = GRAPHICS::MATERIAL::get_material(a_oldMaterialType);
 
 		const auto set_material_type = [&](RE::bhkWorldObject* a_body) {
 			if (!a_body) {
@@ -1316,7 +1304,6 @@ namespace Papyrus::ObjectReference
 				} else {
 					RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
 						set_material_type(a_col->body.get());
-
 						return RE::BSVisit::BSVisitControl::kContinue;
 					});
 				}

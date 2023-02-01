@@ -892,7 +892,7 @@ namespace Papyrus::Graphics
 
 					if (newNode) {
 						if (const auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData && attachTData->value[0]) {
-							std::string newNodeStr{ MAGIC::namedNode };
+							std::string newNodeStr { "NamedNode&" };
 							newNodeStr += a_toNode;
 							attachTData->Replace(attachTData->value[0], newNodeStr);
 						}

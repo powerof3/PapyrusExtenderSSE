@@ -12,7 +12,7 @@ namespace CONDITION
 		andOr(a_condition->data.flags.isOR)
 	{}
 
-    PARAMS GetFuncType(FUNC_ID a_funcID)
+	PARAMS GetFuncType(FUNC_ID a_funcID)
 	{
 		PARAMS paramPair;
 

@@ -174,8 +174,8 @@ namespace Papyrus::Form::Functions
 
 		if (const auto file =
 				a_lastModified ?
-					a_form->GetDescriptionOwnerFile() :
-					a_form->GetFile(0);
+                    a_form->GetDescriptionOwnerFile() :
+                    a_form->GetFile(0);
 			file) {
 			return file->GetFilename();
 		}
@@ -339,9 +339,9 @@ namespace Papyrus::Form::Functions
 			return;
 		}
 
-        if (auto conditions = CONDITION::ParseConditions(a_conditionList); !conditions.empty()) {
+		if (auto conditions = CONDITION::ParseConditions(a_conditionList); !conditions.empty()) {
 			for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
-                if (const auto newNode = new RE::TESConditionItem) {
+				if (const auto newNode = new RE::TESConditionItem) {
 					newNode->next = nullptr;
 					newNode->data.object = object;
 					newNode->data.functionData.function = functionID;

@@ -280,13 +280,13 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
-                                    RE::ActorValue::kNone;
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
+		                            RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
-                   0.0f;
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
+		           0.0f;
 	}
 
 	inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
@@ -441,6 +441,16 @@ namespace Papyrus::Actor
 
 		const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand);
 		return xPoison ? xPoison->count : 0;
+	}
+
+	inline float GetEquippedWeight(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0.0f;
+		}
+
+		return a_actor->GetEquippedWeight();
 	}
 
 	inline RE::Actor* GetMount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
@@ -1011,8 +1021,8 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
-                charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
 		}
@@ -1091,13 +1101,14 @@ namespace Papyrus::Actor
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
 		BIND(GetEquippedAmmo);
-		BIND(GetEquippedWeaponIsPoisoned);
-		BIND(GetEquippedWeaponPoison);
-		BIND(GetEquippedWeaponPoisonCount);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
 		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");
 #endif
+		BIND(GetEquippedWeaponIsPoisoned);
+		BIND(GetEquippedWeaponPoison);
+		BIND(GetEquippedWeaponPoisonCount);
+		BIND(GetEquippedWeight);
 		BIND(GetMount);
 		BIND(GetLocalGravityActor);
 		BIND(GetObjectUnderFeet);

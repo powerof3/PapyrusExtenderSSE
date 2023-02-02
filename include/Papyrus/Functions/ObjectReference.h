@@ -25,9 +25,7 @@ namespace Papyrus::ObjectReference
 			}
 			const auto& [count, entry] = data;
 			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				for (auto i = 0; i < count; i++) {
-					result.push_back(item);
-				}
+				result.push_back(item);
 			}
 		}
 
@@ -85,9 +83,7 @@ namespace Papyrus::ObjectReference
 			}
 			const auto& [count, entry] = data;
 			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				for (auto i = 0; i < count; i++) {
-					result.push_back(item);
-				}
+				result.push_back(item);
 			}
 		}
 

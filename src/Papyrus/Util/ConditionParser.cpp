@@ -12,7 +12,12 @@ namespace CONDITION
 		andOr(a_condition->data.flags.isOR)
 	{}
 
-	PARAMS GetFuncType(FUNC_ID a_funcID)
+    bool ConditionData::operator==(RE::TESConditionItem* a_item) const
+    {
+		return *this == ConditionData(a_item);
+    }
+
+    PARAMS GetFuncType(FUNC_ID a_funcID)
 	{
 		PARAMS paramPair;
 
@@ -668,11 +673,11 @@ namespace CONDITION
 		return result;
 	}
 
-	ConditionDataVec ParseConditions(const std::vector<std::string>& a_conditionList)
+	std::vector<ConditionData> ParseConditionList(const std::vector<std::string>& a_conditionList)
 	{
 		using TYPE = ConditionData::TYPE;
 
-		ConditionDataVec dataVec;
+		std::vector<ConditionData> dataVec{};
 
 		for (auto& condition : a_conditionList) {
 			ConditionData data{};
@@ -869,16 +874,16 @@ namespace CONDITION
 		return result;
 	}
 
-	std::vector<std::string> BuildConditions(const RE::TESCondition* a_conditions)
+	std::vector<std::string> BuildConditionList(const RE::TESCondition* a_conditions)
 	{
 		using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
 
-		ConditionDataVec conditionVec;
+		std::vector<ConditionData> conditionVec{};
 
 		if (a_conditions) {
 			auto tmp = a_conditions->head;
 			while (tmp != nullptr) {
-				conditionVec.emplace_back(ConditionData(tmp));
+				conditionVec.emplace_back(tmp);
 				tmp = tmp->next;
 			}
 		}
@@ -947,7 +952,7 @@ namespace CONDITION
 		return vec;
 	}
 
-	RE::TESCondition* GetCondition(RE::TESForm& a_form, std::uint32_t a_index)
+	RE::TESCondition* GetConditions(RE::TESForm& a_form, std::uint32_t a_index)
 	{
 		RE::TESCondition* condition = nullptr;
 

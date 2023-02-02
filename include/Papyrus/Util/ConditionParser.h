@@ -902,7 +902,10 @@ namespace CONDITION
 		ConditionData() = default;
 		ConditionData(const RE::TESConditionItem* a_condition);
 
-		OBJECT conditionItem;
+		bool operator==(const ConditionData&) const = default;
+        bool operator==(RE::TESConditionItem* a_item) const;
+
+        OBJECT conditionItem;
 		FUNC_ID functionID;
 		void* param1;
 		void* param2;
@@ -910,10 +913,9 @@ namespace CONDITION
 		float value;
 		bool andOr;
 	};
-	using ConditionDataVec = std::vector<ConditionData>;
 
-	RE::TESCondition* GetCondition(RE::TESForm& a_form, std::uint32_t a_index);
+	RE::TESCondition* GetConditions(RE::TESForm& a_form, std::uint32_t a_index);
 
-	ConditionDataVec ParseConditions(const std::vector<std::string>& a_conditionList);
-	std::vector<std::string> BuildConditions(const RE::TESCondition* a_conditions);
+	std::vector<ConditionData> ParseConditionList(const std::vector<std::string>& a_conditionList);
+	std::vector<std::string> BuildConditionList(const RE::TESCondition* a_conditions);
 }

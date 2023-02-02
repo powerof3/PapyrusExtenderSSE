@@ -127,20 +127,20 @@ namespace Papyrus::Form::Functions
 			return result;
 		}
 
-		const auto condition = CONDITION::GetCondition(*a_form, a_index);
-		if (!condition) {
+		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
+		if (!formConditions || !formConditions->head) {
 			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
 			return result;
 		}
 
-		return CONDITION::BuildConditions(condition);
+		return CONDITION::BuildConditionList(formConditions);
 	}
 
 	inline RE::BSFixedString GetDescription(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		if (const auto description = a_form->As<RE::TESDescription>(); description) {
@@ -152,14 +152,14 @@ namespace Papyrus::Form::Functions
 			return temp;
 		}
 
-		return RE::BSFixedString();
+		return {};
 	}
 
 	inline RE::BSFixedString GetFormEditorID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return Cache::EditorID::GetFormEditorID(a_form);
@@ -169,18 +169,18 @@ namespace Papyrus::Form::Functions
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		if (const auto file =
 				a_lastModified ?
-                    a_form->GetDescriptionOwnerFile() :
-                    a_form->GetFile(0);
+					a_form->GetDescriptionOwnerFile() :
+					a_form->GetFile(0);
 			file) {
 			return file->GetFilename();
 		}
 
-		return RE::BSFixedString();
+		return {};
 	}
 
 	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)
@@ -204,6 +204,30 @@ namespace Papyrus::Form::Functions
 		}
 
 		return a_form->IsDynamicForm();
+	}
+
+	inline bool IsRecordFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		const RE::TESForm* a_form,
+		std::uint32_t a_flag)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return false;
+		}
+
+		return (a_form->formFlags & a_flag) != 0;
+	}
+
+	inline bool IsScriptAttachedToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		const RE::TESForm* a_form,
+		RE::BSFixedString a_scriptName)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return false;
+		}
+
+		return SCRIPT::is_script_attached(a_form, a_scriptName);
 	}
 
 	inline void MarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
@@ -234,28 +258,41 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline bool IsRecordFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
-		std::uint32_t a_flag)
+	inline void RemoveConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESForm* a_form,
+		std::uint32_t a_index,
+		std::vector<std::string> a_conditionList)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return false;
+			return;
 		}
 
-		return (a_form->formFlags & a_flag) != 0;
-	}
-
-	inline bool IsScriptAttachedToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
-		RE::BSFixedString a_scriptName)
-	{
-		if (!a_form) {
-			a_vm->TraceStack("Form is None", a_stackID);
-			return false;
+		if (a_conditionList.empty()) {
+			a_vm->TraceStack("Condition List is empty", a_stackID);
+			return;
 		}
 
-		return SCRIPT::is_script_attached(a_form, a_scriptName);
+		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
+		if (!formConditions || !formConditions->head) {
+			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
+			return;
+		}
+
+		if (const auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
+			auto* currentNode = formConditions->head;
+			auto** previousNode = &formConditions->head;
+
+			while (currentNode != nullptr) {
+				if (std::ranges::find(conditions, currentNode) != conditions.end()) {
+					*previousNode = currentNode->next;
+					delete currentNode;
+				} else {
+					previousNode = &(currentNode->next);
+				}
+				currentNode = *previousNode;
+			}
+		}
 	}
 
 	inline bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -299,8 +336,7 @@ namespace Papyrus::Form::Functions
 				bool found = false;
 				std::uint32_t removeIndex = 0;
 				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
-					const auto keyword = keywordForm->keywords[i];
-					if (keyword) {
+                    if (const auto keyword = keywordForm->keywords[i]) {
 						if (keyword == a_add) {
 							return;
 						}
@@ -328,18 +364,18 @@ namespace Papyrus::Form::Functions
 			return;
 		}
 
-		if (a_conditionList.empty() || a_conditionList.front().empty()) {
+		if (a_conditionList.empty()) {
 			a_vm->TraceStack("Condition List is empty", a_stackID);
 			return;
 		}
 
-		const auto condition = CONDITION::GetCondition(*a_form, a_index);
-		if (!condition) {
+		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
+		if (!formConditions) {
 			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
 			return;
 		}
 
-		if (auto conditions = CONDITION::ParseConditions(a_conditionList); !conditions.empty()) {
+		if (auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
 			for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
 				if (const auto newNode = new RE::TESConditionItem) {
 					newNode->next = nullptr;
@@ -351,10 +387,10 @@ namespace Papyrus::Form::Functions
 					newNode->data.comparisonValue.f = value;
 					newNode->data.flags.isOR = ANDOR;
 
-					if (condition->head == nullptr) {
-						condition->head = newNode;
+					if (formConditions->head == nullptr) {
+						formConditions->head = newNode;
 					} else {
-						auto* current = condition->head;
+						auto* current = formConditions->head;
 						while (current->next != nullptr) {
 							current = current->next;
 						}
@@ -365,14 +401,12 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*,
-		bool a_disable)
+	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*, bool a_disable)
 	{
 		return Event::FastTravel::SetFastTravelDisabled(a_disable);
 	}
 
-	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::FormID a_formID)
+	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::FormID a_formID)
 	{
 		if (!a_formID) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -381,8 +415,7 @@ namespace Papyrus::Form::Functions
 		return Event::FastTravel::SetFastTravelTarget(a_formID);
 	}
 
-	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref)
+	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -391,8 +424,7 @@ namespace Papyrus::Form::Functions
 		return Event::FastTravel::SetFastTravelTarget(a_ref);
 	}
 
-	inline bool SetFastTravelTargetString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BSFixedString a_name)
+	inline bool SetFastTravelTargetString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name)
 	{
 		if (a_name.empty()) {
 			a_vm->TraceStack("Name is empty", a_stackID);
@@ -401,8 +433,7 @@ namespace Papyrus::Form::Functions
 		return Event::FastTravel::SetFastTravelTarget(a_name.c_str());
 	}
 
-	inline float SetFastTravelWaitTimeout(VM*, StackID, RE::StaticFunctionTag*,
-		float a_timeout)
+	inline float SetFastTravelWaitTimeout(VM*, StackID, RE::StaticFunctionTag*, float a_timeout)
 	{
 		return Event::FastTravel::SetFastTravelWaitTimeout(a_timeout);
 	}
@@ -462,6 +493,7 @@ namespace Papyrus::Form::Functions
 		BIND(IsRecordFlagSet);
 		BIND(IsScriptAttachedToForm);
 		BIND(MarkItemAsFavorite);
+		BIND(RemoveConditionList);
 		BIND(RemoveKeywordOnForm);
 		BIND(ReplaceKeywordOnForm);
 		BIND(SetConditionList);

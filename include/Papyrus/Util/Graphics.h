@@ -116,6 +116,8 @@ namespace GRAPHICS
 		};
 
 		RE::MATERIAL_ID get_material(const std::string& a_mat);
+
+		void for_each_material_type(const RE::NiPointer<RE::bhkWorldObject>& a_body, std::function<void(RE::MATERIAL_ID&)> a_visitor);
 	}
 
 	namespace RESET

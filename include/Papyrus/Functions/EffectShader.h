@@ -51,7 +51,7 @@ namespace Papyrus::EffectShader
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return a_effectShader->fillTexture.textureName;
@@ -61,7 +61,7 @@ namespace Papyrus::EffectShader
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return a_effectShader->holesTexture.textureName;
@@ -71,7 +71,7 @@ namespace Papyrus::EffectShader
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return a_effectShader->membranePaletteTexture.textureName;
@@ -91,7 +91,7 @@ namespace Papyrus::EffectShader
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return a_effectShader->particlePaletteTexture.textureName;
@@ -111,7 +111,7 @@ namespace Papyrus::EffectShader
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return a_effectShader->particleShaderTexture.textureName;

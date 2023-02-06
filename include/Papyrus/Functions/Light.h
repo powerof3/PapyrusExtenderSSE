@@ -228,45 +228,30 @@ namespace Papyrus::Light
 		switch (a_type) {
 		case 1:
 			{
-				flags.reset(FLAGS::kOmniShadow);
-				flags.reset(FLAGS::kSpotlight);
-				flags.reset(FLAGS::kSpotShadow);
-
+				flags.reset(FLAGS::kOmniShadow, FLAGS::kSpotlight, FLAGS::kSpotShadow);
 				flags.set(FLAGS::kHemiShadow);
 			}
 			break;
 		case 2:
 			{
-				flags.reset(FLAGS::kHemiShadow);
-				flags.reset(FLAGS::kOmniShadow);
-				flags.reset(FLAGS::kSpotlight);
-				flags.reset(FLAGS::kSpotShadow);
+				flags.reset(FLAGS::kHemiShadow, FLAGS::kOmniShadow, FLAGS::kSpotlight, FLAGS::kSpotShadow);
 			}
 			break;
 		case 3:
 			{
-				flags.reset(FLAGS::kHemiShadow);
-				flags.reset(FLAGS::kSpotlight);
-				flags.reset(FLAGS::kSpotShadow);
-
+				flags.reset(FLAGS::kHemiShadow, FLAGS::kSpotlight, FLAGS::kSpotShadow);
 				flags.set(FLAGS::kOmniShadow);
 			}
 			break;
 		case 4:
 			{
-				flags.reset(FLAGS::kHemiShadow);
-				flags.reset(FLAGS::kOmniShadow);
-				flags.reset(FLAGS::kSpotShadow);
-
+				flags.reset(FLAGS::kHemiShadow, FLAGS::kOmniShadow, FLAGS::kSpotShadow);
 				flags.set(FLAGS::kSpotlight);
 			}
 			break;
 		case 5:
 			{
-				flags.reset(FLAGS::kHemiShadow);
-				flags.reset(FLAGS::kOmniShadow);
-				flags.reset(FLAGS::kSpotlight);
-
+				flags.reset(FLAGS::kHemiShadow, FLAGS::kOmniShadow, FLAGS::kSpotlight);
 				flags.set(FLAGS::kSpotShadow);
 			}
 			break;

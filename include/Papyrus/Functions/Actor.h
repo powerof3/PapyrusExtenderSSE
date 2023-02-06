@@ -804,8 +804,7 @@ namespace Papyrus::Actor
 		}
 
 		//Papyrus RemoveSpell queues a task, while console command calls this directly.
-		auto taskQueue = RE::TaskQueueInterface::GetSingleton();
-		if (taskQueue) {
+        if (auto taskQueue = RE::TaskQueueInterface::GetSingleton()) {
 			auto actorHandle = a_actor->CreateRefHandle();
 			for (const auto& spell : spells) {
 				taskQueue->QueueRemoveSpell(actorHandle, spell);
@@ -925,12 +924,10 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		const auto currentProcess = a_actor->currentProcess;
-		if (currentProcess) {
+        if (const auto currentProcess = a_actor->currentProcess) {
 			a_refraction = std::clamp(a_refraction, 0.0f, 1.0f);
 
-			const auto middleHigh = currentProcess->middleHigh;
-			if (middleHigh) {
+            if (const auto middleHigh = currentProcess->middleHigh) {
 				middleHigh->scriptRefractPower = a_refraction;
 			}
 
@@ -965,7 +962,6 @@ namespace Papyrus::Actor
 
 		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->poison = a_poison;
-
 			return true;
 		}
 
@@ -984,7 +980,6 @@ namespace Papyrus::Actor
 
 		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->count = a_count;
-
 			return true;
 		}
 

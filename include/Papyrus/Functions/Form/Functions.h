@@ -174,8 +174,8 @@ namespace Papyrus::Form::Functions
 
 		if (const auto file =
 				a_lastModified ?
-					a_form->GetDescriptionOwnerFile() :
-					a_form->GetFile(0);
+                    a_form->GetDescriptionOwnerFile() :
+                    a_form->GetFile(0);
 			file) {
 			return file->GetFilename();
 		}
@@ -336,7 +336,7 @@ namespace Papyrus::Form::Functions
 				bool found = false;
 				std::uint32_t removeIndex = 0;
 				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
-                    if (const auto keyword = keywordForm->keywords[i]) {
+					if (const auto keyword = keywordForm->keywords[i]) {
 						if (keyword == a_add) {
 							return;
 						}

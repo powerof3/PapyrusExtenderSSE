@@ -313,7 +313,7 @@ namespace MAGIC
 
 			static bool add_magic_effect(RE::MagicItem* a_item, const MGEFData& a_data)
 			{
-                if (auto effect = !detail::get_match(a_item, a_data) ? new RE::Effect() : nullptr) {
+				if (auto effect = !detail::get_match(a_item, a_data) ? new RE::Effect() : nullptr) {
 					effect->effectItem.magnitude = a_data.mag;
 					effect->effectItem.area = a_data.area;
 					effect->effectItem.duration = a_data.dur;
@@ -324,7 +324,7 @@ namespace MAGIC
 						auto conditions = CONDITION::ParseConditionList(a_data.conditionList);
 						if (!conditions.empty()) {
 							for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
-                                if (auto newNode = new RE::TESConditionItem) {
+								if (auto newNode = new RE::TESConditionItem) {
 									newNode->next = nullptr;
 									newNode->data.object = object;
 									newNode->data.functionData.function = functionID;

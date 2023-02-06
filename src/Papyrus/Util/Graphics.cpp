@@ -18,7 +18,7 @@ namespace GRAPHICS
 
 			const auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
 
-            if (const auto hkpShape = hkpBody ? hkpBody->GetShape() : nullptr) {
+			if (const auto hkpShape = hkpBody ? hkpBody->GetShape() : nullptr) {
 				if (hkpShape->type == RE::hkpShapeType::kMOPP) {
 					const auto mopp = static_cast<const RE::hkpMoppBvTreeShape*>(hkpShape);
 					const auto childShape = mopp ? mopp->child.childShape : nullptr;
@@ -496,8 +496,8 @@ namespace GRAPHICS
 
 			if (const auto data = a_root->GetExtraData<RE::NiStringsExtraData>(EXTRA::TOGGLE); data) {
 				a_cull ?
-					data->Insert(a_node->name) :
-					data->Remove(a_node->name);
+                    data->Insert(a_node->name) :
+                    data->Remove(a_node->name);
 			} else if (a_cull) {
 				std::vector<RE::BSFixedString> vec{ a_node->name };
 				if (const auto newData = RE::NiStringsExtraData::Create(EXTRA::TOGGLE, vec); newData) {

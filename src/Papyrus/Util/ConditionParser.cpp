@@ -12,12 +12,12 @@ namespace CONDITION
 		andOr(a_condition->data.flags.isOR)
 	{}
 
-    bool ConditionData::operator==(RE::TESConditionItem* a_item) const
-    {
+	bool ConditionData::operator==(RE::TESConditionItem* a_item) const
+	{
 		return *this == ConditionData(a_item);
-    }
+	}
 
-    PARAMS GetFuncType(FUNC_ID a_funcID)
+	PARAMS GetFuncType(FUNC_ID a_funcID)
 	{
 		PARAMS paramPair;
 

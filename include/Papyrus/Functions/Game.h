@@ -140,8 +140,8 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		return modInfo ?
-		           forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
-		           std::vector<RE::EnchantmentItem*>();
+                   forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
+                   std::vector<RE::EnchantmentItem*>();
 	}
 
 	inline std::vector<RE::TESForm*> GetAllFormsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::int32_t a_formType, std::vector<RE::BGSKeyword*> a_keywords)
@@ -171,8 +171,8 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		return modInfo ?
-		           forms::get_in_mod<RE::TESRace>(modInfo, a_keywords) :
-		           std::vector<RE::TESRace*>();
+                   forms::get_in_mod<RE::TESRace>(modInfo, a_keywords) :
+                   std::vector<RE::TESRace*>();
 	}
 
 	inline std::vector<RE::SpellItem*> GetAllSpellsInMod(RE::StaticFunctionTag*,
@@ -306,7 +306,7 @@ namespace Papyrus::Game
 	inline RE::BSFixedString GetSurfaceMaterialType(VM*, StackID, RE::StaticFunctionTag*, const float a_x, const float a_y, const float a_z)
 	{
 		const auto materialID = RE::TES::GetSingleton() ? RE::TES::GetSingleton()->GetLandMaterialType({ a_x, a_y, a_z }) :
-		                                                  RE::MATERIAL_ID::kNone;
+                                                          RE::MATERIAL_ID::kNone;
 		return RE::MaterialIDToString(materialID);
 	}
 

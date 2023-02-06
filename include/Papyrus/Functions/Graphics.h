@@ -85,8 +85,8 @@ namespace Papyrus::Graphics
 
 		if (const auto actorbase = a_actor->GetActorBase()) {
 			const float opacity = a_autoCalc ?
-			                          std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) :
-			                          a_opacity;
+                                      std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) :
+                                      a_opacity;
 			auto newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
 
 			SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {

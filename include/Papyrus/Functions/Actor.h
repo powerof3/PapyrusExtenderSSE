@@ -280,13 +280,13 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-		                            actorValueList->LookupActorValueByName(a_actorValue) :
-		                            RE::ActorValue::kNone;
+                                    actorValueList->LookupActorValueByName(a_actorValue) :
+                                    RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-		           a_actor->GetActorValueModifier(modifier, actorValue) :
-		           0.0f;
+                   a_actor->GetActorValueModifier(modifier, actorValue) :
+                   0.0f;
 	}
 
 	inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
@@ -804,7 +804,7 @@ namespace Papyrus::Actor
 		}
 
 		//Papyrus RemoveSpell queues a task, while console command calls this directly.
-        if (auto taskQueue = RE::TaskQueueInterface::GetSingleton()) {
+		if (auto taskQueue = RE::TaskQueueInterface::GetSingleton()) {
 			auto actorHandle = a_actor->CreateRefHandle();
 			for (const auto& spell : spells) {
 				taskQueue->QueueRemoveSpell(actorHandle, spell);
@@ -924,10 +924,10 @@ namespace Papyrus::Actor
 			return;
 		}
 
-        if (const auto currentProcess = a_actor->currentProcess) {
+		if (const auto currentProcess = a_actor->currentProcess) {
 			a_refraction = std::clamp(a_refraction, 0.0f, 1.0f);
 
-            if (const auto middleHigh = currentProcess->middleHigh) {
+			if (const auto middleHigh = currentProcess->middleHigh) {
 				middleHigh->scriptRefractPower = a_refraction;
 			}
 
@@ -1016,8 +1016,8 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
-				charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+                charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
 		}

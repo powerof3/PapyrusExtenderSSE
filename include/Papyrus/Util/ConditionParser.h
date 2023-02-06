@@ -903,9 +903,9 @@ namespace CONDITION
 		ConditionData(const RE::TESConditionItem* a_condition);
 
 		bool operator==(const ConditionData&) const = default;
-        bool operator==(RE::TESConditionItem* a_item) const;
+		bool operator==(RE::TESConditionItem* a_item) const;
 
-        OBJECT conditionItem;
+		OBJECT conditionItem;
 		FUNC_ID functionID;
 		void* param1;
 		void* param2;

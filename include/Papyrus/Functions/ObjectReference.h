@@ -820,7 +820,7 @@ namespace Papyrus::ObjectReference
 
 		const auto magicItem = a_form->As<RE::MagicItem>();
 		if (!magicItem) {
-			a_vm->TraceStack("Form is not a magic item", a_stackID);
+			a_vm->TraceForm(a_form, "is not a magic item", a_stackID);
 			return false;
 		}
 
@@ -1091,7 +1091,7 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 		if (!a_base) {
-			a_vm->TraceStack("Base Form is None", a_stackID);
+			a_vm->TraceStack("Base Object is None", a_stackID);
 			return;
 		}
 		if (!a_base->IsBoundObject()) {

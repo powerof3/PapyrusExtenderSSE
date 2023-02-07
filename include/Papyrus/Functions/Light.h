@@ -68,7 +68,7 @@ namespace Papyrus::Light
 		return result;
 	}
 
-	inline float GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectREFR* a_lightObject)
+	inline float GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject)
 	{
 		if (!a_lightObject) {
 			a_vm->TraceStack("Object is None", a_stackID);
@@ -78,7 +78,7 @@ namespace Papyrus::Light
 		const auto base = a_lightObject->GetBaseObject();
 		const auto light = base ? base->As<RE::TESObjectLIGH>() : nullptr;
 		if (!light) {
-			a_vm->TraceStack("Object is not a Light form", a_stackID);
+			a_vm->TraceForm(a_lightObject, "is not a Light form", a_stackID);
 			return 1.0f;
 		}
 
@@ -199,7 +199,7 @@ namespace Papyrus::Light
 		const auto base = a_lightObject->GetBaseObject();
 		const auto light = base ? base->As<RE::TESObjectLIGH>() : nullptr;
 		if (!light) {
-			a_vm->TraceStack("Object is not a Light form", a_stackID);
+			a_vm->TraceForm(a_lightObject, "is not a Light form", a_stackID);
 			return;
 		}
 

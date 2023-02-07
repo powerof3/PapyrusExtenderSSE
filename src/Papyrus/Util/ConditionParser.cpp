@@ -680,45 +680,52 @@ namespace CONDITION
 		std::vector<ConditionData> dataVec{};
 
 		for (auto& condition : a_conditionList) {
-			ConditionData data{};
-			PARAMS paramPair = { std::nullopt, std::nullopt };
+			if (condition.empty()) {
+				continue;
+			}
 
-			auto split_condition = string::split(condition, " | ");
+		    ConditionData data{};
+
+            auto split_condition = string::split(condition, " | ");
+			if (split_condition.size() != TYPE::kTotal) {
+				continue;
+			}
+
 			for (auto& conditionData : split_condition) {
 				string::trim(conditionData);
 			}
 
 			try {
-				//conditionItemObject
-				if (auto condItem = util::get_value<OBJECT>(split_condition[TYPE::kConditionItemObject])) {
+                //conditionItemObject
+			    if (auto condItem = util::get_value<COND_OBJECT>(split_condition[TYPE::kConditionItemObject])) {
 					data.conditionItem = *condItem;
 				} else {
 					continue;
 				}
 
 				switch (data.conditionItem) {
-				case OBJECT::kRef:
-				case OBJECT::kLinkedRef:
-				case OBJECT::kQuestAlias:
-				case OBJECT::kPackData:
-				case OBJECT::kEventData:
+				case COND_OBJECT::kRef:
+				case COND_OBJECT::kLinkedRef:
+				case COND_OBJECT::kQuestAlias:
+				case COND_OBJECT::kPackData:
+				case COND_OBJECT::kEventData:
 					continue;
 				default:
 					break;
 				}
 
 				//functionID
-				if (auto funcID = util::get_value<FUNC_ID>(split_condition[TYPE::kFunctionID])) {
+			    if (auto funcID = util::get_value<FUNC_ID>(split_condition[TYPE::kFunctionID])) {
 					data.functionID = *funcID;
 				} else {
 					continue;
 				}
-				paramPair = GetFuncType(data.functionID);
+                const auto [param1Type, param2Type] = GetFuncType(data.functionID);
 
 				//param1
-				auto& param1Str = split_condition[TYPE::kParam1];
+			    auto& param1Str = split_condition[TYPE::kParam1];
 				if (dist::is_valid_entry(param1Str)) {
-					const auto result = ParseVoidParams(param1Str, data.param1, paramPair.first);
+					const auto result = ParseVoidParams(param1Str, data.param1, param1Type);
 					if (!result) {
 						continue;
 					}
@@ -727,7 +734,7 @@ namespace CONDITION
 				//param2
 				auto& param2Str = split_condition[TYPE::kParam2];
 				if (dist::is_valid_entry(param2Str)) {
-					const auto result = ParseVoidParams(param2Str, data.param2, paramPair.second);
+					const auto result = ParseVoidParams(param2Str, data.param2, param2Type);
 					if (!result) {
 						continue;
 					}
@@ -744,8 +751,7 @@ namespace CONDITION
 				data.value = string::to_num<float>(split_condition[TYPE::kFloat]);
 
 				//operator
-				data.andOr = string::iequals(split_condition[TYPE::kANDOR], "OR"sv);
-
+			    data.andOr = string::iequals(split_condition[TYPE::kANDOR], "OR"sv);
 			} catch (...) {
 				continue;
 			}

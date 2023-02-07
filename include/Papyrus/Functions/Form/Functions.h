@@ -129,7 +129,7 @@ namespace Papyrus::Form::Functions
 
 		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
 		if (!formConditions || !formConditions->head) {
-			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
+			a_vm->TraceForm(a_form, "does not have a condition stack", a_stackID);
 			return result;
 		}
 
@@ -275,7 +275,7 @@ namespace Papyrus::Form::Functions
 
 		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
 		if (!formConditions || !formConditions->head) {
-			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
+			a_vm->TraceForm(a_form, "does not have a condition stack", a_stackID);
 			return;
 		}
 
@@ -371,7 +371,7 @@ namespace Papyrus::Form::Functions
 
 		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
 		if (!formConditions) {
-			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
+			a_vm->TraceForm(a_form, "does not have a condition stack", a_stackID);
 			return;
 		}
 

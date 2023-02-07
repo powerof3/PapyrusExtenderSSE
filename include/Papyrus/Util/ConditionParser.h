@@ -3,7 +3,7 @@
 namespace CONDITION
 {
 	using FUNC_ID = RE::FUNCTION_DATA::FunctionID;
-	using OBJECT = RE::CONDITIONITEMOBJECT;
+	using COND_OBJECT = RE::CONDITIONITEMOBJECT;
 	using OP_CODE = RE::CONDITION_ITEM_DATA::OpCode;
 
 	using PARAM_TYPE = RE::SCRIPT_PARAM_TYPE;
@@ -863,7 +863,7 @@ namespace CONDITION
 		template <class T, class M, class K>
 		static std::optional<T> get_value(const M& a_map, const K& a_key)
 		{
-			if (auto it = a_map.find(a_key); it != a_map.end()) {
+		    if (auto it = a_map.find(a_key); it != a_map.end()) {
 				return static_cast<T>(it->second);
 			}
 			return std::nullopt;
@@ -875,7 +875,7 @@ namespace CONDITION
 			if (string::is_only_digit(a_str)) {
 				return string::to_num<T>(a_str);
 			} else {
-				if (std::is_same_v<OBJECT, T>) {
+				if (std::is_same_v<COND_OBJECT, T>) {
 					return get_value<T>(conditionObjs_reverse, a_str);
 				} else if (std::is_same_v<FUNC_ID, T>) {
 					return get_value<T>(funcIDs_reverse, a_str);
@@ -896,7 +896,9 @@ namespace CONDITION
 			kParam2,
 			kOPCode,
 			kFloat,
-			kANDOR
+			kANDOR,
+
+			kTotal = 7
 		};
 
 		ConditionData() = default;
@@ -905,7 +907,7 @@ namespace CONDITION
 		bool operator==(const ConditionData&) const = default;
 		bool operator==(RE::TESConditionItem* a_item) const;
 
-		OBJECT conditionItem;
+		COND_OBJECT conditionItem;
 		FUNC_ID functionID;
 		void* param1;
 		void* param2;

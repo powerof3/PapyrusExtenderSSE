@@ -684,9 +684,9 @@ namespace CONDITION
 				continue;
 			}
 
-		    ConditionData data{};
+			ConditionData data{};
 
-            auto split_condition = string::split(condition, " | ");
+			auto split_condition = string::split(condition, " | ");
 			if (split_condition.size() != TYPE::kTotal) {
 				continue;
 			}
@@ -696,8 +696,8 @@ namespace CONDITION
 			}
 
 			try {
-                //conditionItemObject
-			    if (auto condItem = util::get_value<COND_OBJECT>(split_condition[TYPE::kConditionItemObject])) {
+				//conditionItemObject
+				if (auto condItem = util::get_value<COND_OBJECT>(split_condition[TYPE::kConditionItemObject])) {
 					data.conditionItem = *condItem;
 				} else {
 					continue;
@@ -715,15 +715,15 @@ namespace CONDITION
 				}
 
 				//functionID
-			    if (auto funcID = util::get_value<FUNC_ID>(split_condition[TYPE::kFunctionID])) {
+				if (auto funcID = util::get_value<FUNC_ID>(split_condition[TYPE::kFunctionID])) {
 					data.functionID = *funcID;
 				} else {
 					continue;
 				}
-                const auto [param1Type, param2Type] = GetFuncType(data.functionID);
+				const auto [param1Type, param2Type] = GetFuncType(data.functionID);
 
 				//param1
-			    auto& param1Str = split_condition[TYPE::kParam1];
+				auto& param1Str = split_condition[TYPE::kParam1];
 				if (dist::is_valid_entry(param1Str)) {
 					const auto result = ParseVoidParams(param1Str, data.param1, param1Type);
 					if (!result) {
@@ -751,7 +751,7 @@ namespace CONDITION
 				data.value = string::to_num<float>(split_condition[TYPE::kFloat]);
 
 				//operator
-			    data.andOr = string::iequals(split_condition[TYPE::kANDOR], "OR"sv);
+				data.andOr = string::iequals(split_condition[TYPE::kANDOR], "OR"sv);
 			} catch (...) {
 				continue;
 			}

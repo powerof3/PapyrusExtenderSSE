@@ -863,7 +863,7 @@ namespace CONDITION
 		template <class T, class M, class K>
 		static std::optional<T> get_value(const M& a_map, const K& a_key)
 		{
-		    if (auto it = a_map.find(a_key); it != a_map.end()) {
+			if (auto it = a_map.find(a_key); it != a_map.end()) {
 				return static_cast<T>(it->second);
 			}
 			return std::nullopt;

@@ -25,9 +25,7 @@ namespace Papyrus::ObjectReference
 			}
 			const auto& [count, entry] = data;
 			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				for (auto i = 0; i < count; i++) {
-					result.push_back(item);
-				}
+				result.push_back(item);
 			}
 		}
 
@@ -85,9 +83,7 @@ namespace Papyrus::ObjectReference
 			}
 			const auto& [count, entry] = data;
 			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				for (auto i = 0; i < count; i++) {
-					result.push_back(item);
-				}
+				result.push_back(item);
 			}
 		}
 
@@ -296,19 +292,18 @@ namespace Papyrus::ObjectReference
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		const auto root = a_ref->Get3D();
 		if (!root) {
 			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		const auto controller = root->GetControllers();
-		const auto manager = controller ? controller->AsNiControllerManager() : nullptr;
 
-		if (manager) {
+		if (const auto manager = controller ? controller->AsNiControllerManager() : nullptr) {
 			for (const auto& sequence : manager->sequenceArray) {
 				if (sequence && sequence->Animating()) {
 					return sequence->name;
@@ -316,7 +311,7 @@ namespace Papyrus::ObjectReference
 			}
 		}
 
-		return RE::BSFixedString();
+		return {};
 	}
 
 	inline RE::Actor* GetActorCause(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
@@ -470,12 +465,10 @@ namespace Papyrus::ObjectReference
 			return nullptr;
 		}
 
-		const auto teleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
-		const auto teleportData = teleport ? teleport->teleportData : nullptr;
+		const auto xTeleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
 
-		if (teleportData) {
-			const auto doorPtr = teleportData->linkedDoor.get();
-			return doorPtr.get();
+		if (const auto teleportData = xTeleport ? xTeleport->teleportData : nullptr) {
+			return teleportData->linkedDoor.get().get();
 		}
 
 		return nullptr;
@@ -566,7 +559,7 @@ namespace Papyrus::ObjectReference
 		RE::TESObjectREFR* a_ref,
 		std::string a_nodeName)
 	{
-		std::vector<std::string> result;
+		std::vector<std::string> result{};
 
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -579,32 +572,6 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
-		const auto get_material_type = [&](RE::bhkWorldObject* a_body) {
-			if (!a_body) {
-				return;
-			}
-
-			const auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
-			const auto hkpShape = hkpBody ? hkpBody->GetShape() : nullptr;
-
-			if (hkpShape) {
-				if (hkpShape->type == RE::hkpShapeType::kMOPP) {
-					const auto mopp = static_cast<const RE::hkpMoppBvTreeShape*>(hkpShape);
-					const auto childShape = mopp ? mopp->child.childShape : nullptr;
-					const auto compressedShape = childShape ? netimmerse_cast<RE::bhkCompressedMeshShape*>(childShape->userData) : nullptr;
-					const auto shapeData = compressedShape ? compressedShape->data.get() : nullptr;
-
-					if (shapeData) {
-						for (const auto& meshMaterial : shapeData->meshMaterials) {
-							result.emplace_back(GRAPHICS::MATERIAL::get_material(meshMaterial.materialID));
-						}
-					}
-				} else if (const auto bhkShape = hkpShape->userData; bhkShape) {
-					result.emplace_back(GRAPHICS::MATERIAL::get_material(bhkShape->materialID).data());
-				}
-			}
-		};
-
 		const auto cell = a_ref->GetParentCell();
 		const auto world = cell ? cell->GetbhkWorld() : nullptr;
 
@@ -613,14 +580,16 @@ namespace Papyrus::ObjectReference
 
 			if (!a_nodeName.empty()) {
 				const auto node = root->GetObjectByName(a_nodeName);
-				const auto col = node ? static_cast<RE::bhkNiCollisionObject*>(node->collisionObject.get()) : nullptr;
-				if (col) {
-					get_material_type(col->body.get());
+				if (const auto col = node ? static_cast<RE::bhkNiCollisionObject*>(node->collisionObject.get()) : nullptr) {
+					GRAPHICS::MATERIAL::for_each_material_type(col->body, [&](RE::MATERIAL_ID& a_matID) {
+						result.emplace_back(RE::MaterialIDToString(a_matID).data());
+					});
 				}
 			} else {
 				RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-					get_material_type(a_col->body.get());
-
+					GRAPHICS::MATERIAL::for_each_material_type(a_col->body, [&](RE::MATERIAL_ID& a_matID) {
+						result.emplace_back(RE::MaterialIDToString(a_matID).data());
+					});
 					return RE::BSVisit::BSVisitControl::kStop;
 				});
 			}
@@ -651,9 +620,7 @@ namespace Papyrus::ObjectReference
 			RE::BSReadLockGuard locker(world->worldLock);
 
 			RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-				const auto body = a_col->body.get();
-				const auto hkpRigidBody = body ? static_cast<RE::hkpRigidBody*>(body->referencedObject.get()) : nullptr;
-				if (hkpRigidBody) {
+				if (const auto hkpRigidBody = a_col->body ? static_cast<RE::hkpRigidBody*>(a_col->body->referencedObject.get()) : nullptr) {
 					motionType = hkpRigidBody->motion.type.underlying();
 				}
 				return motionType != -1 ? RE::BSVisit::BSVisitControl::kStop : RE::BSVisit::BSVisitControl::kContinue;
@@ -853,7 +820,7 @@ namespace Papyrus::ObjectReference
 
 		const auto magicItem = a_form->As<RE::MagicItem>();
 		if (!magicItem) {
-			a_vm->TraceStack("Form is not a magic item", a_stackID);
+			a_vm->TraceForm(a_form, "is not a magic item", a_stackID);
 			return false;
 		}
 
@@ -1124,15 +1091,17 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 		if (!a_base) {
-			a_vm->TraceStack("Base Form is None", a_stackID);
+			a_vm->TraceStack("Base Object is None", a_stackID);
 			return;
 		}
 		if (!a_base->IsBoundObject()) {
-			a_vm->TraceForm(a_ref, "Base Form is not a Bound Object", a_stackID);
+			a_vm->TraceForm(a_ref, "is not a Bound Object", a_stackID);
 			return;
 		}
 
-		a_ref->SetObjectReference(static_cast<RE::TESBoundObject*>(a_base));
+		SKSE::GetTaskInterface()->AddTask([a_ref, a_base]() {
+			a_ref->SetObjectReference(static_cast<RE::TESBoundObject*>(a_base));
+		});
 	}
 
 	inline void SetCollisionLayer(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1153,14 +1122,13 @@ namespace Papyrus::ObjectReference
 
 		const auto colLayer = static_cast<RE::COL_LAYER>(a_colLayer);
 
-		if (a_nodeName.empty()) {
-			root->SetCollisionLayer(colLayer);
-		} else {
-			auto object = root->GetObjectByName(a_nodeName);
-			if (object) {
+		SKSE::GetTaskInterface()->AddTask([a_nodeName, root, colLayer]() {
+			if (a_nodeName.empty()) {
+				root->SetCollisionLayer(colLayer);
+			} else if (const auto object = root->GetObjectByName(a_nodeName)) {
 				object->SetCollisionLayer(colLayer);
 			}
-		}
+		});
 	}
 
 	inline void SetEffectShaderDuration(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -1208,10 +1176,9 @@ namespace Papyrus::ObjectReference
 			return false;
 		}
 
-		const auto teleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
-		const auto teleportData = teleport ? teleport->teleportData : nullptr;
+		const auto xTeleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
 
-		if (teleportData) {
+		if (const auto teleportData = xTeleport ? xTeleport->teleportData : nullptr) {
 			teleportData->linkedDoor = a_door->CreateRefHandle();
 			return true;
 		}
@@ -1254,51 +1221,8 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto newID = RE::MATERIAL_ID::kNone;
-		auto oldID = RE::MATERIAL_ID::kNone;
-
-		for (const auto& [id, matString] : GRAPHICS::MATERIAL::materialMap) {
-			if (string::icontains(matString, a_newMaterialType)) {
-				newID = id;
-				break;
-			}
-			if (!a_oldMaterialType.empty() && string::icontains(matString, a_oldMaterialType)) {
-				oldID = id;
-				break;
-			}
-		}
-
-		const auto set_material_type = [&](RE::bhkWorldObject* a_body) {
-			if (!a_body) {
-				return;
-			}
-
-			const auto hkpBody = static_cast<RE::hkpWorldObject*>(a_body->referencedObject.get());
-			const auto hkpShape = hkpBody ? hkpBody->GetShape() : nullptr;
-
-			if (hkpShape) {
-				if (hkpShape->type == RE::hkpShapeType::kMOPP) {
-					const auto mopp = static_cast<const RE::hkpMoppBvTreeShape*>(hkpShape);
-					const auto childShape = mopp ? mopp->child.childShape : nullptr;
-					const auto compressedShape = childShape ? netimmerse_cast<RE::bhkCompressedMeshShape*>(childShape->userData) : nullptr;
-					const auto shapeData = compressedShape ? compressedShape->data.get() : nullptr;
-
-					if (shapeData) {
-						for (auto& meshMaterial : shapeData->meshMaterials) {
-							if (oldID != RE::MATERIAL_ID::kNone && meshMaterial.materialID != oldID) {
-								continue;
-							}
-							meshMaterial.materialID = newID;
-						}
-					}
-				} else if (const auto bhkShape = hkpShape->userData; bhkShape) {
-					if (oldID != RE::MATERIAL_ID::kNone && bhkShape->materialID != oldID) {
-						return;
-					}
-					bhkShape->materialID = newID;
-				}
-			}
-		};
+		const auto newID = GRAPHICS::MATERIAL::get_material(a_newMaterialType);
+		const auto oldID = GRAPHICS::MATERIAL::get_material(a_oldMaterialType);
 
 		if (newID != RE::MATERIAL_ID::kNone) {
 			const auto cell = a_ref->GetParentCell();
@@ -1309,14 +1233,22 @@ namespace Papyrus::ObjectReference
 
 				if (!a_nodeName.empty()) {
 					const auto object = root->GetObjectByName(a_nodeName);
-					const auto colObject = object ? static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get()) : nullptr;
-					if (colObject) {
-						set_material_type(colObject->body.get());
+					if (const auto colObject = object ? static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get()) : nullptr) {
+						GRAPHICS::MATERIAL::for_each_material_type(colObject->body, [&](RE::MATERIAL_ID& a_matID) {
+							if (oldID != RE::MATERIAL_ID::kNone && a_matID != oldID) {
+								return;
+							}
+							a_matID = newID;
+						});
 					}
 				} else {
 					RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-						set_material_type(a_col->body.get());
-
+						GRAPHICS::MATERIAL::for_each_material_type(a_col->body, [&](RE::MATERIAL_ID& a_matID) {
+							if (oldID != RE::MATERIAL_ID::kNone && a_matID != oldID) {
+								return;
+							}
+							a_matID = newID;
+						});
 						return RE::BSVisit::BSVisitControl::kContinue;
 					});
 				}

@@ -2,7 +2,6 @@
 
 #include "Papyrus/Util/ConditionParser.h"
 #include "Papyrus/Util/Graphics.h"
-#include "Papyrus/Util/Magic.h"
 #include "Papyrus/Util/Script.h"
 
 #ifdef SKYRIM_AE

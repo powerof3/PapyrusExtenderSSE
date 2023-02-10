@@ -7,6 +7,8 @@ Scriptname PO3_SKSEFunctions Hidden
 ;----------------------------------------------------------------------------------------------------------
 
 	bool Function IsScriptAttachedToActiveEffect(ActiveMagicEffect akActiveEffect, String asScriptName) global native
+	
+	Form Function GetActiveEffectSpell(ActiveMagicEffect akActiveEffect)  global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;ACTORS
@@ -47,6 +49,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Potion Function GetEquippedWeaponPoison(Actor akActor, bool abLeftHand) global native
 
 	int Function GetEquippedWeaponPoisonCount(Actor akActor, bool abLeftHand) global native
+	
+	float Function GetEquippedWeight(Actor akActor) global native
 
 	ColorForm Function GetHairColor(Actor akActor) global native
 
@@ -112,7 +116,7 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function KillNoWait(Actor akActor) global native
 
-	;DEPECRIATED
+	;DEPRECIATED
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
 
 	Function RemoveAddedSpells(Actor akActor, String modName, Keyword[] keywords, bool abMatchAll) global native
@@ -396,9 +400,13 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function MarkItemAsFavorite(Form akForm) global native
 
+	Function RemoveConditionList(Form akForm, int aiIndex, String[] asConditionList) global native
+	
 	Function ReplaceKeywordOnForm(Form akForm, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
 
 	bool Function RemoveKeywordOnForm(Form akForm, Keyword akKeyword) global native
+	
+	Function SetConditionList(Form akForm, int aiIndex, String[] asConditionList) global native
 
 	Function UnmarkItemAsFavorite(Form akForm) global native
 

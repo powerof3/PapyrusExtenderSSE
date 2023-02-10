@@ -47,6 +47,7 @@
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 
+#include <ClibUtil/distribution.hpp>
 #include <ClibUtil/numeric.hpp>
 #include <ClibUtil/rng.hpp>
 #include <ClibUtil/string.hpp>
@@ -61,6 +62,7 @@
 namespace logger = SKSE::log;
 namespace numeric = clib_util::numeric;
 namespace string = clib_util::string;
+namespace dist = clib_util::distribution;
 namespace WinAPI = SKSE::WinAPI;
 
 using namespace std::literals;

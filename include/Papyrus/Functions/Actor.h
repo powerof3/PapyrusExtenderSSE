@@ -443,6 +443,16 @@ namespace Papyrus::Actor
 		return xPoison ? xPoison->count : 0;
 	}
 
+	inline float GetEquippedWeight(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0.0f;
+		}
+
+		return a_actor->GetEquippedWeight();
+	}
+
 	inline RE::Actor* GetMount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -662,7 +672,7 @@ namespace Papyrus::Actor
 #endif
 			return std::ranges::any_of(*activeEffects, [&](auto const& ae) {
 				const auto mgef = ae ? ae->GetBaseObject() : nullptr;
-				return mgef && MAGIC::get_archetype_as_string(mgef->GetArchetype()) == a_archetype;
+				return mgef && RE::EffectArchetypeToString(mgef->GetArchetype()) == a_archetype;
 			});
 		}
 		return false;
@@ -794,8 +804,7 @@ namespace Papyrus::Actor
 		}
 
 		//Papyrus RemoveSpell queues a task, while console command calls this directly.
-		auto taskQueue = RE::TaskQueueInterface::GetSingleton();
-		if (taskQueue) {
+		if (auto taskQueue = RE::TaskQueueInterface::GetSingleton()) {
 			auto actorHandle = a_actor->CreateRefHandle();
 			for (const auto& spell : spells) {
 				taskQueue->QueueRemoveSpell(actorHandle, spell);
@@ -915,12 +924,10 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		const auto currentProcess = a_actor->currentProcess;
-		if (currentProcess) {
+		if (const auto currentProcess = a_actor->currentProcess) {
 			a_refraction = std::clamp(a_refraction, 0.0f, 1.0f);
 
-			const auto middleHigh = currentProcess->middleHigh;
-			if (middleHigh) {
+			if (const auto middleHigh = currentProcess->middleHigh) {
 				middleHigh->scriptRefractPower = a_refraction;
 			}
 
@@ -955,7 +962,6 @@ namespace Papyrus::Actor
 
 		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->poison = a_poison;
-
 			return true;
 		}
 
@@ -974,7 +980,6 @@ namespace Papyrus::Actor
 
 		if (const auto xPoison = INV::get_equipped_weapon_poison_data(a_actor, a_leftHand); xPoison) {
 			xPoison->count = a_count;
-
 			return true;
 		}
 
@@ -1091,13 +1096,14 @@ namespace Papyrus::Actor
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
 		BIND(GetEquippedAmmo);
-		BIND(GetEquippedWeaponIsPoisoned);
-		BIND(GetEquippedWeaponPoison);
-		BIND(GetEquippedWeaponPoisonCount);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
 		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");
 #endif
+		BIND(GetEquippedWeaponIsPoisoned);
+		BIND(GetEquippedWeaponPoison);
+		BIND(GetEquippedWeaponPoisonCount);
+		BIND(GetEquippedWeight);
 		BIND(GetMount);
 		BIND(GetLocalGravityActor);
 		BIND(GetObjectUnderFeet);

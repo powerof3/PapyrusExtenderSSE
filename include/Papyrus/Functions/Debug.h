@@ -55,7 +55,7 @@ namespace Papyrus::Debug
 				}
 				return std::to_string(a_var.variable->f);
 			}
-			return std::string("no value");
+			return std::string();
 		};
 
 		RE::BSTSmartPointer<RE::BSAnimationGraphManager> manager;

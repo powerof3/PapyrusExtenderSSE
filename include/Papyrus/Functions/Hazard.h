@@ -18,7 +18,7 @@ namespace Papyrus::Hazard
 	{
 		if (!a_hazard) {
 			a_vm->TraceStack("Hazard is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return a_hazard->GetModel();

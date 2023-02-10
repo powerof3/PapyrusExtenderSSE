@@ -83,9 +83,10 @@ namespace Papyrus::Graphics
 			return;
 		}
 
-		const auto actorbase = a_actor->GetActorBase();
-		if (actorbase) {
-			const float opacity = a_autoCalc ? std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) : a_opacity;
+		if (const auto actorbase = a_actor->GetActorBase()) {
+			const float opacity = a_autoCalc ?
+                                      std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) :
+                                      a_opacity;
 			auto newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
 
 			SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
@@ -449,7 +450,7 @@ namespace Papyrus::Graphics
 			return;
 		}
 
-		const auto scale_collision = [&](RE::bhkWorldObject* a_body) {
+		const auto scale_collision = [&](const RE::NiPointer<RE::bhkWorldObject>& a_body) {
 			if (!a_body) {
 				return;
 			}
@@ -507,13 +508,13 @@ namespace Papyrus::Graphics
 
 					if (const auto node = object->AsNode(); node) {
 						RE::BSVisit::TraverseScenegraphCollision(node, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-							scale_collision(a_col->body.get());
+							scale_collision(a_col->body);
 
 							return RE::BSVisit::BSVisitControl::kContinue;
 						});
 					} else {
 						if (const auto col = static_cast<RE::bhkNiCollisionObject*>(object->collisionObject.get()); col) {
-							scale_collision(col->body.get());
+							scale_collision(col->body);
 						}
 					}
 				}
@@ -533,8 +534,7 @@ namespace Papyrus::Graphics
 				RE::BSWriteLockGuard locker(world->worldLock);
 
 				RE::BSVisit::TraverseScenegraphCollision(root, [&](const RE::bhkNiCollisionObject* a_col) -> RE::BSVisit::BSVisitControl {
-					scale_collision(a_col->body.get());
-
+					scale_collision(a_col->body);
 					return RE::BSVisit::BSVisitControl::kContinue;
 				});
 			}
@@ -892,7 +892,7 @@ namespace Papyrus::Graphics
 
 					if (newNode) {
 						if (const auto attachTData = art->GetExtraData<RE::NiStringsExtraData>("AttachT"sv); attachTData && attachTData->value[0]) {
-							std::string newNodeStr{ MAGIC::namedNode };
+							std::string newNodeStr{ "NamedNode&" };
 							newNodeStr += a_toNode;
 							attachTData->Replace(attachTData->value[0], newNodeStr);
 						}

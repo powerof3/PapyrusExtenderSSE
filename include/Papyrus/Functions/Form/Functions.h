@@ -2,6 +2,7 @@
 
 #include "Game/Cache.h"
 #include "Game/HookedEventHandler.h"
+#include "Papyrus/Util/Inventory.h"
 #include "Serialization/Services.h"
 
 namespace Papyrus::Form::Functions
@@ -63,7 +64,7 @@ namespace Papyrus::Form::Functions
 		case RE::FormType::AlchemyItem:
 		case RE::FormType::Scroll:
 			{
-				if (const auto magicItem = a_form->As<RE::MagicItem>(); magicItem) {
+				if (const auto magicItem = a_form->As<RE::MagicItem>()) {
 					for (const auto& effect : magicItem->effects) {
 						if (result) {
 							break;
@@ -86,33 +87,25 @@ namespace Papyrus::Form::Functions
 		case RE::FormType::MagicEffect:
 			{
 				const auto effect = a_form->As<RE::EffectSetting>();
-				if (effect && effect->conditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = effect->conditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		case RE::FormType::Info:
 			{
 				const auto topic = a_form->As<RE::TESTopicInfo>();
-				if (topic && topic->objConditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = topic->objConditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		case RE::FormType::Package:
 			{
 				const auto package = a_form->As<RE::TESPackage>();
-				if (package && package->packConditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = package->packConditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		case RE::FormType::Perk:
 			{
 				const auto perk = a_form->As<RE::BGSPerk>();
-				if (perk && perk->perkConditions.IsTrue(a_actionRef, a_target)) {
-					result = true;
-				}
+				result = perk->perkConditions.IsTrue(a_actionRef, a_target);
 			}
 			break;
 		default:
@@ -133,20 +126,21 @@ namespace Papyrus::Form::Functions
 			a_vm->TraceStack("Form is None", a_stackID);
 			return result;
 		}
-		auto condition = CONDITION::GetCondition(*a_form, a_index);
-		if (!condition) {
-			a_vm->TraceStack("Form does not have a condition stack", a_stackID);
+
+		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
+		if (!formConditions || !formConditions->head) {
+			a_vm->TraceForm(a_form, "does not have a condition stack", a_stackID);
 			return result;
 		}
 
-		return CONDITION::BuildConditions(condition);
+		return CONDITION::BuildConditionList(formConditions);
 	}
 
 	inline RE::BSFixedString GetDescription(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		if (const auto description = a_form->As<RE::TESDescription>(); description) {
@@ -158,14 +152,14 @@ namespace Papyrus::Form::Functions
 			return temp;
 		}
 
-		return RE::BSFixedString();
+		return {};
 	}
 
 	inline RE::BSFixedString GetFormEditorID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		return Cache::EditorID::GetFormEditorID(a_form);
@@ -175,7 +169,7 @@ namespace Papyrus::Form::Functions
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		if (const auto file =
@@ -186,7 +180,7 @@ namespace Papyrus::Form::Functions
 			return file->GetFilename();
 		}
 
-		return RE::BSFixedString();
+		return {};
 	}
 
 	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)
@@ -212,88 +206,6 @@ namespace Papyrus::Form::Functions
 		return a_form->IsDynamicForm();
 	}
 
-	namespace fave_util
-	{
-		namespace item
-		{
-			inline void favorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
-			{
-				using func_t = decltype(&favorite);
-				REL::Relocation<func_t> func{ REL_ID(15858, 16098) };
-				return func(a_changes, a_entryData, a_list);
-			}
-
-			inline void unfavorite(RE::InventoryChanges* a_changes, RE::InventoryEntryData* a_entryData, RE::ExtraDataList* a_list)
-			{
-				using func_t = decltype(&unfavorite);
-				REL::Relocation<func_t> func{ REL_ID(15859, 16099) };
-				return func(a_changes, a_entryData, a_list);
-			}
-
-			inline RE::ExtraDataList* get_hotkeyed(RE::InventoryEntryData* a_changes)
-			{
-				if (a_changes->extraLists) {
-					for (const auto& xList : *a_changes->extraLists) {
-						const auto hotkey = xList->HasType<RE::ExtraHotkey>();
-						if (hotkey) {
-							return xList;
-						}
-					}
-				}
-				return nullptr;
-			}
-		}
-
-		namespace magic
-		{
-			inline void favorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
-			{
-				using func_t = decltype(&favorite);
-				REL::Relocation<func_t> func{ REL_ID(51121, 52004) };
-				return func(a_magicFavorites, a_form);
-			}
-
-			inline void unfavorite(RE::MagicFavorites* a_magicFavorites, RE::TESForm* a_form)
-			{
-				using func_t = decltype(&unfavorite);
-				REL::Relocation<func_t> func{ REL_ID(51122, 52005) };
-				return func(a_magicFavorites, a_form);
-			}
-		}
-	}
-
-	inline void MarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
-	{
-		using namespace fave_util;
-
-		if (!a_form) {
-			a_vm->TraceStack("Form is None", a_stackID);
-			return;
-		}
-
-		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
-			if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) == magicFavorites->spells.end()) {
-				magic::favorite(magicFavorites, a_form);
-			}
-		} else {
-			const auto player = RE::PlayerCharacter::GetSingleton();
-			const auto xContainer = player ? player->extraList.GetByType<RE::ExtraContainerChanges>() : nullptr;
-			const auto invChanges = xContainer ? xContainer->changes : nullptr;
-
-			if (invChanges) {
-				auto inv = player->GetInventory();
-				for (const auto& [item, data] : inv) {
-					const auto& [count, entry] = data;
-					if (count > 0 && item == a_form && !entry->IsFavorited()) {
-						const auto extralist = entry->extraLists ? entry->extraLists->front() : nullptr;
-						item::favorite(invChanges, entry.get(), extralist);
-						break;
-					}
-				}
-			}
-		}
-	}
-
 	inline bool IsRecordFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESForm* a_form,
 		std::uint32_t a_flag)
@@ -316,6 +228,71 @@ namespace Papyrus::Form::Functions
 		}
 
 		return SCRIPT::is_script_attached(a_form, a_scriptName);
+	}
+
+	inline void MarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
+			const auto magicFavorites = RE::MagicFavorites::GetSingleton();
+			if (magicFavorites && std::ranges::find(magicFavorites->spells, a_form) == magicFavorites->spells.end()) {
+				magicFavorites->SetFavorite(a_form);
+			}
+		} else {
+			const auto player = RE::PlayerCharacter::GetSingleton();
+			if (const auto invChanges = player->GetInventoryChanges()) {
+				auto inv = player->GetInventory();
+				for (const auto& [item, data] : inv) {
+					const auto& [count, entry] = data;
+					if (count > 0 && item == a_form && !entry->IsFavorited()) {
+						const auto extralist = entry->extraLists ? entry->extraLists->front() : nullptr;
+						invChanges->SetFavorite(entry.get(), extralist);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	inline void RemoveConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESForm* a_form,
+		std::uint32_t a_index,
+		std::vector<std::string> a_conditionList)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		if (a_conditionList.empty()) {
+			a_vm->TraceStack("Condition List is empty", a_stackID);
+			return;
+		}
+
+		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
+		if (!formConditions || !formConditions->head) {
+			a_vm->TraceForm(a_form, "does not have a condition stack", a_stackID);
+			return;
+		}
+
+		if (const auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
+			auto* currentNode = formConditions->head;
+			auto** previousNode = &formConditions->head;
+
+			while (currentNode != nullptr) {
+				if (std::ranges::find(conditions, currentNode) != conditions.end()) {
+					*previousNode = currentNode->next;
+					delete currentNode;
+				} else {
+					previousNode = &(currentNode->next);
+				}
+				currentNode = *previousNode;
+			}
+		}
 	}
 
 	inline bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -359,8 +336,7 @@ namespace Papyrus::Form::Functions
 				bool found = false;
 				std::uint32_t removeIndex = 0;
 				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
-					const auto keyword = keywordForm->keywords[i];
-					if (keyword) {
+					if (const auto keyword = keywordForm->keywords[i]) {
 						if (keyword == a_add) {
 							return;
 						}
@@ -378,14 +354,59 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*,
-		bool a_disable)
+	inline void SetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+		RE::TESForm* a_form,
+		std::uint32_t a_index,
+		std::vector<std::string> a_conditionList)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		if (a_conditionList.empty()) {
+			a_vm->TraceStack("Condition List is empty", a_stackID);
+			return;
+		}
+
+		const auto formConditions = CONDITION::GetConditions(*a_form, a_index);
+		if (!formConditions) {
+			a_vm->TraceForm(a_form, "does not have a condition stack", a_stackID);
+			return;
+		}
+
+		if (auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
+			for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
+				if (const auto newNode = new RE::TESConditionItem) {
+					newNode->next = nullptr;
+					newNode->data.object = object;
+					newNode->data.functionData.function = functionID;
+					newNode->data.functionData.params[0] = param1;
+					newNode->data.functionData.params[1] = param2;
+					newNode->data.flags.opCode = opCode;
+					newNode->data.comparisonValue.f = value;
+					newNode->data.flags.isOR = ANDOR;
+
+					if (formConditions->head == nullptr) {
+						formConditions->head = newNode;
+					} else {
+						auto* current = formConditions->head;
+						while (current->next != nullptr) {
+							current = current->next;
+						}
+						current->next = newNode;
+					}
+				}
+			}
+		}
+	}
+
+	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*, bool a_disable)
 	{
 		return Event::FastTravel::SetFastTravelDisabled(a_disable);
 	}
 
-	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::FormID a_formID)
+	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::FormID a_formID)
 	{
 		if (!a_formID) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -394,8 +415,7 @@ namespace Papyrus::Form::Functions
 		return Event::FastTravel::SetFastTravelTarget(a_formID);
 	}
 
-	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref)
+	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -404,8 +424,7 @@ namespace Papyrus::Form::Functions
 		return Event::FastTravel::SetFastTravelTarget(a_ref);
 	}
 
-	inline bool SetFastTravelTargetString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BSFixedString a_name)
+	inline bool SetFastTravelTargetString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name)
 	{
 		if (a_name.empty()) {
 			a_vm->TraceStack("Name is empty", a_stackID);
@@ -414,8 +433,7 @@ namespace Papyrus::Form::Functions
 		return Event::FastTravel::SetFastTravelTarget(a_name.c_str());
 	}
 
-	inline float SetFastTravelWaitTimeout(VM*, StackID, RE::StaticFunctionTag*,
-		float a_timeout)
+	inline float SetFastTravelWaitTimeout(VM*, StackID, RE::StaticFunctionTag*, float a_timeout)
 	{
 		return Event::FastTravel::SetFastTravelWaitTimeout(a_timeout);
 	}
@@ -434,29 +452,25 @@ namespace Papyrus::Form::Functions
 
 	inline void UnmarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
-		using namespace fave_util;
-
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return;
 		}
 
 		if (a_form->Is(RE::FormType::Spell, RE::FormType::Shout)) {
-			if (const auto magicFavorites = RE::MagicFavorites::GetSingleton(); magicFavorites && std::ranges::find(magicFavorites->spells, a_form) != magicFavorites->spells.end()) {
-				magic::unfavorite(magicFavorites, a_form);
+			const auto magicFavorites = RE::MagicFavorites::GetSingleton();
+			if (magicFavorites && std::ranges::find(magicFavorites->spells, a_form) != magicFavorites->spells.end()) {
+				magicFavorites->RemoveFavorite(a_form);
 			}
 		} else {
 			const auto player = RE::PlayerCharacter::GetSingleton();
-			const auto xContainer = player ? player->extraList.GetByType<RE::ExtraContainerChanges>() : nullptr;
-			const auto invChanges = xContainer ? xContainer->changes : nullptr;
-
-			if (invChanges) {
+			if (const auto invChanges = player->GetInventoryChanges()) {
 				auto inv = player->GetInventory();
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
 					if (count > 0 && item == a_form) {
-						if (const auto extralist = item::get_hotkeyed(entry.get()); extralist) {
-							item::unfavorite(invChanges, entry.get(), extralist);
+						if (const auto extralist = INV::get_hotkey_extralist(entry.get()); extralist) {
+							invChanges->RemoveFavorite(entry.get(), extralist);
 						}
 						break;
 					}
@@ -479,8 +493,10 @@ namespace Papyrus::Form::Functions
 		BIND(IsRecordFlagSet);
 		BIND(IsScriptAttachedToForm);
 		BIND(MarkItemAsFavorite);
+		BIND(RemoveConditionList);
 		BIND(RemoveKeywordOnForm);
 		BIND(ReplaceKeywordOnForm);
+		BIND(SetConditionList);
 		BIND(SetFastTravelDisabled);
 		BIND(SetFastTravelTargetFormID);
 		BIND(SetFastTravelTargetRef);

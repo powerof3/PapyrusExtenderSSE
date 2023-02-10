@@ -26,10 +26,10 @@ namespace Papyrus::MagicEffect
 	{
 		if (!a_mgef) {
 			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
-		return MAGIC::get_archetype_as_string(a_mgef->GetArchetype());
+		return RE::EffectArchetypeToString(a_mgef->GetArchetype());
 	}
 
 	inline RE::BGSSoundDescriptorForm* GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
@@ -59,7 +59,7 @@ namespace Papyrus::MagicEffect
 	{
 		if (!a_mgef) {
 			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
@@ -72,7 +72,7 @@ namespace Papyrus::MagicEffect
 	{
 		if (!a_mgef) {
 			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return RE::BSFixedString();
+			return {};
 		}
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();

@@ -1076,11 +1076,11 @@ namespace Papyrus::Actor
 	}
 
 	//SeaSparrow - New Functions
-	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor) {
+	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor)
+	{
 		RE::EnchantmentItem* response = nullptr;
 
 		if (!a_kActor) {
-
 			return response;
 		}
 
@@ -1110,7 +1110,8 @@ namespace Papyrus::Actor
 		return response;
 	}
 
-	inline RE::EnchantmentItem* GetBaseAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::TESAmmo* a_kAmmo) {
+	inline RE::EnchantmentItem* GetBaseAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::TESAmmo* a_kAmmo)
+	{
 		RE::EnchantmentItem* response = nullptr;
 
 		if (!a_kAmmo) {
@@ -1124,11 +1125,11 @@ namespace Papyrus::Actor
 		return response;
 	}
 
-	inline std::vector<RE::SpellItem*> GetAllActorPlayableSpells(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor) {
+	inline std::vector<RE::SpellItem*> GetAllActorPlayableSpells(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor)
+	{
 		std::vector<RE::SpellItem*> response;
 
 		if (!a_kActor) {
-
 			return response;
 		}
 

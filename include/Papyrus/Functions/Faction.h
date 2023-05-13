@@ -13,11 +13,11 @@ namespace Papyrus::Faction
 	}
 
 	//SeaSparrow - New Functions
-	inline std::vector<RE::Actor*> GetAllActorsInFaction(VM*, StackID, RE::StaticFunctionTag*, RE::TESFaction* a_kFaction) {
+	inline std::vector<RE::Actor*> GetAllActorsInFaction(VM*, StackID, RE::StaticFunctionTag*, RE::TESFaction* a_kFaction)
+	{
 		std::vector<RE::Actor*> response;
 
 		if (!a_kFaction) {
-
 			return response;
 		}
 

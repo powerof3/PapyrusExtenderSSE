@@ -1075,6 +1075,81 @@ namespace Papyrus::Actor
 		}
 	}
 
+	//SeaSparrow - New Functions
+	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor) {
+		RE::EnchantmentItem* response = nullptr;
+
+		if (!a_kActor) {
+
+			return response;
+		}
+
+		const auto process = a_kActor->currentProcess;
+		const auto middleHigh = process ? process->middleHigh : nullptr;
+		const auto bothHands = middleHigh ? middleHigh->bothHands : nullptr;
+
+		if (bothHands && bothHands->object) {
+			if (const auto ammo = bothHands->object->As<RE::TESAmmo>()) {
+				const auto projectile = ammo ? ammo->data.projectile : nullptr;
+				const auto explosion = projectile ? projectile->data.explosionType : nullptr;
+				response = explosion ? explosion->formEnchanting : nullptr;
+
+				if (const auto& extraLists = bothHands->extraLists) {
+					for (const auto& extraList : *extraLists) {
+						const auto exEnch = extraList->GetByType<RE::ExtraEnchantment>();
+						if (exEnch && exEnch->enchantment) {
+							response = exEnch->enchantment;
+						}
+					}
+				}
+
+				return response;
+			}
+		}
+
+		return response;
+	}
+
+	inline RE::EnchantmentItem* GetBaseAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::TESAmmo* a_kAmmo) {
+		RE::EnchantmentItem* response = nullptr;
+
+		if (!a_kAmmo) {
+			return response;
+		}
+
+		const auto projectile = a_kAmmo ? a_kAmmo->data.projectile : nullptr;
+		const auto explosion = projectile ? projectile->data.explosionType : nullptr;
+		response = explosion ? explosion->formEnchanting : nullptr;
+
+		return response;
+	}
+
+	inline std::vector<RE::SpellItem*> GetAllActorPlayableSpells(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor) {
+		std::vector<RE::SpellItem*> response;
+
+		if (!a_kActor) {
+
+			return response;
+		}
+
+		auto& tempSpells = a_kActor->addedSpells;
+
+		for (auto actorSpell : tempSpells) {
+			if (actorSpell->GetSpellType() == RE::MagicSystem::SpellType::kSpell) {
+				response.push_back(actorSpell);
+			}
+		}
+
+		auto tempBaseSpells = a_kActor->GetActorBase()->GetSpellList();
+
+		for (auto& actorBaseSpell : std::span(tempBaseSpells->spells, tempBaseSpells->numSpells)) {
+			if (actorBaseSpell->GetSpellType() == RE::MagicSystem::SpellType::kSpell) {
+				response.push_back(actorBaseSpell);
+			}
+		}
+		return response;
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddBasePerk);
@@ -1134,6 +1209,11 @@ namespace Papyrus::Actor
 		BIND(SetLocalGravityActor);
 		BIND(SetSoulTrapped);
 		BIND(UnequipAllOfType);
+
+		//SeaSparrow - New Binds
+		BIND(GetEquippedAmmoEnchantment);
+		BIND(GetBaseAmmoEnchantment);
+		BIND(GetAllActorPlayableSpells);
 
 		logger::info("Registered actor functions"sv);
 	}

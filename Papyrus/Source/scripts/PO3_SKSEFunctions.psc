@@ -909,3 +909,14 @@ Scriptname PO3_SKSEFunctions Hidden
 	int Function GetWindSpeedAsInt(Weather akWeather) global native
 
 	int Function GetWeatherType(Weather akWeather = None) global native
+
+;/
+==========================
+SeaSparrow - New Functions
+==========================
+/;
+
+	Actor[] Function GetAllActorsInFaction(Faction a_kFaction) Global Native
+	Spell[] Function GetAllActorPlayableSpells(Actor a_kActor) Global Native
+	Enchantment Function GetEquippedAmmoEnchantment(Actor a_kActor) Global Native 
+	Enchantment Function GetBaseAmmoEnchantment(Ammo a_kAmmo) Global Native 

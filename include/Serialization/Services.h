@@ -19,8 +19,8 @@ namespace FORM
 		{
 			if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 				return a_index == FORM::kAdd ?
-                           keywordForm->AddKeyword(a_data) :
-                           keywordForm->RemoveKeyword(a_data);
+				           keywordForm->AddKeyword(a_data) :
+				           keywordForm->RemoveKeyword(a_data);
 			}
 			return false;
 		}
@@ -36,14 +36,14 @@ namespace FORM
 
 			if (const auto actorbase = a_form->GetActorBase(); actorbase) {
 				success = a_index == FORM::kAdd ?
-                              actorbase->AddPerk(a_data, 1) :
-                              actorbase->RemovePerk(a_data);
+				              actorbase->AddPerk(a_data, 1) :
+				              actorbase->RemovePerk(a_data);
 				if (success) {
 					for (const auto& perkEntry : a_data->perkEntries) {
 						if (perkEntry) {
 							a_index == FORM::kAdd ?
-                                perkEntry->ApplyPerkEntry(a_form) :
-                                perkEntry->RemovePerkEntry(a_form);
+								perkEntry->ApplyPerkEntry(a_form) :
+								perkEntry->RemovePerkEntry(a_form);
 						}
 					}
 					a_form->OnArmorActorValueChanged();
@@ -109,7 +109,7 @@ namespace MAGIC
 			auto&             formMap = GetData(a_index);
 			const std::size_t numRegs = formMap.size();
 			if (!a_intfc->WriteRecordData(numRegs)) {
-				logger::error("Failed to save number of regs ({})", numRegs);
+				logger::error("Failed to save reg count ({})", numRegs);
 				return false;
 			}
 
@@ -120,7 +120,7 @@ namespace MAGIC
 				}
 				const std::size_t numData = dataSet.size();
 				if (!a_intfc->WriteRecordData(numData)) {
-					logger::error("Failed to save number of data sets ({})", numData);
+					logger::error("Failed to save data set count ({})", numData);
 					return false;
 				}
 				for (auto& data : dataSet) {
@@ -170,8 +170,7 @@ namespace MAGIC
 
 			for (std::size_t i = 0; i < numRegs; i++) {
 				RE::FormID formID;
-				a_intfc->ReadRecordData(formID);
-				if (!a_intfc->ResolveFormID(formID, formID)) {
+				if (!stl::read_formID(a_intfc, formID)) {
 					logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
 					continue;
 				}
@@ -179,9 +178,8 @@ namespace MAGIC
 				a_intfc->ReadRecordData(numData);
 				for (std::size_t j = 0; j < numData; j++) {
 					MGEFData data;
-					a_intfc->ReadRecordData(data.mgef.second);
-					if (!a_intfc->ResolveFormID(data.mgef.second, data.mgef.second)) {
-						logger::warn("{} : Failed to resolve dataID {:X}"sv, i, data.mgef.second);
+					if (stl::read_formID(a_intfc, data.mgef.second)) {
+						logger::warn("{} : Failed to resolve effect formID {:X}"sv, i, data.mgef.second);
 						continue;
 					}
 					if (!a_intfc->ReadRecordData(data.mag)) {
@@ -204,9 +202,10 @@ namespace MAGIC
 					a_intfc->ReadRecordData(numConditions);
 					for (std::size_t k = 0; k < numConditions; k++) {
 						std::string str;
-						if (stl::read_string(a_intfc, str)) {
-							data.conditionList.emplace_back(str);
+						if (!stl::read_string(a_intfc, str)) {
+							break;
 						}
+						data.conditionList.emplace_back(str);
 					}
 					formMap[formID].insert(std::move(data));
 				}
@@ -262,7 +261,7 @@ namespace MAGIC
 						auto conditions = CONDITION::ParseConditionList(a_data.conditionList);
 						if (!conditions.empty()) {
 							for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
-								if (auto newNode = new RE::TESConditionItem) {
+								if (const auto newNode = new RE::TESConditionItem) {
 									newNode->next = nullptr;
 									newNode->data.object = object;
 									newNode->data.functionData.function = functionID;
@@ -303,8 +302,8 @@ namespace MAGIC
 		bool Process(RE::MagicItem* a_form, const MGEFData& a_data, std::uint32_t a_index) override
 		{
 			return a_index == FORM::kAdd ?
-                       detail::add_magic_effect(a_form, a_data) :
-                       detail::remove_magic_effect(a_form, a_data);
+			           detail::add_magic_effect(a_form, a_data) :
+			           detail::remove_magic_effect(a_form, a_data);
 		}
 	};
 
@@ -331,7 +330,7 @@ namespace MAGIC
 			auto&             formMap = GetData(a_index);
 			const std::size_t numRegs = formMap.size();
 			if (!a_intfc->WriteRecordData(numRegs)) {
-				logger::error("Failed to save number of regs ({})", numRegs);
+				logger::error("Failed to save reg count ({})", numRegs);
 				return false;
 			}
 
@@ -342,7 +341,7 @@ namespace MAGIC
 				}
 				const std::size_t numData = dataSet.size();
 				if (!a_intfc->WriteRecordData(numData)) {
-					logger::error("Failed to save number of data regs ({})", numData);
+					logger::error("Failed to save data reg count ({})", numData);
 					return false;
 				}
 				for (auto& data : dataSet) {
@@ -379,16 +378,14 @@ namespace MAGIC
 			EffectData  data;
 
 			for (std::size_t i = 0; i < numRegs; i++) {
-				a_intfc->ReadRecordData(formID);
-				if (!a_intfc->ResolveFormID(formID, formID)) {
+				if (!stl::read_formID(a_intfc, formID)) {
 					logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
 					continue;
 				}
 				a_intfc->ReadRecordData(numData);
 				for (std::size_t j = 0; j < numData; j++) {
-					a_intfc->ReadRecordData(data.magicItem.second);
-					if (!a_intfc->ResolveFormID(data.magicItem.second, data.magicItem.second)) {
-						logger::warn("{} : Failed to resolve dataID {:X}"sv, i, data.magicItem.second);
+					if (!stl::read_formID(a_intfc, data.magicItem.second)) {
+						logger::warn("{} : Failed to resolve effect formID {:X}"sv, i, data.magicItem.second);
 						continue;
 					}
 					if (!a_intfc->ReadRecordData(data.index)) {
@@ -405,7 +402,7 @@ namespace MAGIC
 
 			for (auto& [dataID, dataSet] : formMap) {
 				const auto form = RE::TESForm::LookupByID(dataID);
-				if (auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
+				if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
 					for (auto effectData : dataSet) {
 						auto& [copyItem, copyItemID] = effectData.magicItem;
 						copyItem = RE::TESForm::LookupByID<RE::MagicItem>(copyItemID);
@@ -446,8 +443,7 @@ namespace MAGIC
 
 					auto head = copyEffect->conditions.head;
 					while (head) {
-						auto newNode = new RE::TESConditionItem;
-						if (newNode) {
+						if (const auto newNode = new RE::TESConditionItem) {
 							newNode->next = nullptr;
 							newNode->data.comparisonValue = head->data.comparisonValue;
 							newNode->data.runOnRef = head->data.runOnRef;
@@ -496,8 +492,8 @@ namespace MAGIC
 		bool Process(RE::MagicItem* a_form, const EffectData& a_data, std::uint32_t a_index) override
 		{
 			return a_index == FORM::kAdd ?
-                       detail::add_effect_item(a_form, a_data) :
-                       detail::remove_effect_item(a_form, a_data);
+			           detail::add_effect_item(a_form, a_data) :
+			           detail::remove_effect_item(a_form, a_data);
 		}
 	};
 }

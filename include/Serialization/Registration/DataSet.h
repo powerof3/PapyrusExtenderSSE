@@ -189,8 +189,7 @@ public:
 
 		RE::FormID formID;
 		for (std::size_t i = 0; i < numRegs; i++) {
-			a_intfc->ReadRecordData(formID);
-			if (!a_intfc->ResolveFormID(formID, formID)) {
+			if (!stl::read_formID(a_intfc, formID)) {
 				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
 			} else {
 				formSet.insert(formID);

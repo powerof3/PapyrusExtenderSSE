@@ -2,13 +2,6 @@
 
 namespace Papyrus::Game
 {
-	inline void ClearCachedFactionFightReactions(RE::StaticFunctionTag*)
-	{
-		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			processLists->ClearCachedFactionFightReactions();
-		}
-	}
-
 	struct forms
 	{
 		template <class T>
@@ -45,6 +38,96 @@ namespace Papyrus::Game
 			return result;
 		}
 	};
+
+	inline void ClearCachedFactionFightReactions(RE::StaticFunctionTag*)
+	{
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+			processLists->ClearCachedFactionFightReactions();
+		}
+	}
+
+	inline std::vector<RE::TESObjectREFR*> FindAllReferencesOfFormType(RE::StaticFunctionTag*, RE::TESObjectREFR* a_origin, std::uint32_t a_formType, float a_radius)
+	{
+		std::vector<RE::TESObjectREFR*> result;
+
+		if (const auto TES = RE::TES::GetSingleton(); TES) {
+			const auto formType = static_cast<RE::FormType>(a_formType);
+
+			TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
+				if (a_ref.Is3DLoaded()) {
+					const auto base = a_ref.GetBaseObject();
+					if (formType == RE::FormType::None || a_ref.Is(formType) || base && base->Is(formType)) {
+						result.push_back(&a_ref);
+					}
+				}
+				return RE::BSContainer::ForEachResult::kContinue;
+			});
+		}
+
+		return result;
+	}
+
+	inline std::vector<RE::TESObjectREFR*> FindAllReferencesOfType(STATIC_ARGS, [[maybe_unused]] RE::TESObjectREFR* a_ref, const RE::TESForm* a_formOrList, float a_radius)
+	{
+		std::vector<RE::TESObjectREFR*> result;
+
+		if (!a_formOrList) {
+			a_vm->TraceStack("FormOrList is None", a_stackID);
+			return result;
+		}
+
+		if (const auto TES = RE::TES::GetSingleton(); TES) {
+			const auto list = a_formOrList->As<RE::BGSListForm>();
+
+			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
+				if (const auto base = b_ref.GetBaseObject(); base && b_ref.Is3DLoaded()) {
+					if (list && list->HasForm(base) || a_formOrList == base) {
+						result.push_back(&b_ref);
+					}
+				}
+				return RE::BSContainer::ForEachResult::kContinue;
+			});
+		}
+
+		return result;
+	}
+
+	inline std::vector<RE::TESObjectREFR*> FindAllReferencesWithKeyword(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_formOrList, float a_radius, bool a_matchAll)
+	{
+		std::vector<RE::TESObjectREFR*> result;
+
+		if (!a_formOrList) {
+			a_vm->TraceStack("FormOrList is None", a_stackID);
+			return result;
+		}
+
+		if (const auto TES = RE::TES::GetSingleton(); TES) {
+			const auto keyword = a_formOrList->As<RE::BGSKeyword>();
+			const auto list = a_formOrList->As<RE::BGSListForm>();
+
+			if (!keyword && !list) {
+				a_vm->TraceStack("FormOrList parameter has invalid formtype", a_stackID);
+				return result;
+			}
+
+			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
+				if (b_ref.Is3DLoaded()) {
+					bool success = false;
+					if (list) {
+						success = b_ref.HasKeywordInList(list, a_matchAll);
+					} else if (keyword) {
+						success = b_ref.HasKeyword(keyword);
+					}
+					if (success) {
+						result.push_back(&b_ref);
+					}
+				}
+				return RE::BSContainer::ForEachResult::kContinue;
+			});
+		}
+
+		return result;
+	}
 
 	inline std::vector<RE::Actor*> GetActorsByProcessingLevel(RE::StaticFunctionTag*, std::int32_t a_level)
 	{
@@ -140,8 +223,8 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		return modInfo ?
-                   forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
-                   std::vector<RE::EnchantmentItem*>();
+		           forms::get_in_mod<RE::EnchantmentItem>(modInfo, a_keywords) :
+		           std::vector<RE::EnchantmentItem*>();
 	}
 
 	inline std::vector<RE::TESForm*> GetAllFormsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::int32_t a_formType, std::vector<RE::BGSKeyword*> a_keywords)
@@ -171,14 +254,11 @@ namespace Papyrus::Game
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
 
 		return modInfo ?
-                   forms::get_in_mod<RE::TESRace>(modInfo, a_keywords) :
-                   std::vector<RE::TESRace*>();
+		           forms::get_in_mod<RE::TESRace>(modInfo, a_keywords) :
+		           std::vector<RE::TESRace*>();
 	}
 
-	inline std::vector<RE::SpellItem*> GetAllSpellsInMod(RE::StaticFunctionTag*,
-		RE::BSFixedString            a_name,
-		std::vector<RE::BGSKeyword*> a_keywords,
-		bool                         a_playable)
+	inline std::vector<RE::SpellItem*> GetAllSpellsInMod(RE::StaticFunctionTag*, RE::BSFixedString a_name, std::vector<RE::BGSKeyword*> a_keywords, bool a_playable)
 	{
 		const auto dataHandler = RE::TESDataHandler::GetSingleton();
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;
@@ -306,7 +386,7 @@ namespace Papyrus::Game
 	inline RE::BSFixedString GetSurfaceMaterialType(VM*, StackID, RE::StaticFunctionTag*, const float a_x, const float a_y, const float a_z)
 	{
 		const auto materialID = RE::TES::GetSingleton() ? RE::TES::GetSingleton()->GetLandMaterialType({ a_x, a_y, a_z }) :
-                                                          RE::MATERIAL_ID::kNone;
+		                                                  RE::MATERIAL_ID::kNone;
 		return RE::MaterialIDToString(materialID);
 	}
 
@@ -361,6 +441,9 @@ namespace Papyrus::Game
 	inline void Bind(VM& a_vm)
 	{
 		BIND(ClearCachedFactionFightReactions);
+		BIND(FindAllReferencesOfFormType);
+		BIND(FindAllReferencesOfType);
+		BIND(FindAllReferencesWithKeyword);
 		BIND(GetActorsByProcessingLevel);
 		BIND(GetAllEnchantments);
 		BIND(GetAllForms);

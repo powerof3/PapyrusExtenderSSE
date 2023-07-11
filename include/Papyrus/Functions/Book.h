@@ -2,7 +2,7 @@
 
 namespace Papyrus::Book
 {
-	inline void ClearReadFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectBOOK* a_book)
+	inline void ClearReadFlag(STATIC_ARGS, RE::TESObjectBOOK* a_book)
 	{
 		if (!a_book) {
 			a_vm->TraceStack("Book is None", a_stackID);
@@ -15,7 +15,7 @@ namespace Papyrus::Book
 		}
 	}
 
-	inline void SetReadFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectBOOK* a_book)
+	inline void SetReadFlag(STATIC_ARGS, RE::TESObjectBOOK* a_book)
 	{
 		if (!a_book) {
 			a_vm->TraceStack("Book is None", a_stackID);

@@ -4,7 +4,7 @@
 
 namespace Papyrus::Alias::Events
 {
-	inline void RegisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void RegisterForActorFallLongDistance(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -15,7 +15,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForActorKilled(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -26,7 +26,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSBaseAlias* a_alias)
+	inline void RegisterForActorReanimateStart(STATIC_ARGS, RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -43,7 +43,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(refAlias);
 	}
 
-	inline void RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSBaseAlias* a_alias)
+	inline void RegisterForActorReanimateStop(STATIC_ARGS, RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -60,7 +60,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(refAlias);
 	}
 
-	inline void RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSBaseAlias* a_alias)
+	inline void RegisterForActorResurrected(STATIC_ARGS, RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -77,7 +77,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(refAlias);
 	}
 
-	inline void RegisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForBookRead(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -88,7 +88,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForCellFullyLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForCellFullyLoaded(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -99,7 +99,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForCriticalHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForCriticalHit(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -110,7 +110,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForDisarmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForDisarmed(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -121,7 +121,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForDragonSoulGained(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForDragonSoulGained(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -132,7 +132,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForOnPlayerFastTravelEnd(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForOnPlayerFastTravelEnd(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -145,7 +145,7 @@ namespace Papyrus::Alias::Events
 #endif
 	}
 
-	inline void RegisterForFastTravelConfirmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForFastTravelConfirmed(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -156,7 +156,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForFastTravelPrompt(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -167,7 +167,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias,
+	inline void RegisterForHitEventEx(STATIC_ARGS, RE::BGSRefAlias* a_alias,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
 		RE::TESForm* a_projectileFilter,
@@ -186,7 +186,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
 	}
 
-	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForItemCrafted(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -197,7 +197,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForItemHarvested(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -208,7 +208,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForLevelIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForLevelIncrease(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -219,7 +219,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForLocationDiscovery(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -230,7 +230,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RegisterForMagicEffectApplyEx(STATIC_ARGS,
 		RE::BGSRefAlias* a_alias,
 		RE::TESForm*     a_effectFilter,
 		bool             a_match)
@@ -244,7 +244,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias, a_effectFilter, a_match);
 	}
 
-	inline void RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void RegisterForMagicHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -255,7 +255,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForObjectGrab(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -269,7 +269,7 @@ namespace Papyrus::Alias::Events
 		release.Register(a_alias);
 	}
 
-	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RegisterForObjectLoaded(STATIC_ARGS,
 		const RE::BGSBaseAlias* a_alias,
 		std::uint32_t           a_formType)
 	{
@@ -287,7 +287,7 @@ namespace Papyrus::Alias::Events
 		unload.Register(a_alias, formType);
 	}
 
-	inline void RegisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void RegisterForProjectileHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -298,7 +298,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias, RE::TESQuest* a_quest)
+	inline void RegisterForQuest(STATIC_ARGS, const RE::BGSBaseAlias* a_alias, RE::TESQuest* a_quest)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -316,7 +316,7 @@ namespace Papyrus::Alias::Events
 		stop.Register(a_alias, a_quest->GetFormID());
 	}
 
-	inline void RegisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RegisterForQuestStage(STATIC_ARGS,
 		const RE::BGSBaseAlias* a_alias,
 		const RE::TESQuest*     a_quest)
 	{
@@ -333,7 +333,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias, a_quest->GetFormID());
 	}
 
-	inline void RegisterForShoutAttack(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForShoutAttack(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -344,7 +344,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForSkillIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForSkillIncrease(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -355,7 +355,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForSoulTrapped(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -366,7 +366,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForSpellLearned(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -377,7 +377,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void RegisterForWeatherChange(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -388,7 +388,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void RegisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void RegisterForWeaponHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -399,7 +399,7 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
-	inline void UnregisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void UnregisterForActorFallLongDistance(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -410,7 +410,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForActorKilled(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -421,7 +421,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForActorReanimateStart(STATIC_ARGS, RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -438,7 +438,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(refAlias);
 	}
 
-	inline void UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForActorReanimateStop(STATIC_ARGS, RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -455,7 +455,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(refAlias);
 	}
 
-	inline void UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForActorResurrected(STATIC_ARGS, RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -472,7 +472,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(refAlias);
 	}
 
-	inline void UnregisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForBookRead(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -483,7 +483,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForCellFullyLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForCellFullyLoaded(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -494,7 +494,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForCriticalHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForCriticalHit(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -505,7 +505,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForDisarmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForDisarmed(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -516,7 +516,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForDragonSoulGained(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForDragonSoulGained(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -527,7 +527,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForOnPlayerFastTravelEnd(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForOnPlayerFastTravelEnd(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -540,7 +540,7 @@ namespace Papyrus::Alias::Events
 #endif
 	}
 
-	inline void UnregisterForFastTravelConfirmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForFastTravelConfirmed(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -551,7 +551,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForFastTravelPrompt(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -562,7 +562,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias,
+	inline void UnregisterForHitEventEx(STATIC_ARGS, RE::BGSRefAlias* a_alias,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
 		RE::TESForm* a_projectileFilter,
@@ -581,7 +581,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
 	}
 
-	inline void UnregisterForAllHitEventsEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void UnregisterForAllHitEventsEx(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -592,7 +592,7 @@ namespace Papyrus::Alias::Events
 		regs.UnregisterAll(a_alias);
 	}
 
-	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForItemCrafted(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -603,7 +603,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForItemHarvested(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -614,7 +614,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForLevelIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForLevelIncrease(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -625,7 +625,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForLocationDiscovery(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -636,7 +636,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForMagicEffectApplyEx(STATIC_ARGS,
 		RE::BGSRefAlias* a_alias,
 		RE::TESForm*     a_effectFilter,
 		bool             a_match)
@@ -650,7 +650,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias, a_effectFilter, a_match);
 	}
 
-	inline void UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void UnregisterForAllMagicEffectApplyEx(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -661,7 +661,7 @@ namespace Papyrus::Alias::Events
 		regs.UnregisterAll(a_alias);
 	}
 
-	inline void UnregisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void UnregisterForMagicHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -672,7 +672,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForObjectGrab(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -686,7 +686,7 @@ namespace Papyrus::Alias::Events
 		release.Unregister(a_alias);
 	}
 
-	inline void UnregisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForObjectLoaded(STATIC_ARGS,
 		const RE::BGSBaseAlias* a_alias,
 		std::uint32_t           a_formType)
 	{
@@ -704,7 +704,7 @@ namespace Papyrus::Alias::Events
 		unload.Unregister(a_alias, formType);
 	}
 
-	inline void UnregisterForAllObjectsLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForAllObjectsLoaded(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -718,7 +718,7 @@ namespace Papyrus::Alias::Events
 		unload.UnregisterAll(a_alias);
 	}
 
-	inline void UnregisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void UnregisterForProjectileHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -729,7 +729,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForQuest(STATIC_ARGS,
 		const RE::BGSBaseAlias* a_alias,
 		const RE::TESQuest*     a_quest)
 	{
@@ -749,7 +749,7 @@ namespace Papyrus::Alias::Events
 		stop.Unregister(a_alias, a_quest->GetFormID());
 	}
 
-	inline void UnregisterForAllQuests(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForAllQuests(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -763,7 +763,7 @@ namespace Papyrus::Alias::Events
 		stop.UnregisterAll(a_alias);
 	}
 
-	inline void UnregisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForQuestStage(STATIC_ARGS,
 		const RE::BGSBaseAlias* a_alias,
 		const RE::TESQuest*     a_quest)
 	{
@@ -780,7 +780,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias, a_quest->GetFormID());
 	}
 
-	inline void UnregisterForAllQuestStages(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForAllQuestStages(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -791,7 +791,7 @@ namespace Papyrus::Alias::Events
 		regs.UnregisterAll(a_alias);
 	}
 
-	inline void UnregisterForShoutAttack(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForShoutAttack(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -802,7 +802,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForSkillIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForSkillIncrease(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -813,7 +813,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForSoulTrapped(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -824,7 +824,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForSpellLearned(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -835,7 +835,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSBaseAlias* a_alias)
+	inline void UnregisterForWeatherChange(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -846,7 +846,7 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
-	inline void UnregisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSRefAlias* a_alias)
+	inline void UnregisterForWeaponHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);

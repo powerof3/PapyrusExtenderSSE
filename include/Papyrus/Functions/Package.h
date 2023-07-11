@@ -2,9 +2,7 @@
 
 namespace Papyrus::Package
 {
-	inline void AddPackageIdle(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESPackage*  a_package,
-		RE::TESIdleForm* a_idle)
+	inline void AddPackageIdle(STATIC_ARGS, RE::TESPackage* a_package, RE::TESIdleForm* a_idle)
 	{
 		if (!a_package) {
 			a_vm->TraceStack("Package is None", a_stackID);
@@ -25,7 +23,7 @@ namespace Papyrus::Package
 		}
 	}
 
-	inline std::vector<RE::TESIdleForm*> GetPackageIdles(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESPackage* a_package)
+	inline std::vector<RE::TESIdleForm*> GetPackageIdles(STATIC_ARGS, const RE::TESPackage* a_package)
 	{
 		std::vector<RE::TESIdleForm*> result;
 
@@ -43,7 +41,7 @@ namespace Papyrus::Package
 		return result;
 	}
 
-	inline std::int32_t GetPackageType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESPackage* a_package)
+	inline std::int32_t GetPackageType(STATIC_ARGS, const RE::TESPackage* a_package)
 	{
 		if (!a_package) {
 			a_vm->TraceStack("Package is None", a_stackID);
@@ -53,9 +51,7 @@ namespace Papyrus::Package
 		return stl::to_underlying(a_package->packData.packType.get());
 	}
 
-	inline void RemovePackageIdle(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESPackage* a_package,
-		RE::TESIdleForm*      a_idle)
+	inline void RemovePackageIdle(STATIC_ARGS, const RE::TESPackage* a_package, RE::TESIdleForm* a_idle)
 	{
 		if (!a_package) {
 			a_vm->TraceStack("Package is None", a_stackID);

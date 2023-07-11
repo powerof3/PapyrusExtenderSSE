@@ -2,9 +2,7 @@
 
 namespace Papyrus::Sound
 {
-	inline void SetSoundDescriptor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESSound*               a_sound,
-		RE::BGSSoundDescriptorForm* a_soundDescriptor)
+	inline void SetSoundDescriptor(STATIC_ARGS, RE::TESSound* a_sound, RE::BGSSoundDescriptorForm* a_soundDescriptor)
 	{
 		if (!a_sound) {
 			a_vm->TraceStack("Sound is None", a_stackID);

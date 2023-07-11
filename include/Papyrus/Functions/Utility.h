@@ -4,12 +4,12 @@ namespace Papyrus::Utility
 {
 	inline float GenerateRandomFloat(RE::StaticFunctionTag*, float a_min, float a_max)
 	{
-		return RNG.Generate<float>(a_min, a_max);
+		return clib_util::RNG().Generate<float>(a_min, a_max);
 	}
 
 	inline std::uint32_t GenerateRandomInt(RE::StaticFunctionTag*, std::uint32_t a_min, std::uint32_t a_max)
 	{
-		return RNG.Generate<std::uint32_t>(a_min, a_max);
+		return clib_util::RNG().Generate<std::uint32_t>(a_min, a_max);
 	}
 
 	inline std::vector<std::int32_t> GetSystemTime(RE::StaticFunctionTag*)

@@ -6,6 +6,7 @@
 #include "Papyrus/Functions/ActorBase.h"
 #include "Papyrus/Functions/Alias/Events.h"
 #include "Papyrus/Functions/Alias/Functions.h"
+#include "Papyrus/Functions/Ammo.h"
 #include "Papyrus/Functions/ArmorAddon.h"
 #include "Papyrus/Functions/Array.h"
 #include "Papyrus/Functions/Book.h"
@@ -37,6 +38,7 @@
 #include "Papyrus/Functions/Utility.h"
 #include "Papyrus/Functions/VisualEffect.h"
 #include "Papyrus/Functions/Weather.h"
+
 #include "Papyrus/ObjectTypes.h"
 
 namespace Papyrus
@@ -57,6 +59,7 @@ namespace Papyrus
 
 		Actor::Bind(*a_vm);
 		ActorBase::Bind(*a_vm);
+		Ammo::Bind(*a_vm);
 		ArmorAddon::Bind(*a_vm);
 
 		Alias::Events::Bind(*a_vm);

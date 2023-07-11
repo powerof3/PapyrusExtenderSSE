@@ -7,7 +7,7 @@ namespace Papyrus::Debug
 		static bool get_god_mode_impl()
 		{
 			using func_t = decltype(&detail::get_god_mode_impl);
-			REL::Relocation<func_t> func{ REL_ID(39425, 40501) };
+			REL::Relocation<func_t> func{ RELOCATION_ID(39425, 40501) };
 			return func();
 		}
 	};

@@ -4,7 +4,7 @@
 
 namespace Papyrus::Detection
 {
-	inline std::int32_t CanActorBeDetected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline std::int32_t CanActorBeDetected(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -21,7 +21,7 @@ namespace Papyrus::Detection
 		return 1;
 	}
 
-	inline std::int32_t CanActorDetect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline std::int32_t CanActorDetect(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -38,7 +38,7 @@ namespace Papyrus::Detection
 		return 1;
 	}
 
-	inline void ForceActorDetection(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void ForceActorDetection(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -48,7 +48,7 @@ namespace Papyrus::Detection
 		DETECTION::TargetManager::GetSingleton()->Add(a_actor, DETECTION::kAlert);
 	}
 
-	inline void ForceActorDetecting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void ForceActorDetecting(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -58,7 +58,7 @@ namespace Papyrus::Detection
 		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kAlert);
 	}
 
-	inline bool IsDetectedByAnyone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline bool IsDetectedByAnyone(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -68,8 +68,8 @@ namespace Papyrus::Detection
 		if (a_actor->currentProcess) {
 			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 				for (auto& targetHandle : processLists->highActorHandles) {
-					if (auto target = targetHandle.get(); target && target->currentProcess) {
-						if (auto base = target->GetActorBase(); base && !base->AffectsStealthMeter()) {
+					if (const auto target = targetHandle.get(); target && target->currentProcess) {
+						if (const auto base = target->GetActorBase(); base && !base->AffectsStealthMeter()) {
 							continue;
 						}
 						if (target->RequestDetectionLevel(a_actor) > 0) {
@@ -83,7 +83,7 @@ namespace Papyrus::Detection
 		return false;
 	}
 
-	inline void PreventActorDetection(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void PreventActorDetection(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -93,7 +93,7 @@ namespace Papyrus::Detection
 		DETECTION::TargetManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
 	}
 
-	inline void PreventActorDetecting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void PreventActorDetecting(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -103,7 +103,7 @@ namespace Papyrus::Detection
 		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
 	}
 
-	inline void ResetActorDetection(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void ResetActorDetection(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -113,7 +113,7 @@ namespace Papyrus::Detection
 		DETECTION::TargetManager::GetSingleton()->Remove(a_actor);
 	}
 
-	inline void ResetActorDetecting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void ResetActorDetecting(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);

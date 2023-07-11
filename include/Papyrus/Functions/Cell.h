@@ -2,7 +2,7 @@
 
 namespace Papyrus::Cell
 {
-	inline RE::BGSLightingTemplate* GetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectCELL* a_cell)
+	inline RE::BGSLightingTemplate* GetLightingTemplate(STATIC_ARGS, const RE::TESObjectCELL* a_cell)
 	{
 		if (!a_cell) {
 			a_vm->TraceStack("Cell is None", a_stackID);
@@ -12,9 +12,7 @@ namespace Papyrus::Cell
 		return a_cell->lightingTemplate;
 	}
 
-	inline void SetLightingTemplate(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectCELL*       a_cell,
-		RE::BGSLightingTemplate* a_lightingTemplate)
+	inline void SetLightingTemplate(STATIC_ARGS, RE::TESObjectCELL* a_cell, RE::BGSLightingTemplate* a_lightingTemplate)
 	{
 		if (!a_cell) {
 			a_vm->TraceStack("Cell is None", a_stackID);
@@ -28,7 +26,7 @@ namespace Papyrus::Cell
 		a_cell->lightingTemplate = a_lightingTemplate;
 	}
 
-	inline float GetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectCELL* a_cell)
+	inline float GetCellNorthRotation(STATIC_ARGS, RE::TESObjectCELL* a_cell)
 	{
 		if (!a_cell) {
 			a_vm->TraceStack("Cell is None", a_stackID);
@@ -38,9 +36,7 @@ namespace Papyrus::Cell
 		return a_cell->GetNorthRotation();
 	}
 
-	inline void SetCellNorthRotation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectCELL* a_cell,
-		float              a_angle)
+	inline void SetCellNorthRotation(STATIC_ARGS, RE::TESObjectCELL* a_cell, float a_angle)
 	{
 		if (!a_cell) {
 			a_vm->TraceStack("Cell is None", a_stackID);

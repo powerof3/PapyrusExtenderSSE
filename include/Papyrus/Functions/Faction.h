@@ -2,7 +2,7 @@
 
 namespace Papyrus::Faction
 {
-	inline RE::TESObjectREFR* GetVendorFactionContainer(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESFaction* a_faction)
+	inline RE::TESObjectREFR* GetVendorFactionContainer(STATIC_ARGS, const RE::TESFaction* a_faction)
 	{
 		if (!a_faction) {
 			a_vm->TraceStack("Faction is None", a_stackID);
@@ -13,12 +13,12 @@ namespace Papyrus::Faction
 	}
 
 	//SeaSparrow - New Functions
-	inline std::vector<RE::Actor*> GetAllActorsInFaction(VM*, StackID, RE::StaticFunctionTag*, RE::TESFaction* a_kFaction)
+	inline std::vector<RE::Actor*> GetAllActorsInFaction(STATIC_ARGS, const RE::TESFaction* a_faction)
 	{
-		std::vector<RE::Actor*> response;
+		std::vector<RE::Actor*> result;
 
-		if (!a_kFaction) {
-			return response;
+		if (!a_faction) {
+			return result;
 		}
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
@@ -36,16 +36,16 @@ namespace Papyrus::Faction
 			for (auto array : allActors) {
 				for (auto& actorHandle : *array) {
 					auto actorPtr = actorHandle.get();
-
-					if (auto actor = actorPtr.get(); actor) {
-						if (actor->IsInFaction(a_kFaction)) {
-							response.push_back(actor);
+					if (actorPtr) {
+						if (actorPtr->IsInFaction(a_faction)) {
+							result.push_back(actorPtr.get());
 						}
 					}
 				}
 			}
 		}
-		return response;
+
+		return result;
 	}
 
 	inline void Bind(VM& a_vm)

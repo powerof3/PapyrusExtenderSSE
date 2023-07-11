@@ -2,9 +2,7 @@
 
 namespace Papyrus::ActorBase
 {
-	inline RE::BGSAssociationType* GetAssociationType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC* a_npc1,
-		RE::TESNPC* a_npc2)
+	inline RE::BGSAssociationType* GetAssociationType(STATIC_ARGS, RE::TESNPC* a_npc1, RE::TESNPC* a_npc2)
 	{
 		if (!a_npc1) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -19,7 +17,7 @@ namespace Papyrus::ActorBase
 		return relationship ? relationship->assocType : nullptr;
 	}
 
-	inline RE::TESLevItem* GetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESNPC* a_actorbase)
+	inline RE::TESLevItem* GetDeathItem(STATIC_ARGS, RE::TESNPC* a_actorbase)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -29,9 +27,7 @@ namespace Papyrus::ActorBase
 		return a_actorbase->deathItem;
 	}
 
-	inline RE::BGSPerk* GetNthPerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC*   a_actorbase,
-		std::uint32_t a_index)
+	inline RE::BGSPerk* GetNthPerk(STATIC_ARGS, RE::TESNPC* a_actorbase, std::uint32_t a_index)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -46,7 +42,7 @@ namespace Papyrus::ActorBase
 		return a_actorbase->perks[a_index].perk;
 	}
 
-	inline std::uint32_t GetPerkCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESNPC* a_actorbase)
+	inline std::uint32_t GetPerkCount(STATIC_ARGS, const RE::TESNPC* a_actorbase)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -56,9 +52,7 @@ namespace Papyrus::ActorBase
 		return a_actorbase->perkCount;
 	}
 
-	inline std::vector<RE::TESNPC*> GetRelationships(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC*             a_actorbase,
-		RE::BGSAssociationType* a_assocType)
+	inline std::vector<RE::TESNPC*> GetRelationships(STATIC_ARGS, RE::TESNPC* a_actorbase, RE::BGSAssociationType* a_assocType)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);
@@ -80,9 +74,7 @@ namespace Papyrus::ActorBase
 		return actorbases;
 	}
 
-	inline void SetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC*     a_actorbase,
-		RE::TESLevItem* a_item)
+	inline void SetDeathItem(STATIC_ARGS, RE::TESNPC* a_actorbase, RE::TESLevItem* a_item)
 	{
 		if (!a_actorbase) {
 			a_vm->TraceStack("ActorBase is None", a_stackID);

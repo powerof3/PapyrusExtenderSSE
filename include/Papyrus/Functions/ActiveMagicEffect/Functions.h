@@ -2,7 +2,7 @@
 
 namespace Papyrus::ActiveMagicEffect::Functions
 {
-	inline RE::TESForm* GetActiveEffectSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline RE::TESForm* GetActiveEffectSpell(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -12,9 +12,7 @@ namespace Papyrus::ActiveMagicEffect::Functions
 		return a_activeEffect->spell;
 	}
 
-	inline bool IsScriptAttachedToActiveEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::ActiveEffect* a_activeEffect,
-		RE::BSFixedString       a_scriptName)
+	inline bool IsScriptAttachedToActiveEffect(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, RE::BSFixedString a_scriptName)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);

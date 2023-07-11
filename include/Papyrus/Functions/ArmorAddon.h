@@ -2,7 +2,7 @@
 
 namespace Papyrus::ArmorAddon
 {
-	inline RE::BGSFootstepSet* GetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectARMA* a_arma)
+	inline RE::BGSFootstepSet* GetFootstepSet(STATIC_ARGS, const RE::TESObjectARMA* a_arma)
 	{
 		if (!a_arma) {
 			a_vm->TraceStack("Armor Addon is None", a_stackID);
@@ -12,9 +12,7 @@ namespace Papyrus::ArmorAddon
 		return a_arma->footstepSet;
 	}
 
-	inline void SetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectARMA*  a_arma,
-		RE::BGSFootstepSet* a_footstepSet)
+	inline void SetFootstepSet(STATIC_ARGS,RE::TESObjectARMA*  a_arma,RE::BGSFootstepSet* a_footstepSet)
 	{
 		if (!a_arma) {
 			a_vm->TraceStack("Armor Addon is None", a_stackID);

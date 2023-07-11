@@ -11,7 +11,7 @@ namespace Papyrus::Array
 		return false;
 	}
 
-	inline bool AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, std::string a_string, RE::reference_array<std::string> a_strings)
+	inline bool AddStringToArray(RE::StaticFunctionTag*, std::string a_string, RE::reference_array<std::string> a_strings)
 	{
 		if (const auto it = std::ranges::find(a_strings, ""); it != a_strings.end()) {
 			*it = a_string;
@@ -39,10 +39,7 @@ namespace Papyrus::Array
 		return strings;
 	}
 
-	inline std::vector<std::string> GetSortedActorNames(RE::StaticFunctionTag*,
-		const RE::BGSKeyword* a_keyword,
-		std::string           a_pronoun,
-		bool                  a_invert)
+	inline std::vector<std::string> GetSortedActorNames(RE::StaticFunctionTag*, const RE::BGSKeyword* a_keyword, std::string a_pronoun, bool a_invert)
 	{
 		std::unordered_map<std::string, std::size_t> nameMap;
 
@@ -68,8 +65,8 @@ namespace Papyrus::Array
 		std::vector<std::string> names;
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
-                                       name;
+			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
+			                           name;
 			names.emplace_back(fullName);
 		}
 
@@ -78,9 +75,7 @@ namespace Papyrus::Array
 		return names;
 	}
 
-	inline std::vector<std::string> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*,
-		const std::vector<RE::TESNPC*> a_npcs,
-		std::string                    a_pronoun)
+	inline std::vector<std::string> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*, const std::vector<RE::TESNPC*> a_npcs, std::string a_pronoun)
 	{
 		std::vector<std::string> names;
 
@@ -102,8 +97,8 @@ namespace Papyrus::Array
 
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
-                                       name;
+			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
+			                           name;
 			names.emplace_back(fullName);
 		}
 

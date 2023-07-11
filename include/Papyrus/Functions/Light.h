@@ -2,7 +2,7 @@
 
 namespace Papyrus::Light
 {
-	inline RE::BGSColorForm* GetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectLIGH* a_light)
+	inline RE::BGSColorForm* GetLightColor(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -21,7 +21,7 @@ namespace Papyrus::Light
 		return nullptr;
 	}
 
-	inline float GetLightFade(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectLIGH* a_light)
+	inline float GetLightFade(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -31,7 +31,7 @@ namespace Papyrus::Light
 		return a_light->fade;
 	}
 
-	inline float GetLightFOV(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectLIGH* a_light)
+	inline float GetLightFOV(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -41,7 +41,7 @@ namespace Papyrus::Light
 		return a_light->data.fov;
 	}
 
-	inline float GetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectLIGH* a_light)
+	inline float GetLightRadius(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -51,7 +51,7 @@ namespace Papyrus::Light
 		return static_cast<float>(a_light->data.radius);  //should ideally return as std::uint32_t but messed the return
 	}
 
-	inline std::vector<std::uint32_t> GetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectLIGH* a_light)
+	inline std::vector<std::uint32_t> GetLightRGB(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
 		std::vector<std::uint32_t> result(3, 0);
 
@@ -68,7 +68,7 @@ namespace Papyrus::Light
 		return result;
 	}
 
-	inline float GetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_lightObject)
+	inline float GetLightShadowDepthBias(STATIC_ARGS, RE::TESObjectREFR* a_lightObject)
 	{
 		if (!a_lightObject) {
 			a_vm->TraceStack("Object is None", a_stackID);
@@ -86,7 +86,7 @@ namespace Papyrus::Light
 		return xLightData ? xLightData->data.shadowDepthBias : 1.0f;
 	}
 
-	inline std::uint32_t GetLightType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectLIGH* a_light)
+	inline std::uint32_t GetLightType(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
 		using FLAGS = RE::TES_LIGHT_FLAGS;
 
@@ -115,9 +115,7 @@ namespace Papyrus::Light
 		return 0;
 	}
 
-	inline void SetLightColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectLIGH* a_light,
-		RE::BGSColorForm*  a_color)
+	inline void SetLightColor(STATIC_ARGS, RE::TESObjectLIGH* a_light, RE::BGSColorForm* a_color)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -131,9 +129,7 @@ namespace Papyrus::Light
 		a_light->data.color = a_color->color;
 	}
 
-	inline void SetLightFade(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectLIGH* a_light,
-		float              a_fade)
+	inline void SetLightFade(STATIC_ARGS, RE::TESObjectLIGH* a_light, float a_fade)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -143,9 +139,7 @@ namespace Papyrus::Light
 		a_light->fade = a_fade;
 	}
 
-	inline void SetLightFOV(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectLIGH* a_light,
-		float              a_fov)
+	inline void SetLightFOV(STATIC_ARGS, RE::TESObjectLIGH* a_light, float a_fov)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -155,9 +149,7 @@ namespace Papyrus::Light
 		a_light->data.fov = a_fov;
 	}
 
-	inline void SetLightRadius(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectLIGH* a_light,
-		float              a_radius)
+	inline void SetLightRadius(STATIC_ARGS, RE::TESObjectLIGH* a_light, float a_radius)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -167,9 +159,7 @@ namespace Papyrus::Light
 		a_light->data.radius = static_cast<std::uint32_t>(a_radius);
 	}
 
-	inline void SetLightRGB(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectLIGH*        a_light,
-		std::vector<std::int32_t> a_rgb)
+	inline void SetLightRGB(STATIC_ARGS, RE::TESObjectLIGH* a_light, std::vector<std::int32_t> a_rgb)
 	{
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
@@ -187,9 +177,7 @@ namespace Papyrus::Light
 		}
 	}
 
-	inline void SetLightShadowDepthBias(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_lightObject,
-		float              a_depthBias)
+	inline void SetLightShadowDepthBias(STATIC_ARGS, RE::TESObjectREFR* a_lightObject, float a_depthBias)
 	{
 		if (!a_lightObject) {
 			a_vm->TraceStack("Object is None", a_stackID);
@@ -213,9 +201,7 @@ namespace Papyrus::Light
 		}
 	}
 
-	inline void SetLightType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectLIGH* a_light,
-		std::uint32_t      a_type)
+	inline void SetLightType(STATIC_ARGS, RE::TESObjectLIGH* a_light, std::uint32_t a_type)
 	{
 		using FLAGS = RE::TES_LIGHT_FLAGS;
 

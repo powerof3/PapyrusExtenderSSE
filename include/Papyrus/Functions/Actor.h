@@ -5,16 +5,13 @@
 
 namespace Papyrus::Actor
 {
-	inline constexpr RE::FormID SoulTrapHitArtID = 0x000531AE;
-
-	inline bool AddBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*   a_actor,
-		RE::BGSPerk* a_perk)
+	inline bool AddBasePerk(STATIC_ARGS, RE::Actor* a_actor, RE::BGSPerk* a_perk)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return false;
 		}
+
 		if (!a_perk) {
 			a_vm->TraceStack("Perk is None", a_stackID);
 			return false;
@@ -23,9 +20,7 @@ namespace Papyrus::Actor
 		return FORM::PerkManager::GetSingleton()->Add(a_actor, a_perk);
 	}
 
-	inline bool AddBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*     a_actor,
-		RE::SpellItem* a_spell)
+	inline bool AddBaseSpell(STATIC_ARGS, RE::Actor* a_actor, RE::SpellItem* a_spell)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -56,7 +51,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline std::vector<RE::TESForm*> AddAllEquippedItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline std::vector<RE::TESForm*> AddAllEquippedItemsToArray(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		std::vector<RE::TESForm*> result;
 
@@ -79,11 +74,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	inline bool ApplyPoisonToEquippedWeapon(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*       a_actor,
-		RE::AlchemyItem* a_poison,
-		std::uint32_t    a_count,
-		bool             a_leftHand)
+	inline bool ApplyPoisonToEquippedWeapon(STATIC_ARGS, const RE::Actor* a_actor, RE::AlchemyItem* a_poison, std::uint32_t a_count, bool a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -94,7 +85,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand); equippedEntryData) {
+		if (const auto equippedEntryData = a_actor->GetEquippedEntryData(a_leftHand)) {
 			if (equippedEntryData->IsPoisoned()) {
 				return false;
 			}
@@ -106,7 +97,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline void DecapitateActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void DecapitateActor(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -116,10 +107,7 @@ namespace Papyrus::Actor
 		a_actor->Decapitate();
 	}
 
-	inline void FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*    a_actor,
-		std::uint32_t a_type,
-		bool          a_enable)
+	inline void FreezeActor(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_type, bool a_enable)
 	{
 		using Flags = RE::CHARACTER_FLAGS;
 		using BOOL_BITS = RE::Actor::BOOL_BITS;
@@ -136,7 +124,7 @@ namespace Papyrus::Actor
 		}
 
 		if (a_type == 0) {
-			if (const auto charController = a_actor->GetCharController(); charController) {
+			if (const auto charController = a_actor->GetCharController()) {
 				if (a_enable) {  //freeze
 					charController->flags.set(Flags::kNotPushable, Flags::kNoCharacterCollisions);
 					charController->flags.reset(Flags::kRecordHits, Flags::kHitFlags, Flags::kHitDamage);
@@ -152,7 +140,7 @@ namespace Papyrus::Actor
 				a_actor->boolBits.set(BOOL_BITS::kProcessMe);  //enable AI
 			}
 		} else if (a_type == 1) {
-			if (const auto charController = a_actor->GetCharController(); charController) {
+			if (const auto charController = a_actor->GetCharController()) {
 				SKSE::GetTaskInterface()->AddTask([root, charController, a_actor, a_enable]() {
 					std::uint32_t filterInfo = 0;
 					charController->GetCollisionFilterInfo(filterInfo);
@@ -170,9 +158,7 @@ namespace Papyrus::Actor
 		}
 	}
 
-	inline std::vector<RE::EffectSetting*> GetActiveEffects(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		bool       a_inactive)
+	inline std::vector<RE::EffectSetting*> GetActiveEffects(STATIC_ARGS, RE::Actor* a_actor, bool a_inactive)
 	{
 		using AE = RE::ActiveEffect::Flag;
 
@@ -212,7 +198,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	inline float GetActorAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline float GetActorAlpha(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -225,7 +211,7 @@ namespace Papyrus::Actor
 		return middleProcess ? middleProcess->alphaMult : 1.0f;
 	}
 
-	inline std::int32_t GetActorKnockState(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::int32_t GetActorKnockState(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -235,7 +221,7 @@ namespace Papyrus::Actor
 		return stl::to_underlying(a_actor->GetKnockState());
 	}
 
-	inline float GetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline float GetActorRefraction(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -248,7 +234,7 @@ namespace Papyrus::Actor
 		return middleProcess ? middleProcess->scriptRefractPower : 1.0f;
 	}
 
-	inline std::int32_t GetActorSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::int32_t GetActorSoulSize(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -258,7 +244,7 @@ namespace Papyrus::Actor
 		return stl::to_underlying(a_actor->GetSoulSize());
 	}
 
-	inline std::int32_t GetActorState(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::int32_t GetActorState(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -268,10 +254,7 @@ namespace Papyrus::Actor
 		return stl::to_underlying(a_actor->GetLifeState());
 	}
 
-	inline float GetActorValueModifier(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::Actor*  a_actor,
-		std::int32_t      a_modifier,
-		RE::BSFixedString a_actorValue)
+	inline float GetActorValueModifier(STATIC_ARGS, const RE::Actor* a_actor, std::int32_t a_modifier, RE::BSFixedString a_actorValue)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -280,16 +263,16 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
-                                    RE::ActorValue::kNone;
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
+		                            RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
-                   0.0f;
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
+		           0.0f;
 	}
 
-	inline std::uint32_t GetCriticalStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::uint32_t GetCriticalStage(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -299,7 +282,7 @@ namespace Papyrus::Actor
 		return stl::to_underlying(a_actor->criticalStage.get());
 	}
 
-	inline std::vector<RE::Actor*> GetCombatAllies(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::vector<RE::Actor*> GetCombatAllies(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		std::vector<RE::Actor*> result;
 
@@ -308,7 +291,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		if (const auto combatGroup = a_actor->GetCombatGroup(); combatGroup) {
+		if (const auto combatGroup = a_actor->GetCombatGroup()) {
 			for (auto& memberData : combatGroup->members) {
 				if (auto ally = memberData.memberHandle.get(); ally) {
 					result.push_back(ally.get());
@@ -319,7 +302,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	inline std::vector<RE::Actor*> GetCombatTargets(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::vector<RE::Actor*> GetCombatTargets(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		std::vector<RE::Actor*> result;
 
@@ -328,7 +311,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		if (const auto combatGroup = a_actor->GetCombatGroup(); combatGroup) {
+		if (const auto combatGroup = a_actor->GetCombatGroup()) {
 			for (auto& targetData : combatGroup->targets) {
 				auto target = targetData.targetHandle.get();
 				if (target) {
@@ -340,7 +323,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	inline std::vector<RE::Actor*> GetCommandedActors(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline std::vector<RE::Actor*> GetCommandedActors(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		std::vector<RE::Actor*> result;
 
@@ -364,7 +347,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	inline RE::Actor* GetCommandingActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline RE::Actor* GetCommandingActor(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -378,7 +361,7 @@ namespace Papyrus::Actor
 		return nullptr;
 	}
 
-	inline RE::TESAmmo* GetEquippedAmmo(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline RE::TESAmmo* GetEquippedAmmo(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -404,9 +387,7 @@ namespace Papyrus::Actor
 	}
 #endif
 
-	inline bool GetEquippedWeaponIsPoisoned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		bool       a_leftHand)
+	inline bool GetEquippedWeaponIsPoisoned(STATIC_ARGS, const RE::Actor* a_actor, bool a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -417,9 +398,7 @@ namespace Papyrus::Actor
 		return equippedEntryData && equippedEntryData->IsPoisoned();
 	}
 
-	inline RE::AlchemyItem* GetEquippedWeaponPoison(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		bool       a_leftHand)
+	inline RE::AlchemyItem* GetEquippedWeaponPoison(STATIC_ARGS, const RE::Actor* a_actor, bool a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -430,9 +409,7 @@ namespace Papyrus::Actor
 		return xPoison ? xPoison->poison : nullptr;
 	}
 
-	inline std::uint32_t GetEquippedWeaponPoisonCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		bool       a_leftHand)
+	inline std::uint32_t GetEquippedWeaponPoisonCount(STATIC_ARGS, const RE::Actor* a_actor, bool a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -443,7 +420,7 @@ namespace Papyrus::Actor
 		return xPoison ? xPoison->count : 0;
 	}
 
-	inline float GetEquippedWeight(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline float GetEquippedWeight(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -453,7 +430,7 @@ namespace Papyrus::Actor
 		return a_actor->GetEquippedWeight();
 	}
 
-	inline RE::Actor* GetMount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline RE::Actor* GetMount(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -468,7 +445,7 @@ namespace Papyrus::Actor
 		return nullptr;
 	}
 
-	inline float GetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline float GetLocalGravityActor(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -479,7 +456,7 @@ namespace Papyrus::Actor
 		return charController ? charController->gravity : 1.0f;
 	}
 
-	inline RE::TESObjectREFR* GetObjectUnderFeet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline RE::TESObjectREFR* GetObjectUnderFeet(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -492,7 +469,7 @@ namespace Papyrus::Actor
 		return supportBody ? supportBody->GetUserData() : nullptr;
 	}
 
-	inline bool GetOffersServices(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline bool GetOffersServices(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -502,7 +479,7 @@ namespace Papyrus::Actor
 		return a_actor->CanOfferServices();
 	}
 
-	inline RE::Actor* GetRider(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline RE::Actor* GetRider(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -517,7 +494,7 @@ namespace Papyrus::Actor
 		return nullptr;
 	}
 
-	inline RE::TESPackage* GetRunningPackage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline RE::TESPackage* GetRunningPackage(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -528,7 +505,7 @@ namespace Papyrus::Actor
 		return currentProcess ? currentProcess->GetRunningPackage() : nullptr;
 	}
 
-	inline float GetTimeDead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline float GetTimeDead(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -548,7 +525,7 @@ namespace Papyrus::Actor
 		return 0.0f;
 	}
 
-	inline float GetTimeOfDeath(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline float GetTimeOfDeath(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -561,7 +538,7 @@ namespace Papyrus::Actor
 		return timeOfDeath > 0.0f ? timeOfDeath / 24.0f : 0.0f;
 	}
 
-	inline RE::TESFaction* GetVendorFaction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline RE::TESFaction* GetVendorFaction(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -571,9 +548,7 @@ namespace Papyrus::Actor
 		return a_actor->GetVendorFaction();
 	}
 
-	inline bool HasActiveMagicEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*               a_actor,
-		const RE::EffectSetting* a_mgef)
+	inline bool HasActiveMagicEffect(STATIC_ARGS, RE::Actor* a_actor, const RE::EffectSetting* a_mgef)
 	{
 		using AE = RE::ActiveEffect::Flag;
 
@@ -603,9 +578,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline bool HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*           a_actor,
-		const RE::SpellItem* a_spell)
+	inline bool HasActiveSpell(STATIC_ARGS, RE::Actor* a_actor, const RE::SpellItem* a_spell)
 	{
 		using AE = RE::ActiveEffect::Flag;
 
@@ -635,7 +608,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline bool HasDeferredKill(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::Actor* a_actor)
+	inline bool HasDeferredKill(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -648,9 +621,7 @@ namespace Papyrus::Actor
 		return middleProcess && middleProcess->inDeferredKill;
 	}
 
-	inline bool HasMagicEffectWithArchetype(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*        a_actor,
-		RE::BSFixedString a_archetype)
+	inline bool HasMagicEffectWithArchetype(STATIC_ARGS, RE::Actor* a_actor, RE::BSFixedString a_archetype)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -678,7 +649,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline bool IsActorInWater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline bool IsActorInWater(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -688,7 +659,7 @@ namespace Papyrus::Actor
 		return a_actor->IsPointSubmergedMoreThan(a_actor->GetPosition(), a_actor->GetParentCell(), 0.01f);
 	}
 
-	inline bool IsActorUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline bool IsActorUnderwater(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -698,9 +669,7 @@ namespace Papyrus::Actor
 		return a_actor->IsPointSubmergedMoreThan(a_actor->GetPosition(), a_actor->GetParentCell(), 0.875f);
 	}
 
-	inline bool IsLimbGone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*   a_actor,
-		std::int32_t a_limbEnum)
+	inline bool IsLimbGone(STATIC_ARGS, RE::Actor* a_actor, std::int32_t a_limbEnum)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -710,7 +679,7 @@ namespace Papyrus::Actor
 		return a_actor->IsLimbGone(a_limbEnum);
 	}
 
-	inline bool IsQuadruped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline bool IsQuadruped(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -721,11 +690,8 @@ namespace Papyrus::Actor
 		return charController && charController->flags.all(RE::CHARACTER_FLAGS::kQuadruped);
 	}
 
-	inline bool IsSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline bool IsSoulTrapped(STATIC_ARGS, RE::Actor* a_actor)
 	{
-		using Archetype = RE::EffectArchetypes::ArchetypeID;
-		using Flags = RE::TESSoulGem::RecordFlags;
-
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return false;
@@ -743,7 +709,7 @@ namespace Papyrus::Actor
 			const auto handle = a_actor->GetHandle();
 			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect& a_modelEffect) {
 				if (a_modelEffect.target == handle) {
-					if (const auto modelArt = a_modelEffect.artObject; modelArt && modelArt->GetFormID() == SoulTrapHitArtID) {
+					if (const auto modelArt = a_modelEffect.artObject; modelArt && modelArt->GetFormID() == 0x000531AE) {
 						isBeingSoulTrapped = true;
 						return RE::BSContainer::ForEachResult::kStop;
 					}
@@ -755,7 +721,7 @@ namespace Papyrus::Actor
 		return isBeingSoulTrapped;
 	}
 
-	inline void KillNoWait(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::Actor* a_actor)
+	inline void KillNoWait(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -767,21 +733,14 @@ namespace Papyrus::Actor
 		a_actor->boolBits.set(RE::Actor::BOOL_BITS::kSetOnDeath);
 	}
 
-	inline void RemoveAddedSpells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*                   a_actor,
-		RE::BSFixedString            a_modName,
-		std::vector<RE::BGSKeyword*> a_keywords,
-		bool                         a_matchAll)
+	inline void RemoveAddedSpells(STATIC_ARGS, RE::Actor* a_actor, RE::BSFixedString a_modName, std::vector<RE::BGSKeyword*> a_keywords, bool a_matchAll)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return;
 		}
 
-		std::vector<RE::SpellItem*> spells;
-
-		auto dataHandler = RE::TESDataHandler::GetSingleton();
-		auto mod = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
+		std::vector<RE::SpellItem*> spells{};
 
 		constexpr auto has_keyword = [](RE::SpellItem* a_spell, const std::vector<RE::BGSKeyword*>& a_keywordArray, bool a_matchAll) {
 			if (a_matchAll) {
@@ -790,11 +749,13 @@ namespace Papyrus::Actor
 			return std::ranges::any_of(a_keywordArray, [&](const auto& keyword) { return keyword && a_spell->HasKeyword(keyword); });
 		};
 
+		const auto modInfo = RE::TESDataHandler::GetSingleton()->LookupModByName(a_modName);
+
 		for (auto& spell : a_actor->addedSpells | std::views::reverse) {
 			if (!spell) {
 				continue;
 			}
-			if (mod && !mod->IsFormInMod(spell->GetFormID())) {
+			if (modInfo && !modInfo->IsFormInMod(spell->GetFormID())) {
 				continue;
 			}
 			if (!a_keywords.empty() && !has_keyword(spell, a_keywords, a_matchAll)) {
@@ -804,7 +765,7 @@ namespace Papyrus::Actor
 		}
 
 		//Papyrus RemoveSpell queues a task, while console command calls this directly.
-		if (auto taskQueue = RE::TaskQueueInterface::GetSingleton()) {
+		if (const auto taskQueue = RE::TaskQueueInterface::GetSingleton()) {
 			auto actorHandle = a_actor->CreateRefHandle();
 			for (const auto& spell : spells) {
 				taskQueue->QueueRemoveSpell(actorHandle, spell);
@@ -812,11 +773,7 @@ namespace Papyrus::Actor
 		}
 	}
 
-	inline void RemoveArmorOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*                 a_actor,
-		std::uint32_t              a_armorType,
-		std::vector<std::uint32_t> a_slotsToSkip,
-		bool                       a_equippedOnly)
+	inline void RemoveArmorOfType(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_armorType, std::vector<std::uint32_t> a_slotsToSkip, bool a_equippedOnly)
 	{
 		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
 
@@ -848,9 +805,7 @@ namespace Papyrus::Actor
 		}
 	}
 
-	inline bool RemoveBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*   a_actor,
-		RE::BGSPerk* a_perk)
+	inline bool RemoveBasePerk(STATIC_ARGS, RE::Actor* a_actor, RE::BGSPerk* a_perk)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -864,9 +819,7 @@ namespace Papyrus::Actor
 		return FORM::PerkManager::GetSingleton()->Remove(a_actor, a_perk);
 	}
 
-	inline bool RemoveBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*     a_actor,
-		RE::SpellItem* a_spell)
+	inline bool RemoveBaseSpell(STATIC_ARGS, RE::Actor* a_actor, RE::SpellItem* a_spell)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -882,8 +835,7 @@ namespace Papyrus::Actor
 
 		if (actorEffects && actorEffects->GetIndex(a_spell)) {
 #ifndef SKYRIMVR
-			const auto activeEffects = a_actor->GetActiveEffectList();
-			if (activeEffects) {
+			if (const auto activeEffects = a_actor->GetActiveEffectList()) {
 				for (const auto& activeEffect : *activeEffects) {
 					if (activeEffect && activeEffect->spell == a_spell) {
 						activeEffect->Dispel(true);
@@ -898,7 +850,6 @@ namespace Papyrus::Actor
 				return RE::BSContainer::ForEachResult::kContinue;
 			});
 #endif
-
 			const auto combatController = a_actor->combatController;
 			if (combatController && combatController->inventory) {
 				combatController->inventory->dirty = true;
@@ -915,9 +866,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline void SetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		float      a_refraction)
+	inline void SetActorRefraction(STATIC_ARGS, RE::Actor* a_actor, float a_refraction)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -950,10 +899,7 @@ namespace Papyrus::Actor
 		}
 	}
 
-	inline bool SetEquippedWeaponPoison(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*       a_actor,
-		RE::AlchemyItem* a_poison,
-		bool             a_leftHand)
+	inline bool SetEquippedWeaponPoison(STATIC_ARGS, RE::Actor* a_actor, RE::AlchemyItem* a_poison, bool a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -968,10 +914,7 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline bool SetEquippedWeaponPoisonCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*    a_actor,
-		std::uint32_t a_count,
-		bool          a_leftHand)
+	inline bool SetEquippedWeaponPoisonCount(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_count, bool a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -986,46 +929,37 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline void SetLinearVelocity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		float      a_x,
-		float      a_y,
-		float      a_z)
+	inline void SetLinearVelocity(STATIC_ARGS, RE::Actor* a_actor, float a_x, float a_y, float a_z)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return;
 		}
 
-		if (const auto charController = a_actor->GetCharController(); charController) {
+		if (const auto charController = a_actor->GetCharController()) {
 			charController->SetLinearVelocityImpl(RE::hkVector4(RE::deg_to_rad(a_x), RE::deg_to_rad(a_y), RE::deg_to_rad(a_z), 0.0f));
 		}
 	}
 
-	inline void SetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		float      a_value,
-		bool       a_disableGravityOnGround)
+	inline void SetLocalGravityActor(STATIC_ARGS, RE::Actor* a_actor, float a_value, bool a_disableGravityOnGround)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return;
 		}
 
-		if (const auto charController = a_actor->GetCharController(); charController) {
+		if (const auto charController = a_actor->GetCharController()) {
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
-                charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
 		}
 	}
 
-	inline void SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		bool       a_trapped)
+	inline void SetSoulTrapped(STATIC_ARGS, RE::Actor* a_actor, bool a_trapped)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -1040,10 +974,7 @@ namespace Papyrus::Actor
 		}
 	}
 
-	inline void UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor*                 a_actor,
-		std::uint32_t              a_armorType,
-		std::vector<std::uint32_t> a_slotsToSkip)
+	inline void UnequipAllOfType(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_armorType, std::vector<std::uint32_t> a_slotsToSkip)
 	{
 		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
 
@@ -1076,15 +1007,16 @@ namespace Papyrus::Actor
 	}
 
 	//SeaSparrow - New Functions
-	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor)
+	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		RE::EnchantmentItem* response = nullptr;
 
-		if (!a_kActor) {
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
 			return response;
 		}
 
-		const auto process = a_kActor->currentProcess;
+		const auto process = a_actor->currentProcess;
 		const auto middleHigh = process ? process->middleHigh : nullptr;
 		const auto bothHands = middleHigh ? middleHigh->bothHands : nullptr;
 
@@ -1106,21 +1038,6 @@ namespace Papyrus::Actor
 				return response;
 			}
 		}
-
-		return response;
-	}
-
-	inline RE::EnchantmentItem* GetBaseAmmoEnchantment(VM*, StackID, RE::StaticFunctionTag*, RE::TESAmmo* a_kAmmo)
-	{
-		RE::EnchantmentItem* response = nullptr;
-
-		if (!a_kAmmo) {
-			return response;
-		}
-
-		const auto projectile = a_kAmmo ? a_kAmmo->data.projectile : nullptr;
-		const auto explosion = projectile ? projectile->data.explosionType : nullptr;
-		response = explosion ? explosion->formEnchanting : nullptr;
 
 		return response;
 	}
@@ -1213,7 +1130,7 @@ namespace Papyrus::Actor
 
 		//SeaSparrow - New Binds
 		BIND(GetEquippedAmmoEnchantment);
-		BIND(GetBaseAmmoEnchantment);
+
 		BIND(GetAllActorPlayableSpells);
 
 		logger::info("Registered actor functions"sv);

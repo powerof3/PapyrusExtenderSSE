@@ -1,6 +1,5 @@
 set(headers ${headers}
 	include/Common.h
-	include/Game/Cache.h
 	include/Game/EventHandler.h
 	include/Game/HookedEventHandler.h
 	include/Game/Manager.h
@@ -11,6 +10,7 @@ set(headers ${headers}
 	include/Papyrus/Functions/ActorBase.h
 	include/Papyrus/Functions/Alias/Events.h
 	include/Papyrus/Functions/Alias/Functions.h
+	include/Papyrus/Functions/Ammo.h
 	include/Papyrus/Functions/ArmorAddon.h
 	include/Papyrus/Functions/Array.h
 	include/Papyrus/Functions/Book.h

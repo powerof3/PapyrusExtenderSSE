@@ -20,7 +20,7 @@ namespace Event
 
 		inline void Install()
 		{
-			REL::Relocation<std::uintptr_t> bookMenu{ REL_ID(50122, 51053), OFFSET_3(0x22D, 0x231, 0x295) };
+			REL::Relocation<std::uintptr_t> bookMenu{ RELOCATION_ID(50122, 51053), OFFSET_3(0x22D, 0x231, 0x295) };
 			stl::write_thunk_call<Read>(bookMenu.address());
 
 			logger::info("Hooked Book Read"sv);
@@ -56,7 +56,7 @@ namespace Event
 
 			void Install()
 			{
-				REL::Relocation<std::uintptr_t> target{ REL_ID(33742, 34526), OFFSET(0x1E8, 0x20B) };
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(33742, 34526), OFFSET(0x1E8, 0x20B) };
 				stl::write_thunk_call<MagicTargetApply>(target.address());
 
 				logger::info("Hooked Magic Effect Apply"sv);
@@ -103,7 +103,7 @@ namespace Event
 
 				void Install()
 				{
-					REL::Relocation<std::uintptr_t> target{ REL_ID(37832, 38786), OFFSET(0x1C3, 0x29B) };
+					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37832, 38786), OFFSET(0x1C3, 0x29B) };
 					stl::write_thunk_call<SendHitEvent>(target.address());
 
 					logger::info("Hooked Magic Hit"sv);
@@ -114,7 +114,7 @@ namespace Event
 			{
 				namespace Actor
 				{
-					REL::Relocation<std::uintptr_t> target{ REL_ID(37633, 38586), OFFSET(0x16A, 0xFA) };
+					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37633, 38586), OFFSET(0x16A, 0xFA) };
 
 					struct SendHitEvent
 					{
@@ -186,7 +186,7 @@ namespace Event
 
 				namespace Static
 				{
-					REL::Relocation<std::uintptr_t> target{ REL_ID(37674, 38628), OFFSET(0x6C7, 0x785) };
+					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37674, 38628), OFFSET(0x6C7, 0x785) };
 
 					struct SendHitEvent
 					{
@@ -222,7 +222,7 @@ namespace Event
 
 				namespace Projectile
 				{
-					REL::Relocation<std::uintptr_t> target{ REL_ID(43022, 44213), OFFSET(0x38D, 0x357) };
+					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(43022, 44213), OFFSET(0x38D, 0x357) };
 
 					struct SendHitEvent
 					{
@@ -289,10 +289,10 @@ namespace Event
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> take_ragdoll_damage{ REL_ID(36346, 37336), 0x35 };
+			REL::Relocation<std::uintptr_t> take_ragdoll_damage{ RELOCATION_ID(36346, 37336), 0x35 };
 			stl::write_thunk_call<CalcDoDamage>(take_ragdoll_damage.address());
 
-			REL::Relocation<std::uintptr_t> process_movefinish_event{ REL_ID(36973, 37998), OFFSET(0xAE, 0xAB) };
+			REL::Relocation<std::uintptr_t> process_movefinish_event{ RELOCATION_ID(36973, 37998), OFFSET(0xAE, 0xAB) };
 			stl::write_thunk_call<CalcDoDamage>(process_movefinish_event.address());
 
 			logger::info("Hooked Fall Damage"sv);
@@ -497,7 +497,7 @@ namespace Event
 		{
 			stl::write_vfunc<RE::FastTravelConfirmCallback, 0x1, ChangeFastTravelTarget>();
 
-			REL::Relocation<std::uintptr_t> map_click{ REL_ID(52208, 53095), OFFSET_3(0x342, 0x3A6, 0x3D9) };  // BSString::unknown has potential target as string as param 3
+			REL::Relocation<std::uintptr_t> map_click{ RELOCATION_ID(52208, 53095), OFFSET_3(0x342, 0x3A6, 0x3D9) };  // BSString::unknown has potential target as string as param 3
 			stl::write_thunk_call<GetFastTravelTarget>(map_click.address());
 
 			logger::info("Hooked Fast Travel Start"sv);
@@ -538,16 +538,16 @@ namespace Event
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> smithing{ REL_ID(50477, 51370), OFFSET(0x17D, 0x1B3) };
+			REL::Relocation<std::uintptr_t> smithing{ RELOCATION_ID(50477, 51370), OFFSET(0x17D, 0x1B3) };
 			stl::write_thunk_call<StoryCraftItem>(smithing.address());
 
-			REL::Relocation<std::uintptr_t> tempering{ REL_ID(50476, 51369), OFFSET(0x11E, 0x227) };
+			REL::Relocation<std::uintptr_t> tempering{ RELOCATION_ID(50476, 51369), OFFSET(0x11E, 0x227) };
 			stl::write_thunk_call<StoryCraftItem>(tempering.address());
 
-			REL::Relocation<std::uintptr_t> enchanting{ REL_ID(50450, 51355), OFFSET(0x2FC, 0x2FA) };
+			REL::Relocation<std::uintptr_t> enchanting{ RELOCATION_ID(50450, 51355), OFFSET(0x2FC, 0x2FA) };
 			stl::write_thunk_call<StoryCraftItem>(enchanting.address());
 
-			REL::Relocation<std::uintptr_t> alchemy{ REL_ID(50449, 51354), OFFSET(0x29E, 0x296) };
+			REL::Relocation<std::uintptr_t> alchemy{ RELOCATION_ID(50449, 51354), OFFSET(0x29E, 0x296) };
 			stl::write_thunk_call<StoryCraftItem>(alchemy.address());
 
 			logger::info("Hooked Item Crafted"sv);
@@ -672,7 +672,7 @@ namespace Event
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL_ID(25684, 26231), OFFSET(0x44F, 0x46C) };
+			REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(25684, 26231), OFFSET(0x44F, 0x46C) };
 			stl::write_thunk_call<SetCurrentWeather>(target.address());
 
 			logger::info("Hooked Weather Change"sv);

@@ -2,7 +2,7 @@
 
 namespace Papyrus::Projectile
 {
-	inline float GetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSProjectile* a_projectile)
+	inline float GetProjectileGravity(STATIC_ARGS, const RE::BGSProjectile* a_projectile)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -12,7 +12,7 @@ namespace Papyrus::Projectile
 		return a_projectile->data.gravity;
 	}
 
-	inline float GetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSProjectile* a_projectile)
+	inline float GetProjectileImpactForce(STATIC_ARGS, const RE::BGSProjectile* a_projectile)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -22,7 +22,7 @@ namespace Papyrus::Projectile
 		return a_projectile->data.force;
 	}
 
-	inline float GetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSProjectile* a_projectile)
+	inline float GetProjectileRange(STATIC_ARGS, const RE::BGSProjectile* a_projectile)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -32,7 +32,7 @@ namespace Papyrus::Projectile
 		return a_projectile->data.range;
 	}
 
-	inline float GetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSProjectile* a_projectile)
+	inline float GetProjectileSpeed(STATIC_ARGS, const RE::BGSProjectile* a_projectile)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -42,7 +42,7 @@ namespace Papyrus::Projectile
 		return a_projectile->data.speed;
 	}
 
-	inline std::uint32_t GetProjectileType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSProjectile* a_projectile)
+	inline std::uint32_t GetProjectileType(STATIC_ARGS, const RE::BGSProjectile* a_projectile)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -74,9 +74,7 @@ namespace Papyrus::Projectile
 		return 0;
 	}
 
-	inline void SetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSProjectile* a_projectile,
-		float              a_gravity)
+	inline void SetProjectileGravity(STATIC_ARGS, RE::BGSProjectile* a_projectile, float a_gravity)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -86,9 +84,7 @@ namespace Papyrus::Projectile
 		a_projectile->data.gravity = a_gravity;
 	}
 
-	inline void SetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSProjectile* a_projectile,
-		float              a_force)
+	inline void SetProjectileImpactForce(STATIC_ARGS, RE::BGSProjectile* a_projectile, float a_force)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -98,9 +94,7 @@ namespace Papyrus::Projectile
 		a_projectile->data.force = a_force;
 	}
 
-	inline void SetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSProjectile* a_projectile,
-		float              a_range)
+	inline void SetProjectileRange(STATIC_ARGS, RE::BGSProjectile* a_projectile, float a_range)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -110,9 +104,7 @@ namespace Papyrus::Projectile
 		a_projectile->data.range = a_range;
 	}
 
-	inline void SetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSProjectile* a_projectile,
-		float              a_speed)
+	inline void SetProjectileSpeed(STATIC_ARGS, RE::BGSProjectile* a_projectile, float a_speed)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);

@@ -50,8 +50,8 @@
 #include <ClibUtil/distribution.hpp>
 #include <ClibUtil/numeric.hpp>
 #include <ClibUtil/rng.hpp>
-#include <ClibUtil/string.hpp>
 #include <ClibUtil/singleton.hpp>
+#include <ClibUtil/string.hpp>
 #include <frozen/map.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>

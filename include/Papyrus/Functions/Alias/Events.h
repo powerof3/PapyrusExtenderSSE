@@ -175,7 +175,7 @@ namespace Papyrus::Alias::Events
 		std::int32_t a_sneakFilter,
 		std::int32_t a_bashFilter,
 		std::int32_t a_blockFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -232,8 +232,8 @@ namespace Papyrus::Alias::Events
 
 	inline void RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSRefAlias* a_alias,
-		RE::TESForm* a_effectFilter,
-		bool a_match)
+		RE::TESForm*     a_effectFilter,
+		bool             a_match)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -271,7 +271,7 @@ namespace Papyrus::Alias::Events
 
 	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::BGSBaseAlias* a_alias,
-		std::uint32_t a_formType)
+		std::uint32_t           a_formType)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -318,7 +318,7 @@ namespace Papyrus::Alias::Events
 
 	inline void RegisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::BGSBaseAlias* a_alias,
-		const RE::TESQuest* a_quest)
+		const RE::TESQuest*     a_quest)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -570,7 +570,7 @@ namespace Papyrus::Alias::Events
 		std::int32_t a_sneakFilter,
 		std::int32_t a_bashFilter,
 		std::int32_t a_blockFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -638,8 +638,8 @@ namespace Papyrus::Alias::Events
 
 	inline void UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSRefAlias* a_alias,
-		RE::TESForm* a_effectFilter,
-		bool a_match)
+		RE::TESForm*     a_effectFilter,
+		bool             a_match)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -688,7 +688,7 @@ namespace Papyrus::Alias::Events
 
 	inline void UnregisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::BGSBaseAlias* a_alias,
-		std::uint32_t a_formType)
+		std::uint32_t           a_formType)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -731,7 +731,7 @@ namespace Papyrus::Alias::Events
 
 	inline void UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::BGSBaseAlias* a_alias,
-		const RE::TESQuest* a_quest)
+		const RE::TESQuest*     a_quest)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);
@@ -765,7 +765,7 @@ namespace Papyrus::Alias::Events
 
 	inline void UnregisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::BGSBaseAlias* a_alias,
-		const RE::TESQuest* a_quest)
+		const RE::TESQuest*     a_quest)
 	{
 		if (!a_alias) {
 			a_vm->TraceStack("Alias is None", a_stackID);

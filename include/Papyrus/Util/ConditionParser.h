@@ -908,16 +908,16 @@ namespace CONDITION
 		bool operator==(RE::TESConditionItem* a_item) const;
 
 		COND_OBJECT conditionItem;
-		FUNC_ID functionID;
-		void* param1;
-		void* param2;
-		OP_CODE opCode;
-		float value;
-		bool andOr;
+		FUNC_ID     functionID;
+		void*       param1;
+		void*       param2;
+		OP_CODE     opCode;
+		float       value;
+		bool        andOr;
 	};
 
 	RE::TESCondition* GetConditions(RE::TESForm& a_form, std::uint32_t a_index);
 
 	std::vector<ConditionData> ParseConditionList(const std::vector<std::string>& a_conditionList);
-	std::vector<std::string> BuildConditionList(const RE::TESCondition* a_conditions);
+	std::vector<std::string>   BuildConditionList(const RE::TESCondition* a_conditions);
 }

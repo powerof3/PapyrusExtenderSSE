@@ -13,7 +13,7 @@ namespace Papyrus::Location
 	}
 
 	inline void SetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSLocation* a_location,
+		RE::BGSLocation*                  a_location,
 		[[maybe_unused]] RE::BGSLocation* a_newLocation)
 	{
 		if (!a_location) {

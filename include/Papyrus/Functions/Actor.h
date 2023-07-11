@@ -8,7 +8,7 @@ namespace Papyrus::Actor
 	inline constexpr RE::FormID SoulTrapHitArtID = 0x000531AE;
 
 	inline bool AddBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*   a_actor,
 		RE::BGSPerk* a_perk)
 	{
 		if (!a_actor) {
@@ -24,7 +24,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool AddBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*     a_actor,
 		RE::SpellItem* a_spell)
 	{
 		if (!a_actor) {
@@ -80,10 +80,10 @@ namespace Papyrus::Actor
 	}
 
 	inline bool ApplyPoisonToEquippedWeapon(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*       a_actor,
 		RE::AlchemyItem* a_poison,
-		std::uint32_t a_count,
-		bool a_leftHand)
+		std::uint32_t    a_count,
+		bool             a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -117,9 +117,9 @@ namespace Papyrus::Actor
 	}
 
 	inline void FreezeActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*    a_actor,
 		std::uint32_t a_type,
-		bool a_enable)
+		bool          a_enable)
 	{
 		using Flags = RE::CHARACTER_FLAGS;
 		using BOOL_BITS = RE::Actor::BOOL_BITS;
@@ -172,7 +172,7 @@ namespace Papyrus::Actor
 
 	inline std::vector<RE::EffectSetting*> GetActiveEffects(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		bool a_inactive)
+		bool       a_inactive)
 	{
 		using AE = RE::ActiveEffect::Flag;
 
@@ -269,8 +269,8 @@ namespace Papyrus::Actor
 	}
 
 	inline float GetActorValueModifier(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::Actor* a_actor,
-		std::int32_t a_modifier,
+		const RE::Actor*  a_actor,
+		std::int32_t      a_modifier,
 		RE::BSFixedString a_actorValue)
 	{
 		if (!a_actor) {
@@ -406,7 +406,7 @@ namespace Papyrus::Actor
 
 	inline bool GetEquippedWeaponIsPoisoned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		bool a_leftHand)
+		bool       a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -419,7 +419,7 @@ namespace Papyrus::Actor
 
 	inline RE::AlchemyItem* GetEquippedWeaponPoison(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		bool a_leftHand)
+		bool       a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -432,7 +432,7 @@ namespace Papyrus::Actor
 
 	inline std::uint32_t GetEquippedWeaponPoisonCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		bool a_leftHand)
+		bool       a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -572,7 +572,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool HasActiveMagicEffect(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*               a_actor,
 		const RE::EffectSetting* a_mgef)
 	{
 		using AE = RE::ActiveEffect::Flag;
@@ -604,7 +604,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool HasActiveSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*           a_actor,
 		const RE::SpellItem* a_spell)
 	{
 		using AE = RE::ActiveEffect::Flag;
@@ -649,7 +649,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool HasMagicEffectWithArchetype(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*        a_actor,
 		RE::BSFixedString a_archetype)
 	{
 		if (!a_actor) {
@@ -699,7 +699,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool IsLimbGone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*   a_actor,
 		std::int32_t a_limbEnum)
 	{
 		if (!a_actor) {
@@ -768,10 +768,10 @@ namespace Papyrus::Actor
 	}
 
 	inline void RemoveAddedSpells(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		RE::BSFixedString a_modName,
+		RE::Actor*                   a_actor,
+		RE::BSFixedString            a_modName,
 		std::vector<RE::BGSKeyword*> a_keywords,
-		bool a_matchAll)
+		bool                         a_matchAll)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -813,10 +813,10 @@ namespace Papyrus::Actor
 	}
 
 	inline void RemoveArmorOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		std::uint32_t a_armorType,
+		RE::Actor*                 a_actor,
+		std::uint32_t              a_armorType,
 		std::vector<std::uint32_t> a_slotsToSkip,
-		bool a_equippedOnly)
+		bool                       a_equippedOnly)
 	{
 		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
 
@@ -849,7 +849,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool RemoveBasePerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*   a_actor,
 		RE::BGSPerk* a_perk)
 	{
 		if (!a_actor) {
@@ -865,7 +865,7 @@ namespace Papyrus::Actor
 	}
 
 	inline bool RemoveBaseSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*     a_actor,
 		RE::SpellItem* a_spell)
 	{
 		if (!a_actor) {
@@ -917,7 +917,7 @@ namespace Papyrus::Actor
 
 	inline void SetActorRefraction(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		float a_refraction)
+		float      a_refraction)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -951,9 +951,9 @@ namespace Papyrus::Actor
 	}
 
 	inline bool SetEquippedWeaponPoison(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*       a_actor,
 		RE::AlchemyItem* a_poison,
-		bool a_leftHand)
+		bool             a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -969,9 +969,9 @@ namespace Papyrus::Actor
 	}
 
 	inline bool SetEquippedWeaponPoisonCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*    a_actor,
 		std::uint32_t a_count,
-		bool a_leftHand)
+		bool          a_leftHand)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -988,9 +988,9 @@ namespace Papyrus::Actor
 
 	inline void SetLinearVelocity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		float a_x,
-		float a_y,
-		float a_z)
+		float      a_x,
+		float      a_y,
+		float      a_z)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -1004,8 +1004,8 @@ namespace Papyrus::Actor
 
 	inline void SetLocalGravityActor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		float a_value,
-		bool a_disableGravityOnGround)
+		float      a_value,
+		bool       a_disableGravityOnGround)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -1025,7 +1025,7 @@ namespace Papyrus::Actor
 
 	inline void SetSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		bool a_trapped)
+		bool       a_trapped)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -1041,8 +1041,8 @@ namespace Papyrus::Actor
 	}
 
 	inline void UnequipAllOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
-		std::uint32_t a_armorType,
+		RE::Actor*                 a_actor,
+		std::uint32_t              a_armorType,
 		std::vector<std::uint32_t> a_slotsToSkip)
 	{
 		using Slot = RE::BIPED_MODEL::BipedObjectSlot;

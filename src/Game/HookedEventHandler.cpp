@@ -149,11 +149,11 @@ namespace Event
 						}
 #else
 						static void thunk(RE::ScriptEventSourceHolder* a_holder,
-							RE::NiPointer<RE::TESObjectREFR>& a_target,
-							RE::NiPointer<RE::TESObjectREFR>& a_aggressor,
-							RE::FormID a_source,
-							RE::FormID a_projectile,
-							RE::HitData& a_data)
+							RE::NiPointer<RE::TESObjectREFR>&          a_target,
+							RE::NiPointer<RE::TESObjectREFR>&          a_aggressor,
+							RE::FormID                                 a_source,
+							RE::FormID                                 a_projectile,
+							RE::HitData&                               a_data)
 						{
 							const auto aggressor = a_aggressor.get();
 							const auto hitTarget = a_target.get();
@@ -392,8 +392,8 @@ namespace Event
 			static inline REL::Relocation<decltype(thunk)> func;
 
 			static inline RE::TESObjectREFR* newDestination{ nullptr };
-			static inline float defaultTimeout{ 0.0f };
-			static inline bool disableFastTravel{ false };
+			static inline float              defaultTimeout{ 0.0f };
+			static inline bool               disableFastTravel{ false };
 		};
 
 		struct GetFastTravelTarget
@@ -520,8 +520,8 @@ namespace Event
 		struct StoryItemCraft
 		{
 			RE::ObjectRefHandle objectHandle;  // 00
-			RE::BGSLocation* location;         // 08
-			RE::TESForm* form;                 // 10
+			RE::BGSLocation*    location;      // 08
+			RE::TESForm*        form;          // 10
 		};
 		static_assert(sizeof(StoryItemCraft) == 0x18);
 

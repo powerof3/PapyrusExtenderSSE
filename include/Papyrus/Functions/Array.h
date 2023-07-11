@@ -41,13 +41,13 @@ namespace Papyrus::Array
 
 	inline std::vector<std::string> GetSortedActorNames(RE::StaticFunctionTag*,
 		const RE::BGSKeyword* a_keyword,
-		std::string a_pronoun,
-		bool a_invert)
+		std::string           a_pronoun,
+		bool                  a_invert)
 	{
 		std::unordered_map<std::string, std::size_t> nameMap;
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			bool hasKeyword = false;
+			bool       hasKeyword = false;
 			const bool noKeyword = !a_keyword;
 
 			for (const auto& handle : processLists->highActorHandles) {
@@ -68,8 +68,8 @@ namespace Papyrus::Array
 		std::vector<std::string> names;
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
-			                           name;
+                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
+                                       name;
 			names.emplace_back(fullName);
 		}
 
@@ -80,7 +80,7 @@ namespace Papyrus::Array
 
 	inline std::vector<std::string> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*,
 		const std::vector<RE::TESNPC*> a_npcs,
-		std::string a_pronoun)
+		std::string                    a_pronoun)
 	{
 		std::vector<std::string> names;
 
@@ -102,8 +102,8 @@ namespace Papyrus::Array
 
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
-			                           name;
+                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
+                                       name;
 			names.emplace_back(fullName);
 		}
 

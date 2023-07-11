@@ -3,7 +3,7 @@
 namespace Papyrus::Package
 {
 	inline void AddPackageIdle(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESPackage* a_package,
+		RE::TESPackage*  a_package,
 		RE::TESIdleForm* a_idle)
 	{
 		if (!a_package) {
@@ -55,7 +55,7 @@ namespace Papyrus::Package
 
 	inline void RemovePackageIdle(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESPackage* a_package,
-		RE::TESIdleForm* a_idle)
+		RE::TESIdleForm*      a_idle)
 	{
 		if (!a_package) {
 			a_vm->TraceStack("Package is None", a_stackID);

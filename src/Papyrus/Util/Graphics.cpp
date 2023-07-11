@@ -61,7 +61,7 @@ namespace GRAPHICS
 		std::pair<bool, ResetData> get_data(RE::NiAVObject* a_object)
 		{
 			ResetData resetData;
-			bool success = false;
+			bool      success = false;
 
 			if (!a_object->extra || a_object->extraDataSize == 0) {
 				return { success, resetData };
@@ -336,7 +336,7 @@ namespace GRAPHICS
 		std::pair<bool, ShaderData> get_original_shaders(RE::NiStringsExtraData* a_data)
 		{
 			ShaderData shaderData;
-			bool result = true;
+			bool       result = true;
 
 			if (a_data && a_data->value && a_data->size > 0) {
 				auto& [textureSet, feature, flags, emissiveColor, emissiveMult] = shaderData;
@@ -377,7 +377,7 @@ namespace GRAPHICS
 						return RE::BSVisit::BSVisitControl::kContinue;
 					}
 
-                    if (const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material)) {
+					if (const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material)) {
 						auto [result, shaderData] = get_original_shaders(originalData);
 						if (!result) {
 							logger::warn("unable to get original shader values for {}", a_geometry->name);
@@ -647,7 +647,7 @@ namespace GRAPHICS
 
 				const auto root = a_actor->Get3D(false);
 				if (!result.empty() && root) {
-					auto slotMaskStr = std::to_string(stl::to_underlying(a_slot));
+					auto       slotMaskStr = std::to_string(stl::to_underlying(a_slot));
 					const auto name = "PO3_SKINTXST - " + slotMaskStr;
 					result.emplace_back(slotMaskStr);
 

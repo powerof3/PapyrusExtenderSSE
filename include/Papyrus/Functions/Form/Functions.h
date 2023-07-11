@@ -8,7 +8,7 @@
 namespace Papyrus::Form::Functions
 {
 	inline void AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*    a_form,
 		RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;
@@ -26,7 +26,7 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline void ClearRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*  a_form,
 		std::uint32_t a_flag)
 	{
 		if (!a_form) {
@@ -38,7 +38,7 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline bool EvaluateConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*       a_form,
 		RE::TESObjectREFR* a_actionRef,
 		RE::TESObjectREFR* a_target)
 	{
@@ -117,7 +117,7 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline std::vector<std::string> GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*  a_form,
 		std::uint32_t a_index)
 	{
 		std::vector<std::string> result;
@@ -208,7 +208,7 @@ namespace Papyrus::Form::Functions
 
 	inline bool IsRecordFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESForm* a_form,
-		std::uint32_t a_flag)
+		std::uint32_t      a_flag)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -220,7 +220,7 @@ namespace Papyrus::Form::Functions
 
 	inline bool IsScriptAttachedToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESForm* a_form,
-		RE::BSFixedString a_scriptName)
+		RE::BSFixedString  a_scriptName)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -259,8 +259,8 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline void RemoveConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_index,
+		RE::TESForm*             a_form,
+		std::uint32_t            a_index,
 		std::vector<std::string> a_conditionList)
 	{
 		if (!a_form) {
@@ -280,7 +280,7 @@ namespace Papyrus::Form::Functions
 		}
 
 		if (const auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
-			auto* currentNode = formConditions->head;
+			auto*  currentNode = formConditions->head;
 			auto** previousNode = &formConditions->head;
 
 			while (currentNode != nullptr) {
@@ -296,7 +296,7 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*    a_form,
 		RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;
@@ -314,9 +314,9 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline void ReplaceKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*          a_form,
 		const RE::BGSKeyword* a_remove,
-		RE::BGSKeyword* a_add)
+		RE::BGSKeyword*       a_add)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -333,7 +333,7 @@ namespace Papyrus::Form::Functions
 
 		if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 			if (keywordForm->keywords) {
-				bool found = false;
+				bool          found = false;
 				std::uint32_t removeIndex = 0;
 				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 					if (const auto keyword = keywordForm->keywords[i]) {
@@ -355,8 +355,8 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline void SetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_index,
+		RE::TESForm*             a_form,
+		std::uint32_t            a_index,
 		std::vector<std::string> a_conditionList)
 	{
 		if (!a_form) {
@@ -439,7 +439,7 @@ namespace Papyrus::Form::Functions
 	}
 
 	inline void SetRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
+		RE::TESForm*  a_form,
 		std::uint32_t a_flag)
 	{
 		if (!a_form) {

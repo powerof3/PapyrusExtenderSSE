@@ -30,7 +30,7 @@ namespace Papyrus::ActorBase
 	}
 
 	inline RE::BGSPerk* GetNthPerk(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC* a_actorbase,
+		RE::TESNPC*   a_actorbase,
 		std::uint32_t a_index)
 	{
 		if (!a_actorbase) {
@@ -57,7 +57,7 @@ namespace Papyrus::ActorBase
 	}
 
 	inline std::vector<RE::TESNPC*> GetRelationships(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC* a_actorbase,
+		RE::TESNPC*             a_actorbase,
 		RE::BGSAssociationType* a_assocType)
 	{
 		if (!a_actorbase) {
@@ -81,7 +81,7 @@ namespace Papyrus::ActorBase
 	}
 
 	inline void SetDeathItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESNPC* a_actorbase,
+		RE::TESNPC*     a_actorbase,
 		RE::TESLevItem* a_item)
 	{
 		if (!a_actorbase) {

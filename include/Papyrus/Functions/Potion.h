@@ -5,12 +5,12 @@
 namespace Papyrus::Potion
 {
 	inline void AddMagicEffectToPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::AlchemyItem* a_potion,
-		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost,
+		RE::AlchemyItem*         a_potion,
+		RE::EffectSetting*       a_mgef,
+		float                    a_mag,
+		std::uint32_t            a_area,
+		std::uint32_t            a_dur,
+		float                    a_cost,
 		std::vector<std::string> a_conditionList)
 	{
 		if (!a_potion) {
@@ -43,8 +43,8 @@ namespace Papyrus::Potion
 	inline void AddEffectItemToPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::AlchemyItem* a_potion,
 		RE::AlchemyItem* a_copyPotion,
-		std::uint32_t a_index,
-		float a_cost)
+		std::uint32_t    a_index,
+		float            a_cost)
 	{
 		if (!a_potion) {
 			a_vm->TraceStack("Potion is None", a_stackID);
@@ -71,12 +71,12 @@ namespace Papyrus::Potion
 	}
 
 	inline void RemoveMagicEffectFromPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::AlchemyItem* a_potion,
+		RE::AlchemyItem*   a_potion,
 		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost)
+		float              a_mag,
+		std::uint32_t      a_area,
+		std::uint32_t      a_dur,
+		float              a_cost)
 	{
 		if (!a_potion) {
 			a_vm->TraceStack("Potion is None", a_stackID);
@@ -108,7 +108,7 @@ namespace Papyrus::Potion
 	inline void RemoveEffectItemFromPotion(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::AlchemyItem* a_potion,
 		RE::AlchemyItem* a_copyPotion,
-		std::uint32_t a_index)
+		std::uint32_t    a_index)
 	{
 		if (!a_potion) {
 			a_vm->TraceStack("Potion is None", a_stackID);

@@ -47,7 +47,7 @@ public:
 		return *this;
 	}
 	DataMapPair& operator=(DataMapPair&& a_rhs) noexcept
-    {
+	{
 		if (this == &a_rhs) {
 			return *this;
 		}
@@ -68,7 +68,7 @@ public:
 	std::map<K, std::set<D>>& GetData(std::uint32_t a_index)
 	{
 		return a_index == 1 ? _pair.first :
-		                      _pair.second;
+                              _pair.second;
 	}
 	void AddData(K a_key, D a_data, std::uint32_t a_index)
 	{

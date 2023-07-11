@@ -76,7 +76,7 @@ namespace Papyrus::Projectile
 
 	inline void SetProjectileGravity(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSProjectile* a_projectile,
-		float a_gravity)
+		float              a_gravity)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -88,7 +88,7 @@ namespace Papyrus::Projectile
 
 	inline void SetProjectileImpactForce(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSProjectile* a_projectile,
-		float a_force)
+		float              a_force)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -100,7 +100,7 @@ namespace Papyrus::Projectile
 
 	inline void SetProjectileRange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSProjectile* a_projectile,
-		float a_range)
+		float              a_range)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);
@@ -112,7 +112,7 @@ namespace Papyrus::Projectile
 
 	inline void SetProjectileSpeed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSProjectile* a_projectile,
-		float a_speed)
+		float              a_speed)
 	{
 		if (!a_projectile) {
 			a_vm->TraceStack("Projectile is None", a_stackID);

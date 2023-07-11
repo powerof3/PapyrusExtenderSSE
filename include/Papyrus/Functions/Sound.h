@@ -3,7 +3,7 @@
 namespace Papyrus::Sound
 {
 	inline void SetSoundDescriptor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESSound* a_sound,
+		RE::TESSound*               a_sound,
 		RE::BGSSoundDescriptorForm* a_soundDescriptor)
 	{
 		if (!a_sound) {

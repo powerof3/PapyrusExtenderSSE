@@ -4,7 +4,7 @@ namespace Papyrus::EffectShader
 {
 	inline void ClearEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		std::uint32_t a_flag)
+		std::uint32_t        a_flag)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -119,7 +119,7 @@ namespace Papyrus::EffectShader
 
 	inline bool IsEffectShaderFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESEffectShader* a_effectShader,
-		std::uint32_t a_flag)
+		std::uint32_t              a_flag)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -131,7 +131,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetAddonModels(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		RE::BGSDebris* a_debris)
+		RE::BGSDebris*       a_debris)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -143,7 +143,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetEffectShaderFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		std::uint32_t a_flag)
+		std::uint32_t        a_flag)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -154,11 +154,11 @@ namespace Papyrus::EffectShader
 	}
 
 	inline void SetMembraneColorKeyData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESEffectShader* a_effectShader,
-		std::uint32_t a_colorKey,
+		RE::TESEffectShader*      a_effectShader,
+		std::uint32_t             a_colorKey,
 		std::vector<std::int32_t> a_rgb,
-		float a_alpha,
-		float a_time)
+		float                     a_alpha,
+		float                     a_time)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -203,7 +203,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetMembraneHolesTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		RE::BSFixedString a_textureName)
+		RE::BSFixedString    a_textureName)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -215,7 +215,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetMembraneFillTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		RE::BSFixedString a_textureName)
+		RE::BSFixedString    a_textureName)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -227,7 +227,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetMembranePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		RE::BSFixedString a_textureName)
+		RE::BSFixedString    a_textureName)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -238,11 +238,11 @@ namespace Papyrus::EffectShader
 	}
 
 	inline void SetParticleColorKeyData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESEffectShader* a_effectShader,
-		std::uint32_t a_colorKey,
+		RE::TESEffectShader*      a_effectShader,
+		std::uint32_t             a_colorKey,
 		std::vector<std::int32_t> a_rgb,
-		float a_alpha,
-		float a_time)
+		float                     a_alpha,
+		float                     a_time)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -287,7 +287,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetParticleFullCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		float a_particleCount)
+		float                a_particleCount)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -299,7 +299,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetParticlePaletteTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		RE::BSFixedString a_textureName)
+		RE::BSFixedString    a_textureName)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -311,7 +311,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetParticlePersistentCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		float a_particleCount)
+		float                a_particleCount)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);
@@ -323,7 +323,7 @@ namespace Papyrus::EffectShader
 
 	inline void SetParticleShaderTexture(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESEffectShader* a_effectShader,
-		RE::BSFixedString a_textureName)
+		RE::BSFixedString    a_textureName)
 	{
 		if (!a_effectShader) {
 			a_vm->TraceStack("EffectShader is None", a_stackID);

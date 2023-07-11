@@ -47,7 +47,7 @@ public:
 		return *this;
 	}
 	DataSetPair& operator=(DataSetPair&& a_rhs) noexcept
-    {
+	{
 		if (this == &a_rhs) {
 			return *this;
 		}
@@ -112,7 +112,7 @@ protected:
 	std::pair<
 		std::set<D>,
 		std::set<D>>
-		_pair;
+				 _pair;
 	mutable Lock _lock;
 };
 
@@ -161,7 +161,7 @@ public:
 		assert(a_intfc);
 		Locker locker(_lock);
 
-		const auto& formSet = GetData(a_index);
+		const auto&       formSet = GetData(a_index);
 		const std::size_t numRegs = formSet.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
 			logger::error("Failed to save number of regs ({})", numRegs);
@@ -184,7 +184,7 @@ public:
 		a_intfc->ReadRecordData(numRegs);
 
 		Locker locker(_lock);
-		auto& formSet = GetData(a_index);
+		auto&  formSet = GetData(a_index);
 		formSet.clear();
 
 		RE::FormID formID;

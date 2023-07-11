@@ -4,7 +4,7 @@ namespace Papyrus::Hazard
 {
 	inline void ClearHazardFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSHazard* a_hazard,
-		std::uint32_t a_flag)
+		std::uint32_t  a_flag)
 	{
 		if (!a_hazard) {
 			a_vm->TraceStack("Hazard is None", a_stackID);
@@ -126,7 +126,7 @@ namespace Papyrus::Hazard
 
 	inline bool IsHazardFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::BGSHazard* a_hazard,
-		std::uint32_t a_flag)
+		std::uint32_t        a_flag)
 	{
 		if (!a_hazard) {
 			a_vm->TraceStack("Hazard is None", a_stackID);
@@ -137,7 +137,7 @@ namespace Papyrus::Hazard
 	}
 
 	inline void SetHazardArt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSHazard* a_hazard,
+		RE::BGSHazard*    a_hazard,
 		RE::BSFixedString a_path)
 	{
 		if (!a_hazard) {
@@ -150,7 +150,7 @@ namespace Papyrus::Hazard
 
 	inline void SetHazardFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSHazard* a_hazard,
-		std::uint32_t a_flag)
+		std::uint32_t  a_flag)
 	{
 		if (!a_hazard) {
 			a_vm->TraceStack("Hazard is None", a_stackID);
@@ -231,7 +231,7 @@ namespace Papyrus::Hazard
 	}
 
 	inline void SetHazardSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSHazard* a_hazard,
+		RE::BGSHazard*              a_hazard,
 		RE::BGSSoundDescriptorForm* a_sound)
 	{
 		if (!a_hazard) {
@@ -256,7 +256,7 @@ namespace Papyrus::Hazard
 
 	inline void SetHazardTargetInterval(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::BGSHazard* a_hazard,
-		float a_interval)
+		float          a_interval)
 	{
 		if (!a_hazard) {
 			a_vm->TraceStack("Hazard is None", a_stackID);

@@ -34,7 +34,7 @@ namespace Papyrus::MagicEffect
 
 	inline RE::BGSSoundDescriptorForm* GetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::EffectSetting* a_mgef,
-		std::uint32_t a_type)
+		std::uint32_t      a_type)
 	{
 		if (!a_mgef) {
 			a_vm->TraceStack("MagicEffect is None", a_stackID);
@@ -92,9 +92,9 @@ namespace Papyrus::MagicEffect
 	}
 
 	inline void SetMagicEffectSound(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::EffectSetting* a_mgef,
+		RE::EffectSetting*          a_mgef,
 		RE::BGSSoundDescriptorForm* a_sound,
-		std::uint32_t a_type)
+		std::uint32_t               a_type)
 	{
 		if (!a_mgef) {
 			a_vm->TraceStack("MagicEffect is None", a_stackID);

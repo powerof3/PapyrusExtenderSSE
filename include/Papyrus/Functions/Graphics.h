@@ -5,9 +5,9 @@ namespace Papyrus::Graphics
 	using namespace GRAPHICS;
 
 	inline void ApplyMaterialShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
+		RE::TESObjectREFR*     a_ref,
 		RE::BGSMaterialObject* a_shader,
-		float a_materialThresholdAngle)
+		float                  a_materialThresholdAngle)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -60,11 +60,11 @@ namespace Papyrus::Graphics
 	}*/
 
 	inline void BlendColorWithSkinTone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*        a_actor,
 		RE::BGSColorForm* a_color,
-		std::uint32_t a_blendMode,
-		bool a_autoCalc,
-		float a_opacity)
+		std::uint32_t     a_blendMode,
+		bool              a_autoCalc,
+		float             a_opacity)
 	{
 		using BLEND_MODE = RE::ColorUtil::BLEND_MODE;
 
@@ -87,7 +87,7 @@ namespace Papyrus::Graphics
 			const float opacity = a_autoCalc ?
                                       std::clamp(a_opacity * RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor), 0.0f, 1.0f) :
                                       a_opacity;
-			auto newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
+			auto        newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
 
 			SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
 				SET::tint_face(a_actor, newColor);
@@ -100,7 +100,7 @@ namespace Papyrus::Graphics
 	}
 
 	inline bool HasSkin(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*         a_actor,
 		RE::TESObjectARMO* a_check)
 	{
 		bool result = false;
@@ -153,7 +153,7 @@ namespace Papyrus::Graphics
 	}
 
 	inline RE::BGSTextureSet* GetHeadPartTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*    a_actor,
 		std::uint32_t a_type)
 	{
 		using HeadPartType = RE::BGSHeadPart::HeadPartType;
@@ -196,10 +196,10 @@ namespace Papyrus::Graphics
 	}
 
 	inline void MixColorWithSkinTone(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*        a_actor,
 		RE::BGSColorForm* a_color,
-		bool a_manual,
-		float a_percent)
+		bool              a_manual,
+		float             a_percent)
 	{
 		a_vm->TraceStack("Function is deprecated, use BlendColorWithSkinTone instead", a_stackID);
 
@@ -208,7 +208,7 @@ namespace Papyrus::Graphics
 			const auto root = a_actor->Get3D(false);
 			if (actorbase && root) {
 				const float skinLuminance = a_manual ? a_percent : RE::ColorUtil::CalcLuminance(actorbase->bodyTintColor);
-				auto newColor = RE::ColorUtil::Mix(actorbase->bodyTintColor, a_color->color, skinLuminance);
+				auto        newColor = RE::ColorUtil::Mix(actorbase->bodyTintColor, a_color->color, skinLuminance);
 
 				SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
 					SET::tint_face(a_actor, newColor);
@@ -249,11 +249,11 @@ namespace Papyrus::Graphics
 	}
 
 	inline void ReplaceArmorTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*         a_actor,
 		RE::TESObjectARMO* a_armor,
 		RE::BGSTextureSet* a_srcTXST,
 		RE::BGSTextureSet* a_tgtTXST,
-		std::int32_t a_type)
+		std::int32_t       a_type)
 	{
 		using Texture = RE::BSShaderTextureSet::Textures::Texture;
 
@@ -293,7 +293,7 @@ namespace Papyrus::Graphics
 
 			const auto root = a_actor->Get3D(false);
 			if (replaced && root) {
-				auto armorID = std::to_string(a_armor->formID);
+				auto       armorID = std::to_string(a_armor->formID);
 				const auto name = "PO3_TXST - " + armorID;
 
 				const auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
@@ -313,10 +313,10 @@ namespace Papyrus::Graphics
 	}
 
 	inline void ReplaceFaceTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*         a_actor,
 		RE::BGSTextureSet* a_maleTXST,
 		RE::BGSTextureSet* a_femaleTXST,
-		std::int32_t a_type)
+		std::int32_t       a_type)
 	{
 		using Texture = RE::BSShaderTextureSet::Texture;
 
@@ -348,11 +348,11 @@ namespace Papyrus::Graphics
 	}
 
 	inline void ReplaceSkinTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*         a_actor,
 		RE::BGSTextureSet* a_maleTXST,
 		RE::BGSTextureSet* a_femaleTXST,
-		std::uint32_t a_slot,
-		std::int32_t a_type)
+		std::uint32_t      a_slot,
+		std::int32_t       a_type)
 	{
 		using BipedSlot = RE::BIPED_MODEL::BipedObjectSlot;
 
@@ -383,7 +383,7 @@ namespace Papyrus::Graphics
 	}
 
 	inline bool ResetActor3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*        a_actor,
 		RE::BSFixedString a_folderName)
 	{
 		if (!a_actor) {
@@ -397,7 +397,7 @@ namespace Papyrus::Graphics
 			return false;
 		}
 
-		bool result = true;
+		bool             result = true;
 		RESET::ResetData resetData;
 
 		std::tie(result, resetData) = RESET::get_data(root);
@@ -436,8 +436,8 @@ namespace Papyrus::Graphics
 
 	inline void ScaleObject3D(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
-		std::string a_nodeName,
-		float a_scale)
+		std::string        a_nodeName,
+		float              a_scale)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -542,7 +542,7 @@ namespace Papyrus::Graphics
 	}
 
 	inline void SetHairColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*        a_actor,
 		RE::BGSColorForm* a_color)
 	{
 		if (!a_actor) {
@@ -577,9 +577,9 @@ namespace Papyrus::Graphics
 	}
 
 	inline void SetHeadPartAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*   a_actor,
 		std::int32_t a_type,
-		float a_alpha)
+		float        a_alpha)
 	{
 		using HeadPartType = RE::BGSHeadPart::HeadPartType;
 
@@ -613,9 +613,9 @@ namespace Papyrus::Graphics
 	}
 
 	inline void SetHeadPartTextureSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*         a_actor,
 		RE::BGSTextureSet* a_txst,
-		std::int32_t a_type)
+		std::int32_t       a_type)
 	{
 		using HeadPartType = RE::BGSHeadPart::HeadPartType;
 
@@ -645,11 +645,11 @@ namespace Papyrus::Graphics
 	inline void SetShaderType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
 		RE::TESObjectREFR* a_template,
-		RE::BSFixedString a_filter,
-		std::uint32_t a_shaderType,
-		std::int32_t a_textureType,
-		bool a_noWeapons,
-		bool a_noAlpha)
+		RE::BSFixedString  a_filter,
+		std::uint32_t      a_shaderType,
+		std::int32_t       a_textureType,
+		bool               a_noWeapons,
+		bool               a_noAlpha)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -702,7 +702,7 @@ namespace Papyrus::Graphics
 
 	inline void SetupBodyPartGeometry(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_bodyparts,
-		RE::Actor* a_actor)
+		RE::Actor*         a_actor)
 	{
 		if (!a_bodyparts) {
 			a_vm->TraceStack("BodyParts is None", a_stackID);
@@ -736,7 +736,7 @@ namespace Papyrus::Graphics
 
 	inline void SetSkinAlpha(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		float a_alpha)
+		float      a_alpha)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -761,7 +761,7 @@ namespace Papyrus::Graphics
 	}
 
 	inline void SetSkinColor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::Actor* a_actor,
+		RE::Actor*        a_actor,
 		RE::BGSColorForm* a_color)
 	{
 		if (!a_actor) {
@@ -790,8 +790,8 @@ namespace Papyrus::Graphics
 
 	inline void ToggleChildNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESObjectREFR* a_ref,
-		std::string a_nodeName,
-		bool a_disable)
+		std::string        a_nodeName,
+		bool               a_disable)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -813,7 +813,7 @@ namespace Papyrus::Graphics
 
 	inline void ToggleHairWigs(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::Actor* a_actor,
-		bool a_disable)
+		bool       a_disable)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -839,12 +839,12 @@ namespace Papyrus::Graphics
 	}
 
 	inline void UpdateHitEffectArtNode(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
+		RE::TESObjectREFR*      a_ref,
 		const RE::BGSArtObject* a_art,
-		RE::BSFixedString a_toNode,
-		std::vector<float> a_translate,
-		std::vector<float> a_rotate,
-		float a_scale)
+		RE::BSFixedString       a_toNode,
+		std::vector<float>      a_translate,
+		std::vector<float>      a_rotate,
+		float                   a_scale)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -875,7 +875,7 @@ namespace Papyrus::Graphics
 		const auto art = hitEffect ? hitEffect->hitEffectArtData.attachedArt : nullptr;
 
 		if (art) {
-			RE::NiMatrix3 rotate{};
+			RE::NiMatrix3      rotate{};
 			const RE::NiPoint3 rot{ RE::deg_to_rad(a_rotate[0]), RE::deg_to_rad(a_rotate[1]), RE::deg_to_rad(a_rotate[2]) };
 			rotate.SetEulerAnglesXYZ(rot);
 

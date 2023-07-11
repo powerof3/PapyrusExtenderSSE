@@ -13,7 +13,7 @@ namespace Papyrus::ArmorAddon
 	}
 
 	inline void SetFootstepSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectARMA* a_arma,
+		RE::TESObjectARMA*  a_arma,
 		RE::BGSFootstepSet* a_footstepSet)
 	{
 		if (!a_arma) {

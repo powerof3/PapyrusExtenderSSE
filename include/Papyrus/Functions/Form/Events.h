@@ -157,7 +157,7 @@ namespace Papyrus::Form::Events
 		std::int32_t a_sneakFilter,
 		std::int32_t a_bashFilter,
 		std::int32_t a_blockFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -215,7 +215,7 @@ namespace Papyrus::Form::Events
 	inline void RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESForm* a_form,
 		RE::TESForm* a_effectFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -253,7 +253,7 @@ namespace Papyrus::Form::Events
 
 	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESForm* a_form,
-		std::uint32_t a_formType)
+		std::uint32_t      a_formType)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -299,7 +299,7 @@ namespace Papyrus::Form::Events
 	}
 
 	inline void RegisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
+		const RE::TESForm*  a_form,
 		const RE::TESQuest* a_quest)
 	{
 		if (!a_form) {
@@ -535,7 +535,7 @@ namespace Papyrus::Form::Events
 		std::int32_t a_sneakFilter,
 		std::int32_t a_bashFilter,
 		std::int32_t a_blockFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -604,7 +604,7 @@ namespace Papyrus::Form::Events
 	inline void UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		RE::TESForm* a_form,
 		RE::TESForm* a_effectFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -653,7 +653,7 @@ namespace Papyrus::Form::Events
 
 	inline void UnregisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
 		const RE::TESForm* a_form,
-		std::uint32_t a_formType)
+		std::uint32_t      a_formType)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -695,7 +695,7 @@ namespace Papyrus::Form::Events
 	}
 
 	inline void UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
+		const RE::TESForm*  a_form,
 		const RE::TESQuest* a_quest)
 	{
 		if (!a_form) {
@@ -729,7 +729,7 @@ namespace Papyrus::Form::Events
 	}
 
 	inline void UnregisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
+		const RE::TESForm*  a_form,
 		const RE::TESQuest* a_quest)
 	{
 		if (!a_form) {

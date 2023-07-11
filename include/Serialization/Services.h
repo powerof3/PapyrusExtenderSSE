@@ -19,8 +19,8 @@ namespace FORM
 		{
 			if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 				return a_index == FORM::kAdd ?
-				           keywordForm->AddKeyword(a_data) :
-				           keywordForm->RemoveKeyword(a_data);
+                           keywordForm->AddKeyword(a_data) :
+                           keywordForm->RemoveKeyword(a_data);
 			}
 			return false;
 		}
@@ -36,18 +36,18 @@ namespace FORM
 
 			if (const auto actorbase = a_form->GetActorBase(); actorbase) {
 				success = a_index == FORM::kAdd ?
-				              actorbase->AddPerk(a_data, 1) :
-				              actorbase->RemovePerk(a_data);
+                              actorbase->AddPerk(a_data, 1) :
+                              actorbase->RemovePerk(a_data);
 				if (success) {
 					for (const auto& perkEntry : a_data->perkEntries) {
 						if (perkEntry) {
 							a_index == FORM::kAdd ?
-								perkEntry->ApplyPerkEntry(a_form) :
-								perkEntry->RemovePerkEntry(a_form);
+                                perkEntry->ApplyPerkEntry(a_form) :
+                                perkEntry->RemovePerkEntry(a_form);
 						}
 					}
 					a_form->OnArmorActorValueChanged();
-                    if (const auto invChanges = a_form->GetInventoryChanges()) {
+					if (const auto invChanges = a_form->GetInventoryChanges()) {
 						invChanges->armorWeight = invChanges->totalWeight;
 						invChanges->totalWeight = -1.0f;
 						a_form->equippedWeight = -1.0f;
@@ -303,8 +303,8 @@ namespace MAGIC
 		bool Process(RE::MagicItem* a_form, const MGEFData& a_data, std::uint32_t a_index) override
 		{
 			return a_index == FORM::kAdd ?
-			           detail::add_magic_effect(a_form, a_data) :
-			           detail::remove_magic_effect(a_form, a_data);
+                       detail::add_magic_effect(a_form, a_data) :
+                       detail::remove_magic_effect(a_form, a_data);
 		}
 	};
 
@@ -496,8 +496,8 @@ namespace MAGIC
 		bool Process(RE::MagicItem* a_form, const EffectData& a_data, std::uint32_t a_index) override
 		{
 			return a_index == FORM::kAdd ?
-			           detail::add_effect_item(a_form, a_data) :
-			           detail::remove_effect_item(a_form, a_data);
+                       detail::add_effect_item(a_form, a_data) :
+                       detail::remove_effect_item(a_form, a_data);
 		}
 	};
 }

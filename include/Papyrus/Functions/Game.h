@@ -176,9 +176,9 @@ namespace Papyrus::Game
 	}
 
 	inline std::vector<RE::SpellItem*> GetAllSpellsInMod(RE::StaticFunctionTag*,
-		RE::BSFixedString a_name,
+		RE::BSFixedString            a_name,
 		std::vector<RE::BGSKeyword*> a_keywords,
-		bool a_playable)
+		bool                         a_playable)
 	{
 		const auto dataHandler = RE::TESDataHandler::GetSingleton();
 		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_name) : nullptr;

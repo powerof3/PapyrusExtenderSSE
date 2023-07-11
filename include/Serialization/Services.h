@@ -11,65 +11,43 @@ namespace FORM
 		kAdd = 1
 	};
 
-	class KeywordManager final : public FormMapPair<RE::TESForm, RE::BGSKeyword>
+	class KeywordManager final :
+		public ISingleton<KeywordManager>,
+		public FormMapPair<RE::TESForm, RE::BGSKeyword>
 	{
-	public:
-		[[nodiscard]] static KeywordManager* GetSingleton()
-		{
-			static KeywordManager singleton;
-			return &singleton;
-		}
-
-	private:
 		bool Process(RE::TESForm* a_form, RE::BGSKeyword* a_data, std::uint32_t a_index) override
 		{
 			if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 				return a_index == FORM::kAdd ?
-                           keywordForm->AddKeyword(a_data) :
-                           keywordForm->RemoveKeyword(a_data);
+				           keywordForm->AddKeyword(a_data) :
+				           keywordForm->RemoveKeyword(a_data);
 			}
 			return false;
 		}
-
-	protected:
-		KeywordManager() = default;
-		KeywordManager(const KeywordManager&) = delete;
-		KeywordManager(KeywordManager&&) = delete;
-		~KeywordManager() = default;
-
-		KeywordManager& operator=(const KeywordManager&) = delete;
-		KeywordManager& operator=(KeywordManager&&) = delete;
 	};
 
-	class PerkManager final : public FormMapPair<RE::Actor, RE::BGSPerk>
+	class PerkManager final :
+		public ISingleton<PerkManager>,
+		public FormMapPair<RE::Actor, RE::BGSPerk>
 	{
-	public:
-		[[nodiscard]] static PerkManager* GetSingleton()
-		{
-			static PerkManager singleton;
-			return &singleton;
-		}
-
-	private:
 		bool Process(RE::Actor* a_form, RE::BGSPerk* a_data, std::uint32_t a_index) override
 		{
 			bool success = false;
 
 			if (const auto actorbase = a_form->GetActorBase(); actorbase) {
 				success = a_index == FORM::kAdd ?
-                              actorbase->AddPerk(a_data, 1) :
-                              actorbase->RemovePerk(a_data);
+				              actorbase->AddPerk(a_data, 1) :
+				              actorbase->RemovePerk(a_data);
 				if (success) {
-					for (auto& perkEntry : a_data->perkEntries) {
+					for (const auto& perkEntry : a_data->perkEntries) {
 						if (perkEntry) {
 							a_index == FORM::kAdd ?
-                                perkEntry->ApplyPerkEntry(a_form) :
-                                perkEntry->RemovePerkEntry(a_form);
+								perkEntry->ApplyPerkEntry(a_form) :
+								perkEntry->RemovePerkEntry(a_form);
 						}
 					}
 					a_form->OnArmorActorValueChanged();
-					auto invChanges = a_form->GetInventoryChanges();
-					if (invChanges) {
+                    if (const auto invChanges = a_form->GetInventoryChanges()) {
 						invChanges->armorWeight = invChanges->totalWeight;
 						invChanges->totalWeight = -1.0f;
 						a_form->equippedWeight = -1.0f;
@@ -79,15 +57,6 @@ namespace FORM
 
 			return success;
 		}
-
-	protected:
-		PerkManager() = default;
-		PerkManager(const PerkManager&) = delete;
-		PerkManager(PerkManager&&) = delete;
-		~PerkManager() = default;
-
-		PerkManager& operator=(const PerkManager&) = delete;
-		PerkManager& operator=(PerkManager&&) = delete;
 	};
 }
 
@@ -100,75 +69,44 @@ namespace DETECTION
 	};
 
 	//target
-	class TargetManager final : public FormSetPair<RE::Actor>
-	{
-	public:
-		[[nodiscard]] static TargetManager* GetSingleton()
-		{
-			static TargetManager singleton;
-			return &singleton;
-		}
-
-	protected:
-		TargetManager() = default;
-		TargetManager(const TargetManager&) = delete;
-		TargetManager(TargetManager&&) = delete;
-		~TargetManager() = default;
-
-		TargetManager& operator=(const TargetManager&) = delete;
-		TargetManager& operator=(TargetManager&&) = delete;
-	};
+	class TargetManager final :
+		public ISingleton<TargetManager>,
+		public FormSetPair<RE::Actor>
+	{};
 
 	//searcher
-	class SourceManager final : public FormSetPair<RE::Actor>
-	{
-	public:
-		[[nodiscard]] static SourceManager* GetSingleton()
-		{
-			static SourceManager singleton;
-			return &singleton;
-		}
-
-	protected:
-		SourceManager() = default;
-		SourceManager(const SourceManager&) = delete;
-		SourceManager(SourceManager&&) = delete;
-		~SourceManager() = default;
-
-		SourceManager& operator=(const SourceManager&) = delete;
-		SourceManager& operator=(SourceManager&&) = delete;
-	};
+	class SourceManager final :
+		public ISingleton<SourceManager>,
+		public FormSetPair<RE::Actor>
+	{};
 }
 
 namespace MAGIC
 {
 	struct MGEFData
 	{
-		std::pair<RE::EffectSetting*, RE::FormID> mgef;
-		float mag;
-		std::uint32_t area;
-		std::uint32_t dur;
-		float cost;
-		std::vector<std::string> conditionList;
-
 		bool operator<(const MGEFData& a_rhs) const { return mgef.second < a_rhs.mgef.second; }
+
+		// members
+		std::pair<RE::EffectSetting*, RE::FormID> mgef;
+		float                                     mag;
+		std::uint32_t                             area;
+		std::uint32_t                             dur;
+		float                                     cost;
+		std::vector<std::string>                  conditionList;
 	};
 
-	class MGEFManager final : public FormDataMapPair<RE::MagicItem, MGEFData>
+	class MGEFManager final :
+		public ISingleton<MGEFManager>,
+		public FormDataMapPair<RE::MagicItem, MGEFData>
 	{
 	public:
-		[[nodiscard]] static MGEFManager* GetSingleton()
-		{
-			static MGEFManager singleton;
-			return &singleton;
-		}
-
 		bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
 		{
 			assert(a_intfc);
 			Locker locker(_lock);
 
-			auto& formMap = GetData(a_index);
+			auto&             formMap = GetData(a_index);
 			const std::size_t numRegs = formMap.size();
 			if (!a_intfc->WriteRecordData(numRegs)) {
 				logger::error("Failed to save number of regs ({})", numRegs);
@@ -365,44 +303,32 @@ namespace MAGIC
 		bool Process(RE::MagicItem* a_form, const MGEFData& a_data, std::uint32_t a_index) override
 		{
 			return a_index == FORM::kAdd ?
-                       detail::add_magic_effect(a_form, a_data) :
-                       detail::remove_magic_effect(a_form, a_data);
+			           detail::add_magic_effect(a_form, a_data) :
+			           detail::remove_magic_effect(a_form, a_data);
 		}
-
-	protected:
-		MGEFManager() = default;
-		MGEFManager(const MGEFManager&) = delete;
-		MGEFManager(MGEFManager&&) = delete;
-		~MGEFManager() = default;
-
-		MGEFManager& operator=(const MGEFManager&) = delete;
-		MGEFManager& operator=(MGEFManager&&) = delete;
 	};
 
 	struct EffectData
 	{
-		std::pair<RE::MagicItem*, RE::FormID> magicItem;
-		std::uint32_t index;
-		float cost;
-
 		bool operator<(const EffectData& a_rhs) const { return magicItem.second < a_rhs.magicItem.second; }
+
+		// members
+		std::pair<RE::MagicItem*, RE::FormID> magicItem;
+		std::uint32_t                         index;
+		float                                 cost;
 	};
 
-	class EffectManager final : public FormDataMapPair<RE::MagicItem, EffectData>
+	class EffectManager final :
+		public ISingleton<EffectManager>,
+		public FormDataMapPair<RE::MagicItem, EffectData>
 	{
 	public:
-		[[nodiscard]] static EffectManager* GetSingleton()
-		{
-			static EffectManager singleton;
-			return &singleton;
-		}
-
 		bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
 		{
 			assert(a_intfc);
 			Locker locker(_lock);
 
-			auto& formMap = GetData(a_index);
+			auto&             formMap = GetData(a_index);
 			const std::size_t numRegs = formMap.size();
 			if (!a_intfc->WriteRecordData(numRegs)) {
 				logger::error("Failed to save number of regs ({})", numRegs);
@@ -448,9 +374,9 @@ namespace MAGIC
 			auto& formMap = GetData(a_index);
 			formMap.clear();
 
-			RE::FormID formID;
+			RE::FormID  formID;
 			std::size_t numData;
-			EffectData data;
+			EffectData  data;
 
 			for (std::size_t i = 0; i < numRegs; i++) {
 				a_intfc->ReadRecordData(formID);
@@ -508,7 +434,7 @@ namespace MAGIC
 			static bool add_effect_item(RE::MagicItem* a_item, const EffectData& a_data)
 			{
 				const auto copyEffect = a_data.magicItem.first->effects[a_data.index];
-				auto effect = copyEffect ? new RE::Effect() : nullptr;
+				auto       effect = copyEffect ? new RE::Effect() : nullptr;
 
 				if (effect) {
 					effect->effectItem.magnitude = copyEffect->effectItem.magnitude;
@@ -570,17 +496,8 @@ namespace MAGIC
 		bool Process(RE::MagicItem* a_form, const EffectData& a_data, std::uint32_t a_index) override
 		{
 			return a_index == FORM::kAdd ?
-                       detail::add_effect_item(a_form, a_data) :
-                       detail::remove_effect_item(a_form, a_data);
+			           detail::add_effect_item(a_form, a_data) :
+			           detail::remove_effect_item(a_form, a_data);
 		}
-
-	protected:
-		EffectManager() = default;
-		EffectManager(const EffectManager&) = delete;
-		EffectManager(EffectManager&&) = delete;
-		~EffectManager() = default;
-
-		EffectManager& operator=(const EffectManager&) = delete;
-		EffectManager& operator=(EffectManager&&) = delete;
 	};
 }

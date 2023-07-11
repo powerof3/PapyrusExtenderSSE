@@ -8,10 +8,16 @@
     "boost-stl-interfaces",
     "clib-util",
     "frozen",
-    "robin-hood-hashing",
     "rsm-binary-io",
     "srell",
     "spdlog",
     "xbyak"
-  ]
+  ],
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "9.1.0"
+    }
+  ],
+  "builtin-baseline": "6b8459636c7ab9f2ccb638697b2ac990e1fd64b1"
 }

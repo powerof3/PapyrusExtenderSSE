@@ -51,8 +51,8 @@
 #include <ClibUtil/numeric.hpp>
 #include <ClibUtil/rng.hpp>
 #include <ClibUtil/string.hpp>
+#include <ClibUtil/singleton.hpp>
 #include <frozen/map.h>
-#include <robin_hood.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>
 #include <xbyak/xbyak.h>
@@ -66,6 +66,7 @@ namespace dist = clib_util::distribution;
 namespace WinAPI = SKSE::WinAPI;
 
 using namespace std::literals;
+using namespace clib_util::singleton;
 
 #include "Common.h"
 #include "Version.h"

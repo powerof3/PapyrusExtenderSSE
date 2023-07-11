@@ -17,7 +17,7 @@ public:
 		_pair = a_rhs._pair;
 		a_rhs._lock.unlock();
 	}
-	DataSetPair(DataSetPair&& a_rhs) :
+	DataSetPair(DataSetPair&& a_rhs) noexcept :
 		_pair(),
 		_lock()
 	{
@@ -46,8 +46,8 @@ public:
 
 		return *this;
 	}
-	DataSetPair& operator=(DataSetPair&& a_rhs)
-	{
+	DataSetPair& operator=(DataSetPair&& a_rhs) noexcept
+    {
 		if (this == &a_rhs) {
 			return *this;
 		}

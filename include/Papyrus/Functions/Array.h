@@ -44,7 +44,7 @@ namespace Papyrus::Array
 		std::string a_pronoun,
 		bool a_invert)
 	{
-		robin_hood::unordered_map<std::string, size_t> nameMap;
+		std::unordered_map<std::string, std::size_t> nameMap;
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			bool hasKeyword = false;
@@ -68,8 +68,8 @@ namespace Papyrus::Array
 		std::vector<std::string> names;
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
-                                       name;
+			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
+			                           name;
 			names.emplace_back(fullName);
 		}
 
@@ -88,7 +88,7 @@ namespace Papyrus::Array
 			return names;
 		}
 
-		robin_hood::unordered_map<std::string, size_t> nameMap;
+		std::unordered_map<std::string, std::size_t> nameMap;
 		for (const auto& npc : a_npcs) {
 			if (!npc) {
 				continue;
@@ -102,8 +102,8 @@ namespace Papyrus::Array
 
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
-                                       name;
+			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
+			                           name;
 			names.emplace_back(fullName);
 		}
 

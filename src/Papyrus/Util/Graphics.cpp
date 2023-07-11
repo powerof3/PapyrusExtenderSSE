@@ -370,14 +370,14 @@ namespace GRAPHICS
 
 				const auto effect = a_geometry->properties[States::kEffect];
 				const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
+
 				if (lightingShader) {
 					const auto originalData = lightingShader->GetExtraData<RE::NiStringsExtraData>(EXTRA::ORIG_SHADER);
 					if (!originalData) {
 						return RE::BSVisit::BSVisitControl::kContinue;
 					}
 
-					const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-					if (material) {
+                    if (const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material)) {
 						auto [result, shaderData] = get_original_shaders(originalData);
 						if (!result) {
 							logger::warn("unable to get original shader values for {}", a_geometry->name);

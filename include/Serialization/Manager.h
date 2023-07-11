@@ -24,11 +24,6 @@ namespace Serialization
 		kRemoveEffect = 'REFF'
 	};
 
-	void SaveCallback(SKSE::SerializationInterface* a_intfc);
-	void LoadCallback(SKSE::SerializationInterface* a_intfc);
-	void RevertCallback(SKSE::SerializationInterface* a_intfc);
-	void FormDeleteCallback(RE::VMHandle a_handle);
-
 	template <class T>
 	void SAVE(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version1, std::uint32_t a_version0)
 	{
@@ -68,38 +63,27 @@ namespace Serialization
 		regs->Remove(a_formID);
 	}
 
+	void SaveCallback(SKSE::SerializationInterface* a_intfc);
+	void LoadCallback(SKSE::SerializationInterface* a_intfc);
+	void RevertCallback(SKSE::SerializationInterface* a_intfc);
+	void FormDeleteCallback(RE::VMHandle a_handle);
+
 	namespace FormDeletion
 	{
 		using EventResult = RE::BSEventNotifyControl;
 
-		class EventHandler : public RE::BSTEventSink<RE::TESFormDeleteEvent>
+		class EventHandler :
+			public ISingleton<EventHandler>,
+			public RE::BSTEventSink<RE::TESFormDeleteEvent>
 		{
 		public:
-			[[nodiscard]] static EventHandler* GetSingleton()
-			{
-				static EventHandler singleton;
-				return &singleton;
-			}
-
 			static void Register()
 			{
-				auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
-				if (scripts) {
-					scripts->AddEventSink(GetSingleton());
-					logger::info("Registered form deletion event handler"sv);
-				}
+				RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink(GetSingleton());
+				logger::info("Registered form deletion event handler"sv);
 			}
 
 			EventResult ProcessEvent(const RE::TESFormDeleteEvent* a_event, RE::BSTEventSource<RE::TESFormDeleteEvent>*) override;
-
-		private:
-			EventHandler() = default;
-			EventHandler(const EventHandler&) = delete;
-			EventHandler(EventHandler&&) = delete;
-			~EventHandler() override = default;
-
-			EventHandler& operator=(const EventHandler&) = delete;
-			EventHandler& operator=(EventHandler&&) = delete;
 		};
 	}
 }

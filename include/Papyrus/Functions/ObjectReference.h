@@ -980,8 +980,6 @@ namespace Papyrus::ObjectReference
 		RE::BSFixedString a_modName,
 		bool a_unequip)
 	{
-		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
 			return;

@@ -17,7 +17,7 @@ public:
 		_pair = a_rhs._pair;
 		a_rhs._lock.unlock();
 	}
-	DataMapPair(DataMapPair&& a_rhs) :
+	DataMapPair(DataMapPair&& a_rhs) noexcept :
 		_pair(),
 		_lock()
 	{
@@ -27,7 +27,7 @@ public:
 		a_rhs._pair.second.clear();
 	}
 
-	~DataMapPair() = default;
+	virtual ~DataMapPair() = default;
 
 	DataMapPair& operator=(const DataMapPair& a_rhs)
 	{
@@ -46,8 +46,8 @@ public:
 
 		return *this;
 	}
-	DataMapPair& operator=(DataMapPair&& a_rhs)
-	{
+	DataMapPair& operator=(DataMapPair&& a_rhs) noexcept
+    {
 		if (this == &a_rhs) {
 			return *this;
 		}
@@ -68,7 +68,7 @@ public:
 	std::map<K, std::set<D>>& GetData(std::uint32_t a_index)
 	{
 		return a_index == 1 ? _pair.first :
-                              _pair.second;
+		                      _pair.second;
 	}
 	void AddData(K a_key, D a_data, std::uint32_t a_index)
 	{
@@ -116,20 +116,18 @@ protected:
 	using Locker = std::lock_guard<Lock>;
 
 	std::pair<std::map<K, std::set<D>>, std::map<K, std::set<D>>> _pair;
-	mutable Lock _lock;
+	mutable Lock                                                  _lock;
 };
 
 template <class F, class D>
 class FormMapPair : public DataMapPair<RE::FormID, RE::FormID>
 {
 public:
-	FormMapPair() :
-		DataMapPair()
-	{}
-
+	FormMapPair() = default;
 	FormMapPair(const FormMapPair&) = default;
 	FormMapPair(FormMapPair&&) = default;
-	~FormMapPair() = default;
+
+	~FormMapPair() override = default;
 
 	FormMapPair& operator=(const FormMapPair&) = default;
 	FormMapPair& operator=(FormMapPair&&) = default;
@@ -164,7 +162,7 @@ public:
 		assert(a_intfc);
 		Locker locker(_lock);
 
-		auto& formMap = GetData(a_index);
+		auto&             formMap = GetData(a_index);
 		const std::size_t numRegs = formMap.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
 			logger::error("Failed to save number of regs ({})", numRegs);
@@ -202,8 +200,8 @@ public:
 		auto& formMap = GetData(a_index);
 		formMap.clear();
 
-		RE::FormID formID;
-		RE::FormID dataID;
+		RE::FormID  formID;
+		RE::FormID  dataID;
 		std::size_t numData;
 
 		for (std::size_t i = 0; i < numRegs; i++) {
@@ -256,7 +254,8 @@ public:
 	FormDataMapPair() = default;
 	FormDataMapPair(const FormDataMapPair&) = default;
 	FormDataMapPair(FormDataMapPair&&) = default;
-	~FormDataMapPair() = default;
+
+	~FormDataMapPair() override = default;
 
 	FormDataMapPair& operator=(const FormDataMapPair&) = default;
 	FormDataMapPair& operator=(FormDataMapPair&&) = default;

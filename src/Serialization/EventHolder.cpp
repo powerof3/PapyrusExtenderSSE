@@ -12,6 +12,8 @@ namespace Event
 		objectUnloaded.Save(a_intfc, kObjectUnloaded, a_version);
 		objectGrab.Save(a_intfc, kObjectGrab, a_version);
 		objectRelease.Save(a_intfc, kObjectRelease, a_version);
+		furnitureEnter.Save(a_intfc, kFurnitureEnter, a_version);
+		furnitureExit.Save(a_intfc, kFurnitureExit, a_version);
 	}
 
 	void ScriptEventHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type)
@@ -38,6 +40,12 @@ namespace Event
 		case kObjectRelease:
 			objectRelease.Load(a_intfc);
 			break;
+		case kFurnitureEnter:
+			furnitureEnter.Load(a_intfc);
+			break;
+		case kFurnitureExit:
+			furnitureExit.Load(a_intfc);
+			break;
 		default:
 			break;
 		}
@@ -53,6 +61,8 @@ namespace Event
 		objectUnloaded.Revert(a_intfc);
 		objectGrab.Revert(a_intfc);
 		objectRelease.Revert(a_intfc);
+		furnitureEnter.Revert(a_intfc);
+		furnitureExit.Revert(a_intfc);
 	}
 
 	void ScriptEventHolder::FormDelete(RE::VMHandle a_handle)
@@ -65,6 +75,8 @@ namespace Event
 		objectUnloaded.UnregisterAll(a_handle);
 		objectGrab.Unregister(a_handle);
 		objectRelease.Unregister(a_handle);
+		furnitureEnter.Unregister(a_handle);
+		furnitureExit.Unregister(a_handle);
 	}
 }
 

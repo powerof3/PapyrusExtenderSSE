@@ -15,6 +15,8 @@ namespace Event
 			kObjectUnloaded = 'UNLD',
 			kObjectGrab = 'GRAB',
 			kObjectRelease = 'RELS',
+			kFurnitureEnter = 'FETR',
+			kFurnitureExit = 'FEXT',
 		};
 
 		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);

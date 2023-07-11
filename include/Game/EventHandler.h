@@ -10,7 +10,8 @@ namespace Event
 		public RE::BSTEventSink<RE::TESQuestStartStopEvent>,
 		public RE::BSTEventSink<RE::TESQuestStageEvent>,
 		public RE::BSTEventSink<RE::TESObjectLoadedEvent>,
-		public RE::BSTEventSink<RE::TESGrabReleaseEvent>
+		public RE::BSTEventSink<RE::TESGrabReleaseEvent>,
+		public RE::BSTEventSink<RE::TESFurnitureEvent>
 	{
 	public:
 		static void Register()
@@ -22,6 +23,7 @@ namespace Event
 			register_event<RE::TESQuestStageEvent>();
 			register_event<RE::TESObjectLoadedEvent>();
 			register_event<RE::TESGrabReleaseEvent>();
+			register_event<RE::TESFurnitureEvent>();
 		}
 
 		EventResult ProcessEvent(const RE::TESCellFullyLoadedEvent* a_event, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>*) override;
@@ -29,6 +31,7 @@ namespace Event
 		EventResult ProcessEvent(const RE::TESQuestStageEvent* a_event, RE::BSTEventSource<RE::TESQuestStageEvent>*) override;
 		EventResult ProcessEvent(const RE::TESObjectLoadedEvent* a_event, RE::BSTEventSource<RE::TESObjectLoadedEvent>*) override;
 		EventResult ProcessEvent(const RE::TESGrabReleaseEvent* a_event, RE::BSTEventSource<RE::TESGrabReleaseEvent>*) override;
+		EventResult ProcessEvent(const RE::TESFurnitureEvent* a_event, RE::BSTEventSource<RE::TESFurnitureEvent>*) override;
 
 	private:
 		template <class T>

@@ -73,7 +73,20 @@ namespace Event
 
 		return EventResult::kContinue;
 	}
+	
+    EventResult ScriptEventHandler::ProcessEvent(const RE::TESFurnitureEvent* a_event, RE::BSTEventSource<RE::TESFurnitureEvent>*)
+	{
+		if (!a_event) {
+			return EventResult::kContinue;
+		}
 
+		if (const auto furniture = a_event->targetFurniture; furniture) {
+			auto& event = a_event->type == RE::TESFurnitureEvent::FurnitureEventType::kEnter ? ScriptEventHolder::GetSingleton()->furnitureEnter : ScriptEventHolder::GetSingleton()->furnitureExit;
+			event.QueueEvent(furniture.get(), a_event->actor.get());
+		}
+
+		return EventResult::kContinue;
+	}
 }
 
 namespace Event

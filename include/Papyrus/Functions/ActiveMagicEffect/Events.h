@@ -149,6 +149,20 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
+	inline void RegisterForFurnitureEvent(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Register(a_activeEffect);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Register(a_activeEffect);
+	}
+
 	inline void RegisterForHitEventEx(STATIC_ARGS, RE::ActiveEffect* a_activeEffect,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -527,6 +541,20 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
+	inline void UnregisterForFurnitureEvent(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Unregister(a_activeEffect);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Unregister(a_activeEffect);
+	}
+
 	inline void UnregisterForHitEventEx(STATIC_ARGS,
 		RE::ActiveEffect* a_activeEffect,
 		RE::TESForm*      a_aggressorFilter,
@@ -840,6 +868,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(RegisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(RegisterForFastTravelConfirmed, true);
 		BIND_EVENT(RegisterForFastTravelPrompt, true);
+		BIND_EVENT(RegisterForFurnitureEvent, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -872,6 +901,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(UnregisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(UnregisterForFastTravelConfirmed, true);
 		BIND_EVENT(UnregisterForFastTravelPrompt, true);
+		BIND_EVENT(UnregisterForFurnitureEvent, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

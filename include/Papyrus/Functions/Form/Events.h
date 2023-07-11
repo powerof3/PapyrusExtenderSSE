@@ -149,6 +149,20 @@ namespace Papyrus::Form::Events
 		regs.Register(a_form);
 	}
 
+	inline void RegisterForFurnitureEvent(STATIC_ARGS, RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Register(a_form);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Register(a_form);
+	}
+
 	inline void RegisterForHitEventEx(STATIC_ARGS, RE::TESForm* a_form,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -526,6 +540,20 @@ namespace Papyrus::Form::Events
 		regs.Unregister(a_form);
 	}
 
+	inline void UnregisterForFurnitureEvent(STATIC_ARGS, RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Unregister(a_form);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Unregister(a_form);
+	}
+
 	inline void UnregisterForHitEventEx(STATIC_ARGS,
 		RE::TESForm* a_form,
 		RE::TESForm* a_aggressorFilter,
@@ -839,6 +867,7 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(RegisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(RegisterForFastTravelConfirmed, true);
 		BIND_EVENT(RegisterForFastTravelPrompt, true);
+		BIND_EVENT(RegisterForFurnitureEvent, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -871,6 +900,7 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(UnregisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(UnregisterForFastTravelConfirmed, true);
 		BIND_EVENT(UnregisterForFastTravelPrompt, true);
+		BIND_EVENT(UnregisterForFurnitureEvent, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

@@ -167,6 +167,20 @@ namespace Papyrus::Alias::Events
 		regs.Register(a_alias);
 	}
 
+	inline void RegisterForFurnitureEvent(STATIC_ARGS, RE::BGSRefAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Register(a_alias);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Register(a_alias);
+	}
+
 	inline void RegisterForHitEventEx(STATIC_ARGS, RE::BGSRefAlias* a_alias,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -562,6 +576,20 @@ namespace Papyrus::Alias::Events
 		regs.Unregister(a_alias);
 	}
 
+	inline void UnregisterForFurnitureEvent(STATIC_ARGS, RE::BGSRefAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Unregister(a_alias);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Unregister(a_alias);
+	}
+
 	inline void UnregisterForHitEventEx(STATIC_ARGS, RE::BGSRefAlias* a_alias,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
@@ -874,6 +902,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(RegisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(RegisterForFastTravelConfirmed, true);
 		BIND_EVENT(RegisterForFastTravelPrompt, true);
+		BIND_EVENT(RegisterForFurnitureEvent, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -906,6 +935,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(UnregisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(UnregisterForFastTravelConfirmed, true);
 		BIND_EVENT(UnregisterForFastTravelPrompt, true);
+		BIND_EVENT(UnregisterForFurnitureEvent, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

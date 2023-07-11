@@ -35,6 +35,9 @@ namespace Event
 
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> objectGrab{ "OnObjectGrab"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> objectRelease{ "OnObjectRelease"sv };
+
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*> furnitureEnter{ "OnEnterFurniture"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*> furnitureExit{ "OnExitFurniture"sv };
 	};
 
 	class StoryEventHolder : public ISingleton<StoryEventHolder>

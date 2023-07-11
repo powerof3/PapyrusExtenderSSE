@@ -263,13 +263,13 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-		                            actorValueList->LookupActorValueByName(a_actorValue) :
-		                            RE::ActorValue::kNone;
+                                    actorValueList->LookupActorValueByName(a_actorValue) :
+                                    RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-		           a_actor->GetActorValueModifier(modifier, actorValue) :
-		           0.0f;
+                   a_actor->GetActorValueModifier(modifier, actorValue) :
+                   0.0f;
 	}
 
 	inline std::uint32_t GetCriticalStage(STATIC_ARGS, const RE::Actor* a_actor)
@@ -952,8 +952,8 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
-				charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+                charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
 		}

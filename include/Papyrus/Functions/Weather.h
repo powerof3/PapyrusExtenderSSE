@@ -24,7 +24,7 @@ namespace Papyrus::Weather
 
 	inline std::int32_t GetWeatherType(STATIC_ARGS, [[maybe_unused]] RE::TESWeather* a_weather)
 	{
-        RE::TESWeather* currentWeather = nullptr;
+		RE::TESWeather* currentWeather = nullptr;
 
 		if (a_weather) {
 			currentWeather = a_weather;

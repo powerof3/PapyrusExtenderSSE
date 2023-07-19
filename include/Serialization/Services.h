@@ -250,7 +250,7 @@ namespace MAGIC
 
 			static bool add_magic_effect(RE::MagicItem* a_item, const MGEFData& a_data)
 			{
-				if (auto effect = !detail::get_match(a_item, a_data) ? new RE::Effect() : nullptr) {
+				if (const auto effect = !detail::get_match(a_item, a_data) ? new RE::Effect() : nullptr) {
 					effect->effectItem.magnitude = a_data.mag;
 					effect->effectItem.area = a_data.area;
 					effect->effectItem.duration = a_data.dur;
@@ -258,18 +258,11 @@ namespace MAGIC
 					effect->cost = a_data.cost;
 
 					if (!a_data.conditionList.empty() && !a_data.conditionList.front().empty()) {
-						auto conditions = CONDITION::ParseConditionList(a_data.conditionList);
-						if (!conditions.empty()) {
-							for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
+                        if (const auto conditions = CONDITION::ParseConditionList(a_data.conditionList); !conditions.empty()) {
+							for (auto& conditionData : conditions) {
 								if (const auto newNode = new RE::TESConditionItem) {
 									newNode->next = nullptr;
-									newNode->data.object = object;
-									newNode->data.functionData.function = functionID;
-									newNode->data.functionData.params[0] = param1;
-									newNode->data.functionData.params[1] = param2;
-									newNode->data.flags.opCode = opCode;
-									newNode->data.comparisonValue.f = value;
-									newNode->data.flags.isOR = ANDOR;
+									newNode->data = conditionData;
 
 									if (effect->conditions.head == nullptr) {
 										effect->conditions.head = newNode;

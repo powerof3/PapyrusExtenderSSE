@@ -69,6 +69,7 @@ namespace editorID = clib_util::editorID;
 namespace WinAPI = SKSE::WinAPI;
 
 using namespace std::literals;
+using namespace string::literals;
 using namespace clib_util::singleton;
 
 #ifdef SKYRIM_AE

@@ -77,28 +77,34 @@ namespace Papyrus::Form::Functions
 			}
 			break;
 		case RE::FormType::MagicEffect:
-			{
-				const auto effect = a_form->As<RE::EffectSetting>();
-				result = effect->conditions.IsTrue(a_actionRef, a_target);
-			}
+			result = a_form->As<RE::EffectSetting>()->conditions.IsTrue(a_actionRef, a_target);
 			break;
 		case RE::FormType::Info:
-			{
-				const auto topic = a_form->As<RE::TESTopicInfo>();
-				result = topic->objConditions.IsTrue(a_actionRef, a_target);
-			}
+			result = a_form->As<RE::TESTopicInfo>()->objConditions.IsTrue(a_actionRef, a_target);
 			break;
 		case RE::FormType::Package:
-			{
-				const auto package = a_form->As<RE::TESPackage>();
-				result = package->packConditions.IsTrue(a_actionRef, a_target);
-			}
+			result = a_form->As<RE::TESPackage>()->packConditions.IsTrue(a_actionRef, a_target);
 			break;
 		case RE::FormType::Perk:
+			result = a_form->As<RE::BGSPerk>()->perkConditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::CameraPath:
+			result = a_form->As<RE::BGSCameraPath>()->conditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::ConstructibleObject:
+			result = a_form->As<RE::BGSConstructibleObject>()->conditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::Faction:
 			{
-				const auto perk = a_form->As<RE::BGSPerk>();
-				result = perk->perkConditions.IsTrue(a_actionRef, a_target);
+                const auto vendorConditions = a_form->As<RE::TESFaction>()->vendorData.vendorConditions;
+				result = vendorConditions && vendorConditions->IsTrue(a_actionRef, a_target);
 			}
+			break;
+		case RE::FormType::Idle:
+			result = a_form->As<RE::TESIdleForm>()->conditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::LoadScreen:
+			result = a_form->As<RE::TESLoadScreen>()->conditions.IsTrue(a_actionRef, a_target);
 			break;
 		default:
 			result = true;
@@ -164,8 +170,8 @@ namespace Papyrus::Form::Functions
 
 		if (const auto file =
 				a_lastModified ?
-                    a_form->GetDescriptionOwnerFile() :
-                    a_form->GetFile(0)) {
+					a_form->GetDescriptionOwnerFile() :
+					a_form->GetFile(0)) {
 			return file->GetFilename();
 		}
 
@@ -264,7 +270,7 @@ namespace Papyrus::Form::Functions
 			auto** previousNode = &formConditions->head;
 
 			while (currentNode != nullptr) {
-				if (std::ranges::find(conditions, currentNode) != conditions.end()) {
+				if (std::find(conditions.begin(), conditions.end(), currentNode->data) != conditions.end()) {
 					*previousNode = currentNode->next;
 					delete currentNode;
 				} else {
@@ -347,17 +353,11 @@ namespace Papyrus::Form::Functions
 			return;
 		}
 
-		if (auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
-			for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
+		if (const auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
+			for (const auto& conditionData : conditions) {
 				if (const auto newNode = new RE::TESConditionItem) {
 					newNode->next = nullptr;
-					newNode->data.object = object;
-					newNode->data.functionData.function = functionID;
-					newNode->data.functionData.params[0] = param1;
-					newNode->data.functionData.params[1] = param2;
-					newNode->data.flags.opCode = opCode;
-					newNode->data.comparisonValue.f = value;
-					newNode->data.flags.isOR = ANDOR;
+					newNode->data = conditionData;
 
 					if (formConditions->head == nullptr) {
 						formConditions->head = newNode;

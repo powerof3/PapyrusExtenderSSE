@@ -96,7 +96,7 @@ namespace Papyrus::Form::Functions
 			break;
 		case RE::FormType::Faction:
 			{
-                const auto vendorConditions = a_form->As<RE::TESFaction>()->vendorData.vendorConditions;
+				const auto vendorConditions = a_form->As<RE::TESFaction>()->vendorData.vendorConditions;
 				result = vendorConditions && vendorConditions->IsTrue(a_actionRef, a_target);
 			}
 			break;
@@ -170,8 +170,8 @@ namespace Papyrus::Form::Functions
 
 		if (const auto file =
 				a_lastModified ?
-					a_form->GetDescriptionOwnerFile() :
-					a_form->GetFile(0)) {
+                    a_form->GetDescriptionOwnerFile() :
+                    a_form->GetFile(0)) {
 			return file->GetFilename();
 		}
 

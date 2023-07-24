@@ -73,8 +73,8 @@ namespace Event
 
 		return EventResult::kContinue;
 	}
-	
-    EventResult ScriptEventHandler::ProcessEvent(const RE::TESFurnitureEvent* a_event, RE::BSTEventSource<RE::TESFurnitureEvent>*)
+
+	EventResult ScriptEventHandler::ProcessEvent(const RE::TESFurnitureEvent* a_event, RE::BSTEventSource<RE::TESFurnitureEvent>*)
 	{
 		if (!a_event) {
 			return EventResult::kContinue;

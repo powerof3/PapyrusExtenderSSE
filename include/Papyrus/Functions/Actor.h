@@ -205,10 +205,8 @@ namespace Papyrus::Actor
 			return 1.0f;
 		}
 
-		const auto process = a_actor->currentProcess;
-		const auto middleProcess = process ? process->middleHigh : nullptr;
-
-		return middleProcess ? middleProcess->alphaMult : 1.0f;
+		const auto middleHigh = a_actor->GetMiddleHighProcess();
+		return middleHigh ? middleHigh->alphaMult : 1.0f;
 	}
 
 	inline std::int32_t GetActorKnockState(STATIC_ARGS, const RE::Actor* a_actor)
@@ -228,10 +226,8 @@ namespace Papyrus::Actor
 			return 1.0f;
 		}
 
-		const auto process = a_actor->currentProcess;
-		const auto middleProcess = process ? process->middleHigh : nullptr;
-
-		return middleProcess ? middleProcess->scriptRefractPower : 1.0f;
+		const auto middleHigh = a_actor->GetMiddleHighProcess();
+		return middleHigh ? middleHigh->scriptRefractPower : 1.0f;
 	}
 
 	inline std::int32_t GetActorSoulSize(STATIC_ARGS, const RE::Actor* a_actor)
@@ -263,13 +259,37 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-                                    actorValueList->LookupActorValueByName(a_actorValue) :
-                                    RE::ActorValue::kNone;
+		                            actorValueList->LookupActorValueByName(a_actorValue) :
+		                            RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);
 		return actorValue != RE::ActorValue::kNone ?
-                   a_actor->GetActorValueModifier(modifier, actorValue) :
-                   0.0f;
+		           a_actor->GetActorValueModifier(modifier, actorValue) :
+		           0.0f;
+	}
+
+	inline std::vector<RE::SpellItem*> GetAllActorPlayableSpells(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return {};
+		}
+
+		class Visitor : public RE::Actor::ForEachSpellVisitor
+		{
+		public:
+            RE::BSContainer::ForEachResult Visit(RE::SpellItem* a_spell) override
+            {
+				if (a_spell->GetSpellType() == RE::MagicSystem::SpellType::kSpell) {
+					spells.push_back(a_spell);
+				}
+                return RE::BSContainer::ForEachResult::kContinue;
+            }
+			std::vector<RE::SpellItem*> spells;
+		} visitor;
+
+        a_actor->VisitSpells(visitor);
+		return visitor.spells;
 	}
 
 	inline std::uint32_t GetCriticalStage(STATIC_ARGS, const RE::Actor* a_actor)
@@ -332,10 +352,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		const auto process = a_actor->currentProcess;
-		const auto middleHigh = process ? process->middleHigh : nullptr;
-
-		if (middleHigh) {
+		if (const auto middleHigh = a_actor->GetMiddleHighProcess()) {
 			for (auto& commandedActorData : middleHigh->commandedActors) {
 				const auto commandedActor = commandedActorData.commandedActor.get();
 				if (commandedActor) {
@@ -369,6 +386,45 @@ namespace Papyrus::Actor
 		}
 
 		return a_actor->GetCurrentAmmo();
+	}
+
+	//SeaSparrow - New Functions
+	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		RE::EnchantmentItem* result = nullptr;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return result;
+		}
+
+		const auto middleHigh = a_actor->GetMiddleHighProcess();
+		const auto bothHands = middleHigh ? middleHigh->bothHands : nullptr;
+
+		if (bothHands && bothHands->object) {
+			if (const auto ammo = bothHands->object->As<RE::TESAmmo>()) {
+				const auto projectile = ammo ? ammo->data.projectile : nullptr;
+				const auto explosion = projectile ? projectile->data.explosionType : nullptr;
+
+				result = explosion ? explosion->formEnchanting : nullptr;
+
+				if (!result) {
+					if (const auto& extraLists = bothHands->extraLists) {
+						for (const auto& extraList : *extraLists) {
+							const auto exEnch = extraList->GetByType<RE::ExtraEnchantment>();
+							if (exEnch && exEnch->enchantment) {
+								result = exEnch->enchantment;
+								break;
+							}
+						}
+					}
+				}
+
+				return result;
+			}
+		}
+
+		return result;
 	}
 
 #ifdef SKYRIMVR
@@ -615,10 +671,8 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const auto currentProcess = a_actor->currentProcess;
-		const auto middleProcess = currentProcess ? currentProcess->middleHigh : nullptr;
-
-		return middleProcess && middleProcess->inDeferredKill;
+		const auto middleHigh = a_actor->GetMiddleHighProcess();
+		return middleHigh && middleHigh->inDeferredKill;
 	}
 
 	inline bool HasMagicEffectWithArchetype(STATIC_ARGS, RE::Actor* a_actor, RE::BSFixedString a_archetype)
@@ -697,9 +751,8 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		const auto currentProcess = a_actor->currentProcess;
-		const auto middleProcess = currentProcess ? currentProcess->middleHigh : nullptr;
-		if (middleProcess && middleProcess->soulTrapped) {
+		const auto middleHigh = a_actor->GetMiddleHighProcess();
+		if (middleHigh && middleHigh->soulTrapped) {
 			return true;
 		}
 
@@ -952,8 +1005,8 @@ namespace Papyrus::Actor
 			charController->SetLinearVelocityImpl(0.0f);
 
 			a_disableGravityOnGround ?
-                charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
-                charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
+				charController->flags.reset(RE::CHARACTER_FLAGS::kNoGravityOnGround) :
+				charController->flags.set(RE::CHARACTER_FLAGS::kNoGravityOnGround);
 
 			charController->gravity = a_value;
 		}
@@ -966,11 +1019,8 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		const auto process = a_actor->currentProcess;
-		const auto middleProcess = process ? process->middleHigh : nullptr;
-
-		if (middleProcess) {
-			middleProcess->soulTrapped = a_trapped;
+		if (const auto middleHigh = a_actor->GetMiddleHighProcess()) {
+			middleHigh->soulTrapped = a_trapped;
 		}
 	}
 
@@ -1006,68 +1056,6 @@ namespace Papyrus::Actor
 		}
 	}
 
-	//SeaSparrow - New Functions
-	inline RE::EnchantmentItem* GetEquippedAmmoEnchantment(STATIC_ARGS, RE::Actor* a_actor)
-	{
-		RE::EnchantmentItem* response = nullptr;
-
-		if (!a_actor) {
-			a_vm->TraceStack("Actor is None", a_stackID);
-			return response;
-		}
-
-		const auto process = a_actor->currentProcess;
-		const auto middleHigh = process ? process->middleHigh : nullptr;
-		const auto bothHands = middleHigh ? middleHigh->bothHands : nullptr;
-
-		if (bothHands && bothHands->object) {
-			if (const auto ammo = bothHands->object->As<RE::TESAmmo>()) {
-				const auto projectile = ammo ? ammo->data.projectile : nullptr;
-				const auto explosion = projectile ? projectile->data.explosionType : nullptr;
-				response = explosion ? explosion->formEnchanting : nullptr;
-
-				if (const auto& extraLists = bothHands->extraLists) {
-					for (const auto& extraList : *extraLists) {
-						const auto exEnch = extraList->GetByType<RE::ExtraEnchantment>();
-						if (exEnch && exEnch->enchantment) {
-							response = exEnch->enchantment;
-						}
-					}
-				}
-
-				return response;
-			}
-		}
-
-		return response;
-	}
-
-	inline std::vector<RE::SpellItem*> GetAllActorPlayableSpells(VM*, StackID, RE::StaticFunctionTag*, RE::Actor* a_kActor)
-	{
-		std::vector<RE::SpellItem*> response;
-
-		if (!a_kActor) {
-			return response;
-		}
-
-		auto& tempSpells = a_kActor->addedSpells;
-
-		for (auto actorSpell : tempSpells) {
-			if (actorSpell->GetSpellType() == RE::MagicSystem::SpellType::kSpell) {
-				response.push_back(actorSpell);
-			}
-		}
-
-		auto tempBaseSpells = a_kActor->GetActorBase()->GetSpellList();
-
-		for (auto& actorBaseSpell : std::span(tempBaseSpells->spells, tempBaseSpells->numSpells)) {
-			if (actorBaseSpell->GetSpellType() == RE::MagicSystem::SpellType::kSpell) {
-				response.push_back(actorBaseSpell);
-			}
-		}
-		return response;
-	}
-
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddBasePerk);
@@ -1083,12 +1071,15 @@ namespace Papyrus::Actor
 		BIND(GetActorSoulSize, true);
 		BIND(GetActorState);
 		BIND(GetActorValueModifier);
+		BIND(GetAllActorPlayableSpells);
 		BIND(GetCriticalStage);
 		BIND(GetCombatAllies);
 		BIND(GetCombatTargets);
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
 		BIND(GetEquippedAmmo);
+		//SeaSparrow - New Binds
+		BIND(GetEquippedAmmoEnchantment);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
 		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");
@@ -1127,11 +1118,6 @@ namespace Papyrus::Actor
 		BIND(SetLocalGravityActor);
 		BIND(SetSoulTrapped);
 		BIND(UnequipAllOfType);
-
-		//SeaSparrow - New Binds
-		BIND(GetEquippedAmmoEnchantment);
-
-		BIND(GetAllActorPlayableSpells);
 
 		logger::info("Registered actor functions"sv);
 	}

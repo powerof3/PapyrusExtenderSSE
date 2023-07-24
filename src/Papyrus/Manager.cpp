@@ -38,6 +38,7 @@
 #include "Papyrus/Functions/Utility.h"
 #include "Papyrus/Functions/VisualEffect.h"
 #include "Papyrus/Functions/Weather.h"
+#include "Papyrus/Functions/LeveledItem.h"
 
 #include "Papyrus/ObjectTypes.h"
 
@@ -81,6 +82,7 @@ namespace Papyrus
 		Game::Bind(*a_vm);
 		Graphics::Bind(*a_vm);
 		Hazard::Bind(*a_vm);
+		LeveledItem::Bind(*a_vm);
 		Light::Bind(*a_vm);
 		Location::Bind(*a_vm);
 		MagicEffect::Bind(*a_vm);

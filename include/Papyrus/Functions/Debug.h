@@ -60,7 +60,7 @@ namespace Papyrus::Debug
 
 		RE::BSTSmartPointer<RE::BSAnimationGraphManager> manager;
 		if (a_actor->GetAnimationGraphManager(manager); manager) {
-			const auto middleHigh = a_actor->currentProcess ? a_actor->currentProcess->middleHigh : nullptr;
+			const auto middleHigh = a_actor->GetMiddleHighProcess();
 			const auto cache = middleHigh ? middleHigh->animationVariableCache : nullptr;
 
 			if (cache) {
@@ -68,7 +68,7 @@ namespace Papyrus::Debug
 
 				RE::BSSpinLockGuard locker(cache->updateLock);
 				for (auto& var : cache->variableCache) {
-					logger::info("	{} : {}", var.variableName, get_value(var));
+					logger::info("\t{} : {}", var.variableName, get_value(var));
 				}
 			}
 		}

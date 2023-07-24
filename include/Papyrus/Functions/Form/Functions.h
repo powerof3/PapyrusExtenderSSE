@@ -270,7 +270,7 @@ namespace Papyrus::Form::Functions
 			auto** previousNode = &formConditions->head;
 
 			while (currentNode != nullptr) {
-				if (std::find(conditions.begin(), conditions.end(), currentNode->data) != conditions.end()) {
+				if (std::ranges::find(conditions, currentNode->data) != conditions.end()) {
 					*previousNode = currentNode->next;
 					delete currentNode;
 				} else {

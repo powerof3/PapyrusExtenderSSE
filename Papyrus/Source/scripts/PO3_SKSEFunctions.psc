@@ -31,6 +31,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	int Function GetActorSoulSize(Actor akActor) global native
 
 	float Function GetActorValueModifier(Actor akActor, int aiModifier, String asActorValue) global native
+	
+	Spell[] Function GetAllActorPlayableSpells(Actor akActor) global native
 
 	int Function GetCriticalStage(Actor akActor) global native
 
@@ -43,6 +45,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Actor Function GetCommandingActor(Actor akActor) global native
 
 	Ammo Function GetEquippedAmmo(Actor akActor) global native
+	
+	Enchantment Function GetEquippedAmmoEnchantment(Actor akActor) global native
 
 	bool Function GetEquippedWeaponIsPoisoned(Actor akActor, bool abLeftHand) global native
 
@@ -184,6 +188,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 
 	Function SetDeathItem(Actorbase akBase, LeveledItem akLeveledItem) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;AMMO
+;----------------------------------------------------------------------------------------------------------
+
+	;-------
+	;GETTERS
+	;-------
+	
+	Enchantment Function GetBaseAmmoEnchantment(Ammo akAmmo) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;ALIAS
@@ -346,7 +360,13 @@ Scriptname PO3_SKSEFunctions Hidden
 ;FACTION
 ;----------------------------------------------------------------------------------------------------------
 
+	;--------
+	;GETTERS
+	;--------
+	
 	ObjectReference Function GetVendorFactionContainer(Faction akVendorFaction)  global native
+	
+	Actor[] Function GetAllActorsInFaction(Faction akFaction) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;FASTTRAVEL
@@ -569,6 +589,16 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function SetLightShadowDepthBias(ObjectReference akLightObject, float afDepthBias) global native
 
 	Function SetLightType(Light akLight, int aiLightType) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;LEVELED ITEM
+;----------------------------------------------------------------------------------------------------------
+
+	;-------
+	;GETTERS
+	;-------
+	
+	Form[] Function GetContentFromLeveledItem(LeveledItem akLeveledItem, ObjectReference akRef) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;LOCATION
@@ -909,14 +939,3 @@ Scriptname PO3_SKSEFunctions Hidden
 	int Function GetWindSpeedAsInt(Weather akWeather) global native
 
 	int Function GetWeatherType(Weather akWeather = None) global native
-
-;/
-==========================
-SeaSparrow - New Functions
-==========================
-/;
-
-	Actor[] Function GetAllActorsInFaction(Faction a_kFaction) Global Native
-	Spell[] Function GetAllActorPlayableSpells(Actor a_kActor) Global Native
-	Enchantment Function GetEquippedAmmoEnchantment(Actor a_kActor) Global Native 
-	Enchantment Function GetBaseAmmoEnchantment(Ammo a_kAmmo) Global Native 

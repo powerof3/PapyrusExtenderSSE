@@ -104,6 +104,17 @@ Scriptname PO3_Events_AME  Hidden
 
 	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
 	EndEvent
+	
+;FURNITURE EVENT
+
+	Function RegisterForFurnitureEvent(ActiveMagicEffect akActiveEffect) global native
+	Function UnregisterForFurnitureEvent(ActiveMagicEffect akActiveEffect) global native
+
+	Event OnEnterFurniture(ObjectReference akRef)
+	EndEvent
+	
+	Event OnExitFurniture(ObjectReference akRef)
+	EndEvent
 
 ;ON HIT EX
 

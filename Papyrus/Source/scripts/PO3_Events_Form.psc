@@ -107,6 +107,18 @@ Scriptname PO3_Events_Form  Hidden
 
 	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
 	EndEvent
+	
+;FURNITURE EVENT
+;calling script must extend ObjectReference
+
+	Function RegisterForFurnitureEvent(Form akForm) global native
+	Function UnregisterForFurnitureEvent(Form akForm) global native
+
+	Event OnEnterFurniture(ObjectReference akRef)
+	EndEvent
+	
+	Event OnExitFurniture(ObjectReference akRef)
+	EndEvent
 
 ;ON HIT EX
 ;calling script must extend ObjectReference

@@ -105,6 +105,17 @@ Scriptname PO3_Events_Alias  Hidden
 
 	Event OnFastTravelPrompt(ObjectReference asMarkerReference)
 	EndEvent
+	
+;FURNITURE EVENT
+
+	Function RegisterForFurnitureEvent(ReferenceAlias akRefAlias) global native
+	Function UnregisterForFurnitureEvent(ReferenceAlias akRefAlias) global native
+
+	Event OnEnterFurniture(ObjectReference akRef)
+	EndEvent
+	
+	Event OnExitFurniture(ObjectReference akRef)
+	EndEvent
 
 ;ON HIT EX
 

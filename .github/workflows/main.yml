@@ -16,7 +16,6 @@ jobs:
     with:
       CMAKE_VR_CONFIG_PRESET: ''
       CMAKE_VR_BUILD_PRESET: ''
-      AE_353_BRANCH: master-1.6.353
       FOMOD_INCLUDE_PDB: true
       FOMOD_MOD_NAME: "powerofthree's Papyrus Extender"
       FOMOD_MOD_AUTHOR: "powerofthree"
@@ -27,4 +26,4 @@ jobs:
       FOMOD_AE_MIN_GAME_VERSION: '1.6'
       FOMOD_REQUIRED_INSTALLATION_DIR: "Papyrus"
       PUBLISH_ARCHIVE_TYPE: '7z'
-      VCPKG_COMMIT_ID: '6b8459636c7ab9f2ccb638697b2ac990e1fd64b1'
+      VCPKG_COMMIT_ID: 'b7dba7f9aad09a56900f21cd78cfda1258e54e38'

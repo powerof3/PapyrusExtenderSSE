@@ -178,7 +178,7 @@ namespace MAGIC
 				a_intfc->ReadRecordData(numData);
 				for (std::size_t j = 0; j < numData; j++) {
 					MGEFData data;
-					if (stl::read_formID(a_intfc, data.mgef.second)) {
+					if (!stl::read_formID(a_intfc, data.mgef.second)) {
 						logger::warn("{} : Failed to resolve effect formID {:X}"sv, i, data.mgef.second);
 						continue;
 					}

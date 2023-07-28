@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "po3_PapyrusExtender" CACHE STRING "")
-set(VERSION 5.5.0 CACHE STRING "")
+set(VERSION 5.6.1 CACHE STRING "")
 set(VR_VERSION 1)
 set(AE_VERSION 1)
 

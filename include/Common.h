@@ -4,23 +4,6 @@
 #include "Papyrus/Util/Graphics.h"
 #include "Papyrus/Util/Script.h"
 
-#ifdef SKYRIM_AE
-#	define REL_ID(se, ae) REL::ID(ae)
-#	define OFFSET(se, ae) ae
-#	define OFFSET_3(se, ae, vr) ae
-#elif SKYRIMVR
-#	define REL_ID(se, ae) REL::ID(se)
-#	define OFFSET(se, ae) se
-#	define OFFSET_3(se, ae, vr) vr
-#else
-#	define REL_ID(se, ae) REL::ID(se)
-#	define OFFSET(se, ae) se
-#	define OFFSET_3(se, ae, vr) se
-#endif
-
-#define BIND(a_method, ...) a_vm.RegisterFunction(#a_method##sv, script, a_method __VA_OPT__(, ) __VA_ARGS__)
-#define BIND_EVENT(a_method, ...) a_vm.RegisterFunction(#a_method##sv, obj, a_method __VA_OPT__(, ) __VA_ARGS__)
-
 namespace stl
 {
 	using namespace SKSE::stl;
@@ -84,5 +67,8 @@ namespace Papyrus
 
 	inline constexpr auto script = "PO3_SKSEFunctions"sv;
 
-	inline clib_util::RNG RNG{};
+#define BIND(a_method, ...) a_vm.RegisterFunction(#a_method##sv, script, a_method __VA_OPT__(, ) __VA_ARGS__)
+#define BIND_EVENT(a_method, ...) a_vm.RegisterFunction(#a_method##sv, obj, a_method __VA_OPT__(, ) __VA_ARGS__)
+
+#define STATIC_ARGS [[maybe_unused]] VM *a_vm, [[maybe_unused]] StackID a_stackID, RE::StaticFunctionTag *
 }

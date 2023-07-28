@@ -2,7 +2,7 @@
 
 namespace Papyrus::Furniture
 {
-	inline std::int32_t GetFurnitureType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESFurniture* a_furniture)
+	inline std::int32_t GetFurnitureType(STATIC_ARGS, const RE::TESFurniture* a_furniture)
 	{
 		using FLAGS = RE::TESFurniture::ActiveMarker;
 

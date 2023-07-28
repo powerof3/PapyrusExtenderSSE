@@ -4,13 +4,13 @@
 
 namespace Papyrus::Scroll
 {
-	inline void AddMagicEffectToScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::ScrollItem* a_scroll,
-		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost,
+	inline void AddMagicEffectToScroll(STATIC_ARGS,
+		RE::ScrollItem*          a_scroll,
+		RE::EffectSetting*       a_mgef,
+		float                    a_mag,
+		std::uint32_t            a_area,
+		std::uint32_t            a_dur,
+		float                    a_cost,
 		std::vector<std::string> a_conditionList)
 	{
 		if (!a_scroll) {
@@ -40,11 +40,7 @@ namespace Papyrus::Scroll
 		}
 	}
 
-	inline void AddEffectItemToScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::ScrollItem* a_scroll,
-		RE::ScrollItem* a_copyScroll,
-		std::uint32_t a_index,
-		float a_cost)
+	inline void AddEffectItemToScroll(STATIC_ARGS, RE::ScrollItem* a_scroll, RE::ScrollItem* a_copyScroll, std::uint32_t a_index, float a_cost)
 	{
 		if (!a_scroll) {
 			a_vm->TraceStack("Scroll is None", a_stackID);
@@ -70,13 +66,13 @@ namespace Papyrus::Scroll
 		}
 	}
 
-	inline void RemoveMagicEffectFromScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::ScrollItem* a_scroll,
+	inline void RemoveMagicEffectFromScroll(STATIC_ARGS,
+		RE::ScrollItem*    a_scroll,
 		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost)
+		float              a_mag,
+		std::uint32_t      a_area,
+		std::uint32_t      a_dur,
+		float              a_cost)
 	{
 		if (!a_scroll) {
 			a_vm->TraceStack("Scroll is None", a_stackID);
@@ -105,10 +101,7 @@ namespace Papyrus::Scroll
 		}
 	}
 
-	inline void RemoveEffectItemFromScroll(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::ScrollItem* a_scroll,
-		RE::ScrollItem* a_copyScroll,
-		std::uint32_t a_index)
+	inline void RemoveEffectItemFromScroll(STATIC_ARGS, RE::ScrollItem* a_scroll, RE::ScrollItem* a_copyScroll, std::uint32_t a_index)
 	{
 		if (!a_scroll) {
 			a_vm->TraceStack("Scroll is None", a_stackID);

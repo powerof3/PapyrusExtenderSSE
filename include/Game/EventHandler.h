@@ -5,19 +5,15 @@ namespace Event
 	using EventResult = RE::BSEventNotifyControl;
 
 	class ScriptEventHandler final :
+		public ISingleton<ScriptEventHandler>,
 		public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>,
 		public RE::BSTEventSink<RE::TESQuestStartStopEvent>,
 		public RE::BSTEventSink<RE::TESQuestStageEvent>,
 		public RE::BSTEventSink<RE::TESObjectLoadedEvent>,
-		public RE::BSTEventSink<RE::TESGrabReleaseEvent>
+		public RE::BSTEventSink<RE::TESGrabReleaseEvent>,
+		public RE::BSTEventSink<RE::TESFurnitureEvent>
 	{
 	public:
-		[[nodiscard]] static ScriptEventHandler* GetSingleton()
-		{
-			static ScriptEventHandler singleton;
-			return &singleton;
-		}
-
 		static void Register()
 		{
 			logger::info("{:*^30}", "SCRIPT EVENTS"sv);
@@ -27,6 +23,7 @@ namespace Event
 			register_event<RE::TESQuestStageEvent>();
 			register_event<RE::TESObjectLoadedEvent>();
 			register_event<RE::TESGrabReleaseEvent>();
+			register_event<RE::TESFurnitureEvent>();
 		}
 
 		EventResult ProcessEvent(const RE::TESCellFullyLoadedEvent* a_event, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>*) override;
@@ -34,28 +31,19 @@ namespace Event
 		EventResult ProcessEvent(const RE::TESQuestStageEvent* a_event, RE::BSTEventSource<RE::TESQuestStageEvent>*) override;
 		EventResult ProcessEvent(const RE::TESObjectLoadedEvent* a_event, RE::BSTEventSource<RE::TESObjectLoadedEvent>*) override;
 		EventResult ProcessEvent(const RE::TESGrabReleaseEvent* a_event, RE::BSTEventSource<RE::TESGrabReleaseEvent>*) override;
+		EventResult ProcessEvent(const RE::TESFurnitureEvent* a_event, RE::BSTEventSource<RE::TESFurnitureEvent>*) override;
 
 	private:
-		ScriptEventHandler() = default;
-		ScriptEventHandler(const ScriptEventHandler&) = delete;
-		ScriptEventHandler(ScriptEventHandler&&) = delete;
-
-		~ScriptEventHandler() override = default;
-
-		ScriptEventHandler& operator=(const ScriptEventHandler&) = delete;
-		ScriptEventHandler& operator=(ScriptEventHandler&&) = delete;
-
 		template <class T>
 		static void register_event()
 		{
-			if (const auto scripts = RE::ScriptEventSourceHolder::GetSingleton(); scripts) {
-				scripts->AddEventSink<T>(GetSingleton());
-				logger::info("Registered {} handler"sv, typeid(T).name());
-			}
+			RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink<T>(GetSingleton());
+			logger::info("Registered {} handler"sv, typeid(T).name());
 		}
 	};
 
 	class StoryEventHandler final :
+		public ISingleton<StoryEventHandler>,
 		public RE::BSTEventSink<RE::ActorKill::Event>,
 		public RE::BSTEventSink<RE::CriticalHit::Event>,
 		public RE::BSTEventSink<RE::DisarmedEvent::Event>,
@@ -69,19 +57,11 @@ namespace Event
 		public RE::BSTEventSink<RE::SpellsLearned::Event>
 	{
 	public:
-		[[nodiscard]] static StoryEventHandler* GetSingleton()
-		{
-			static StoryEventHandler singleton;
-			return &singleton;
-		}
-
 //weird compile error with template function (it worked perfectly fine for ages???)
-#define register_story_event(T)                                               \
-	{                                                                         \
-		if (const auto event = T::GetEventSource(); event) {                  \
-			event->AddEventSink<T::Event>(GetSingleton());                    \
-			logger::info("Registered {} handler"sv, typeid(T::Event).name()); \
-		}                                                                     \
+#define register_story_event(T)                                           \
+	{                                                                     \
+		T::GetEventSource()->AddEventSink<T::Event>(GetSingleton());      \
+		logger::info("Registered {} handler"sv, typeid(T::Event).name()); \
 	}
 
 		static void Register()
@@ -93,10 +73,8 @@ namespace Event
 			register_story_event(RE::DisarmedEvent);
 			register_story_event(RE::DragonSoulsGained);
 
-			if (const auto event = RE::TESHarvestedEvent::GetEventSource(); event) {
-				event->AddEventSink<RE::TESHarvestedEvent::ItemHarvested>(GetSingleton());
-				logger::info("Registered {} handler"sv, typeid(RE::TESHarvestedEvent::ItemHarvested).name());
-			}
+			RE::TESHarvestedEvent::GetEventSource()->AddEventSink<RE::TESHarvestedEvent::ItemHarvested>(GetSingleton());
+			logger::info("Registered {} handler"sv, typeid(RE::TESHarvestedEvent::ItemHarvested).name());
 
 			register_story_event(RE::LevelIncrease);
 			register_story_event(RE::LocationDiscovery);
@@ -105,7 +83,6 @@ namespace Event
 			register_story_event(RE::SoulsTrapped);
 			register_story_event(RE::SpellsLearned);
 		}
-
 #undef register_story_event
 
 		EventResult ProcessEvent(const RE::ActorKill::Event* a_event, RE::BSTEventSource<RE::ActorKill::Event>*) override;
@@ -119,25 +96,6 @@ namespace Event
 		EventResult ProcessEvent(const RE::SkillIncrease::Event* a_event, RE::BSTEventSource<RE::SkillIncrease::Event>*) override;
 		EventResult ProcessEvent(const RE::SoulsTrapped::Event* a_event, RE::BSTEventSource<RE::SoulsTrapped::Event>*) override;
 		EventResult ProcessEvent(const RE::SpellsLearned::Event* a_event, RE::BSTEventSource<RE::SpellsLearned::Event>*) override;
-
-	private:
-		StoryEventHandler() = default;
-		StoryEventHandler(const StoryEventHandler&) = delete;
-		StoryEventHandler(StoryEventHandler&&) = delete;
-
-		~StoryEventHandler() override = default;
-
-		StoryEventHandler& operator=(const StoryEventHandler&) = delete;
-		StoryEventHandler& operator=(StoryEventHandler&&) = delete;
-
-		/*template <class T>
-		static void register_event()
-		{
-			if (const auto event = T::GetEventSource(); event) {
-				event->AddEventSink<T::Event>(GetSingleton());
-				logger::info("Registered {} handler"sv, typeid(T::Event).name());
-			}
-		}*/
 	};
 
 	void Register();

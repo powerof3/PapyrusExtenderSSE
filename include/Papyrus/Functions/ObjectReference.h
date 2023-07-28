@@ -5,11 +5,7 @@
 
 namespace Papyrus::ObjectReference
 {
-	inline std::vector<RE::TESForm*> AddAllItemsToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		bool a_noEquipped,
-		bool a_noFavourited,
-		bool a_noQuestItem)
+	inline std::vector<RE::TESForm*> AddAllItemsToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		std::vector<RE::TESForm*> result;
 
@@ -32,12 +28,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline void AddAllItemsToList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BGSListForm* a_list,
-		bool a_noEquipped,
-		bool a_noFavourited,
-		bool a_noQuestItem)
+	inline void AddAllItemsToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -60,12 +51,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline std::vector<RE::TESForm*> AddItemsOfTypeToArray(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::uint32_t a_formType,
-		bool a_noEquipped,
-		bool a_noFavourited,
-		bool a_noQuestItem)
+	inline std::vector<RE::TESForm*> AddItemsOfTypeToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::uint32_t a_formType, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		std::vector<RE::TESForm*> result;
 
@@ -90,13 +76,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline void AddItemsOfTypeToList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BGSListForm* a_list,
-		std::uint32_t a_formType,
-		bool a_noEquipped,
-		bool a_noFavourited,
-		bool a_noQuestItem)
+	inline void AddItemsOfTypeToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, std::uint32_t a_formType, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -121,9 +101,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void AddKeywordToRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BGSKeyword* a_keyword)
+	inline void AddKeywordToRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -139,102 +117,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline std::vector<RE::TESObjectREFR*> FindAllReferencesOfFormType(RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_origin,
-		std::uint32_t a_formType,
-		float a_radius)
-	{
-		std::vector<RE::TESObjectREFR*> result;
-
-		if (const auto TES = RE::TES::GetSingleton(); TES) {
-			const auto formType = static_cast<RE::FormType>(a_formType);
-
-			TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
-				if (a_ref.Is3DLoaded()) {
-					const auto base = a_ref.GetBaseObject();
-					if (formType == RE::FormType::None || a_ref.Is(formType) || base && base->Is(formType)) {
-						result.push_back(&a_ref);
-					}
-				}
-				return RE::BSContainer::ForEachResult::kContinue;
-			});
-		}
-
-		return result;
-	}
-
-	inline std::vector<RE::TESObjectREFR*> FindAllReferencesOfType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		[[maybe_unused]] RE::TESObjectREFR* a_ref,
-		const RE::TESForm* a_formOrList,
-		float a_radius)
-	{
-		std::vector<RE::TESObjectREFR*> result;
-
-		if (!a_formOrList) {
-			a_vm->TraceStack("FormOrList is None", a_stackID);
-			return result;
-		}
-
-		if (const auto TES = RE::TES::GetSingleton(); TES) {
-			const auto list = a_formOrList->As<RE::BGSListForm>();
-
-			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
-				if (const auto base = b_ref.GetBaseObject(); base && b_ref.Is3DLoaded()) {
-					if (list && list->HasForm(base) || a_formOrList == base) {
-						result.push_back(&b_ref);
-					}
-				}
-				return RE::BSContainer::ForEachResult::kContinue;
-			});
-		}
-
-		return result;
-	}
-
-	inline std::vector<RE::TESObjectREFR*> FindAllReferencesWithKeyword(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::TESForm* a_formOrList,
-		float a_radius,
-		bool a_matchAll)
-	{
-		std::vector<RE::TESObjectREFR*> result;
-
-		if (!a_formOrList) {
-			a_vm->TraceStack("FormOrList is None", a_stackID);
-			return result;
-		}
-
-		if (const auto TES = RE::TES::GetSingleton(); TES) {
-			const auto keyword = a_formOrList->As<RE::BGSKeyword>();
-			const auto list = a_formOrList->As<RE::BGSListForm>();
-
-			if (!keyword && !list) {
-				a_vm->TraceStack("FormOrList parameter has invalid formtype", a_stackID);
-				return result;
-			}
-
-			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
-				if (b_ref.Is3DLoaded()) {
-					bool success = false;
-					if (list) {
-						success = b_ref.HasKeywordInList(list, a_matchAll);
-					} else if (keyword) {
-						success = b_ref.HasKeyword(keyword);
-					}
-					if (success) {
-						result.push_back(&b_ref);
-					}
-				}
-				return RE::BSContainer::ForEachResult::kContinue;
-			});
-		}
-
-		return result;
-	}
-
-	inline RE::TESForm* FindFirstItemInList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::BGSListForm* a_list)
+	inline RE::TESForm* FindFirstItemInList(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSListForm* a_list)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -255,7 +138,7 @@ namespace Papyrus::ObjectReference
 		return nullptr;
 	}
 
-	inline std::vector<RE::TESObjectREFR*> GetActivateChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::vector<RE::TESObjectREFR*> GetActivateChildren(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		std::vector<RE::TESObjectREFR*> result;
 
@@ -288,7 +171,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline RE::BSFixedString GetActiveGamebryoAnimation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline RE::BSFixedString GetActiveGamebryoAnimation(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -314,7 +197,7 @@ namespace Papyrus::ObjectReference
 		return {};
 	}
 
-	inline RE::Actor* GetActorCause(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline RE::Actor* GetActorCause(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -329,7 +212,7 @@ namespace Papyrus::ObjectReference
 		return nullptr;
 	}
 
-	inline std::vector<RE::BGSArtObject*> GetAllArtObjects(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::vector<RE::BGSArtObject*> GetAllArtObjects(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		std::vector<RE::BGSArtObject*> result;
 
@@ -353,7 +236,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::vector<RE::TESEffectShader*> GetAllEffectShaders(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::vector<RE::TESEffectShader*> GetAllEffectShaders(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		std::vector<RE::TESEffectShader*> result;
 
@@ -377,9 +260,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline RE::Actor* GetClosestActorFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESObjectREFR* a_ref,
-		bool a_ignorePlayer)
+	inline RE::Actor* GetClosestActorFromRef(STATIC_ARGS, const RE::TESObjectREFR* a_ref, bool a_ignorePlayer)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -392,7 +273,7 @@ namespace Papyrus::ObjectReference
 			}
 
 			const auto originPos = a_ref->GetPosition();
-			auto shortestDistance = std::numeric_limits<float>::max();
+			auto       shortestDistance = std::numeric_limits<float>::max();
 
 			std::map<RE::Actor*, float> map;
 
@@ -429,9 +310,7 @@ namespace Papyrus::ObjectReference
 		return nullptr;
 	}
 
-	inline float GetEffectShaderDuration(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::TESEffectShader* a_effectShader)
+	inline float GetEffectShaderDuration(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::TESEffectShader* a_effectShader)
 	{
 		float time = 0.0f;
 
@@ -458,7 +337,7 @@ namespace Papyrus::ObjectReference
 		return time;
 	}
 
-	inline RE::TESObjectREFR* GetDoorDestination(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline RE::TESObjectREFR* GetDoorDestination(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -474,9 +353,7 @@ namespace Papyrus::ObjectReference
 		return nullptr;
 	}
 
-	inline std::vector<RE::TESObjectREFR*> GetLinkedChildren(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::BGSKeyword* a_keyword)
+	inline std::vector<RE::TESObjectREFR*> GetLinkedChildren(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSKeyword* a_keyword)
 	{
 		std::vector<RE::TESObjectREFR*> result;
 
@@ -509,9 +386,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::vector<RE::TESForm*> GetMagicEffectSource(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::EffectSetting* a_mgef)
+	inline std::vector<RE::TESForm*> GetMagicEffectSource(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::EffectSetting* a_mgef)
 	{
 		std::vector<RE::TESForm*> result;
 
@@ -555,9 +430,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::vector<std::string> GetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::string a_nodeName)
+	inline std::vector<std::string> GetMaterialType(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::string a_nodeName)
 	{
 		std::vector<std::string> result{};
 
@@ -598,7 +471,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::int32_t GetMotionType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::int32_t GetMotionType(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		std::int32_t motionType = -1;
 
@@ -630,10 +503,7 @@ namespace Papyrus::ObjectReference
 		return motionType;
 	}
 
-	inline RE::Actor* GetRandomActorFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		float a_radius,
-		bool a_ignorePlayer)
+	inline RE::Actor* GetRandomActorFromRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, bool a_ignorePlayer)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -667,17 +537,14 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				return result[RNG.Generate<size_t>(0, result.size() - 1)];
+				return result[clib_util::RNG().Generate<size_t>(0, result.size() - 1)];
 			}
 		}
 
 		return nullptr;
 	}
 
-	inline std::vector<RE::TESForm*> GetQuestItems(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		bool a_noEquipped,
-		bool a_noFavourited)
+	inline std::vector<RE::TESForm*> GetQuestItems(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited)
 	{
 		std::vector<RE::TESForm*> result;
 
@@ -700,7 +567,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::vector<RE::BGSBaseAlias*> GetRefAliases(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::vector<RE::BGSBaseAlias*> GetRefAliases(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		std::vector<RE::BGSBaseAlias*> result;
 
@@ -723,7 +590,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::int32_t GetRefCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::int32_t GetRefCount(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -733,7 +600,7 @@ namespace Papyrus::ObjectReference
 		return a_ref->extraList.GetCount();
 	}
 
-	inline std::int32_t GetStoredSoulSize(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline std::int32_t GetStoredSoulSize(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -743,10 +610,10 @@ namespace Papyrus::ObjectReference
 		return stl::to_underlying(a_ref->extraList.GetSoulLevel());
 	}
 
-	inline std::uint32_t HasArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline std::uint32_t HasArtObject(STATIC_ARGS,
 		RE::TESObjectREFR* a_ref,
-		RE::BGSArtObject* a_art,
-		bool a_active)
+		RE::BGSArtObject*  a_art,
+		bool               a_active)
 	{
 		std::uint32_t count = 0;
 
@@ -774,10 +641,7 @@ namespace Papyrus::ObjectReference
 		return count;
 	}
 
-	inline std::uint32_t HasEffectShader(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::TESEffectShader* a_effectShader,
-		bool a_active)
+	inline std::uint32_t HasEffectShader(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::TESEffectShader* a_effectShader, bool a_active)
 	{
 		std::uint32_t count = 0;
 
@@ -805,9 +669,7 @@ namespace Papyrus::ObjectReference
 		return count;
 	}
 
-	inline bool IsCasting(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::TESForm* a_form)
+	inline bool IsCasting(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_form)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -832,7 +694,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline bool IsLoadDoor(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectREFR* a_ref)
+	inline bool IsLoadDoor(STATIC_ARGS, const RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -842,7 +704,7 @@ namespace Papyrus::ObjectReference
 		return a_ref->extraList.HasType(RE::ExtraDataType::kTeleport);
 	}
 
-	inline bool IsQuestItem(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESObjectREFR* a_ref)
+	inline bool IsQuestItem(STATIC_ARGS, const RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -861,7 +723,7 @@ namespace Papyrus::ObjectReference
 		return a_ref->HasQuestObject();
 	}
 
-	inline bool IsRefInWater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline bool IsRefInWater(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -871,7 +733,7 @@ namespace Papyrus::ObjectReference
 		return a_ref->IsPointSubmergedMoreThan(a_ref->GetPosition(), a_ref->GetParentCell(), 0.01f);
 	}
 
-	inline bool IsRefUnderwater(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline bool IsRefUnderwater(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -881,7 +743,7 @@ namespace Papyrus::ObjectReference
 		return a_ref->IsPointSubmergedMoreThan(a_ref->GetPosition(), a_ref->GetParentCell(), 0.875f);
 	}
 
-	inline bool IsVIP(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline bool IsVIP(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		using FILL_TYPE = RE::BGSBaseAlias::FILL_TYPE;
 		using TYPE = RE::QUEST_DATA::Type;
@@ -910,9 +772,7 @@ namespace Papyrus::ObjectReference
 		return false;
 	}
 
-	inline bool HasNiExtraData(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_name)
+	inline bool HasNiExtraData(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_name)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -928,9 +788,7 @@ namespace Papyrus::ObjectReference
 		return root->HasExtraData(a_name);
 	}
 
-	inline void MoveToNearestNavmeshLocation(VM* a_vm, StackID a_stackID,
-		RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref)
+	inline void MoveToNearestNavmeshLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -975,13 +833,8 @@ namespace Papyrus::ObjectReference
 		});
 	}
 
-	inline void RemoveAllModItems(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BSFixedString a_modName,
-		bool a_unequip)
+	inline void RemoveAllModItems(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_modName, bool a_unequip)
 	{
-		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
 			return;
@@ -1018,9 +871,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline bool RemoveKeywordFromRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::BGSKeyword* a_keyword)
+	inline bool RemoveKeywordFromRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1035,10 +886,7 @@ namespace Papyrus::ObjectReference
 		return form && FORM::KeywordManager::GetSingleton()->Remove(form, a_keyword);
 	}
 
-	inline void ReplaceKeywordOnRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::BGSKeyword* a_remove,
-		RE::BGSKeyword* a_add)
+	inline void ReplaceKeywordOnRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSKeyword* a_remove, RE::BGSKeyword* a_add)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1060,7 +908,7 @@ namespace Papyrus::ObjectReference
 
 		if (const auto keywordForm = base->As<RE::BGSKeywordForm>(); keywordForm) {
 			std::uint32_t removeIndex = 0;
-			bool found = false;
+			bool          found = false;
 
 			if (keywordForm->keywords) {
 				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
@@ -1082,9 +930,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void SetBaseObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		RE::TESForm* a_base)
+	inline void SetBaseObject(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_base)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1104,10 +950,7 @@ namespace Papyrus::ObjectReference
 		});
 	}
 
-	inline void SetCollisionLayer(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::string a_nodeName,
-		std::uint32_t a_colLayer)
+	inline void SetCollisionLayer(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::string a_nodeName, std::uint32_t a_colLayer)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1131,11 +974,7 @@ namespace Papyrus::ObjectReference
 		});
 	}
 
-	inline void SetEffectShaderDuration(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::TESEffectShader* a_effectShader,
-		float a_time,
-		bool a_absolute)
+	inline void SetEffectShaderDuration(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::TESEffectShader* a_effectShader, float a_time, bool a_absolute)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1163,9 +1002,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline bool SetDoorDestination(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESObjectREFR* a_ref,
-		RE::TESObjectREFR* a_door)
+	inline bool SetDoorDestination(STATIC_ARGS, const RE::TESObjectREFR* a_ref, RE::TESObjectREFR* a_door)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1186,10 +1023,7 @@ namespace Papyrus::ObjectReference
 		return false;
 	}
 
-	inline void SetLinkedRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		[[maybe_unused]] RE::TESObjectREFR* a_targetRef,
-		[[maybe_unused]] RE::BGSKeyword* a_keyword)
+	inline void SetLinkedRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, [[maybe_unused]] RE::TESObjectREFR* a_targetRef, [[maybe_unused]] RE::BGSKeyword* a_keyword)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1199,11 +1033,7 @@ namespace Papyrus::ObjectReference
 		a_ref->extraList.SetLinkedRef(a_targetRef, a_keyword);
 	}
 
-	inline void SetMaterialType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		std::string a_newMaterialType,
-		std::string a_oldMaterialType,
-		std::string a_nodeName)
+	inline void SetMaterialType(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::string a_newMaterialType, std::string a_oldMaterialType, std::string a_nodeName)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1256,7 +1086,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void StopAllShaders(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline void StopAllShaders(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1268,9 +1098,7 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline void StopArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESObjectREFR* a_ref,
-		const RE::BGSArtObject* a_art)
+	inline void StopArtObject(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSArtObject* a_art)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
@@ -1299,9 +1127,6 @@ namespace Papyrus::ObjectReference
 		BIND(AddItemsOfTypeToArray);
 		BIND(AddItemsOfTypeToList);
 		BIND(AddKeywordToRef);
-		BIND(FindAllReferencesOfFormType);
-		BIND(FindAllReferencesOfType);
-		BIND(FindAllReferencesWithKeyword);
 		BIND(FindFirstItemInList);
 		BIND(GetActivateChildren);
 		BIND(GetActiveGamebryoAnimation);

@@ -9,7 +9,7 @@ namespace Papyrus::UI
 		const auto UI = RE::UI::GetSingleton();
 		const auto menu = UI ? UI->GetMenu<RE::ContainerMenu>() : nullptr;
 		if (menu) {
-			const auto refHandle = menu->GetTargetRefHandle();
+			const auto           refHandle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refr;
 			RE::LookupReferenceByHandle(refHandle, refr);
 

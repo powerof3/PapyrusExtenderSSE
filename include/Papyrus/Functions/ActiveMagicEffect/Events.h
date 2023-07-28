@@ -4,7 +4,7 @@
 
 namespace Papyrus::ActiveMagicEffect::Events
 {
-	inline void RegisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForActorFallLongDistance(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -15,7 +15,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForActorKilled(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -26,7 +26,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForActorReanimateStart(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -37,7 +37,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForActorReanimateStop(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -48,7 +48,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForActorResurrected(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -59,7 +59,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForBookRead(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -70,7 +70,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForCellFullyLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForCellFullyLoaded(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -81,7 +81,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForCriticalHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForCriticalHit(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -92,7 +92,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForDisarmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForDisarmed(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -103,7 +103,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForDragonSoulGained(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForDragonSoulGained(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -114,7 +114,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForOnPlayerFastTravelEnd(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForOnPlayerFastTravelEnd(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -127,7 +127,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 #endif
 	}
 
-	inline void RegisterForFastTravelConfirmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForFastTravelConfirmed(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -138,7 +138,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForFastTravelPrompt(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -149,7 +149,21 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect,
+	inline void RegisterForFurnitureEvent(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Register(a_activeEffect);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Register(a_activeEffect);
+	}
+
+	inline void RegisterForHitEventEx(STATIC_ARGS, RE::ActiveEffect* a_activeEffect,
 		RE::TESForm* a_aggressorFilter,
 		RE::TESForm* a_sourceFilter,
 		RE::TESForm* a_projectileFilter,
@@ -157,7 +171,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		std::int32_t a_sneakFilter,
 		std::int32_t a_bashFilter,
 		std::int32_t a_blockFilter,
-		bool a_match)
+		bool         a_match)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -168,7 +182,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
 	}
 
-	inline void RegisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForItemCrafted(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -179,7 +193,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForItemHarvested(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -190,7 +204,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForLevelIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForLevelIncrease(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -201,7 +215,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForLocationDiscovery(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -212,10 +226,10 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RegisterForMagicEffectApplyEx(STATIC_ARGS,
 		RE::ActiveEffect* a_activeEffect,
-		RE::TESForm* a_effectFilter,
-		bool a_match)
+		RE::TESForm*      a_effectFilter,
+		bool              a_match)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -226,7 +240,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect, a_effectFilter, a_match);
 	}
 
-	inline void RegisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForMagicHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -237,7 +251,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForObjectGrab(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -251,9 +265,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 		release.Register(a_activeEffect);
 	}
 
-	inline void RegisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RegisterForObjectLoaded(STATIC_ARGS,
 		const RE::ActiveEffect* a_activeEffect,
-		std::uint32_t a_formType)
+		std::uint32_t           a_formType)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -269,7 +283,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		unload.Register(a_activeEffect, formType);
 	}
 
-	inline void RegisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForProjectileHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -280,7 +294,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect, RE::TESQuest* a_quest)
+	inline void RegisterForQuest(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, RE::TESQuest* a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -298,9 +312,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 		stop.Register(a_activeEffect, a_quest->GetFormID());
 	}
 
-	inline void RegisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RegisterForQuestStage(STATIC_ARGS,
 		const RE::ActiveEffect* a_activeEffect,
-		const RE::TESQuest* a_quest)
+		const RE::TESQuest*     a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -315,7 +329,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect, a_quest->GetFormID());
 	}
 
-	inline void RegisterForShoutAttack(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForShoutAttack(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -326,7 +340,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForSkillIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForSkillIncrease(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -337,7 +351,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForSoulTrapped(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -348,7 +362,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForSpellLearned(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -359,7 +373,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForWeatherChange(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -370,7 +384,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void RegisterForWeaponHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -381,7 +395,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void UnregisterForActorFallLongDistance(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForActorFallLongDistance(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -392,7 +406,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForActorKilled(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForActorKilled(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -403,7 +417,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForActorReanimateStart(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForActorReanimateStart(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -414,7 +428,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForActorReanimateStop(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForActorReanimateStop(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -425,7 +439,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForActorResurrected(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForActorResurrected(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -436,7 +450,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForBookRead(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForBookRead(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -447,7 +461,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForCellFullyLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForCellFullyLoaded(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -458,7 +472,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForCriticalHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForCriticalHit(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -469,7 +483,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForDisarmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForDisarmed(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -480,7 +494,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForDragonSoulGained(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForDragonSoulGained(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -491,7 +505,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForOnPlayerFastTravelEnd(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForOnPlayerFastTravelEnd(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -505,7 +519,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 #endif
 	}
 
-	inline void UnregisterForFastTravelConfirmed(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForFastTravelConfirmed(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -516,7 +530,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForFastTravelPrompt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForFastTravelPrompt(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -527,16 +541,30 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForHitEventEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForFurnitureEvent(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& furnitureEnter = Event::ScriptEventHolder::GetSingleton()->furnitureEnter;
+		furnitureEnter.Unregister(a_activeEffect);
+
+		auto& furnitureExit = Event::ScriptEventHolder::GetSingleton()->furnitureExit;
+		furnitureExit.Unregister(a_activeEffect);
+	}
+
+	inline void UnregisterForHitEventEx(STATIC_ARGS,
 		RE::ActiveEffect* a_activeEffect,
-		RE::TESForm* a_aggressorFilter,
-		RE::TESForm* a_sourceFilter,
-		RE::TESForm* a_projectileFilter,
-		std::int32_t a_powerFilter,
-		std::int32_t a_sneakFilter,
-		std::int32_t a_bashFilter,
-		std::int32_t a_blockFilter,
-		bool a_match)
+		RE::TESForm*      a_aggressorFilter,
+		RE::TESForm*      a_sourceFilter,
+		RE::TESForm*      a_projectileFilter,
+		std::int32_t      a_powerFilter,
+		std::int32_t      a_sneakFilter,
+		std::int32_t      a_bashFilter,
+		std::int32_t      a_blockFilter,
+		bool              a_match)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -547,7 +575,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect, { a_aggressorFilter, a_sourceFilter, a_projectileFilter, a_powerFilter, a_sneakFilter, a_bashFilter, a_blockFilter }, a_match);
 	}
 
-	inline void UnregisterForAllHitEventsEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForAllHitEventsEx(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -558,7 +586,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.UnregisterAll(a_activeEffect);
 	}
 
-	inline void UnregisterForItemCrafted(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForItemCrafted(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -569,7 +597,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForItemHarvested(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForItemHarvested(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -580,7 +608,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForLevelIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForLevelIncrease(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -591,7 +619,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForLocationDiscovery(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForLocationDiscovery(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -602,10 +630,10 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForMagicEffectApplyEx(STATIC_ARGS,
 		RE::ActiveEffect* a_activeEffect,
-		RE::TESForm* a_effectFilter,
-		bool a_match)
+		RE::TESForm*      a_effectFilter,
+		bool              a_match)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -616,7 +644,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect, a_effectFilter, a_match);
 	}
 
-	inline void UnregisterForAllMagicEffectApplyEx(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForAllMagicEffectApplyEx(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -627,7 +655,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.UnregisterAll(a_activeEffect);
 	}
 
-	inline void UnregisterForMagicHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForMagicHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -638,7 +666,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForObjectGrab(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForObjectGrab(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -652,9 +680,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 		release.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForObjectLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForObjectLoaded(STATIC_ARGS,
 		const RE::ActiveEffect* a_activeEffect,
-		std::uint32_t a_formType)
+		std::uint32_t           a_formType)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -670,7 +698,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		unload.Unregister(a_activeEffect, formType);
 	}
 
-	inline void UnregisterForAllObjectsLoaded(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForAllObjectsLoaded(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -684,7 +712,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		unload.UnregisterAll(a_activeEffect);
 	}
 
-	inline void UnregisterForProjectileHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForProjectileHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -695,9 +723,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForQuest(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForQuest(STATIC_ARGS,
 		const RE::ActiveEffect* a_activeEffect,
-		const RE::TESQuest* a_quest)
+		const RE::TESQuest*     a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -715,7 +743,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		stop.Unregister(a_activeEffect, a_quest->GetFormID());
 	}
 
-	inline void UnregisterForAllQuests(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForAllQuests(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -729,9 +757,9 @@ namespace Papyrus::ActiveMagicEffect::Events
 		stop.UnregisterAll(a_activeEffect);
 	}
 
-	inline void UnregisterForQuestStage(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void UnregisterForQuestStage(STATIC_ARGS,
 		const RE::ActiveEffect* a_activeEffect,
-		const RE::TESQuest* a_quest)
+		const RE::TESQuest*     a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -746,7 +774,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect, a_quest->GetFormID());
 	}
 
-	inline void UnregisterForAllQuestStages(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForAllQuestStages(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -757,7 +785,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.UnregisterAll(a_activeEffect);
 	}
 
-	inline void UnregisterForShoutAttack(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForShoutAttack(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -768,7 +796,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForSkillIncrease(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForSkillIncrease(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -779,7 +807,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForSoulTrapped(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForSoulTrapped(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -790,7 +818,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForSpellLearned(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForSpellLearned(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -801,7 +829,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForWeatherChange(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForWeatherChange(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -812,7 +840,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForWeaponHit(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::ActiveEffect* a_activeEffect)
+	inline void UnregisterForWeaponHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -840,6 +868,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(RegisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(RegisterForFastTravelConfirmed, true);
 		BIND_EVENT(RegisterForFastTravelPrompt, true);
+		BIND_EVENT(RegisterForFurnitureEvent, true);
 		BIND_EVENT(RegisterForHitEventEx, true);
 		BIND_EVENT(RegisterForItemCrafted, true);
 		BIND_EVENT(RegisterForItemHarvested, true);
@@ -872,6 +901,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(UnregisterForOnPlayerFastTravelEnd, true);
 		BIND_EVENT(UnregisterForFastTravelConfirmed, true);
 		BIND_EVENT(UnregisterForFastTravelPrompt, true);
+		BIND_EVENT(UnregisterForFurnitureEvent, true);
 		BIND_EVENT(UnregisterForHitEventEx, true);
 		BIND_EVENT(UnregisterForAllHitEventsEx, true);
 		BIND_EVENT(UnregisterForItemCrafted, true);

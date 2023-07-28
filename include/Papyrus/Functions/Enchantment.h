@@ -4,13 +4,13 @@
 
 namespace Papyrus::Enchantment
 {
-	inline void AddMagicEffectToEnchantment(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::EnchantmentItem* a_enchantment,
-		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost,
+	inline void AddMagicEffectToEnchantment(STATIC_ARGS,
+		RE::EnchantmentItem*     a_enchantment,
+		RE::EffectSetting*       a_mgef,
+		float                    a_mag,
+		std::uint32_t            a_area,
+		std::uint32_t            a_dur,
+		float                    a_cost,
 		std::vector<std::string> a_conditionList)
 	{
 		if (!a_enchantment) {
@@ -42,7 +42,7 @@ namespace Papyrus::Enchantment
 		MAGIC::MGEFManager::GetSingleton()->Add(a_enchantment, data);
 	}
 
-	inline std::int32_t GetEnchantmentType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::EnchantmentItem* a_enchantment)
+	inline std::int32_t GetEnchantmentType(STATIC_ARGS, RE::EnchantmentItem* a_enchantment)
 	{
 		if (!a_enchantment) {
 			a_vm->TraceStack("Enchantment is None", a_stackID);
@@ -52,11 +52,7 @@ namespace Papyrus::Enchantment
 		return stl::to_underlying(a_enchantment->data.spellType);
 	}
 
-	inline void AddEffectItemToEnchantment(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::EnchantmentItem* a_enchantment,
-		RE::EnchantmentItem* a_copyEnchantment,
-		std::uint32_t a_index,
-		float a_cost)
+	inline void AddEffectItemToEnchantment(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EnchantmentItem* a_copyEnchantment, std::uint32_t a_index, float a_cost)
 	{
 		if (!a_enchantment) {
 			a_vm->TraceStack("Enchantment is None", a_stackID);
@@ -88,13 +84,13 @@ namespace Papyrus::Enchantment
 		MAGIC::EffectManager::GetSingleton()->Add(a_enchantment, data);
 	}
 
-	inline void RemoveMagicEffectFromEnchantment(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
+	inline void RemoveMagicEffectFromEnchantment(STATIC_ARGS,
 		RE::EnchantmentItem* a_enchantment,
-		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost)
+		RE::EffectSetting*   a_mgef,
+		float                a_mag,
+		std::uint32_t        a_area,
+		std::uint32_t        a_dur,
+		float                a_cost)
 	{
 		if (!a_enchantment) {
 			a_vm->TraceStack("Enchantment is None", a_stackID);
@@ -117,10 +113,7 @@ namespace Papyrus::Enchantment
 		MAGIC::MGEFManager::GetSingleton()->Remove(a_enchantment, data);
 	}
 
-	inline void RemoveEffectItemFromEnchantment(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::EnchantmentItem* a_enchantment,
-		RE::EnchantmentItem* a_copyEnchantment,
-		std::uint32_t a_index)
+	inline void RemoveEffectItemFromEnchantment(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EnchantmentItem* a_copyEnchantment, std::uint32_t a_index)
 	{
 		if (!a_enchantment) {
 			a_vm->TraceStack("Enchantment is None", a_stackID);

@@ -11,7 +11,7 @@ namespace Papyrus::Array
 		return false;
 	}
 
-	inline bool AddStringToArray(VM*, StackID, RE::StaticFunctionTag*, std::string a_string, RE::reference_array<std::string> a_strings)
+	inline bool AddStringToArray(RE::StaticFunctionTag*, std::string a_string, RE::reference_array<std::string> a_strings)
 	{
 		if (const auto it = std::ranges::find(a_strings, ""); it != a_strings.end()) {
 			*it = a_string;
@@ -39,15 +39,12 @@ namespace Papyrus::Array
 		return strings;
 	}
 
-	inline std::vector<std::string> GetSortedActorNames(RE::StaticFunctionTag*,
-		const RE::BGSKeyword* a_keyword,
-		std::string a_pronoun,
-		bool a_invert)
+	inline std::vector<std::string> GetSortedActorNames(RE::StaticFunctionTag*, const RE::BGSKeyword* a_keyword, std::string a_pronoun, bool a_invert)
 	{
-		robin_hood::unordered_map<std::string, size_t> nameMap;
+		std::unordered_map<std::string, std::size_t> nameMap;
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			bool hasKeyword = false;
+			bool       hasKeyword = false;
 			const bool noKeyword = !a_keyword;
 
 			for (const auto& handle : processLists->highActorHandles) {
@@ -78,9 +75,7 @@ namespace Papyrus::Array
 		return names;
 	}
 
-	inline std::vector<std::string> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*,
-		const std::vector<RE::TESNPC*> a_npcs,
-		std::string a_pronoun)
+	inline std::vector<std::string> GetSortedNPCNames(VM*, StackID, RE::StaticFunctionTag*, const std::vector<RE::TESNPC*> a_npcs, std::string a_pronoun)
 	{
 		std::vector<std::string> names;
 
@@ -88,7 +83,7 @@ namespace Papyrus::Array
 			return names;
 		}
 
-		robin_hood::unordered_map<std::string, size_t> nameMap;
+		std::unordered_map<std::string, std::size_t> nameMap;
 		for (const auto& npc : a_npcs) {
 			if (!npc) {
 				continue;

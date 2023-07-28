@@ -2,7 +2,7 @@
 
 namespace Papyrus::Location
 {
-	inline RE::BGSLocation* GetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BGSLocation* a_location)
+	inline RE::BGSLocation* GetParentLocation(STATIC_ARGS, const RE::BGSLocation* a_location)
 	{
 		if (!a_location) {
 			a_vm->TraceStack("Location is None", a_stackID);
@@ -12,9 +12,7 @@ namespace Papyrus::Location
 		return a_location->parentLoc;
 	}
 
-	inline void SetParentLocation(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSLocation* a_location,
-		[[maybe_unused]] RE::BGSLocation* a_newLocation)
+	inline void SetParentLocation(STATIC_ARGS, RE::BGSLocation* a_location, [[maybe_unused]] RE::BGSLocation* a_newLocation)
 	{
 		if (!a_location) {
 			a_vm->TraceStack("Location is None", a_stackID);

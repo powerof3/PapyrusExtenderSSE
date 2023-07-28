@@ -2,7 +2,7 @@
 
 namespace Papyrus::Weather
 {
-	inline float GetWindSpeedAsFloat(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESWeather* a_weather)
+	inline float GetWindSpeedAsFloat(STATIC_ARGS, const RE::TESWeather* a_weather)
 	{
 		if (!a_weather) {
 			a_vm->TraceStack("Weather is None", a_stackID);
@@ -12,7 +12,7 @@ namespace Papyrus::Weather
 		return a_weather->data.windSpeed / 255.0f;
 	}
 
-	inline std::int32_t GetWindSpeedAsInt(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESWeather* a_weather)
+	inline std::int32_t GetWindSpeedAsInt(STATIC_ARGS, const RE::TESWeather* a_weather)
 	{
 		if (!a_weather) {
 			a_vm->TraceStack("Weather is None", a_stackID);
@@ -22,15 +22,14 @@ namespace Papyrus::Weather
 		return a_weather->data.windSpeed;
 	}
 
-	inline std::int32_t GetWeatherType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, [[maybe_unused]] RE::TESWeather* a_weather)
+	inline std::int32_t GetWeatherType(STATIC_ARGS, [[maybe_unused]] RE::TESWeather* a_weather)
 	{
-		using Type = RE::TESWeather::WeatherDataFlag;
-
 		RE::TESWeather* currentWeather = nullptr;
+
 		if (a_weather) {
 			currentWeather = a_weather;
 		} else {
-			if (const auto sky = RE::Sky::GetSingleton(); sky) {
+			if (const auto sky = RE::Sky::GetSingleton()) {
 				currentWeather = sky->currentWeather;
 			}
 		}
@@ -41,16 +40,16 @@ namespace Papyrus::Weather
 		}
 
 		const auto flags = currentWeather->data.flags;
-		if (flags.any(Type::kPleasant)) {
+		if (flags.any(RE::TESWeather::WeatherDataFlag::kPleasant)) {
 			return 0;
 		}
-		if (flags.any(Type::kCloudy)) {
+		if (flags.any(RE::TESWeather::WeatherDataFlag::kCloudy)) {
 			return 1;
 		}
-		if (flags.any(Type::kRainy)) {
+		if (flags.any(RE::TESWeather::WeatherDataFlag::kRainy)) {
 			return 2;
 		}
-		if (flags.any(Type::kSnow)) {
+		if (flags.any(RE::TESWeather::WeatherDataFlag::kSnow)) {
 			return 3;
 		}
 

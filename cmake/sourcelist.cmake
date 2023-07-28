@@ -1,5 +1,4 @@
 set(sources ${sources}
-	src/Game/Cache.cpp
 	src/Game/EventHandler.cpp
 	src/Game/HookedEventHandler.cpp
 	src/Game/Manager.cpp

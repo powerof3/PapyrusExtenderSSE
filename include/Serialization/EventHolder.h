@@ -2,15 +2,9 @@
 
 namespace Event
 {
-	class ScriptEventHolder
+	class ScriptEventHolder : public ISingleton<ScriptEventHolder>
 	{
 	public:
-		[[nodiscard]] static ScriptEventHolder* GetSingleton()
-		{
-			static ScriptEventHolder singleton;
-			return &singleton;
-		}
-
 		enum : std::uint32_t
 		{
 			kCellFullyLoaded = 'CELL',
@@ -21,8 +15,16 @@ namespace Event
 			kObjectUnloaded = 'UNLD',
 			kObjectGrab = 'GRAB',
 			kObjectRelease = 'RELS',
+			kFurnitureEnter = 'FETR',
+			kFurnitureExit = 'FEXT',
 		};
 
+		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
+		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);
+		void Revert(SKSE::SerializationInterface* a_intfc);
+		void FormDelete(RE::VMHandle a_handle);
+
+		// members
 		SKSE::RegistrationSet<const RE::TESObjectCELL*> cellFullyLoaded{ "OnCellFullyLoaded"sv };
 
 		SKSE::RegistrationMap<RE::FormID, const RE::TESQuest*> questStart{ "OnQuestStart"sv };
@@ -36,30 +38,13 @@ namespace Event
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> objectGrab{ "OnObjectGrab"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*> objectRelease{ "OnObjectRelease"sv };
 
-		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
-		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);
-		void Revert(SKSE::SerializationInterface* a_intfc);
-		void FormDelete(RE::VMHandle a_handle);
-
-	private:
-		ScriptEventHolder() = default;
-		ScriptEventHolder(const ScriptEventHolder&) = delete;
-		ScriptEventHolder(ScriptEventHolder&&) = delete;
-		~ScriptEventHolder() = default;
-
-		ScriptEventHolder& operator=(const ScriptEventHolder&) = delete;
-		ScriptEventHolder& operator=(ScriptEventHolder&&) = delete;
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*> furnitureEnter{ "OnEnterFurniture"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*> furnitureExit{ "OnExitFurniture"sv };
 	};
 
-	class StoryEventHolder
+	class StoryEventHolder : public ISingleton<StoryEventHolder>
 	{
 	public:
-		static StoryEventHolder* GetSingleton()
-		{
-			static StoryEventHolder singleton;
-			return &singleton;
-		}
-
 		enum : std::uint32_t
 		{
 			kActorKill = 'KILL',
@@ -75,31 +60,23 @@ namespace Event
 			kSpellLearned = 'SPEL'
 		};
 
-		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> actorKill{ "OnActorKilled"sv };
-		SKSE::RegistrationSet<const RE::Actor*, const RE::TESObjectWEAP*, bool> criticalHit{ "OnCriticalHit"sv };
-		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> disarmed{ "OnDisarmed"sv };
-		SKSE::RegistrationSet<float> dragonSoulsGained{ "OnDragonSoulsGained"sv };
-		SKSE::RegistrationSet<const RE::TESForm*> itemHarvested{ "OnItemHarvested"sv };
-		SKSE::RegistrationSet<std::uint32_t> levelIncrease{ "OnLevelIncrease"sv };
-		SKSE::RegistrationSet<RE::BSFixedString, RE::BSFixedString> locationDiscovery{ "OnLocationDiscovery"sv };
-		SKSE::RegistrationSet<const RE::TESShout*> shoutAttack{ "OnPlayerShoutAttack"sv };
-		SKSE::RegistrationSet<std::uint32_t> skillIncrease{ "OnSkillIncrease"sv };
-		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> soulsTrapped{ "OnSoulTrapped"sv };
-		SKSE::RegistrationSet<const RE::SpellItem*> spellsLearned{ "OnSpellLearned"sv };
-
 		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
 		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);
 		void Revert(SKSE::SerializationInterface* a_intfc);
 		void FormDelete(RE::VMHandle a_handle);
 
-	private:
-		StoryEventHolder() = default;
-		StoryEventHolder(const StoryEventHolder&) = delete;
-		StoryEventHolder(StoryEventHolder&&) = delete;
-		~StoryEventHolder() = default;
-
-		StoryEventHolder& operator=(const StoryEventHolder&) = delete;
-		StoryEventHolder& operator=(StoryEventHolder&&) = delete;
+		// members
+		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>               actorKill{ "OnActorKilled"sv };
+		SKSE::RegistrationSet<const RE::Actor*, const RE::TESObjectWEAP*, bool> criticalHit{ "OnCriticalHit"sv };
+		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>               disarmed{ "OnDisarmed"sv };
+		SKSE::RegistrationSet<float>                                            dragonSoulsGained{ "OnDragonSoulsGained"sv };
+		SKSE::RegistrationSet<const RE::TESForm*>                               itemHarvested{ "OnItemHarvested"sv };
+		SKSE::RegistrationSet<std::uint32_t>                                    levelIncrease{ "OnLevelIncrease"sv };
+		SKSE::RegistrationSet<RE::BSFixedString, RE::BSFixedString>             locationDiscovery{ "OnLocationDiscovery"sv };
+		SKSE::RegistrationSet<const RE::TESShout*>                              shoutAttack{ "OnPlayerShoutAttack"sv };
+		SKSE::RegistrationSet<std::uint32_t>                                    skillIncrease{ "OnSkillIncrease"sv };
+		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*>               soulsTrapped{ "OnSoulTrapped"sv };
+		SKSE::RegistrationSet<const RE::SpellItem*>                             spellsLearned{ "OnSpellLearned"sv };
 	};
 
 	namespace Filter
@@ -271,9 +248,9 @@ namespace Event
 			bool Save(SKSE::SerializationInterface* a_intfc) const;
 			bool PassesFilter(RE::TESObjectREFR* a_aggressor, RE::TESForm* a_source, RE::BGSProjectile* a_projectile, bool a_powerAttack, bool a_sneakAttack, bool a_bashAttack, bool a_blockAttack) const;
 
-			RE::FormID aggressorID{ 0 };
-			RE::FormID sourceID{ 0 };
-			RE::FormID projectileID{ 0 };
+			RE::FormID   aggressorID{ 0 };
+			RE::FormID   sourceID{ 0 };
+			RE::FormID   projectileID{ 0 };
 			std::int32_t powerAttack{ -1 };
 			std::int32_t sneakAttack{ -1 };
 			std::int32_t bashAttack{ -1 };
@@ -281,15 +258,9 @@ namespace Event
 		};
 	}
 
-	class GameEventHolder
+	class GameEventHolder : public ISingleton<GameEventHolder>
 	{
 	public:
-		static GameEventHolder* GetSingleton()
-		{
-			static GameEventHolder singleton;
-			return &singleton;
-		}
-
 		enum : std::uint32_t
 		{
 			kActorFallLongDistance = 'FALL',
@@ -311,39 +282,31 @@ namespace Event
 			kProjectileHit = 'PHIT'
 		};
 
-		SKSE::RegistrationSetUnique<const RE::Actor*, float, float> actorFallLongDistance{ "OnActorFallLongDistance"sv };
-		SKSE::RegistrationSetUnique<const RE::Actor*, bool> actorResurrect{ "OnActorResurrected"sv };
-		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
-		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
-		SKSE::RegistrationSet<const RE::TESObjectBOOK*> booksRead{ "OnBookRead"sv };
-		SKSE::RegistrationSet<const RE::TESObjectREFR*> fastTravelPrompt{ "OnFastTravelPrompt"sv };
-		SKSE::RegistrationSet<const RE::TESObjectREFR*> fastTravelConfirmed{ "OnFastTravelConfirmed"sv };
-#ifdef SKYRIMVR
-		SKSE::RegistrationSet<float> fastTravelEnd{ "OnPlayerFastTravelEnd"sv };
-#endif
-		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
-
-		SKSE::RegistrationMapUnique<Filter::MagicEffectApply, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool> magicApply{ "OnMagicEffectApplyEx"sv };
-		SKSE::RegistrationMapUnique<Filter::Hit, const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, bool, bool, bool, bool> onHit{ "OnHitEx"sv };
-
-		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> magicHit{ "OnMagicHit"sv };
-		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*> projectileHit{ "OnProjectileHit"sv };
-		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t> weaponHit{ "OnWeaponHit"sv };
-		SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*> weatherChange{ "OnWeatherChange"sv };
-
 		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
 		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);
 		void Revert(SKSE::SerializationInterface* a_intfc);
 		void FormDelete(RE::VMHandle a_handle);
 		void FormDelete(RE::FormID a_uniqueID);
 
-	private:
-		GameEventHolder() = default;
-		GameEventHolder(const GameEventHolder&) = delete;
-		GameEventHolder(GameEventHolder&&) = delete;
-		~GameEventHolder() = default;
+		// members
+		SKSE::RegistrationSetUnique<const RE::Actor*, float, float>     actorFallLongDistance{ "OnActorFallLongDistance"sv };
+		SKSE::RegistrationSetUnique<const RE::Actor*, bool>             actorResurrect{ "OnActorResurrected"sv };
+		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
+		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
+		SKSE::RegistrationSet<const RE::TESObjectBOOK*>                 booksRead{ "OnBookRead"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*>                 fastTravelPrompt{ "OnFastTravelPrompt"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*>                 fastTravelConfirmed{ "OnFastTravelConfirmed"sv };
+#ifdef SKYRIMVR
+		SKSE::RegistrationSet<float> fastTravelEnd{ "OnPlayerFastTravelEnd"sv };
+#endif
+		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
 
-		GameEventHolder& operator=(const GameEventHolder&) = delete;
-		GameEventHolder& operator=(GameEventHolder&&) = delete;
+		SKSE::RegistrationMapUnique<Filter::MagicEffectApply, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool>      magicApply{ "OnMagicEffectApplyEx"sv };
+		SKSE::RegistrationMapUnique<Filter::Hit, const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, bool, bool, bool, bool> onHit{ "OnHitEx"sv };
+
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>                magicHit{ "OnMagicHit"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>                projectileHit{ "OnProjectileHit"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t> weaponHit{ "OnWeaponHit"sv };
+		SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*>                                                weatherChange{ "OnWeatherChange"sv };
 	};
 }

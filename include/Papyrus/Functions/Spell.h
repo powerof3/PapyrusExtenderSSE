@@ -4,13 +4,13 @@
 
 namespace Papyrus::Spell
 {
-	inline void AddMagicEffectToSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
-		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost,
+	inline void AddMagicEffectToSpell(STATIC_ARGS,
+		RE::SpellItem*           a_spell,
+		RE::EffectSetting*       a_mgef,
+		float                    a_mag,
+		std::uint32_t            a_area,
+		std::uint32_t            a_dur,
+		float                    a_cost,
 		std::vector<std::string> a_conditionList)
 	{
 		if (!a_spell) {
@@ -44,11 +44,7 @@ namespace Papyrus::Spell
 		}
 	}
 
-	inline void AddEffectItemToSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
-		RE::SpellItem* a_copySpell,
-		std::uint32_t a_index,
-		float a_cost)
+	inline void AddEffectItemToSpell(STATIC_ARGS, RE::SpellItem* a_spell, RE::SpellItem* a_copySpell, std::uint32_t a_index, float a_cost)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -82,7 +78,7 @@ namespace Papyrus::Spell
 		}
 	}
 
-	inline std::int32_t GetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::SpellItem* a_spell)
+	inline std::int32_t GetSpellType(STATIC_ARGS, const RE::SpellItem* a_spell)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -92,13 +88,13 @@ namespace Papyrus::Spell
 		return stl::to_underlying(a_spell->data.spellType);
 	}
 
-	inline void RemoveMagicEffectFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
+	inline void RemoveMagicEffectFromSpell(STATIC_ARGS,
+		RE::SpellItem*     a_spell,
 		RE::EffectSetting* a_mgef,
-		float a_mag,
-		std::uint32_t a_area,
-		std::uint32_t a_dur,
-		float a_cost)
+		float              a_mag,
+		std::uint32_t      a_area,
+		std::uint32_t      a_dur,
+		float              a_cost)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -123,10 +119,7 @@ namespace Papyrus::Spell
 		}
 	}
 
-	inline void RemoveEffectItemFromSpell(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
-		RE::SpellItem* a_copySpell,
-		std::uint32_t a_index)
+	inline void RemoveEffectItemFromSpell(STATIC_ARGS, RE::SpellItem* a_spell, RE::SpellItem* a_copySpell, std::uint32_t a_index)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -152,9 +145,7 @@ namespace Papyrus::Spell
 		}
 	}
 
-	inline void SetSpellCastingType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
-		std::uint32_t a_type)
+	inline void SetSpellCastingType(STATIC_ARGS, RE::SpellItem* a_spell, std::uint32_t a_type)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -174,9 +165,7 @@ namespace Papyrus::Spell
 		}
 	}
 
-	inline void SetSpellDeliveryType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
-		std::uint32_t a_type)
+	inline void SetSpellDeliveryType(STATIC_ARGS, RE::SpellItem* a_spell, std::uint32_t a_type)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);
@@ -196,9 +185,7 @@ namespace Papyrus::Spell
 		}
 	}
 
-	inline void SetSpellType(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::SpellItem* a_spell,
-		std::uint32_t a_type)
+	inline void SetSpellType(STATIC_ARGS, RE::SpellItem* a_spell, std::uint32_t a_type)
 	{
 		if (!a_spell) {
 			a_vm->TraceStack("Spell is None", a_stackID);

@@ -1,25 +1,24 @@
 #include "Papyrus/Util/ConditionParser.h"
 
+namespace RE
+{
+	bool operator==(const CONDITION_ITEM_DATA& a_this, const CONDITION_ITEM_DATA& a_data)
+	{
+		return a_this.functionData.function == a_data.functionData.function &&
+		       a_this.object == a_data.object &&
+		       a_this.functionData.params[0] == a_data.functionData.params[0] &&
+		       a_this.functionData.params[1] == a_data.functionData.params[1] &&
+		       a_this.flags.opCode == a_data.flags.opCode &&
+		       a_this.comparisonValue.f == a_data.comparisonValue.f &&
+		       a_this.flags.isOR == a_data.flags.isOR;
+	}
+}
+
 namespace CONDITION
 {
-	ConditionData::ConditionData(const RE::TESConditionItem* a_condition) :
-		conditionItem(*a_condition->data.object),
-		functionID(*a_condition->data.functionData.function),
-		param1(a_condition->data.functionData.params[0]),
-		param2(a_condition->data.functionData.params[1]),
-		opCode(a_condition->data.flags.opCode),
-		value(a_condition->data.comparisonValue.f),
-		andOr(a_condition->data.flags.isOR)
-	{}
-
-	bool ConditionData::operator==(RE::TESConditionItem* a_item) const
+	PARAM_TYPES GetFuncType(FUNC_ID a_funcID)
 	{
-		return *this == ConditionData(a_item);
-	}
-
-	PARAMS GetFuncType(FUNC_ID a_funcID)
-	{
-		PARAMS paramPair;
+		PARAM_TYPES paramTypes;
 
 		switch (a_funcID) {
 		case FUNC_ID::kGetWantBlocking:
@@ -229,7 +228,7 @@ namespace CONDITION
 		case FUNC_ID::kIsFlyingMountFastTravelling:
 		case FUNC_ID::kIsOverEncumbered:
 		case FUNC_ID::kGetActorWarmth:
-			paramPair = { std::nullopt, std::nullopt };
+			paramTypes = { std::nullopt, std::nullopt };
 			break;
 		case FUNC_ID::kGetDistance:
 		case FUNC_ID::kGetLineOfSight:
@@ -251,7 +250,7 @@ namespace CONDITION
 		case FUNC_ID::kGetInContainer:
 		case FUNC_ID::kGetInSharedCrimeFaction:
 		case FUNC_ID::kGetTargetHeight:
-			paramPair = { PARAM_TYPE::kObjectRef, std::nullopt };
+			paramTypes = { PARAM_TYPE::kObjectRef, std::nullopt };
 			break;
 		case FUNC_ID::kGetPos:
 		case FUNC_ID::kGetAngle:
@@ -262,7 +261,7 @@ namespace CONDITION
 		case FUNC_ID::kGetPathingTargetAngleOffset:
 		case FUNC_ID::kGetPathingTargetSpeedAngle:
 		case FUNC_ID::kGetPathingCurrentSpeedAngle:
-			paramPair = { PARAM_TYPE::kAxis, std::nullopt };
+			paramTypes = { PARAM_TYPE::kAxis, std::nullopt };
 			break;
 		case FUNC_ID::kGetActorValue:
 		case FUNC_ID::kIsWeaponSkillType:
@@ -271,7 +270,7 @@ namespace CONDITION
 		case FUNC_ID::kGetActorValuePercent:
 		case FUNC_ID::kEPModSkillUsage_IsAdvanceSkill:
 		case FUNC_ID::kEPMagic_SpellHasSkill:
-			paramPair = { PARAM_TYPE::kActorValue, std::nullopt };
+			paramTypes = { PARAM_TYPE::kActorValue, std::nullopt };
 			break;
 		case FUNC_ID::kMenuMode:
 		case FUNC_ID::kIsInCombat:
@@ -280,7 +279,7 @@ namespace CONDITION
 		case FUNC_ID::kIsLimbGone:
 		case FUNC_ID::kGetIsCreatureType:
 		case FUNC_ID::kGetNumericPackageData:
-			paramPair = { PARAM_TYPE::kInt, std::nullopt };
+			paramTypes = { PARAM_TYPE::kInt, std::nullopt };
 			break;
 		case FUNC_ID::kSameFaction:
 		case FUNC_ID::kSameRace:
@@ -298,42 +297,42 @@ namespace CONDITION
 		case FUNC_ID::kShouldAttackKill:
 		case FUNC_ID::kGetShouldHelp:
 		case FUNC_ID::kIsHostileToActor:
-			paramPair = { PARAM_TYPE::kActor, std::nullopt };
+			paramTypes = { PARAM_TYPE::kActor, std::nullopt };
 			break;
 		case FUNC_ID::kGetItemCount:
 		case FUNC_ID::kGetEquipped:
-			paramPair = { PARAM_TYPE::kInvObjectOrFormList, std::nullopt };
+			paramTypes = { PARAM_TYPE::kInvObjectOrFormList, std::nullopt };
 			break;
 		case FUNC_ID::kGetScriptVariable:
 		case FUNC_ID::kGetVMScriptVariable:
-			paramPair = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kChar };
+			paramTypes = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kChar };
 			break;
 		case FUNC_ID::kGetQuestRunning:
 		case FUNC_ID::kGetStage:
 		case FUNC_ID::kGetQuestCompleted:
-			paramPair = { PARAM_TYPE::kQuest, std::nullopt };
+			paramTypes = { PARAM_TYPE::kQuest, std::nullopt };
 			break;
 		case FUNC_ID::kGetStageDone:
-			paramPair = { PARAM_TYPE::kQuest, PARAM_TYPE::kInt };
+			paramTypes = { PARAM_TYPE::kQuest, PARAM_TYPE::kInt };
 			break;
 		case FUNC_ID::kGetFactionRankDifference:
-			paramPair = { PARAM_TYPE::kFaction, PARAM_TYPE::kActor };
+			paramTypes = { PARAM_TYPE::kFaction, PARAM_TYPE::kActor };
 			break;
 		case FUNC_ID::kGetInCell:
-			paramPair = { PARAM_TYPE::kCell, std::nullopt };
+			paramTypes = { PARAM_TYPE::kCell, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsClass:
 		case FUNC_ID::kGetPCIsClass:
 		case FUNC_ID::kGetIsClassDefault:
-			paramPair = { PARAM_TYPE::kClass, std::nullopt };
+			paramTypes = { PARAM_TYPE::kClass, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsRace:
 		case FUNC_ID::kGetPCIsRace:
-			paramPair = { PARAM_TYPE::kRace, std::nullopt };
+			paramTypes = { PARAM_TYPE::kRace, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsSex:
 		case FUNC_ID::kGetPCIsSex:
-			paramPair = { PARAM_TYPE::kSex, std::nullopt };
+			paramTypes = { PARAM_TYPE::kSex, std::nullopt };
 			break;
 		case FUNC_ID::kGetInFaction:
 		case FUNC_ID::kGetFactionRank:
@@ -345,107 +344,107 @@ namespace CONDITION
 		case FUNC_ID::kGetPCFactionAttack:
 		case FUNC_ID::kGetStolenItemValueNoCrime:
 		case FUNC_ID::kGetStolenItemValue:
-			paramPair = { PARAM_TYPE::kFaction, std::nullopt };
+			paramTypes = { PARAM_TYPE::kFaction, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsID:
 		case FUNC_ID::kGetIsUsedItem:
-			paramPair = { PARAM_TYPE::kObjectOrFormList, std::nullopt };
+			paramTypes = { PARAM_TYPE::kObjectOrFormList, std::nullopt };
 			break;
 		case FUNC_ID::kGetGlobalValue:
-			paramPair = { PARAM_TYPE::kGlobal, std::nullopt };
+			paramTypes = { PARAM_TYPE::kGlobal, std::nullopt };
 			break;
 		case FUNC_ID::kGetQuestVariable:
 		case FUNC_ID::kGetVMQuestVariable:
-			paramPair = { PARAM_TYPE::kQuest, PARAM_TYPE::kChar };
+			paramTypes = { PARAM_TYPE::kQuest, PARAM_TYPE::kChar };
 			break;
 		case FUNC_ID::kGetDeadCount:
-			paramPair = { PARAM_TYPE::kActorBase, std::nullopt };
+			paramTypes = { PARAM_TYPE::kActorBase, std::nullopt };
 			break;
 		case FUNC_ID::kGetPlayerControlsDisabled:
-			paramPair = { PARAM_TYPE::kInt, PARAM_TYPE::kInt };
+			paramTypes = { PARAM_TYPE::kInt, PARAM_TYPE::kInt };
 			break;
 		case FUNC_ID::kIsPlayerInRegion:
-			paramPair = { PARAM_TYPE::kRegion, std::nullopt };
+			paramTypes = { PARAM_TYPE::kRegion, std::nullopt };
 			break;
 		case FUNC_ID::kGetCrime:
-			paramPair = { PARAM_TYPE::kActor, PARAM_TYPE::kCrimeType };
+			paramTypes = { PARAM_TYPE::kActor, PARAM_TYPE::kCrimeType };
 			break;
 		case FUNC_ID::kGetIsCurrentWeather:
-			paramPair = { PARAM_TYPE::kWeather, std::nullopt };
+			paramTypes = { PARAM_TYPE::kWeather, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsCurrentPackage:
-			paramPair = { PARAM_TYPE::kPackage, std::nullopt };
+			paramTypes = { PARAM_TYPE::kPackage, std::nullopt };
 			break;
 		case FUNC_ID::kIsCurrentFurnitureObj:
-			paramPair = { PARAM_TYPE::kFurnitureOrFormList, std::nullopt };
+			paramTypes = { PARAM_TYPE::kFurnitureOrFormList, std::nullopt };
 			break;
 		case FUNC_ID::kHasSameEditorLocAsRef:
 		case FUNC_ID::kIsInSameCurrentLocAsRef:
 		case FUNC_ID::kIsLinkedTo:
-			paramPair = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kKeyword };
+			paramTypes = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kKeyword };
 			break;
 		case FUNC_ID::kHasSameEditorLocAsRefAlias:
 		case FUNC_ID::kIsInSameCurrentLocAsRefAlias:
 		case FUNC_ID::kGetKeywordDataForAlias:
 		case FUNC_ID::kLocAliasHasKeyword:
-			paramPair = { PARAM_TYPE::kAlias, PARAM_TYPE::kKeyword };
+			paramTypes = { PARAM_TYPE::kAlias, PARAM_TYPE::kKeyword };
 			break;
 		case FUNC_ID::kHasMagicEffect:
-			paramPair = { PARAM_TYPE::kMagicEffect, std::nullopt };
+			paramTypes = { PARAM_TYPE::kMagicEffect, std::nullopt };
 			break;
 		case FUNC_ID::kIsSpellTarget:
 		case FUNC_ID::kHasSpell:
 		case FUNC_ID::kGetSpellUsageNum:
-			paramPair = { PARAM_TYPE::kMagicItem, std::nullopt };
+			paramTypes = { PARAM_TYPE::kMagicItem, std::nullopt };
 			break;
 		case FUNC_ID::kGetInCellParam:
-			paramPair = { PARAM_TYPE::kCell, PARAM_TYPE::kObjectRef };
+			paramTypes = { PARAM_TYPE::kCell, PARAM_TYPE::kObjectRef };
 			break;
 		case FUNC_ID::kGetIsUsedItemType:
 		case FUNC_ID::kGetIsObjectType:
-			paramPair = { PARAM_TYPE::kFormType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kFormType, std::nullopt };
 			break;
 		case FUNC_ID::kIsScenePlaying:
-			paramPair = { PARAM_TYPE::kBGSScene, std::nullopt };
+			paramTypes = { PARAM_TYPE::kBGSScene, std::nullopt };
 			break;
 		case FUNC_ID::kGetLocationCleared:
 		case FUNC_ID::kGetInCurrentLoc:
 		case FUNC_ID::kGetIsEditorLocation:
 		case FUNC_ID::kIsLocationLoaded:
-			paramPair = { PARAM_TYPE::kLocation, std::nullopt };
+			paramTypes = { PARAM_TYPE::kLocation, std::nullopt };
 			break;
 		case FUNC_ID::kHasAssociationType:
-			paramPair = { PARAM_TYPE::kActor, PARAM_TYPE::kAssociationType };
+			paramTypes = { PARAM_TYPE::kActor, PARAM_TYPE::kAssociationType };
 			break;
 		case FUNC_ID::kIsWarningAbout:
 		case FUNC_ID::kIsInList:
 		case FUNC_ID::kIsWeaponInList:
 		case FUNC_ID::kIsKillerObject:
 		case FUNC_ID::kGetInCurrentLocFormList:
-			paramPair = { PARAM_TYPE::kFormList, std::nullopt };
+			paramTypes = { PARAM_TYPE::kFormList, std::nullopt };
 			break;
 		case FUNC_ID::kIsOwner:
-			paramPair = { PARAM_TYPE::kOwner, std::nullopt };
+			paramTypes = { PARAM_TYPE::kOwner, std::nullopt };
 			break;
 		case FUNC_ID::kIsCellOwner:
-			paramPair = { PARAM_TYPE::kCell, PARAM_TYPE::kOwner };
+			paramTypes = { PARAM_TYPE::kCell, PARAM_TYPE::kOwner };
 			break;
 		case FUNC_ID::kGetInWorldspace:
-			paramPair = { PARAM_TYPE::kWorldOrList, std::nullopt };
+			paramTypes = { PARAM_TYPE::kWorldOrList, std::nullopt };
 			break;
 		case FUNC_ID::kGetPCMiscStat:
-			paramPair = { PARAM_TYPE::kMiscStat, std::nullopt };
+			paramTypes = { PARAM_TYPE::kMiscStat, std::nullopt };
 			break;
 		case FUNC_ID::kGetWithinPackageLocation:
 		case FUNC_ID::kIsNullPackageData:
-			paramPair = { PARAM_TYPE::kPackageDataCanBeNull, std::nullopt };
+			paramTypes = { PARAM_TYPE::kPackageDataCanBeNull, std::nullopt };
 			break;
 		case FUNC_ID::kGetInCurrentLocAlias:
 		case FUNC_ID::kGetIsAliasRef:
 		case FUNC_ID::kGetIsEditorLocAlias:
 		case FUNC_ID::kGetLocationAliasCleared:
 		case FUNC_ID::kIsLocAliasLoaded:
-			paramPair = { PARAM_TYPE::kAlias, std::nullopt };
+			paramTypes = { PARAM_TYPE::kAlias, std::nullopt };
 			break;
 		case FUNC_ID::kHasLinkedRef:
 		case FUNC_ID::kGetKeywordItemCount:
@@ -461,52 +460,52 @@ namespace CONDITION
 		case FUNC_ID::kHasMagicEffectKeyword:
 		case FUNC_ID::kGetCombatTargetHasKeyword:
 		case FUNC_ID::kWornApparelHasKeywordCount:
-			paramPair = { PARAM_TYPE::kKeyword, std::nullopt };
+			paramTypes = { PARAM_TYPE::kKeyword, std::nullopt };
 			break;
 		case FUNC_ID::kHasShout:
 		case FUNC_ID::kGetEquippedShout:
-			paramPair = { PARAM_TYPE::kShout, std::nullopt };
+			paramTypes = { PARAM_TYPE::kShout, std::nullopt };
 			break;
 		case FUNC_ID::kGetVATSValue:
-			paramPair = { PARAM_TYPE::kInt, PARAM_TYPE::kInt };
+			paramTypes = { PARAM_TYPE::kInt, PARAM_TYPE::kInt };
 			break;
 		case FUNC_ID::kGetFactionCombatReaction:
-			paramPair = { PARAM_TYPE::kFaction, PARAM_TYPE::kFaction };
+			paramTypes = { PARAM_TYPE::kFaction, PARAM_TYPE::kFaction };
 			break;
 		case FUNC_ID::kGetIsVoiceType:
-			paramPair = { PARAM_TYPE::kVoiceType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kVoiceType, std::nullopt };
 			break;
 		case FUNC_ID::kGetInZone:
-			paramPair = { PARAM_TYPE::kEncounterZone, std::nullopt };
+			paramTypes = { PARAM_TYPE::kEncounterZone, std::nullopt };
 			break;
 		case FUNC_ID::kGetGraphVariableFloat:
 		case FUNC_ID::kGetGraphVariableInt:
-			paramPair = { PARAM_TYPE::kChar, std::nullopt };
+			paramTypes = { PARAM_TYPE::kChar, std::nullopt };
 			break;
 		case FUNC_ID::kHasPerk:
-			paramPair = { PARAM_TYPE::kPerk, PARAM_TYPE::kInt };
+			paramTypes = { PARAM_TYPE::kPerk, PARAM_TYPE::kInt };
 			break;
 		case FUNC_ID::kIsLastIdlePlayed:
-			paramPair = { PARAM_TYPE::kIdleForm, std::nullopt };
+			paramTypes = { PARAM_TYPE::kIdleForm, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsAlignment:
-			paramPair = { PARAM_TYPE::kAlignment, std::nullopt };
+			paramTypes = { PARAM_TYPE::kAlignment, std::nullopt };
 			break;
 		case FUNC_ID::kGetIsUsedItemEquipType:
-			paramPair = { PARAM_TYPE::kEquipType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kEquipType, std::nullopt };
 			break;
 		case FUNC_ID::kPlayerKnows:
-			paramPair = { PARAM_TYPE::kKnowableForm, std::nullopt };
+			paramTypes = { PARAM_TYPE::kKnowableForm, std::nullopt };
 			break;
 		case FUNC_ID::kIsInCriticalStage:
-			paramPair = { PARAM_TYPE::kCritStage, std::nullopt };
+			paramTypes = { PARAM_TYPE::kCritStage, std::nullopt };
 			break;
 		case FUNC_ID::kIsSceneActionComplete:
-			paramPair = { PARAM_TYPE::kBGSScene, PARAM_TYPE::kInt };
+			paramTypes = { PARAM_TYPE::kBGSScene, PARAM_TYPE::kInt };
 			break;
 		case FUNC_ID::kHasRefType:
 		case FUNC_ID::kLocationHasRefType:
-			paramPair = { PARAM_TYPE::kRefType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kRefType, std::nullopt };
 			break;
 		case FUNC_ID::kHasEquippedSpell:
 		case FUNC_ID::kGetCurrentCastingType:
@@ -514,108 +513,105 @@ namespace CONDITION
 		case FUNC_ID::kGetEquippedItemType:
 		case FUNC_ID::kGetReplacedItemType:
 		case FUNC_ID::kHasBoundWeaponEquipped:
-			paramPair = { PARAM_TYPE::kCastingSource, std::nullopt };
+			paramTypes = { PARAM_TYPE::kCastingSource, std::nullopt };
 			break;
 		case FUNC_ID::kGetEventData:
-			paramPair = { PARAM_TYPE::kEventFunction, PARAM_TYPE::kEventFunctionData };  // third parameter in xEdit but who cares, we're skipping this
+			paramTypes = { PARAM_TYPE::kEventFunction, PARAM_TYPE::kEventFunctionData };  // third parameter in xEdit but who cares, we're skipping this
 			break;
 		case FUNC_ID::kIsCloserToAThanB:
-			paramPair = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kObjectRef };
+			paramTypes = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kObjectRef };
 			break;
 		case FUNC_ID::kGetRelativeAngle:
-			paramPair = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kAxis };
+			paramTypes = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kAxis };
 			break;
 		case FUNC_ID::kGetRefTypeDeadCount:
 		case FUNC_ID::kGetRefTypeAliveCount:
-			paramPair = { PARAM_TYPE::kLocation, PARAM_TYPE::kRefType };
+			paramTypes = { PARAM_TYPE::kLocation, PARAM_TYPE::kRefType };
 			break;
 		case FUNC_ID::kIsCurrentSpell:
-			paramPair = { PARAM_TYPE::kMagicItem, PARAM_TYPE::kCastingSource };
+			paramTypes = { PARAM_TYPE::kMagicItem, PARAM_TYPE::kCastingSource };
 			break;
 		case FUNC_ID::kSpellHasKeyword:
-			paramPair = { PARAM_TYPE::kCastingSource, PARAM_TYPE::kKeyword };
+			paramTypes = { PARAM_TYPE::kCastingSource, PARAM_TYPE::kKeyword };
 			break;
 		case FUNC_ID::kGetLocAliasRefTypeDeadCount:
 		case FUNC_ID::kGetLocAliasRefTypeAliveCount:
-			paramPair = { PARAM_TYPE::kAlias, PARAM_TYPE::kRefType };
+			paramTypes = { PARAM_TYPE::kAlias, PARAM_TYPE::kRefType };
 			break;
 		case FUNC_ID::kIsWardState:
-			paramPair = { PARAM_TYPE::kWardState, std::nullopt };
+			paramTypes = { PARAM_TYPE::kWardState, std::nullopt };
 			break;
 		case FUNC_ID::kLocAliasIsLocation:
-			paramPair = { PARAM_TYPE::kAlias, PARAM_TYPE::kLocation };
+			paramTypes = { PARAM_TYPE::kAlias, PARAM_TYPE::kLocation };
 			break;
 		case FUNC_ID::kGetKeywordDataForLocation:
-			paramPair = { PARAM_TYPE::kLocation, PARAM_TYPE::kKeyword };
+			paramTypes = { PARAM_TYPE::kLocation, PARAM_TYPE::kKeyword };
 			break;
 		case FUNC_ID::kIsFurnitureAnimType:
 		case FUNC_ID::kIsInFurnitureState:
-			paramPair = { PARAM_TYPE::kFurnitureAnimType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kFurnitureAnimType, std::nullopt };
 			break;
 		case FUNC_ID::kIsFurnitureEntryType:
-			paramPair = { PARAM_TYPE::kFurnitureEntryType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kFurnitureEntryType, std::nullopt };
 			break;
 		case FUNC_ID::kHasAssociationTypeAny:
-			paramPair = { PARAM_TYPE::kAssociationType, std::nullopt };
+			paramTypes = { PARAM_TYPE::kAssociationType, std::nullopt };
 			break;
 		case FUNC_ID::kGetWithinDistance:
-			paramPair = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kFloat };
+			paramTypes = { PARAM_TYPE::kObjectRef, PARAM_TYPE::kFloat };
 			break;
 		case FUNC_ID::kEPModSkillUsage_IsAdvanceAction:
-			paramPair = { PARAM_TYPE::kSkillAction, std::nullopt };
+			paramTypes = { PARAM_TYPE::kSkillAction, std::nullopt };
 			break;
 		case FUNC_ID::kSpellHasCastingPerk:
-			paramPair = { PARAM_TYPE::kPerk, std::nullopt };
+			paramTypes = { PARAM_TYPE::kPerk, std::nullopt };
 			break;
 		default:
-			paramPair = { std::nullopt, std::nullopt };
+			paramTypes = { std::nullopt, std::nullopt };
 			break;
 		}
 
-		return paramPair;
+		return paramTypes;
 	}
 
-	bool ParseVoidParams(const std::string& a_str, void*& a_param, std::optional<PARAM_TYPE> a_type)
+	PARAM::STATE PARAM::GetParamState(std::optional<PARAM_TYPE> a_paramType)
 	{
-		if (!a_type) {
-			return true;
+		if (!a_paramType) {
+			return STATE::kNull;
 		}
 
-		bool result = false;
+		switch (*a_paramType) {
+		case PARAM_TYPE::kInt:
+		case PARAM_TYPE::kStage:
+		case PARAM_TYPE::kRelationshipRank:
+		case PARAM_TYPE::kActorValue:
+		case PARAM_TYPE::kSex:
+		// case PARAM_TYPE::kFormType:  // needs work (RE::OBJECT_TYPE ?)
+		case PARAM_TYPE::kCastingSource:
+		case PARAM_TYPE::kWardState:
+		case PARAM_TYPE::kCritStage:
+		case PARAM_TYPE::kCrimeType:
+		// case PARAM_TYPE::kMiscStat:  // too many stats ahhh
+		case PARAM_TYPE::kSkillAction:
+		// case PARAM_TYPE::kAnimGroup:	// too many anims
+		case PARAM_TYPE::kAxis:
+		case PARAM_TYPE::kAlignment:
+		case PARAM_TYPE::kFurnitureAnimType:
+		case PARAM_TYPE::kFurnitureEntryType:
 
-		switch (*a_type) {
+		case PARAM_TYPE::kFloat:
+
 		case PARAM_TYPE::kObjectRef:
 		case PARAM_TYPE::kActor:
-			{
-				if (string::icontains(a_str, "player")) {
-					a_param = RE::PlayerCharacter::GetSingleton();
-					result = true;
-				} else {
-					if (a_str.contains("~"sv)) {
-						auto splitID = string::split(a_str, " ~ ");
-						auto [formID, modName] = std::make_pair(string::to_num<RE::FormID>(splitID[0], true), splitID[1]);
-						if (const auto form = RE::TESDataHandler::GetSingleton()->LookupForm(formID, modName)) {
-							a_param = form;
-							result = true;
-						}
-					} else if (string::is_only_hex(a_str)) {
-						const auto formID = string::to_num<RE::FormID>(a_str, true);
-						if (const auto form = RE::TESForm::LookupByID(formID)) {
-							a_param = form;
-							result = true;
-						}
-					} else {
-						if (const auto form = RE::TESForm::LookupByEditorID(a_str)) {
-							a_param = form;
-							result = true;
-						}
-					}
-				}
-			}
-			break;
+		case PARAM_TYPE::kMapMarker:
+		case PARAM_TYPE::kContainerRef:
 		case PARAM_TYPE::kEquipType:
 		case PARAM_TYPE::kInventoryObject:
+		case PARAM_TYPE::kSpellItem:
+		case PARAM_TYPE::kMessage:
 		case PARAM_TYPE::kInvObjectOrFormList:
+		case PARAM_TYPE::kObjectOrFormList:
+		case PARAM_TYPE::kMusic:
 		case PARAM_TYPE::kVoiceType:
 		case PARAM_TYPE::kIdleForm:
 		case PARAM_TYPE::kFormList:
@@ -637,57 +633,735 @@ namespace CONDITION
 		case PARAM_TYPE::kWorldOrList:
 		case PARAM_TYPE::kObject:
 		case PARAM_TYPE::kRegion:
-		case PARAM_TYPE::kKeyword:
 		case PARAM_TYPE::kShout:
 		case PARAM_TYPE::kLocation:
 		case PARAM_TYPE::kRefType:
 		case PARAM_TYPE::kAssociationType:
 		case PARAM_TYPE::kBGSScene:
+		case PARAM_TYPE::kForm:
 		case PARAM_TYPE::kKnowableForm:
+		case PARAM_TYPE::kWordOfPower:
+		case PARAM_TYPE::kTopic:
+		case PARAM_TYPE::kNPC:
+		case PARAM_TYPE::kSound:
+		case PARAM_TYPE::kCombatStyle:
+		case PARAM_TYPE::kShaderEffect:
+		case PARAM_TYPE::kReferenceEffect:
+		case PARAM_TYPE::kMenuIcon:
+		case PARAM_TYPE::kNote:
+		case PARAM_TYPE::kImagespaceMod:
+		case PARAM_TYPE::kImagespace:
+		case PARAM_TYPE::kKeyword:
+			return STATE::kValid;
+		default:
+			return STATE::kInvalid;
+		}
+	}
+
+	PARAM::PARAM(std::optional<PARAM_TYPE> a_paramType, void* a_param) :
+		type(a_paramType),
+		state(GetParamState(a_paramType)),
+		data(nullptr)
+	{
+		if (!type || state != STATE::kValid || !a_param) {
+			return;
+		}
+
+		switch (*type) {
+		case PARAM_TYPE::kInt:
+		case PARAM_TYPE::kStage:
+		case PARAM_TYPE::kRelationshipRank:
+		case PARAM_TYPE::kActorValue:
+		case PARAM_TYPE::kSex:
+		case PARAM_TYPE::kFormType:  // needs work (RE::OBJECT_TYPE ?)
+		case PARAM_TYPE::kCastingSource:
+		case PARAM_TYPE::kWardState:
+		case PARAM_TYPE::kCritStage:
+		case PARAM_TYPE::kCrimeType:
+		case PARAM_TYPE::kMiscStat:  // too much
+		case PARAM_TYPE::kSkillAction:
+		case PARAM_TYPE::kAxis:
+		case PARAM_TYPE::kAlignment:
+		case PARAM_TYPE::kFurnitureAnimType:
+		case PARAM_TYPE::kFurnitureEntryType:
+			data.i = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
+			break;
+		case PARAM_TYPE::kFloat:
+			data.f = *reinterpret_cast<float*>(&a_param);
+			break;
+		case PARAM_TYPE::kObjectRef:
+		case PARAM_TYPE::kActor:
+		case PARAM_TYPE::kMapMarker:
+		case PARAM_TYPE::kContainerRef:
+		case PARAM_TYPE::kEquipType:
+		case PARAM_TYPE::kInventoryObject:
+		case PARAM_TYPE::kSpellItem:
+		case PARAM_TYPE::kMessage:
+		case PARAM_TYPE::kInvObjectOrFormList:
+		case PARAM_TYPE::kObjectOrFormList:
+		case PARAM_TYPE::kMusic:
+		case PARAM_TYPE::kVoiceType:
+		case PARAM_TYPE::kIdleForm:
+		case PARAM_TYPE::kFormList:
+		case PARAM_TYPE::kQuest:
+		case PARAM_TYPE::kFaction:
+		case PARAM_TYPE::kCell:
+		case PARAM_TYPE::kClass:
+		case PARAM_TYPE::kRace:
+		case PARAM_TYPE::kActorBase:
+		case PARAM_TYPE::kGlobal:
+		case PARAM_TYPE::kWeather:
+		case PARAM_TYPE::kPackage:
+		case PARAM_TYPE::kEncounterZone:
+		case PARAM_TYPE::kPerk:
+		case PARAM_TYPE::kOwner:
+		case PARAM_TYPE::kFurnitureOrFormList:
+		case PARAM_TYPE::kMagicItem:
+		case PARAM_TYPE::kMagicEffect:
+		case PARAM_TYPE::kWorldOrList:
+		case PARAM_TYPE::kObject:
+		case PARAM_TYPE::kRegion:
+		case PARAM_TYPE::kShout:
+		case PARAM_TYPE::kLocation:
+		case PARAM_TYPE::kRefType:
+		case PARAM_TYPE::kAssociationType:
+		case PARAM_TYPE::kBGSScene:
+		case PARAM_TYPE::kForm:
+		case PARAM_TYPE::kKnowableForm:
+		case PARAM_TYPE::kWordOfPower:
+		case PARAM_TYPE::kTopic:
+		case PARAM_TYPE::kNPC:
+		case PARAM_TYPE::kSound:
+		case PARAM_TYPE::kCombatStyle:
+		case PARAM_TYPE::kShaderEffect:
+		case PARAM_TYPE::kReferenceEffect:
+		case PARAM_TYPE::kMenuIcon:
+		case PARAM_TYPE::kNote:
+		case PARAM_TYPE::kImagespaceMod:
+		case PARAM_TYPE::kImagespace:
+		case PARAM_TYPE::kKeyword:
+			data.ptr = static_cast<RE::TESForm*>(a_param);
+			break;
+		default:
+			break;
+		}
+	}
+
+	PARAM::PARAM(std::optional<PARAM_TYPE> a_type, const std::string& a_param) :
+		type(a_type),
+		state(GetParamState(a_type)),
+		data(nullptr)
+	{
+		const auto lookup_form = [&](const std::string& b_str) {
+			if (b_str.contains("~"sv)) {
+				auto splitID = string::split(b_str, " ~ ");
+				auto [formID, modName] = std::make_pair(string::to_num<RE::FormID>(splitID[0], true), splitID[1]);
+				return RE::TESDataHandler::GetSingleton()->LookupForm(formID, modName);
+			} else if (string::is_only_hex(b_str)) {
+				const auto formID = string::to_num<RE::FormID>(b_str, true);
+				return RE::TESForm::LookupByID(formID);
+			} else {
+				return RE::TESForm::LookupByEditorID(b_str);
+			}
+		};
+
+		if (!type || state != STATE::kValid) {
+			return;
+		}
+
+		if (!a_param.empty() || string::icontains(a_param, "NONE"sv) && !stl::is_in(*type, PARAM_TYPE::kWardState, PARAM_TYPE::kCritStage)) {
+			type = std::nullopt;
+			state = STATE::kNull;
+			return;
+		}
+
+		switch (*type) {
+		case PARAM_TYPE::kInt:
+		case PARAM_TYPE::kStage:
+		case PARAM_TYPE::kRelationshipRank:
+			data.i = string::to_num<std::int32_t>(a_param);
+			break;
+		case PARAM_TYPE::kFloat:
+			data.f = string::to_num<float>(a_param);
+			break;
+		case PARAM_TYPE::kActorValue:
+			data.i = static_cast<std::int32_t>(RE::ActorValueList::GetSingleton()->LookupActorValueByName(a_param));
+			break;
+		case RE::SCRIPT_PARAM_TYPE::kAxis:
 			{
-				if (a_str.contains("~"sv)) {
-					auto splitID = string::split(a_str, " ~ ");
-					auto [formID, modName] = std::make_pair(string::to_num<RE::FormID>(splitID[0], true), splitID[1]);
-					if (const auto form = RE::TESDataHandler::GetSingleton()->LookupForm(formID, modName)) {
-						a_param = form;
-						result = true;
-					}
-				} else if (string::is_only_hex(a_str)) {
-					const auto formID = string::to_num<RE::FormID>(a_str, true);
-					if (const auto form = RE::TESForm::LookupByID(formID)) {
-						a_param = form;
-						result = true;
-					}
+				switch (string::const_hash(a_param)) {
+				case "X"_h:
+					data.i = 88;
+					break;
+				case "Y"_h:
+					data.i = 89;
+					break;
+				case "Z"_h:
+					data.i = 90;
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case RE::SCRIPT_PARAM_TYPE::kSex:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Male"_h:
+					data.i = RE::SEX::kMale;
+					break;
+				case "Female"_h:
+					data.i = RE::SEX::kFemale;
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kFormType:
+			data.i = static_cast<std::int32_t>(RE::StringToFormType(a_param));
+			break;
+		case PARAM_TYPE::kCastingSource:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Instant"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kInstant);
+					break;
+				case "Left"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kLeftHand);
+					break;
+				case "Right"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kRightHand);
+					break;
+				case "Voice"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kOther);
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kWardState:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Absorb"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::WardState::kAbsorb);
+					break;
+				case "Break"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::WardState::kBreak);
+					break;
+				case "NONE"_h:
+					data.i = static_cast<std::int32_t>(RE::MagicSystem::WardState::kNone);
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kCritStage:
+			{
+				switch (string::const_hash(a_param)) {
+				case "NONE"_h:
+					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kNone);
+					break;
+				case "GooStart"_h:
+					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kGooStart);
+					break;
+				case "GooEnd"_h:
+					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kGooEnd);
+					break;
+				case "DisintegrateStart"_h:
+					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kDisintegrateStart);
+					break;
+				case "DisintegrateEnd"_h:
+					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kDisintegrateEnd);
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kCrimeType:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Steal"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kSteal);
+					break;
+				case "Pickpocket"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kPickpocket);
+					break;
+				case "Trespass"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kTrespass);
+					break;
+				case "Attack"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kAttack);
+					break;
+				case "Murder"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kMurder);
+					break;
+				case "Escape"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kEscape);
+					break;
+				case "Werewolf Transformation"_h:
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kUnused);
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kSkillAction:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Normal Usage"_h:
+					data.i = 0;
+					break;
+				case "Power Attack"_h:
+					data.i = 1;
+					break;
+				case "Bash"_h:
+					data.i = 2;
+					break;
+				case "Lockpick Success"_h:
+					data.i = 3;
+					break;
+				case "Lockpick Broken"_h:
+					data.i = 4;
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kAlignment:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Good"_h:
+					data.i = 0;
+					break;
+				case "Neutral"_h:
+					data.i = 1;
+					break;
+				case "Evil"_h:
+					data.i = 2;
+					break;
+				case "VeryGood"_h:
+					data.i = 3;
+					break;
+				case "VeryEvil"_h:
+					data.i = 4;
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kFurnitureAnimType:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Sit"_h:
+					data.i = 1;
+					break;
+				case "Lay"_h:
+					data.i = 2;
+					break;
+				case "Lean"_h:
+					data.i = 4;
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kFurnitureEntryType:
+			{
+				switch (string::const_hash(a_param)) {
+				case "Front"_h:
+					data.i = 1 << 16;
+					break;
+				case "Behind"_h:
+					data.i = 1 << 17;
+					break;
+				case "Left"_h:
+					data.i = 1 << 19;
+					break;
+				case "Right"_h:
+					data.i = 1 << 18;
+					break;
+				case "Up"_h:
+					data.i = 1 << 20;
+					break;
+				default:
+					data.i = -1;
+					break;
+				}
+			}
+			break;
+		case PARAM_TYPE::kObjectRef:
+		case PARAM_TYPE::kActor:
+		case PARAM_TYPE::kContainerRef:
+			{
+				if (string::icontains(a_param, "Player")) {
+					data.ptr = RE::PlayerCharacter::GetSingleton();
 				} else {
-					if (const auto form = RE::TESForm::LookupByEditorID(a_str)) {
-						a_param = form;
-						result = true;
+					data.ptr = lookup_form(a_param);
+				}
+			}
+			break;
+		case PARAM_TYPE::kMapMarker:
+		case PARAM_TYPE::kEquipType:
+		case PARAM_TYPE::kInventoryObject:
+		case PARAM_TYPE::kSpellItem:
+		case PARAM_TYPE::kMessage:
+		case PARAM_TYPE::kInvObjectOrFormList:
+		case PARAM_TYPE::kObjectOrFormList:
+		case PARAM_TYPE::kMusic:
+		case PARAM_TYPE::kVoiceType:
+		case PARAM_TYPE::kIdleForm:
+		case PARAM_TYPE::kFormList:
+		case PARAM_TYPE::kQuest:
+		case PARAM_TYPE::kFaction:
+		case PARAM_TYPE::kCell:
+		case PARAM_TYPE::kClass:
+		case PARAM_TYPE::kRace:
+		case PARAM_TYPE::kActorBase:
+		case PARAM_TYPE::kGlobal:
+		case PARAM_TYPE::kWeather:
+		case PARAM_TYPE::kPackage:
+		case PARAM_TYPE::kEncounterZone:
+		case PARAM_TYPE::kPerk:
+		case PARAM_TYPE::kOwner:
+		case PARAM_TYPE::kFurnitureOrFormList:
+		case PARAM_TYPE::kMagicItem:
+		case PARAM_TYPE::kMagicEffect:
+		case PARAM_TYPE::kWorldOrList:
+		case PARAM_TYPE::kObject:
+		case PARAM_TYPE::kRegion:
+		case PARAM_TYPE::kShout:
+		case PARAM_TYPE::kLocation:
+		case PARAM_TYPE::kRefType:
+		case PARAM_TYPE::kAssociationType:
+		case PARAM_TYPE::kBGSScene:
+		case PARAM_TYPE::kForm:
+		case PARAM_TYPE::kKnowableForm:
+		case PARAM_TYPE::kWordOfPower:
+		case PARAM_TYPE::kTopic:
+		case PARAM_TYPE::kNPC:
+		case PARAM_TYPE::kSound:
+		case PARAM_TYPE::kCombatStyle:
+		case PARAM_TYPE::kShaderEffect:
+		case PARAM_TYPE::kReferenceEffect:
+		case PARAM_TYPE::kMenuIcon:
+		case PARAM_TYPE::kNote:
+		case PARAM_TYPE::kImagespaceMod:
+		case PARAM_TYPE::kImagespace:
+			data.ptr = lookup_form(a_param);
+			break;
+		case PARAM_TYPE::kKeyword:
+			{
+				switch (dist::get_record_type(a_param)) {
+				case dist::kEditorID:
+					{
+						const auto& keywordArray = RE::TESDataHandler::GetSingleton()->GetFormArray<RE::BGSKeyword>();
+						const auto  it = std::ranges::find_if(keywordArray, [&](const auto& keyword) { return keyword->formEditorID == a_param.c_str(); });
+						if (it != keywordArray.end()) {
+							data.ptr = *it;
+						}
 					}
+					break;
+				default:
+					data.ptr = lookup_form(a_param);
+					break;
 				}
 			}
 			break;
 		default:
 			break;
 		}
-
-		return result;
 	}
 
-	std::vector<ConditionData> ParseConditionList(const std::vector<std::string>& a_conditionList)
+	std::string PARAM::ToString()
 	{
-		using TYPE = ConditionData::TYPE;
+		const auto lookup_form_id = [&]() {
+			if (data.ptr) {
+				if (auto edid = editorID::get_editorID(data.ptr); !edid.empty()) {
+					return edid;
+				} else if (data.ptr->GetFile(0)) {
+					return fmt::format("0x{:X}", data.ptr->GetLocalFormID()).append(" ~ ").append(data.ptr->GetFile(0)->fileName);
+				} else {  // bad
+					return fmt::format("0x{:X}", data.ptr->GetFormID());
+				}
+			}
+			return "NONE"s;
+		};
 
-		std::vector<ConditionData> dataVec{};
+		if (state != STATE::kValid) {
+			return "NONE"s;
+		}
+
+		switch (*type) {
+		case PARAM_TYPE::kInt:
+		case PARAM_TYPE::kStage:
+		case PARAM_TYPE::kRelationshipRank:
+			return std::to_string(data.i);
+		case PARAM_TYPE::kFloat:
+			return std::to_string(data.f);
+		case PARAM_TYPE::kActorValue:
+			return RE::ActorValueList::GetSingleton()->GetActorValue(static_cast<RE::ActorValue>(data.i))->enumName;
+		case PARAM_TYPE::kAxis:
+			{
+				switch (data.i) {
+				case 88:
+					return "X"s;
+				case 89:
+					return "Y"s;
+				case 90:
+					return "Z"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kSex:
+			{
+				switch (data.i) {
+				case RE::SEX::kMale:
+					return "Male"s;
+				case RE::SEX::kFemale:
+					return "Female"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kFormType:
+			return std::string(RE::FormTypeToString(static_cast<RE::FormType>(data.i)));
+		case PARAM_TYPE::kCastingSource:
+			{
+				switch (data.i) {
+				case static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kInstant):
+					return "Instant"s;
+				case static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kLeftHand):
+					return "Left"s;
+				case static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kRightHand):
+					return "Right"s;
+				case static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kOther):
+					return "Voice"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kWardState:
+			{
+				switch (data.i) {
+				case static_cast<std::int32_t>(RE::MagicSystem::WardState::kAbsorb):
+					return "Absorb"s;
+				case static_cast<std::int32_t>(RE::MagicSystem::WardState::kBreak):
+					return "Break"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kCritStage:
+			{
+				switch (data.i) {
+				case static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kGooStart):
+					return "GooStart"s;
+				case static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kGooEnd):
+					return "GooEnd"s;
+				case static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kDisintegrateStart):
+					return "DisintegrateStart"s;
+				case static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kDisintegrateEnd):
+					return "DisintegrateEnd"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kCrimeType:
+			{
+				switch (data.i) {
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kSteal):
+					return "Steal"s;
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kPickpocket):
+					return "Pickpocket"s;
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kTrespass):
+					return "Trespass"s;
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kAttack):
+					return "Attack"s;
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kMurder):
+					return "Murder"s;
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kEscape):
+					return "Escape"s;
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kUnused):
+					return "Werewolf Transformation"s;
+				default:
+					return "ANY";
+				}
+			}
+		case PARAM_TYPE::kSkillAction:
+			{
+				switch (data.i) {
+				case 0:
+					return "Normal Usage"s;
+				case 1:
+					return "Power Attack"s;
+				case 2:
+					return "Bash"s;
+				case 3:
+					return "Lockpick Success"s;
+				case 4:
+					return "Lockpick Broken"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kAlignment:
+			{
+				switch (data.i) {
+				case 0:
+					return "Good"s;
+				case 1:
+					return "Neutral"s;
+				case 2:
+					return "Evil"s;
+				case 3:
+					return "VeryGood"s;
+				case 4:
+					return "VeryEvil"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kFurnitureAnimType:
+			{
+				switch (data.i) {
+				case 1:
+					return "Sit"s;
+				case 2:
+					return "Lay"s;
+				case 4:
+					return "Lean"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kFurnitureEntryType:
+			{
+				switch (data.i) {
+				case 1 << 16:
+					return "Front"s;
+				case 1 << 17:
+					return "Behind"s;
+				case 1 << 19:
+					return "Left"s;
+				case 1 << 18:
+					return "Right"s;
+				case 1 << 20:
+					return "Up"s;
+				default:
+					return "NONE"s;
+				}
+			}
+		case PARAM_TYPE::kObjectRef:
+		case PARAM_TYPE::kActor:
+		case PARAM_TYPE::kContainerRef:
+			{
+				if (data.ptr == RE::PlayerCharacter::GetSingleton()) {
+					return "PlayerRef"s;
+				} else {
+					return lookup_form_id();
+				}
+			}
+		case PARAM_TYPE::kMapMarker:
+		case PARAM_TYPE::kEquipType:
+		case PARAM_TYPE::kInventoryObject:
+		case PARAM_TYPE::kSpellItem:
+		case PARAM_TYPE::kMessage:
+		case PARAM_TYPE::kInvObjectOrFormList:
+		case PARAM_TYPE::kObjectOrFormList:
+		case PARAM_TYPE::kMusic:
+		case PARAM_TYPE::kVoiceType:
+		case PARAM_TYPE::kIdleForm:
+		case PARAM_TYPE::kFormList:
+		case PARAM_TYPE::kQuest:
+		case PARAM_TYPE::kFaction:
+		case PARAM_TYPE::kCell:
+		case PARAM_TYPE::kClass:
+		case PARAM_TYPE::kRace:
+		case PARAM_TYPE::kActorBase:
+		case PARAM_TYPE::kGlobal:
+		case PARAM_TYPE::kWeather:
+		case PARAM_TYPE::kPackage:
+		case PARAM_TYPE::kEncounterZone:
+		case PARAM_TYPE::kPerk:
+		case PARAM_TYPE::kOwner:
+		case PARAM_TYPE::kFurnitureOrFormList:
+		case PARAM_TYPE::kMagicItem:
+		case PARAM_TYPE::kMagicEffect:
+		case PARAM_TYPE::kWorldOrList:
+		case PARAM_TYPE::kObject:
+		case PARAM_TYPE::kRegion:
+		case PARAM_TYPE::kShout:
+		case PARAM_TYPE::kLocation:
+		case PARAM_TYPE::kRefType:
+		case PARAM_TYPE::kAssociationType:
+		case PARAM_TYPE::kBGSScene:
+		case PARAM_TYPE::kForm:
+		case PARAM_TYPE::kKnowableForm:
+		case PARAM_TYPE::kWordOfPower:
+		case PARAM_TYPE::kTopic:
+		case PARAM_TYPE::kNPC:
+		case PARAM_TYPE::kSound:
+		case PARAM_TYPE::kCombatStyle:
+		case PARAM_TYPE::kShaderEffect:
+		case PARAM_TYPE::kReferenceEffect:
+		case PARAM_TYPE::kMenuIcon:
+		case PARAM_TYPE::kNote:
+		case PARAM_TYPE::kImagespaceMod:
+		case PARAM_TYPE::kImagespace:
+		case PARAM_TYPE::kKeyword:
+			return lookup_form_id();
+		default:
+			return "NONE"s;
+		}
+	}
+
+	bool PARAM::IsValid() const
+	{
+		return state != STATE::kInvalid;
+	}
+
+	std::vector<RE::CONDITION_ITEM_DATA> ParseConditionList(const std::vector<std::string>& a_conditionList)
+	{
+		enum TYPE : std::uint32_t
+		{
+			kConditionItemObject = 0,
+			kFunctionID,
+			kParam1,
+			kParam2,
+			kOPCode,
+			kFloat,
+			kANDOR,
+
+			kTotal = 7
+		};
+
+		std::vector<RE::CONDITION_ITEM_DATA> dataVec{};
 
 		for (auto& condition : a_conditionList) {
 			if (condition.empty()) {
 				continue;
 			}
 
-			ConditionData data{};
-
 			auto split_condition = string::split(condition, " | ");
-			if (split_condition.size() != TYPE::kTotal) {
+			if (split_condition.size() != kTotal) {
 				continue;
 			}
 
@@ -695,262 +1369,144 @@ namespace CONDITION
 				string::trim(conditionData);
 			}
 
-			try {
-				//conditionItemObject
-				if (auto condItem = util::get_value<COND_OBJECT>(split_condition[TYPE::kConditionItemObject])) {
-					data.conditionItem = *condItem;
-				} else {
-					continue;
-				}
+			RE::CONDITION_ITEM_DATA condData;
 
-				switch (data.conditionItem) {
-				case COND_OBJECT::kRef:
-				case COND_OBJECT::kLinkedRef:
-				case COND_OBJECT::kQuestAlias:
-				case COND_OBJECT::kPackData:
-				case COND_OBJECT::kEventData:
-					continue;
-				default:
-					break;
-				}
-
-				//functionID
-				if (auto funcID = util::get_value<FUNC_ID>(split_condition[TYPE::kFunctionID])) {
-					data.functionID = *funcID;
-				} else {
-					continue;
-				}
-				const auto [param1Type, param2Type] = GetFuncType(data.functionID);
-
-				//param1
-				auto& param1Str = split_condition[TYPE::kParam1];
-				if (dist::is_valid_entry(param1Str)) {
-					const auto result = ParseVoidParams(param1Str, data.param1, param1Type);
-					if (!result) {
-						continue;
-					}
-				}
-
-				//param2
-				auto& param2Str = split_condition[TYPE::kParam2];
-				if (dist::is_valid_entry(param2Str)) {
-					const auto result = ParseVoidParams(param2Str, data.param2, param2Type);
-					if (!result) {
-						continue;
-					}
-				}
-
-				//OPCode
-				if (auto opCode = util::get_value<OP_CODE>(split_condition[TYPE::kOPCode])) {
-					data.opCode = *opCode;
-				} else {
-					continue;
-				}
-
-				//float
-				data.value = string::to_num<float>(split_condition[TYPE::kFloat]);
-
-				//operator
-				data.andOr = string::iequals(split_condition[TYPE::kANDOR], "OR"sv);
-			} catch (...) {
+			//conditionItemObject
+			if (auto condItem = map::get_value<COND_OBJECT>(split_condition[kConditionItemObject])) {
+				condData.object = *condItem;
+			} else {
 				continue;
 			}
 
-			dataVec.push_back(data);
+			switch (*condData.object) {
+			case COND_OBJECT::kRef:
+			case COND_OBJECT::kLinkedRef:
+			case COND_OBJECT::kQuestAlias:
+			case COND_OBJECT::kPackData:
+			case COND_OBJECT::kEventData:
+				continue;
+			default:
+				break;
+			}
+
+			//functionID
+			auto funcID = map::get_value<FUNC_ID>(split_condition[kFunctionID]);
+			if (funcID) {
+				condData.functionData.function = *funcID;
+			} else {
+				continue;
+			}
+
+			//params
+			const auto [param1Type, param2Type] = GetFuncType(*funcID);
+
+			PARAM param1(param1Type, split_condition[kParam1]);
+			if (param1.IsValid()) {
+				condData.functionData.params[0] = std::bit_cast<void*>(param1.data);
+			} else {
+				continue;
+			}
+
+			PARAM param2(param2Type, split_condition[kParam2]);
+			if (param2.IsValid()) {
+				condData.functionData.params[1] = std::bit_cast<void*>(param2.data);
+			} else {
+				continue;
+			}
+
+			//OPCode
+			if (auto opCode = map::get_value<OP_CODE>(split_condition[kOPCode])) {
+				condData.flags.opCode = *opCode;
+			} else {
+				continue;
+			}
+
+			//float
+			condData.comparisonValue.f = string::to_num<float>(split_condition[kFloat]);
+
+			//operator
+			condData.flags.isOR = string::iequals(split_condition[kANDOR], "OR"sv);
+
+			dataVec.emplace_back(condData);
 		}
 
 		return dataVec;
 	}
 
-	bool BuildVoidParams(std::string& a_str, void* a_param, std::optional<PARAM_TYPE> a_type)
-	{
-		if (!a_type || !a_param) {
-			a_str += "NONE"sv;
-			return true;
-		}
-
-		bool result = false;
-
-		switch (*a_type) {
-		case PARAM_TYPE::kInt:
-			{
-				const auto integer = static_cast<std::int32_t>(reinterpret_cast<intptr_t>(a_param));
-				a_str += std::to_string(integer);
-
-				result = true;
-			}
-			break;
-		case PARAM_TYPE::kFloat:
-			{
-				const auto num = *reinterpret_cast<float*>(&a_param);
-				a_str += std::to_string(num);
-
-				result = true;
-			}
-			break;
-		case PARAM_TYPE::kChar:
-			{
-				a_str += *static_cast<const char*>(a_param);
-				result = true;
-			}
-			break;
-		case PARAM_TYPE::kSex:
-			{
-				const auto sex = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
-				a_str += sex == 0 ? "Male" : "Female";
-
-				result = true;
-			}
-			break;
-		case PARAM_TYPE::kActorValue:
-			{
-				auto av = static_cast<std::uint32_t>(reinterpret_cast<uintptr_t>(a_param));
-
-				const auto avList = RE::ActorValueList::GetSingleton();
-				if (const auto info = avList ? avList->GetActorValue(static_cast<RE::ActorValue>(av)) : nullptr) {
-					a_str += info->enumName;
-				}
-
-				result = true;
-			}
-			break;
-		case PARAM_TYPE::kObjectRef:
-		case PARAM_TYPE::kActor:
-			{
-				if (const auto player = static_cast<RE::PlayerCharacter*>(a_param); player) {
-					a_str += "PlayerRef"sv;
-				} else if (const auto form = static_cast<RE::TESForm*>(a_param); form) {
-					a_str += fmt::format("0x{:X}", form->GetLocalFormID());
-					a_str += " ~ "sv;
-					a_str += form->GetFile(0)->fileName;
-
-					result = true;
-				} else {
-					a_str += "NONE"sv;
-				}
-			}
-			break;
-		case PARAM_TYPE::kEquipType:
-		case PARAM_TYPE::kInventoryObject:
-		case PARAM_TYPE::kInvObjectOrFormList:
-		case PARAM_TYPE::kVoiceType:
-		case PARAM_TYPE::kIdleForm:
-		case PARAM_TYPE::kFormList:
-		case PARAM_TYPE::kQuest:
-		case PARAM_TYPE::kFaction:
-		case PARAM_TYPE::kCell:
-		case PARAM_TYPE::kClass:
-		case PARAM_TYPE::kRace:
-		case PARAM_TYPE::kActorBase:
-		case PARAM_TYPE::kGlobal:
-		case PARAM_TYPE::kWeather:
-		case PARAM_TYPE::kPackage:
-		case PARAM_TYPE::kEncounterZone:
-		case PARAM_TYPE::kPerk:
-		case PARAM_TYPE::kOwner:
-		case PARAM_TYPE::kFurnitureOrFormList:
-		case PARAM_TYPE::kMagicItem:
-		case PARAM_TYPE::kMagicEffect:
-		case PARAM_TYPE::kWorldOrList:
-		case PARAM_TYPE::kObject:
-		case PARAM_TYPE::kRegion:
-		case PARAM_TYPE::kKeyword:
-		case PARAM_TYPE::kShout:
-		case PARAM_TYPE::kLocation:
-		case PARAM_TYPE::kRefType:
-		case PARAM_TYPE::kAssociationType:
-		case PARAM_TYPE::kBGSScene:
-		case PARAM_TYPE::kKnowableForm:
-			{
-				if (const auto form = static_cast<RE::TESForm*>(a_param)) {
-					a_str += fmt::format("0x{:X}", form->GetLocalFormID());
-					a_str += " ~ "sv;
-					a_str += form->GetFile(0)->fileName;
-
-					result = true;
-				} else {
-					a_str += "NONE"sv;
-				}
-			}
-			break;
-		default:
-			break;
-		}
-
-		return result;
-	}
-
 	std::vector<std::string> BuildConditionList(const RE::TESCondition* a_conditions)
 	{
-		using OPCODE = RE::CONDITION_ITEM_DATA::OpCode;
-
-		std::vector<ConditionData> conditionVec{};
+		std::vector<RE::CONDITION_ITEM_DATA> condDataVec{};
 
 		if (a_conditions) {
 			auto tmp = a_conditions->head;
 			while (tmp != nullptr) {
-				conditionVec.emplace_back(tmp);
+				condDataVec.emplace_back(tmp->data);
 				tmp = tmp->next;
 			}
 		}
 
-		if (conditionVec.empty()) {
+		if (condDataVec.empty()) {
 			return {};
 		}
 
 		std::vector<std::string> vec;
-		vec.reserve(conditionVec.size());
+		vec.reserve(condDataVec.size());
 
-		for (auto& [conditionItem, functionID, param1, param2, operationCode, floatVal, operatorVal] : conditionVec) {
+		for (auto& condData : condDataVec) {
 			std::string condition;
+
 			//condition
-			auto condItem = stl::to_underlying(conditionItem);
-			if (auto condItemStr = util::get_value<std::string>(conditionObjs, condItem)) {
+			auto condObject = stl::to_underlying(*condData.object);
+			if (auto condItemStr = map::get_value<std::string>(map::conditionObjs, condObject)) {
 				condition += *condItemStr;
 			} else {
-				condition += std::to_string(condItem);
+				condition += std::to_string(condObject);
 			}
 			condition.append(" | "sv);
+
 			//functionID
-			auto funcID = stl::to_underlying(functionID);
-			if (auto funcIDStr = util::get_value<std::string>(funcIDs, funcID)) {
+			auto funcID = stl::to_underlying(*condData.functionData.function);
+			if (auto funcIDStr = map::get_value<std::string>(map::funcIDs, funcID)) {
 				condition += *funcIDStr;
 			} else {
 				condition += std::to_string(funcID);
 			}
-			const auto paramPair = GetFuncType(functionID);
-			//param1
 			condition.append(" | "sv);
-			try {
-				if (!BuildVoidParams(condition, param1, paramPair.first)) {
-					continue;
-				}
-			} catch (...) {
-				condition.append("NONE"sv);
+
+			//params
+			const auto [param1Type, param2Type] = GetFuncType(*condData.functionData.function);
+
+			PARAM param1(param1Type, condData.functionData.params[0]);
+			if (param1.IsValid()) {
+				condition.append(param1.ToString());
+				condition.append(" | "sv);
+			} else {
+				continue;
 			}
-			condition.append(" | "sv);
-			//param2
-			try {
-				if (!BuildVoidParams(condition, param2, paramPair.second)) {
-					continue;
-				}
-			} catch (...) {
-				condition.append("NONE"sv);
+
+			PARAM param2(param2Type, condData.functionData.params[1]);
+			if (param2.IsValid()) {
+				condition.append(param2.ToString());
+				condition.append(" | "sv);
+			} else {
+				continue;
 			}
-			condition.append(" | "sv);
+
 			//opCode
-			auto opCode = stl::to_underlying(operationCode);
-			if (auto opCodeStr = util::get_value<std::string>(opCodes, opCode)) {
+			auto opCode = stl::to_underlying(condData.flags.opCode);
+			if (auto opCodeStr = map::get_value<std::string>(map::opCodes, opCode)) {
 				condition += *opCodeStr;
 			} else {
 				condition += std::to_string(opCode);
 			}
 			condition.append(" | "sv);
+
 			//floatVal
-			condition += std::to_string(std::roundf(floatVal));
+			condition += std::to_string(std::roundf(condData.comparisonValue.f));
 			condition.append(" | "sv);
+
 			//ANDOR
-			condition.append(operatorVal ? "OR"sv : "AND"sv);
+			condition.append(condData.flags.isOR ? "OR"sv : "AND"sv);
 
 			vec.emplace_back(condition.c_str());
 		}
@@ -963,12 +1519,6 @@ namespace CONDITION
 		RE::TESCondition* condition = nullptr;
 
 		switch (a_form.GetFormType()) {
-		case RE::FormType::MagicEffect:
-			{
-				const auto effect = a_form.As<RE::EffectSetting>();
-				condition = &effect->conditions;
-			}
-			break;
 		case RE::FormType::Spell:
 		case RE::FormType::Enchantment:
 		case RE::FormType::Ingredient:
@@ -979,23 +1529,32 @@ namespace CONDITION
 				condition = a_index < magicItem->effects.size() ? &magicItem->effects[a_index]->conditions : nullptr;
 			}
 			break;
+		case RE::FormType::MagicEffect:
+			condition = &a_form.As<RE::EffectSetting>()->conditions;
+			break;
 		case RE::FormType::Info:
-			{
-				const auto topic = a_form.As<RE::TESTopicInfo>();
-				condition = &topic->objConditions;
-			}
+			condition = &a_form.As<RE::TESTopicInfo>()->objConditions;
 			break;
 		case RE::FormType::Package:
-			{
-				const auto package = a_form.As<RE::TESPackage>();
-				condition = &package->packConditions;
-			}
+			condition = &a_form.As<RE::TESPackage>()->packConditions;
 			break;
 		case RE::FormType::Perk:
-			{
-				const auto perk = a_form.As<RE::BGSPerk>();
-				condition = &perk->perkConditions;
-			}
+			condition = &a_form.As<RE::BGSPerk>()->perkConditions;
+			break;
+		case RE::FormType::CameraPath:
+			condition = &a_form.As<RE::BGSCameraPath>()->conditions;
+			break;
+		case RE::FormType::ConstructibleObject:
+			condition = &a_form.As<RE::BGSConstructibleObject>()->conditions;
+			break;
+		case RE::FormType::Faction:
+			condition = a_form.As<RE::TESFaction>()->vendorData.vendorConditions;
+			break;
+		case RE::FormType::Idle:
+			condition = &a_form.As<RE::TESIdleForm>()->conditions;
+			break;
+		case RE::FormType::LoadScreen:
+			condition = &a_form.As<RE::TESLoadScreen>()->conditions;
 			break;
 		default:
 			break;

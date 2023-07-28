@@ -2,7 +2,7 @@
 
 namespace Papyrus::VisualEffect
 {
-	inline RE::BGSArtObject* GetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::BGSReferenceEffect* a_vfx)
+	inline RE::BGSArtObject* GetArtObject(STATIC_ARGS, const RE::BGSReferenceEffect* a_vfx)
 	{
 		if (!a_vfx) {
 			a_vm->TraceStack("VisualEffect is None", a_stackID);
@@ -12,9 +12,7 @@ namespace Papyrus::VisualEffect
 		return a_vfx->data.artObject;
 	}
 
-	inline std::uint32_t GetArtObjectTotalCount(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::BGSReferenceEffect* a_vfx,
-		bool a_active)
+	inline std::uint32_t GetArtObjectTotalCount(STATIC_ARGS, const RE::BGSReferenceEffect* a_vfx, bool a_active)
 	{
 		std::uint32_t count = 0;
 
@@ -41,9 +39,7 @@ namespace Papyrus::VisualEffect
 		return count;
 	}
 
-	inline void SetArtObject(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::BGSReferenceEffect* a_vfx,
-		RE::BGSArtObject* a_art)
+	inline void SetArtObject(STATIC_ARGS, RE::BGSReferenceEffect* a_vfx, RE::BGSArtObject* a_art)
 	{
 		if (!a_vfx) {
 			a_vm->TraceStack("VisualEffect is None", a_stackID);

@@ -7,8 +7,7 @@ public:
 	DataMapPair() :
 		_pair(),
 		_lock()
-	{
-	}
+	{}
 	DataMapPair(const DataMapPair& a_rhs) :
 		_pair(),
 		_lock()
@@ -17,7 +16,7 @@ public:
 		_pair = a_rhs._pair;
 		a_rhs._lock.unlock();
 	}
-	DataMapPair(DataMapPair&& a_rhs) :
+	DataMapPair(DataMapPair&& a_rhs) noexcept :
 		_pair(),
 		_lock()
 	{
@@ -27,7 +26,7 @@ public:
 		a_rhs._pair.second.clear();
 	}
 
-	~DataMapPair() = default;
+	virtual ~DataMapPair() = default;
 
 	DataMapPair& operator=(const DataMapPair& a_rhs)
 	{
@@ -46,7 +45,7 @@ public:
 
 		return *this;
 	}
-	DataMapPair& operator=(DataMapPair&& a_rhs)
+	DataMapPair& operator=(DataMapPair&& a_rhs) noexcept
 	{
 		if (this == &a_rhs) {
 			return *this;
@@ -116,20 +115,18 @@ protected:
 	using Locker = std::lock_guard<Lock>;
 
 	std::pair<std::map<K, std::set<D>>, std::map<K, std::set<D>>> _pair;
-	mutable Lock _lock;
+	mutable Lock                                                  _lock;
 };
 
 template <class F, class D>
 class FormMapPair : public DataMapPair<RE::FormID, RE::FormID>
 {
 public:
-	FormMapPair() :
-		DataMapPair()
-	{}
-
+	FormMapPair() = default;
 	FormMapPair(const FormMapPair&) = default;
 	FormMapPair(FormMapPair&&) = default;
-	~FormMapPair() = default;
+
+	~FormMapPair() override = default;
 
 	FormMapPair& operator=(const FormMapPair&) = default;
 	FormMapPair& operator=(FormMapPair&&) = default;
@@ -164,10 +161,10 @@ public:
 		assert(a_intfc);
 		Locker locker(_lock);
 
-		auto& formMap = GetData(a_index);
+		auto&             formMap = GetData(a_index);
 		const std::size_t numRegs = formMap.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
-			logger::error("Failed to save number of regs ({})", numRegs);
+			logger::error("Failed to save reg count ({})", numRegs);
 			return false;
 		}
 
@@ -178,7 +175,7 @@ public:
 			}
 			const std::size_t numData = data.size();
 			if (!a_intfc->WriteRecordData(numData)) {
-				logger::error("Failed to save number of data regs ({})", numData);
+				logger::error("Failed to save data reg count ({})", numData);
 				return false;
 			}
 			for (const auto& dataID : data) {
@@ -202,20 +199,18 @@ public:
 		auto& formMap = GetData(a_index);
 		formMap.clear();
 
-		RE::FormID formID;
-		RE::FormID dataID;
+		RE::FormID  formID;
+		RE::FormID  dataID;
 		std::size_t numData;
 
 		for (std::size_t i = 0; i < numRegs; i++) {
-			a_intfc->ReadRecordData(formID);
-			if (!a_intfc->ResolveFormID(formID, formID)) {
+			if (!stl::read_formID(a_intfc, formID)) {
 				logger::warn("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
 				continue;
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {
-				a_intfc->ReadRecordData(dataID);
-				if (!a_intfc->ResolveFormID(dataID, dataID)) {
+				if (!stl::read_formID(a_intfc, dataID)) {
 					logger::warn("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
 					continue;
 				}
@@ -256,7 +251,8 @@ public:
 	FormDataMapPair() = default;
 	FormDataMapPair(const FormDataMapPair&) = default;
 	FormDataMapPair(FormDataMapPair&&) = default;
-	~FormDataMapPair() = default;
+
+	~FormDataMapPair() override = default;
 
 	FormDataMapPair& operator=(const FormDataMapPair&) = default;
 	FormDataMapPair& operator=(FormDataMapPair&&) = default;

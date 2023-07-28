@@ -1,15 +1,12 @@
 #pragma once
 
-#include "Game/Cache.h"
 #include "Game/HookedEventHandler.h"
 #include "Papyrus/Util/Inventory.h"
 #include "Serialization/Services.h"
 
 namespace Papyrus::Form::Functions
 {
-	inline void AddKeywordToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		RE::BGSKeyword* a_keyword)
+	inline void AddKeywordToForm(STATIC_ARGS, RE::TESForm* a_form, RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;
 
@@ -25,9 +22,7 @@ namespace Papyrus::Form::Functions
 		FORM::KeywordManager::GetSingleton()->Add(a_form, a_keyword);
 	}
 
-	inline void ClearRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_flag)
+	inline void ClearRecordFlag(STATIC_ARGS, RE::TESForm* a_form, std::uint32_t a_flag)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -37,10 +32,7 @@ namespace Papyrus::Form::Functions
 		a_form->formFlags &= ~a_flag;
 	}
 
-	inline bool EvaluateConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		RE::TESObjectREFR* a_actionRef,
-		RE::TESObjectREFR* a_target)
+	inline bool EvaluateConditionList(STATIC_ARGS, RE::TESForm* a_form, RE::TESObjectREFR* a_actionRef, RE::TESObjectREFR* a_target)
 	{
 		bool result = false;
 
@@ -85,28 +77,34 @@ namespace Papyrus::Form::Functions
 			}
 			break;
 		case RE::FormType::MagicEffect:
-			{
-				const auto effect = a_form->As<RE::EffectSetting>();
-				result = effect->conditions.IsTrue(a_actionRef, a_target);
-			}
+			result = a_form->As<RE::EffectSetting>()->conditions.IsTrue(a_actionRef, a_target);
 			break;
 		case RE::FormType::Info:
-			{
-				const auto topic = a_form->As<RE::TESTopicInfo>();
-				result = topic->objConditions.IsTrue(a_actionRef, a_target);
-			}
+			result = a_form->As<RE::TESTopicInfo>()->objConditions.IsTrue(a_actionRef, a_target);
 			break;
 		case RE::FormType::Package:
-			{
-				const auto package = a_form->As<RE::TESPackage>();
-				result = package->packConditions.IsTrue(a_actionRef, a_target);
-			}
+			result = a_form->As<RE::TESPackage>()->packConditions.IsTrue(a_actionRef, a_target);
 			break;
 		case RE::FormType::Perk:
+			result = a_form->As<RE::BGSPerk>()->perkConditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::CameraPath:
+			result = a_form->As<RE::BGSCameraPath>()->conditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::ConstructibleObject:
+			result = a_form->As<RE::BGSConstructibleObject>()->conditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::Faction:
 			{
-				const auto perk = a_form->As<RE::BGSPerk>();
-				result = perk->perkConditions.IsTrue(a_actionRef, a_target);
+				const auto vendorConditions = a_form->As<RE::TESFaction>()->vendorData.vendorConditions;
+				result = vendorConditions && vendorConditions->IsTrue(a_actionRef, a_target);
 			}
+			break;
+		case RE::FormType::Idle:
+			result = a_form->As<RE::TESIdleForm>()->conditions.IsTrue(a_actionRef, a_target);
+			break;
+		case RE::FormType::LoadScreen:
+			result = a_form->As<RE::TESLoadScreen>()->conditions.IsTrue(a_actionRef, a_target);
 			break;
 		default:
 			result = true;
@@ -116,9 +114,7 @@ namespace Papyrus::Form::Functions
 		return result;
 	}
 
-	inline std::vector<std::string> GetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_index)
+	inline std::vector<std::string> GetConditionList(STATIC_ARGS, RE::TESForm* a_form, std::uint32_t a_index)
 	{
 		std::vector<std::string> result;
 
@@ -136,7 +132,7 @@ namespace Papyrus::Form::Functions
 		return CONDITION::BuildConditionList(formConditions);
 	}
 
-	inline RE::BSFixedString GetDescription(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	inline RE::BSFixedString GetDescription(STATIC_ARGS, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -155,17 +151,17 @@ namespace Papyrus::Form::Functions
 		return {};
 	}
 
-	inline RE::BSFixedString GetFormEditorID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	inline RE::BSFixedString GetFormEditorID(STATIC_ARGS, const RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return {};
 		}
 
-		return Cache::EditorID::GetFormEditorID(a_form);
+		return editorID::get_editorID(a_form);
 	}
 
-	inline RE::BSFixedString GetFormModName(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, bool a_lastModified)
+	inline RE::BSFixedString GetFormModName(STATIC_ARGS, const RE::TESForm* a_form, bool a_lastModified)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -175,28 +171,25 @@ namespace Papyrus::Form::Functions
 		if (const auto file =
 				a_lastModified ?
                     a_form->GetDescriptionOwnerFile() :
-                    a_form->GetFile(0);
-			file) {
+                    a_form->GetFile(0)) {
 			return file->GetFilename();
 		}
 
 		return {};
 	}
 
-	inline bool IsFormInMod(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form, RE::BSFixedString a_modName)
+	inline bool IsFormInMod(STATIC_ARGS, const RE::TESForm* a_form, RE::BSFixedString a_modName)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return false;
 		}
 
-		const auto dataHandler = RE::TESDataHandler::GetSingleton();
-		const auto modInfo = dataHandler ? dataHandler->LookupModByName(a_modName) : nullptr;
-
+		const auto modInfo = RE::TESDataHandler::GetSingleton()->LookupModByName(a_modName);
 		return modInfo ? modInfo->IsFormInMod(a_form->GetFormID()) : false;
 	}
 
-	inline bool IsGeneratedForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::TESForm* a_form)
+	inline bool IsGeneratedForm(STATIC_ARGS, const RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -206,9 +199,7 @@ namespace Papyrus::Form::Functions
 		return a_form->IsDynamicForm();
 	}
 
-	inline bool IsRecordFlagSet(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
-		std::uint32_t a_flag)
+	inline bool IsRecordFlagSet(STATIC_ARGS, const RE::TESForm* a_form, std::uint32_t a_flag)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -218,9 +209,7 @@ namespace Papyrus::Form::Functions
 		return (a_form->formFlags & a_flag) != 0;
 	}
 
-	inline bool IsScriptAttachedToForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		const RE::TESForm* a_form,
-		RE::BSFixedString a_scriptName)
+	inline bool IsScriptAttachedToForm(STATIC_ARGS, const RE::TESForm* a_form, RE::BSFixedString a_scriptName)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -230,7 +219,7 @@ namespace Papyrus::Form::Functions
 		return SCRIPT::is_script_attached(a_form, a_scriptName);
 	}
 
-	inline void MarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	inline void MarkItemAsFavorite(STATIC_ARGS, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -258,10 +247,7 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline void RemoveConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_index,
-		std::vector<std::string> a_conditionList)
+	inline void RemoveConditionList(STATIC_ARGS, RE::TESForm* a_form, std::uint32_t a_index, std::vector<std::string> a_conditionList)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -280,11 +266,11 @@ namespace Papyrus::Form::Functions
 		}
 
 		if (const auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
-			auto* currentNode = formConditions->head;
+			auto*  currentNode = formConditions->head;
 			auto** previousNode = &formConditions->head;
 
 			while (currentNode != nullptr) {
-				if (std::ranges::find(conditions, currentNode) != conditions.end()) {
+				if (std::ranges::find(conditions, currentNode->data) != conditions.end()) {
 					*previousNode = currentNode->next;
 					delete currentNode;
 				} else {
@@ -295,9 +281,7 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline bool RemoveKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		RE::BGSKeyword* a_keyword)
+	inline bool RemoveKeywordOnForm(STATIC_ARGS, RE::TESForm* a_form, RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;
 
@@ -313,10 +297,7 @@ namespace Papyrus::Form::Functions
 		return FORM::KeywordManager::GetSingleton()->Remove(a_form, a_keyword);
 	}
 
-	inline void ReplaceKeywordOnForm(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		const RE::BGSKeyword* a_remove,
-		RE::BGSKeyword* a_add)
+	inline void ReplaceKeywordOnForm(STATIC_ARGS, RE::TESForm* a_form, const RE::BGSKeyword* a_remove, RE::BGSKeyword* a_add)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -333,7 +314,7 @@ namespace Papyrus::Form::Functions
 
 		if (const auto keywordForm = a_form->As<RE::BGSKeywordForm>(); keywordForm) {
 			if (keywordForm->keywords) {
-				bool found = false;
+				bool          found = false;
 				std::uint32_t removeIndex = 0;
 				for (std::uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 					if (const auto keyword = keywordForm->keywords[i]) {
@@ -354,10 +335,7 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline void SetConditionList(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_index,
-		std::vector<std::string> a_conditionList)
+	inline void SetConditionList(STATIC_ARGS, RE::TESForm* a_form, std::uint32_t a_index, std::vector<std::string> a_conditionList)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -375,17 +353,11 @@ namespace Papyrus::Form::Functions
 			return;
 		}
 
-		if (auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
-			for (auto& [object, functionID, param1, param2, opCode, value, ANDOR] : conditions) {
+		if (const auto conditions = CONDITION::ParseConditionList(a_conditionList); !conditions.empty()) {
+			for (const auto& conditionData : conditions) {
 				if (const auto newNode = new RE::TESConditionItem) {
 					newNode->next = nullptr;
-					newNode->data.object = object;
-					newNode->data.functionData.function = functionID;
-					newNode->data.functionData.params[0] = param1;
-					newNode->data.functionData.params[1] = param2;
-					newNode->data.flags.opCode = opCode;
-					newNode->data.comparisonValue.f = value;
-					newNode->data.flags.isOR = ANDOR;
+					newNode->data = conditionData;
 
 					if (formConditions->head == nullptr) {
 						formConditions->head = newNode;
@@ -401,46 +373,47 @@ namespace Papyrus::Form::Functions
 		}
 	}
 
-	inline bool SetFastTravelDisabled(VM*, StackID, RE::StaticFunctionTag*, bool a_disable)
+	inline bool SetFastTravelDisabled(STATIC_ARGS, bool a_disable)
 	{
 		return Event::FastTravel::SetFastTravelDisabled(a_disable);
 	}
 
-	inline bool SetFastTravelTargetFormID(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, const RE::FormID a_formID)
+	inline bool SetFastTravelTargetFormID(STATIC_ARGS, const RE::FormID a_formID)
 	{
 		if (!a_formID) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return false;
 		}
+
 		return Event::FastTravel::SetFastTravelTarget(a_formID);
 	}
 
-	inline bool SetFastTravelTargetRef(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESObjectREFR* a_ref)
+	inline bool SetFastTravelTargetRef(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Form is None", a_stackID);
 			return false;
 		}
+
 		return Event::FastTravel::SetFastTravelTarget(a_ref);
 	}
 
-	inline bool SetFastTravelTargetString(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::BSFixedString a_name)
+	inline bool SetFastTravelTargetString(STATIC_ARGS, RE::BSFixedString a_name)
 	{
 		if (a_name.empty()) {
 			a_vm->TraceStack("Name is empty", a_stackID);
 			return false;
 		}
+
 		return Event::FastTravel::SetFastTravelTarget(a_name.c_str());
 	}
 
-	inline float SetFastTravelWaitTimeout(VM*, StackID, RE::StaticFunctionTag*, float a_timeout)
+	inline float SetFastTravelWaitTimeout(STATIC_ARGS, float a_timeout)
 	{
 		return Event::FastTravel::SetFastTravelWaitTimeout(a_timeout);
 	}
 
-	inline void SetRecordFlag(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*,
-		RE::TESForm* a_form,
-		std::uint32_t a_flag)
+	inline void SetRecordFlag(STATIC_ARGS, RE::TESForm* a_form, std::uint32_t a_flag)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);
@@ -450,7 +423,7 @@ namespace Papyrus::Form::Functions
 		a_form->formFlags |= a_flag;
 	}
 
-	inline void UnmarkItemAsFavorite(VM* a_vm, StackID a_stackID, RE::StaticFunctionTag*, RE::TESForm* a_form)
+	inline void UnmarkItemAsFavorite(STATIC_ARGS, RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm->TraceStack("Form is None", a_stackID);

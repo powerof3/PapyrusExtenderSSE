@@ -6,6 +6,7 @@
 #include "Papyrus/Functions/ActorBase.h"
 #include "Papyrus/Functions/Alias/Events.h"
 #include "Papyrus/Functions/Alias/Functions.h"
+#include "Papyrus/Functions/Ammo.h"
 #include "Papyrus/Functions/ArmorAddon.h"
 #include "Papyrus/Functions/Array.h"
 #include "Papyrus/Functions/Book.h"
@@ -21,6 +22,7 @@
 #include "Papyrus/Functions/Game.h"
 #include "Papyrus/Functions/Graphics.h"
 #include "Papyrus/Functions/Hazard.h"
+#include "Papyrus/Functions/LeveledItem.h"
 #include "Papyrus/Functions/Light.h"
 #include "Papyrus/Functions/Location.h"
 #include "Papyrus/Functions/MagicEffect.h"
@@ -37,6 +39,7 @@
 #include "Papyrus/Functions/Utility.h"
 #include "Papyrus/Functions/VisualEffect.h"
 #include "Papyrus/Functions/Weather.h"
+
 #include "Papyrus/ObjectTypes.h"
 
 namespace Papyrus
@@ -57,6 +60,7 @@ namespace Papyrus
 
 		Actor::Bind(*a_vm);
 		ActorBase::Bind(*a_vm);
+		Ammo::Bind(*a_vm);
 		ArmorAddon::Bind(*a_vm);
 
 		Alias::Events::Bind(*a_vm);
@@ -78,6 +82,7 @@ namespace Papyrus
 		Game::Bind(*a_vm);
 		Graphics::Bind(*a_vm);
 		Hazard::Bind(*a_vm);
+		LeveledItem::Bind(*a_vm);
 		Light::Bind(*a_vm);
 		Location::Bind(*a_vm);
 		MagicEffect::Bind(*a_vm);

@@ -65,8 +65,8 @@ namespace Papyrus::Array
 		std::vector<std::string> names;
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
-                                       name;
+			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
+			                           name;
 			names.emplace_back(fullName);
 		}
 
@@ -97,8 +97,8 @@ namespace Papyrus::Array
 
 		for (const auto& [name, count] : nameMap) {
 			std::string fullName = count > 1 ?
-                                       std::to_string(count).append(" ").append(name).append(a_pronoun) :
-                                       name;
+			                           std::to_string(count).append(" ").append(name).append(a_pronoun) :
+			                           name;
 			names.emplace_back(fullName);
 		}
 

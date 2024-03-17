@@ -45,8 +45,8 @@ namespace SCRIPT
 		if (!result) {
 			const auto ref = a_form->As<RE::TESObjectREFR>();
 			const auto base = ref ?
-                                  ref->GetObjectReference() :
-                                  nullptr;
+			                      ref->GetObjectReference() :
+			                      nullptr;
 			if (base) {
 				result = check_script(base);
 			}

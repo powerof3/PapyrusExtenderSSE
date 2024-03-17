@@ -496,8 +496,8 @@ namespace GRAPHICS
 
 			if (const auto data = a_root->GetExtraData<RE::NiStringsExtraData>(EXTRA::TOGGLE); data) {
 				a_cull ?
-                    data->Insert(a_node->name) :
-                    data->Remove(a_node->name);
+					data->Insert(a_node->name) :
+					data->Remove(a_node->name);
 			} else if (a_cull) {
 				std::vector<RE::BSFixedString> vec{ a_node->name };
 				if (const auto newData = RE::NiStringsExtraData::Create(EXTRA::TOGGLE, vec); newData) {

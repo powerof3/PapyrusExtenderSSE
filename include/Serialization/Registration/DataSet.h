@@ -68,7 +68,7 @@ public:
 	std::set<D>& GetData(std::uint32_t a_index)
 	{
 		return a_index == 1 ? _pair.first :
-                              _pair.second;
+		                      _pair.second;
 	}
 	void Add(D a_data, std::uint32_t a_index)
 	{

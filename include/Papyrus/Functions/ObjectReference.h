@@ -223,9 +223,9 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.target == handle) {
-					if (const auto art = a_modelEffect.artObject; art) {
+			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect* a_modelEffect) {
+				if (a_modelEffect->target == handle) {
+					if (const auto art = a_modelEffect->artObject; art) {
 						result.push_back(art);
 					}
 				}
@@ -247,9 +247,9 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
-				if (a_shaderEffect.target == handle) {
-					if (const auto shader = a_shaderEffect.effectData; shader) {
+			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect* a_shaderEffect) {
+				if (a_shaderEffect->target == handle) {
+					if (const auto shader = a_shaderEffect->effectData; shader) {
 						result.push_back(shader);
 					}
 				}
@@ -325,9 +325,9 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
-				if (a_shaderEffect.target == handle && a_shaderEffect.effectData == a_effectShader) {
-					time = a_shaderEffect.lifetime;
+			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect* a_shaderEffect) {
+				if (a_shaderEffect->target == handle && a_shaderEffect->effectData == a_effectShader) {
+					time = a_shaderEffect->lifetime;
 					return RE::BSContainer::ForEachResult::kStop;
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
@@ -537,7 +537,7 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				return result[clib_util::RNG().Generate<size_t>(0, result.size() - 1)];
+				return result[clib_util::RNG().generate<std::size_t>(0, result.size() - 1)];
 			}
 		}
 
@@ -607,7 +607,7 @@ namespace Papyrus::ObjectReference
 			return -1;
 		}
 
-		return stl::to_underlying(a_ref->extraList.GetSoulLevel());
+		return std::to_underlying(a_ref->extraList.GetSoulLevel());
 	}
 
 	inline std::uint32_t HasArtObject(STATIC_ARGS,
@@ -628,9 +628,9 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.target == handle && a_modelEffect.artObject == a_art) {
-					if (!a_active || !a_modelEffect.finished) {
+			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect* a_modelEffect) {
+				if (a_modelEffect->target == handle && a_modelEffect->artObject == a_art) {
+					if (!a_active || !a_modelEffect->finished) {
 						count++;
 					}
 				}
@@ -656,9 +656,9 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
-				if (a_shaderEffect.target == handle && a_shaderEffect.effectData == a_effectShader) {
-					if (!a_active || !a_shaderEffect.finished) {
+			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect* a_shaderEffect) {
+				if (a_shaderEffect->target == handle && a_shaderEffect->effectData == a_effectShader) {
+					if (!a_active || !a_shaderEffect->finished) {
 						count++;
 					}
 				}
@@ -987,15 +987,15 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
-				if (a_shaderEffect.target == handle && a_shaderEffect.effectData == a_effectShader) {
+			processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect* a_shaderEffect) {
+				if (a_shaderEffect->target == handle && a_shaderEffect->effectData == a_effectShader) {
 					if (!a_absolute) {
-						const auto value = a_shaderEffect.lifetime + a_time;
+						const auto value = a_shaderEffect->lifetime + a_time;
 						if (value < -1.0f) {
 							return RE::BSContainer::ForEachResult::kStop;
 						}
 					}
-					a_shaderEffect.lifetime = a_time;
+					a_shaderEffect->lifetime = a_time;
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
 			});
@@ -1111,9 +1111,9 @@ namespace Papyrus::ObjectReference
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachModelEffect([&](RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.target == handle && a_modelEffect.artObject == a_art) {
-					a_modelEffect.finished = true;
+			processLists->ForEachModelEffect([&](RE::ModelReferenceEffect* a_modelEffect) {
+				if (a_modelEffect->target == handle && a_modelEffect->artObject == a_art) {
+					a_modelEffect->finished = true;
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
 			});

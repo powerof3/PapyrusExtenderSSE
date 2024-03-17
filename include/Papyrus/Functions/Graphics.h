@@ -646,9 +646,7 @@ namespace Papyrus::Graphics
 					SET::ShaderType(root, template_geo, sourcePath, a_textureType, result, params);
 
 					if (!result.empty()) {
-						std::string name{ "PO3_SHADER | "sv };
-						name.append(std::to_string(stl::to_underlying(feature)));
-
+						const auto& name = std::string("PO3_SHADER | "sv).append(std::to_string(std::to_underlying(feature)));
 						SET::add_data_if_none<RE::NiStringsExtraData>(root, name, result);
 					}
 				}
@@ -808,9 +806,9 @@ namespace Papyrus::Graphics
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_ref->CreateRefHandle();
-			processLists->ForEachModelEffect([&](RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.target == handle && a_modelEffect.artObject == a_art) {
-					hitEffect = &a_modelEffect;
+			processLists->ForEachModelEffect([&](RE::ModelReferenceEffect* a_modelEffect) {
+				if (a_modelEffect->target == handle && a_modelEffect->artObject == a_art) {
+					hitEffect = a_modelEffect;
 					return RE::BSContainer::ForEachResult::kStop;
 				}
 				return RE::BSContainer::ForEachResult::kContinue;

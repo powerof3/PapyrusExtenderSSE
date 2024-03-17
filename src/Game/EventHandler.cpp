@@ -208,7 +208,7 @@ namespace Event
 			return EventResult::kContinue;
 		}
 
-		StoryEventHolder::GetSingleton()->skillIncrease.QueueEvent(stl::to_underlying(a_event->actorValue));
+		StoryEventHolder::GetSingleton()->skillIncrease.QueueEvent(std::to_underlying(a_event->actorValue));
 
 		return EventResult::kContinue;
 	}

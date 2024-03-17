@@ -49,7 +49,7 @@ namespace Papyrus::Enchantment
 			return -1;
 		}
 
-		return stl::to_underlying(a_enchantment->data.spellType);
+		return std::to_underlying(a_enchantment->data.spellType);
 	}
 
 	inline void AddEffectItemToEnchantment(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EnchantmentItem* a_copyEnchantment, std::uint32_t a_index, float a_cost)

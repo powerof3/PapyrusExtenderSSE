@@ -48,7 +48,7 @@ namespace Papyrus::Package
 			return -1;
 		}
 
-		return stl::to_underlying(a_package->packData.packType.get());
+		return std::to_underlying(a_package->packData.packType.get());
 	}
 
 	inline void RemovePackageIdle(STATIC_ARGS, const RE::TESPackage* a_package, RE::TESIdleForm* a_idle)

@@ -85,7 +85,7 @@ namespace Papyrus::Spell
 			return -1;
 		}
 
-		return stl::to_underlying(a_spell->data.spellType);
+		return std::to_underlying(a_spell->data.spellType);
 	}
 
 	inline void RemoveMagicEffectFromSpell(STATIC_ARGS,

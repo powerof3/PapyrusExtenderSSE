@@ -45,12 +45,12 @@ namespace GRAPHICS
 
 			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 				const auto handle = a_ref->CreateRefHandle();
-				processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect& a_shaderEffect) {
-					if (a_shaderEffect.target == handle) {
-						if (const auto effectData = a_shaderEffect.effectData; effectData &&
+				processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect* a_shaderEffect) {
+					if (a_shaderEffect->target == handle) {
+						if (const auto effectData = a_shaderEffect->effectData; effectData &&
 																			   effectData->data.flags.all(Flags::kSkinOnly) &&
 																			   !effectData->holesTexture.textureName.empty()) {
-							a_shaderEffect.finished = true;
+							a_shaderEffect->finished = true;
 						}
 					}
 					return RE::BSContainer::ForEachResult::kContinue;
@@ -380,7 +380,7 @@ namespace GRAPHICS
 					if (const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material)) {
 						auto [result, shaderData] = get_original_shaders(originalData);
 						if (!result) {
-							logger::warn("unable to get original shader values for {}", a_geometry->name);
+							logger::warn("unable to get original shader values for {}", a_geometry->name.c_str());
 							return RE::BSVisit::BSVisitControl::kContinue;
 						}
 
@@ -647,7 +647,7 @@ namespace GRAPHICS
 
 				const auto root = a_actor->Get3D(false);
 				if (!result.empty() && root) {
-					auto       slotMaskStr = std::to_string(stl::to_underlying(a_slot));
+					auto       slotMaskStr = std::to_string(std::to_underlying(a_slot));
 					const auto name = "PO3_SKINTXST - " + slotMaskStr;
 					result.emplace_back(slotMaskStr);
 
@@ -714,8 +714,8 @@ namespace GRAPHICS
 									for (auto& type : TEXTURE::types) {
 										resetData.emplace_back(textureSet->GetTexturePath(type));  //0-8
 									}
-									resetData.emplace_back(std::to_string(stl::to_underlying(oldFeature)));  //9
-									resetData.emplace_back(std::to_string(stl::to_underlying(oldFlags)));    //10
+									resetData.emplace_back(std::to_string(std::to_underlying(oldFeature)));  //9
+									resetData.emplace_back(std::to_string(std::to_underlying(oldFlags)));    //10
 									resetData.emplace_back(oldEmissiveColor);                                //11
 									resetData.emplace_back(std::to_string(oldEmissiveMult));                 //12
 

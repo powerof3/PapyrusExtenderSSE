@@ -5,7 +5,7 @@ namespace Papyrus::Strings
 	inline RE::BSFixedString IntToString(RE::StaticFunctionTag*, std::uint32_t a_int, bool a_hex)
 	{
 		if (a_hex) {
-			return fmt::format("0x{:X}", a_int);
+			return std::format("0x{:X}", a_int);
 		}
 		return std::to_string(a_int);
 	}

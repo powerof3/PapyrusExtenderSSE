@@ -216,7 +216,7 @@ namespace Papyrus::Actor
 			return -1;
 		}
 
-		return stl::to_underlying(a_actor->GetKnockState());
+		return std::to_underlying(a_actor->GetKnockState());
 	}
 
 	inline float GetActorRefraction(STATIC_ARGS, const RE::Actor* a_actor)
@@ -237,7 +237,7 @@ namespace Papyrus::Actor
 			return -1;
 		}
 
-		return stl::to_underlying(a_actor->GetSoulSize());
+		return std::to_underlying(a_actor->GetSoulSize());
 	}
 
 	inline std::int32_t GetActorState(STATIC_ARGS, const RE::Actor* a_actor)
@@ -247,7 +247,7 @@ namespace Papyrus::Actor
 			return -1;
 		}
 
-		return stl::to_underlying(a_actor->GetLifeState());
+		return std::to_underlying(a_actor->GetLifeState());
 	}
 
 	inline float GetActorValueModifier(STATIC_ARGS, const RE::Actor* a_actor, std::int32_t a_modifier, RE::BSFixedString a_actorValue)
@@ -299,7 +299,7 @@ namespace Papyrus::Actor
 			return 0;
 		}
 
-		return stl::to_underlying(a_actor->criticalStage.get());
+		return std::to_underlying(a_actor->criticalStage.get());
 	}
 
 	inline std::vector<RE::Actor*> GetCombatAllies(STATIC_ARGS, const RE::Actor* a_actor)
@@ -760,9 +760,9 @@ namespace Papyrus::Actor
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			const auto handle = a_actor->GetHandle();
-			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.target == handle) {
-					if (const auto modelArt = a_modelEffect.artObject; modelArt && modelArt->GetFormID() == 0x000531AE) {
+			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect* a_modelEffect) {
+				if (a_modelEffect->target == handle) {
+					if (const auto modelArt = a_modelEffect->artObject; modelArt && modelArt->GetFormID() == 0x000531AE) {
 						isBeingSoulTrapped = true;
 						return RE::BSContainer::ForEachResult::kStop;
 					}

@@ -66,7 +66,6 @@ namespace numeric = clib_util::numeric;
 namespace string = clib_util::string;
 namespace dist = clib_util::distribution;
 namespace editorID = clib_util::editorID;
-namespace WinAPI = SKSE::WinAPI;
 
 using namespace std::literals;
 using namespace string::literals;

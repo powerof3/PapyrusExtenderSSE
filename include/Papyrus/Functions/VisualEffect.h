@@ -28,8 +28,8 @@ namespace Papyrus::VisualEffect
 		}
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect& a_modelEffect) {
-				if (a_modelEffect.artObject == art && !a_active || !a_modelEffect.finished) {
+			processLists->ForEachModelEffect([&](const RE::ModelReferenceEffect* a_modelEffect) {
+				if (a_modelEffect->artObject == art && !a_active || !a_modelEffect->finished) {
 					count++;
 				}
 				return RE::BSContainer::ForEachResult::kContinue;

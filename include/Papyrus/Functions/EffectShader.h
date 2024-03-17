@@ -32,9 +32,9 @@ namespace Papyrus::EffectShader
 		}
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect& a_shaderEffect) {
-				if (a_shaderEffect.effectData == a_effectShader) {
-					if (!a_active || !a_shaderEffect.finished) {
+			processLists->ForEachShaderEffect([&](const RE::ShaderReferenceEffect* a_shaderEffect) {
+				if (a_shaderEffect->effectData == a_effectShader) {
+					if (!a_active || !a_shaderEffect->finished) {
 						count++;
 					}
 				}

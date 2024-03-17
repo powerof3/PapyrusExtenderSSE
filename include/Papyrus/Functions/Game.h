@@ -53,11 +53,11 @@ namespace Papyrus::Game
 		if (const auto TES = RE::TES::GetSingleton(); TES) {
 			const auto formType = static_cast<RE::FormType>(a_formType);
 
-			TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR& a_ref) {
-				if (a_ref.Is3DLoaded()) {
-					const auto base = a_ref.GetBaseObject();
-					if (formType == RE::FormType::None || a_ref.Is(formType) || base && base->Is(formType)) {
-						result.push_back(&a_ref);
+			TES->ForEachReferenceInRange(a_origin, a_radius, [&](RE::TESObjectREFR* a_ref) {
+				if (a_ref->Is3DLoaded()) {
+					const auto base = a_ref->GetBaseObject();
+					if (formType == RE::FormType::None || a_ref->Is(formType) || base && base->Is(formType)) {
+						result.push_back(a_ref);
 					}
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
@@ -79,10 +79,10 @@ namespace Papyrus::Game
 		if (const auto TES = RE::TES::GetSingleton(); TES) {
 			const auto list = a_formOrList->As<RE::BGSListForm>();
 
-			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
-				if (const auto base = b_ref.GetBaseObject(); base && b_ref.Is3DLoaded()) {
+			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR* b_ref) {
+				if (const auto base = b_ref->GetBaseObject(); base && b_ref->Is3DLoaded()) {
 					if (list && list->HasForm(base) || a_formOrList == base) {
-						result.push_back(&b_ref);
+						result.push_back(b_ref);
 					}
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
@@ -110,16 +110,16 @@ namespace Papyrus::Game
 				return result;
 			}
 
-			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR& b_ref) {
-				if (b_ref.Is3DLoaded()) {
+			TES->ForEachReferenceInRange(a_ref, a_radius, [&](RE::TESObjectREFR* b_ref) {
+				if (b_ref->Is3DLoaded()) {
 					bool success = false;
 					if (list) {
-						success = b_ref.HasKeywordInList(list, a_matchAll);
+						success = b_ref->HasKeywordInList(list, a_matchAll);
 					} else if (keyword) {
-						success = b_ref.HasKeyword(keyword);
+						success = b_ref->HasKeyword(keyword);
 					}
 					if (success) {
-						result.push_back(&b_ref);
+						result.push_back(b_ref);
 					}
 				}
 				return RE::BSContainer::ForEachResult::kContinue;

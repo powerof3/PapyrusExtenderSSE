@@ -38,24 +38,24 @@ namespace Papyrus::Debug
 			return;
 		}
 
-		constexpr auto get_value = [](const RE::AnimVariableCacheInfo& a_var) {
+		constexpr auto get_value = [](const RE::AnimVariableCacheInfo& a_var) -> std::string {
 			if (a_var.variable) {
 				const std::string variable(a_var.variableName);
 				if (variable[0] == 'b' || variable.starts_with("Is")) {
-					return std::string(a_var.variable->b ? "true" : "false");
+					return std::format("{}", a_var.variable->b);
 				}
 				if (variable[0] == 'i') {
 					return std::to_string(a_var.variable->i);
 				}
 				if (a_var.variable->f >= RE::NI_INFINITY && a_var.variable->i >= std::numeric_limits<std::int32_t>::max()) {
-					return std::string(a_var.variable->b ? "true" : "false");
+					return std::format("{}", a_var.variable->b);
 				}
 				if (a_var.variable->f >= RE::NI_INFINITY) {
 					return std::to_string(a_var.variable->i);
 				}
 				return std::to_string(a_var.variable->f);
 			}
-			return std::string();
+			return {};
 		};
 
 		RE::BSTSmartPointer<RE::BSAnimationGraphManager> manager;
@@ -64,11 +64,11 @@ namespace Papyrus::Debug
 			const auto cache = middleHigh ? middleHigh->animationVariableCache : nullptr;
 
 			if (cache) {
-				logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix);
+				logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix.c_str());
 
 				RE::BSSpinLockGuard locker(cache->updateLock);
 				for (auto& var : cache->variableCache) {
-					logger::info("\t{} : {}", var.variableName, get_value(var));
+					logger::info("\t{} : {}", var.variableName.c_str(), get_value(var));
 				}
 			}
 		}

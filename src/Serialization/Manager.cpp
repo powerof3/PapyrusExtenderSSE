@@ -46,7 +46,7 @@ namespace Serialization
 		std::uint32_t length;
 		while (a_intfc->GetNextRecordInfo(type, version, length)) {
 			if (version != kSerializationVersion) {
-				logger::critical("Loaded data is out of date! Read ({}), expected ({}) for type code ({})", version, kSerializationVersion, DecodeTypeCode(type));
+				logger::critical("Loaded data is out of date! Read ({}), expected ({}) for type code ({})", version, std::to_underlying(kSerializationVersion), DecodeTypeCode(type));
 				continue;
 			}
 			switch (type) {

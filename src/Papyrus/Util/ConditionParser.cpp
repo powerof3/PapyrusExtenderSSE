@@ -1096,9 +1096,9 @@ namespace CONDITION
 				if (auto edid = editorID::get_editorID(data.ptr); !edid.empty()) {
 					return edid;
 				} else if (data.ptr->GetFile(0)) {
-					return fmt::format("0x{:X}", data.ptr->GetLocalFormID()).append(" ~ ").append(data.ptr->GetFile(0)->fileName);
+					return std::format("0x{:X}", data.ptr->GetLocalFormID()).append(" ~ ").append(data.ptr->GetFile(0)->fileName);
 				} else {  // bad
-					return fmt::format("0x{:X}", data.ptr->GetFormID());
+					return std::format("0x{:X}", data.ptr->GetFormID());
 				}
 			}
 			return "NONE"s;
@@ -1456,7 +1456,7 @@ namespace CONDITION
 			std::string condition;
 
 			//condition
-			auto condObject = stl::to_underlying(*condData.object);
+			auto condObject = std::to_underlying(*condData.object);
 			if (auto condItemStr = map::get_value<std::string>(map::conditionObjs, condObject)) {
 				condition += *condItemStr;
 			} else {
@@ -1465,7 +1465,7 @@ namespace CONDITION
 			condition.append(" | "sv);
 
 			//functionID
-			auto funcID = stl::to_underlying(*condData.functionData.function);
+			auto funcID = std::to_underlying(*condData.functionData.function);
 			if (auto funcIDStr = map::get_value<std::string>(map::funcIDs, funcID)) {
 				condition += *funcIDStr;
 			} else {
@@ -1493,7 +1493,7 @@ namespace CONDITION
 			}
 
 			//opCode
-			auto opCode = stl::to_underlying(condData.flags.opCode);
+			auto opCode = std::to_underlying(condData.flags.opCode);
 			if (auto opCodeStr = map::get_value<std::string>(map::opCodes, opCode)) {
 				condition += *opCodeStr;
 			} else {

@@ -48,8 +48,8 @@ namespace GRAPHICS
 				processLists->ForEachShaderEffect([&](RE::ShaderReferenceEffect* a_shaderEffect) {
 					if (a_shaderEffect->target == handle) {
 						if (const auto effectData = a_shaderEffect->effectData; effectData &&
-																			   effectData->data.flags.all(Flags::kSkinOnly) &&
-																			   !effectData->holesTexture.textureName.empty()) {
+																				effectData->data.flags.all(Flags::kSkinOnly) &&
+																				!effectData->holesTexture.textureName.empty()) {
 							a_shaderEffect->finished = true;
 						}
 					}

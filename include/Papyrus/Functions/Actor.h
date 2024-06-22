@@ -12,8 +12,8 @@ namespace Papyrus::Actor
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return false;
 		}		
-		auto state = a_actor->currentProcess->high->attackData.get()->data.flags;
-		if (state == RE::AttackData::AttackFlag::kPowerAttack) {
+		auto atk_data = a_actor->currentProcess->high->attackData.get();
+		if (atk_data != nullptr && atk_data->data.flags == RE::AttackData::AttackFlag::kPowerAttack) {
 			return true;
 		} else {
 			return false;

@@ -5,6 +5,21 @@
 
 namespace Papyrus::Actor
 {
+
+	inline bool IsPowerAttacking(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}		
+		auto atk_data = a_actor->currentProcess->high->attackData.get();
+		if (atk_data != nullptr && atk_data->data.flags == RE::AttackData::AttackFlag::kPowerAttack) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	inline bool AddBasePerk(STATIC_ARGS, RE::Actor* a_actor, RE::BGSPerk* a_perk)
 	{
 		if (!a_actor) {
@@ -1058,6 +1073,7 @@ namespace Papyrus::Actor
 
 	inline void Bind(VM& a_vm)
 	{
+		BIND(IsPowerAttacking);
 		BIND(AddBasePerk);
 		BIND(AddBaseSpell);
 		BIND(AddAllEquippedItemsToArray);

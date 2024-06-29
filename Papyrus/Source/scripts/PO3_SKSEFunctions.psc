@@ -18,6 +18,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;-------
 
+	bool Function IsPowerAttacking(Actor akActor) global native
+
 	MagicEffect[] Function GetActiveEffects(Actor akActor, bool abShowInactive = false) global native
 
 	float Function GetActorAlpha(Actor akActor) global native

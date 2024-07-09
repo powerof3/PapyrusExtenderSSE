@@ -693,21 +693,18 @@ namespace Papyrus::Graphics
 			return;
 		}
 
-		const auto root = a_actor->Get3D(false);
-		if (!root) {
-			a_vm->TraceForm(a_actor, "has no 3D", a_stackID);
-			return;
-		}
-
-		SKSE::GetTaskInterface()->AddTask([root, a_alpha]() {
-			root->UpdateMaterialAlpha(a_alpha, true);
-
-			if (a_alpha == 1.0f) {
-				root->RemoveExtraData(EXTRA::SKIN_ALPHA);
-			} else {
-				SET::add_data_if_none<RE::NiBooleanExtraData>(root, EXTRA::SKIN_ALPHA, true);
+		for (std::uint32_t i = 0; i < 2; i++) {
+			if (const auto root = a_actor->Get3D(static_cast<bool>(i))) {
+				SKSE::GetTaskInterface()->AddTask([root, a_alpha]() {
+					root->UpdateMaterialAlpha(a_alpha, true);
+					if (a_alpha == 1.0f) {
+						root->RemoveExtraData(EXTRA::SKIN_ALPHA);
+					} else {
+						SET::add_data_if_none<RE::NiBooleanExtraData>(root, EXTRA::SKIN_ALPHA, true);
+					}
+				});
 			}
-		});
+		}
 	}
 
 	inline void SetSkinColor(STATIC_ARGS, RE::Actor* a_actor, RE::BGSColorForm* a_color)

@@ -5,21 +5,6 @@
 
 namespace Papyrus::Actor
 {
-
-	inline bool IsPowerAttacking(STATIC_ARGS, RE::Actor* a_actor)
-	{
-		if (!a_actor) {
-			a_vm->TraceStack("Actor is None", a_stackID);
-			return false;
-		}
-		auto atk_data = a_actor->currentProcess->high->attackData.get();
-		if (atk_data != nullptr && atk_data->data.flags == RE::AttackData::AttackFlag::kPowerAttack) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	inline bool AddBasePerk(STATIC_ARGS, RE::Actor* a_actor, RE::BGSPerk* a_perk)
 	{
 		if (!a_actor) {
@@ -748,6 +733,21 @@ namespace Papyrus::Actor
 		return a_actor->IsLimbGone(a_limbEnum);
 	}
 
+	inline bool IsPowerAttacking(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+		if (!a_actor->currentProcess || !a_actor->currentProcess->high) {
+			return false;
+		}
+
+		const auto& atk_data = a_actor->currentProcess->high->attackData;
+		return atk_data && atk_data->data.flags == RE::AttackData::AttackFlag::kPowerAttack;
+	}
+
 	inline bool IsQuadruped(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -1073,7 +1073,6 @@ namespace Papyrus::Actor
 
 	inline void Bind(VM& a_vm)
 	{
-		BIND(IsPowerAttacking);
 		BIND(AddBasePerk);
 		BIND(AddBaseSpell);
 		BIND(AddAllEquippedItemsToArray);
@@ -1116,6 +1115,7 @@ namespace Papyrus::Actor
 		BIND(HasActiveMagicEffect);
 		BIND(HasActiveSpell);
 		BIND(IsQuadruped, true);
+		BIND(IsPowerAttacking);
 		BIND(HasDeferredKill);
 		BIND(HasMagicEffectWithArchetype);
 		BIND(IsActorInWater);

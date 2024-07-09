@@ -27,65 +27,218 @@ namespace Event
 		}
 	}
 
-	namespace Combat
+	namespace MagicEffectApply
 	{
-		namespace MagicEffectApply
+		struct MagicTargetApply
 		{
-			struct MagicTargetApply
+			static bool thunk(RE::MagicTarget* a_this, RE::MagicTarget::AddTargetData* a_data)
 			{
-				static bool thunk(RE::MagicTarget* a_this, RE::MagicTarget::AddTargetData* a_data)
-				{
-					const bool hasAppliedEffect = func(a_this, a_data);
+				const bool hasAppliedEffect = func(a_this, a_data);
 
-					if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr; target) {
-						const auto effect = a_data->effect;
-						if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
-							GameEventHolder::GetSingleton()->magicApply.QueueEvent(
-								target,
-								[=](const Filter::MagicEffectApply& a_filter, bool a_match) {  //capture by reference [&] bad
-									return a_match == a_filter.PassesFilter(baseEffect);
-								},
-								a_data->caster, baseEffect, a_data->magicItem, hasAppliedEffect);
-						}
+				if (const auto target = a_this && a_data ? a_this->GetTargetStatsObject() : nullptr; target) {
+					const auto effect = a_data->effect;
+					if (const auto baseEffect = effect ? effect->baseEffect : nullptr; baseEffect) {
+						GameEventHolder::GetSingleton()->magicApply.QueueEvent(
+							target,
+							[=](const Filter::MagicEffectApply& a_filter, bool a_match) {  //capture by reference [&] bad
+								return a_match == a_filter.PassesFilter(baseEffect);
+							},
+							a_data->caster, baseEffect, a_data->magicItem, hasAppliedEffect);
+					}
+				}
+
+				return hasAppliedEffect;
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		void Install()
+		{
+			REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(33742, 34526), OFFSET(0x1E8, 0x20B) };
+			stl::write_thunk_call<MagicTargetApply>(target.address());
+
+			logger::info("Hooked Magic Effect Apply"sv);
+		}
+	}
+
+	namespace Hit
+	{
+		namespace Magic
+		{
+			struct SendHitEvent
+			{
+				static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
+				{
+					using HitFlag = RE::TESHitEvent::Flag;
+
+					const auto aggressor = a_event.cause.get();
+					const auto target = a_event.target.get();
+					const auto source = RE::TESForm::LookupByID(a_event.source);
+					const auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
+
+					if (target) {
+						const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
+						const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
+						const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
+						const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
+
+						GameEventHolder::GetSingleton()->onHit.QueueEvent(
+							target,
+							[=](const Filter::Hit& a_filter, bool a_match) {
+								return a_match == a_filter.PassesFilter(aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
+							},
+							aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
 					}
 
-					return hasAppliedEffect;
+					if (aggressor) {
+						GameEventHolder::GetSingleton()->magicHit.QueueEvent(aggressor, target, source, projectile);  // NOLINT(readability-suspicious-call-argument)
+					}
+
+					func(a_source, a_event);
 				}
 				static inline REL::Relocation<decltype(thunk)> func;
 			};
 
 			void Install()
 			{
-				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(33742, 34526), OFFSET(0x1E8, 0x20B) };
-				stl::write_thunk_call<MagicTargetApply>(target.address());
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37832, 38786), OFFSET(0x1C3, 0x29B) };
+				stl::write_thunk_call<SendHitEvent>(target.address());
 
-				logger::info("Hooked Magic Effect Apply"sv);
+				logger::info("Hooked Magic Hit"sv);
 			}
 		}
 
-		namespace Hit
+		namespace Weapon
 		{
-			namespace Magic
+			namespace Actor
 			{
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37633, 38586), OFFSET(0x16A, 0xFA) };
+
+				struct SendHitEvent
+				{
+#ifdef SKYRIM_AE
+					// SendHitEventStruct was inlined
+					static void thunk(RE::AIProcess* a_targetProcess, RE::HitData& a_data)
+					{
+						func(a_targetProcess, a_data);
+
+						const auto hitTarget = a_targetProcess ? a_targetProcess->GetUserData() : nullptr;
+
+						const auto aggressor = a_data.aggressor.get();
+						const auto source = a_data.weapon ? a_data.weapon : RE::TESForm::LookupByID<RE::TESObjectWEAP>(0x1F4);  //unarmed
+
+						if (hitTarget) {
+							const auto powerAttack = a_data.flags.any(RE::HitData::Flag::kPowerAttack);
+							const auto sneakAttack = a_data.flags.any(RE::HitData::Flag::kSneakAttack);
+							const auto bashAttack = a_data.flags.any(RE::HitData::Flag::kBash, RE::HitData::Flag::kTimedBash);
+							const auto hitBlocked = a_data.flags.any(RE::HitData::Flag::kBlocked, RE::HitData::Flag::kBlockWithWeapon);
+
+							GameEventHolder::GetSingleton()->onHit.QueueEvent(
+								hitTarget,
+								[=](const Filter::Hit& a_filter, bool a_match) {
+									return a_match == a_filter.PassesFilter(aggressor.get(), source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
+								},
+								aggressor.get(), source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
+						}
+
+						if (aggressor && hitTarget) {						
+							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
+						}
+					}
+#else
+					static void thunk(RE::ScriptEventSourceHolder* a_holder,
+						RE::NiPointer<RE::TESObjectREFR>&          a_target,
+						RE::NiPointer<RE::TESObjectREFR>&          a_aggressor,
+						RE::FormID                                 a_source,
+						RE::FormID                                 a_projectile,
+						RE::HitData&                               a_data)
+					{
+						const auto aggressor = a_aggressor.get();
+						const auto hitTarget = a_target.get();
+						const auto source = RE::TESForm::LookupByID(a_source);
+
+						if (hitTarget) {
+							const auto powerAttack = a_data.flags.any(RE::HitData::Flag::kPowerAttack);
+							const auto sneakAttack = a_data.flags.any(RE::HitData::Flag::kSneakAttack);
+							const auto bashAttack = a_data.flags.any(RE::HitData::Flag::kBash, RE::HitData::Flag::kTimedBash);
+							const auto hitBlocked = a_data.flags.any(RE::HitData::Flag::kBlocked, RE::HitData::Flag::kBlockWithWeapon);
+
+							GameEventHolder::GetSingleton()->onHit.QueueEvent(
+								hitTarget,
+								[=](const Filter::Hit& a_filter, bool a_match) {
+									return a_match == a_filter.PassesFilter(aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
+								},
+								aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
+						}
+
+						if (aggressor) {
+							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
+						}
+
+						func(a_holder, a_target, a_aggressor, a_source, a_projectile, a_data);
+					}
+#endif
+					static inline REL::Relocation<decltype(thunk)> func;
+				};
+			}
+
+			namespace Static
+			{
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37674, 38628), OFFSET(0x6C7, 0x785) };
+
 				struct SendHitEvent
 				{
 					static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
 					{
-						using HitFlag = RE::TESHitEvent::Flag;
-
 						const auto aggressor = a_event.cause.get();
-						const auto target = a_event.target.get();
+						const auto hitTarget = a_event.target.get();
 						const auto source = RE::TESForm::LookupByID(a_event.source);
-						const auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
 
-						if (target) {
+						if (hitTarget) {
 							const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
 							const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
 							const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
 							const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
 
 							GameEventHolder::GetSingleton()->onHit.QueueEvent(
-								target,
+								hitTarget,
+								[=](const Filter::Hit& a_filter, bool a_match) {
+									return a_match == a_filter.PassesFilter(aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
+								},
+								aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
+						}
+
+						if (aggressor) {
+							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, 0);  // NOLINT(readability-suspicious-call-argument)
+						}
+
+						func(a_source, a_event);
+					}
+					static inline REL::Relocation<decltype(thunk)> func;
+				};
+			}
+
+			namespace Projectile
+			{
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(43022, 44213), OFFSET(0x38D, 0x357) };
+
+				struct SendHitEvent
+				{
+					static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
+					{
+						const auto aggressor = a_event.cause.get();
+						const auto hitTarget = a_event.target.get();
+						const auto source = RE::TESForm::LookupByID(a_event.source);
+						const auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
+
+						if (hitTarget) {
+							const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
+							const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
+							const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
+							const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
+
+							GameEventHolder::GetSingleton()->onHit.QueueEvent(
+								hitTarget,
 								[=](const Filter::Hit& a_filter, bool a_match) {
 									return a_match == a_filter.PassesFilter(aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
 								},
@@ -93,181 +246,25 @@ namespace Event
 						}
 
 						if (aggressor) {
-							GameEventHolder::GetSingleton()->magicHit.QueueEvent(aggressor, target, source, projectile);  // NOLINT(readability-suspicious-call-argument)
+							if (projectile && projectile->IsArrow()) {
+								GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, projectile, 0);
+							}
+							GameEventHolder::GetSingleton()->projectileHit.QueueEvent(aggressor, hitTarget, source, projectile);
 						}
 
 						func(a_source, a_event);
 					}
 					static inline REL::Relocation<decltype(thunk)> func;
 				};
-
-				void Install()
-				{
-					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37832, 38786), OFFSET(0x1C3, 0x29B) };
-					stl::write_thunk_call<SendHitEvent>(target.address());
-
-					logger::info("Hooked Magic Hit"sv);
-				}
 			}
 
-			namespace Weapon
+			void Install()
 			{
-				namespace Actor
-				{
-					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37633, 38586), OFFSET(0x16A, 0xFA) };
+				stl::write_thunk_call<Actor::SendHitEvent>(Actor::target.address());
+				stl::write_thunk_call<Static::SendHitEvent>(Static::target.address());
+				stl::write_thunk_call<Projectile::SendHitEvent>(Projectile::target.address());
 
-					struct SendHitEvent
-					{
-#ifdef SKYRIM_AE
-						// SendHitEventStruct was inlined
-						static void thunk(RE::AIProcess* a_targetProcess, RE::HitData& a_data)
-						{
-							func(a_targetProcess, a_data);
-
-							const auto hitTarget = a_targetProcess ? a_targetProcess->GetUserData() : nullptr;
-
-							const auto aggressor = a_data.aggressor.get();
-							const auto source = a_data.weapon ? a_data.weapon : RE::TESForm::LookupByID<RE::TESObjectWEAP>(0x1F4);  //unarmed
-
-							if (hitTarget) {
-								const auto powerAttack = a_data.flags.any(RE::HitData::Flag::kPowerAttack);
-								const auto sneakAttack = a_data.flags.any(RE::HitData::Flag::kSneakAttack);
-								const auto bashAttack = a_data.flags.any(RE::HitData::Flag::kBash, RE::HitData::Flag::kTimedBash);
-								const auto hitBlocked = a_data.flags.any(RE::HitData::Flag::kBlocked, RE::HitData::Flag::kBlockWithWeapon);
-
-								GameEventHolder::GetSingleton()->onHit.QueueEvent(
-									hitTarget,
-									[=](const Filter::Hit& a_filter, bool a_match) {
-										return a_match == a_filter.PassesFilter(aggressor.get(), source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
-									},
-									aggressor.get(), source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
-							}
-
-							if (aggressor && hitTarget) {
-								GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
-							}
-						}
-#else
-						static void thunk(RE::ScriptEventSourceHolder* a_holder,
-							RE::NiPointer<RE::TESObjectREFR>&          a_target,
-							RE::NiPointer<RE::TESObjectREFR>&          a_aggressor,
-							RE::FormID                                 a_source,
-							RE::FormID                                 a_projectile,
-							RE::HitData&                               a_data)
-						{
-							const auto aggressor = a_aggressor.get();
-							const auto hitTarget = a_target.get();
-							const auto source = RE::TESForm::LookupByID(a_source);
-
-							if (hitTarget) {
-								const auto powerAttack = a_data.flags.any(RE::HitData::Flag::kPowerAttack);
-								const auto sneakAttack = a_data.flags.any(RE::HitData::Flag::kSneakAttack);
-								const auto bashAttack = a_data.flags.any(RE::HitData::Flag::kBash, RE::HitData::Flag::kTimedBash);
-								const auto hitBlocked = a_data.flags.any(RE::HitData::Flag::kBlocked, RE::HitData::Flag::kBlockWithWeapon);
-
-								GameEventHolder::GetSingleton()->onHit.QueueEvent(
-									hitTarget,
-									[=](const Filter::Hit& a_filter, bool a_match) {
-										return a_match == a_filter.PassesFilter(aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
-									},
-									aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
-							}
-
-							if (aggressor) {
-								GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
-							}
-
-							func(a_holder, a_target, a_aggressor, a_source, a_projectile, a_data);
-						}
-#endif
-						static inline REL::Relocation<decltype(thunk)> func;
-					};
-				}
-
-				namespace Static
-				{
-					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37674, 38628), OFFSET(0x6C7, 0x785) };
-
-					struct SendHitEvent
-					{
-						static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
-						{
-							const auto aggressor = a_event.cause.get();
-							const auto hitTarget = a_event.target.get();
-							const auto source = RE::TESForm::LookupByID(a_event.source);
-
-							if (hitTarget) {
-								const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
-								const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
-								const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
-								const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
-
-								GameEventHolder::GetSingleton()->onHit.QueueEvent(
-									hitTarget,
-									[=](const Filter::Hit& a_filter, bool a_match) {
-										return a_match == a_filter.PassesFilter(aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
-									},
-									aggressor, source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
-							}
-
-							if (aggressor) {
-								GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, 0);  // NOLINT(readability-suspicious-call-argument)
-							}
-
-							func(a_source, a_event);
-						}
-						static inline REL::Relocation<decltype(thunk)> func;
-					};
-				}
-
-				namespace Projectile
-				{
-					REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(43022, 44213), OFFSET(0x38D, 0x357) };
-
-					struct SendHitEvent
-					{
-						static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
-						{
-							const auto aggressor = a_event.cause.get();
-							const auto hitTarget = a_event.target.get();
-							const auto source = RE::TESForm::LookupByID(a_event.source);
-							const auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
-
-							if (hitTarget) {
-								const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
-								const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
-								const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
-								const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
-
-								GameEventHolder::GetSingleton()->onHit.QueueEvent(
-									hitTarget,
-									[=](const Filter::Hit& a_filter, bool a_match) {
-										return a_match == a_filter.PassesFilter(aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
-									},
-									aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
-							}
-
-							if (aggressor) {
-								if (projectile && projectile->data.types.all(RE::BGSProjectileData::Type::kArrow)) {
-									GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, projectile, 0);
-								}
-								GameEventHolder::GetSingleton()->projectileHit.QueueEvent(aggressor, hitTarget, source, projectile);
-							}
-
-							func(a_source, a_event);
-						}
-						static inline REL::Relocation<decltype(thunk)> func;
-					};
-				}
-
-				void Install()
-				{
-					stl::write_thunk_call<Actor::SendHitEvent>(Actor::target.address());
-					stl::write_thunk_call<Static::SendHitEvent>(Static::target.address());
-					stl::write_thunk_call<Projectile::SendHitEvent>(Projectile::target.address());
-
-					logger::info("Hooked Weapon Hit"sv);
-				}
+				logger::info("Hooked Weapon Hit"sv);
 			}
 		}
 	}
@@ -690,9 +687,9 @@ namespace Event
 		Reanimate::Install();
 		Weather::Install();
 
-		Combat::MagicEffectApply::Install();
-		Combat::Hit::Magic::Install();
-		Combat::Hit::Weapon::Install();
+		MagicEffectApply::Install();
+		Hit::Magic::Install();
+		Hit::Weapon::Install();
 
 		FastTravel::Install();
 	}

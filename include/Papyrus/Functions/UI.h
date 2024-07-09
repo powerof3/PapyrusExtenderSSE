@@ -26,6 +26,11 @@ namespace Papyrus::UI
 		}
 	}
 
+	inline bool IsShowingMenus(RE::StaticFunctionTag*)
+	{
+		return RE::UI::GetSingleton() ? RE::UI::GetSingleton()->IsShowingMenus() : false;
+	}
+
 	inline void ShowMenu(RE::StaticFunctionTag*, RE::BSFixedString a_menuName)
 	{
 		if (const auto UIMsgQueue = RE::UIMessageQueue::GetSingleton(); UIMsgQueue) {
@@ -37,6 +42,7 @@ namespace Papyrus::UI
 	{
 		BIND(GetMenuContainer);
 		BIND(HideMenu);
+		BIND(IsShowingMenus, true);
 		BIND(ShowMenu);
 
 		logger::info("Registered UI functions"sv);

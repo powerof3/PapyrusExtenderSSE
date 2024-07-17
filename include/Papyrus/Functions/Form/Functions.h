@@ -178,6 +178,16 @@ namespace Papyrus::Form::Functions
 		return {};
 	}
 
+	inline std::vector<RE::BSFixedString> GetScriptsAttachedToForm(STATIC_ARGS, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return {};
+		}
+
+		return SCRIPT::get_all_scripts(a_form);
+	}
+
 	inline bool IsFormInMod(STATIC_ARGS, const RE::TESForm* a_form, RE::BSFixedString a_modName)
 	{
 		if (!a_form) {
@@ -461,6 +471,7 @@ namespace Papyrus::Form::Functions
 		BIND(GetDescription);
 		BIND(GetFormEditorID);
 		BIND(GetFormModName, true);
+		BIND(GetScriptsAttachedToForm);
 		BIND(IsFormInMod, true);
 		BIND(IsGeneratedForm, true);
 		BIND(IsRecordFlagSet);

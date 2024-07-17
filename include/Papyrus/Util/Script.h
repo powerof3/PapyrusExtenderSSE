@@ -91,9 +91,11 @@ namespace SCRIPT
 		"WorldSpace"
 	};
 
+	std::vector<RE::BSFixedString> get_all_scripts(const RE::TESForm* a_form);
+	std::vector<RE::BSFixedString> get_all_scripts(const RE::BGSBaseAlias* a_alias);
+	std::vector<RE::BSFixedString> get_all_scripts(const RE::ActiveEffect* a_activeEffect);
+
 	bool is_script_attached(const RE::TESForm* a_form, const RE::BSFixedString& a_scriptName);
-
 	bool is_script_attached(const RE::BGSBaseAlias* a_alias, const RE::BSFixedString& a_scriptName);
-
 	bool is_script_attached(const RE::ActiveEffect* a_activeEffect, const RE::BSFixedString& a_scriptName);
 }

@@ -38,12 +38,18 @@ namespace Papyrus::UI
 		}
 	}
 
+	inline void ToggleOpenSleepWaitMenu(RE::StaticFunctionTag*, bool a_openSleepMenu)
+	{
+		RE::SleepWaitMenu::ToggleOpenSleepWaitMenu(a_openSleepMenu);
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(GetMenuContainer);
 		BIND(HideMenu);
 		BIND(IsShowingMenus, true);
 		BIND(ShowMenu);
+		BIND(ToggleOpenSleepWaitMenu);
 
 		logger::info("Registered UI functions"sv);
 	}

@@ -141,7 +141,7 @@ namespace Event
 								aggressor.get(), source, nullptr, powerAttack, sneakAttack, bashAttack, hitBlocked);
 						}
 
-						if (aggressor && hitTarget) {						
+						if (aggressor && hitTarget) {
 							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
 						}
 					}

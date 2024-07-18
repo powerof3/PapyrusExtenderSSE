@@ -127,12 +127,35 @@ namespace Papyrus::Scroll
 		}
 	}
 
+	inline void SetScrollMagicEffect(STATIC_ARGS, RE::ScrollItem* a_scroll, RE::EffectSetting* a_magicEffect, std::uint32_t a_index)
+	{
+		if (!a_scroll) {
+			a_vm->TraceStack("Scroll is None", a_stackID);
+			return;
+		}
+
+		if (!a_magicEffect) {
+			a_vm->TraceStack("MagicEffect is None", a_stackID);
+			return;
+		}
+
+		if (a_index > a_scroll->effects.size()) {
+			a_vm->TraceForm(a_scroll, "Index exceeds effect list size", a_stackID);
+			return;
+		}
+
+		if (auto effectItem = a_scroll->effects[a_index]) {
+			effectItem->baseEffect = a_magicEffect;
+		}
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddMagicEffectToScroll);
 		BIND(AddEffectItemToScroll);
 		BIND(RemoveMagicEffectFromScroll);
 		BIND(RemoveEffectItemFromScroll);
+		BIND(SetScrollMagicEffect);
 
 		logger::info("Registered scroll functions"sv);
 	}

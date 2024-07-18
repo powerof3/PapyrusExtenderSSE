@@ -137,6 +137,28 @@ namespace Papyrus::Enchantment
 		MAGIC::EffectManager::GetSingleton()->Remove(a_enchantment, data);
 	}
 
+	inline void SetEnchantmentMagicEffect(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EffectSetting* a_magicEffect, std::uint32_t a_index)
+	{
+		if (!a_enchantment) {
+			a_vm->TraceStack("Enchantment is None", a_stackID);
+			return;
+		}
+
+		if (!a_magicEffect) {
+			a_vm->TraceStack("MagicEffect is None", a_stackID);
+			return;
+		}
+
+		if (a_index > a_enchantment->effects.size()) {
+			a_vm->TraceForm(a_enchantment, "Index exceeds effect list size", a_stackID);
+			return;
+		}
+
+		if (auto effectItem = a_enchantment->effects[a_index]) {
+			effectItem->baseEffect = a_magicEffect;
+		}
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddMagicEffectToEnchantment);
@@ -144,6 +166,7 @@ namespace Papyrus::Enchantment
 		BIND(GetEnchantmentType);
 		BIND(RemoveMagicEffectFromEnchantment);
 		BIND(RemoveEffectItemFromEnchantment);
+		BIND(SetEnchantmentMagicEffect);
 
 		logger::info("Registered enchantment functions"sv);
 	}

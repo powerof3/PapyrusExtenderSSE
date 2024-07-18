@@ -200,6 +200,28 @@ namespace Papyrus::Spell
 		a_spell->data.spellType = type;
 	}
 
+	inline void SetSpellMagicEffect(STATIC_ARGS, RE::SpellItem* a_spell, RE::EffectSetting* a_magicEffect, std::uint32_t a_index)
+	{
+		if (!a_spell) {
+			a_vm->TraceStack("Spell is None", a_stackID);
+			return;
+		}
+
+		if (!a_magicEffect) {
+			a_vm->TraceStack("MagicEffect is None", a_stackID);
+			return;
+		}
+
+		if (a_index > a_spell->effects.size()) {
+			a_vm->TraceForm(a_spell, "Index exceeds effect list size", a_stackID);
+			return;
+		}
+
+		if (auto effectItem = a_spell->effects[a_index]) {
+			effectItem->baseEffect = a_magicEffect;
+		}
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddMagicEffectToSpell);
@@ -210,6 +232,7 @@ namespace Papyrus::Spell
 		BIND(SetSpellCastingType);
 		BIND(SetSpellDeliveryType);
 		BIND(SetSpellType);
+		BIND(SetSpellMagicEffect);
 
 		logger::info("Registered spell functions"sv);
 	}

@@ -127,12 +127,35 @@ namespace Papyrus::Potion
 		}
 	}
 
+	inline void SetPotionMagicEffect(STATIC_ARGS, RE::AlchemyItem* a_potion, RE::EffectSetting* a_magicEffect, std::uint32_t a_index)
+	{
+		if (!a_potion) {
+			a_vm->TraceStack("Potion is None", a_stackID);
+			return;
+		}
+
+		if (!a_magicEffect) {
+			a_vm->TraceStack("MagicEffect is None", a_stackID);
+			return;
+		}
+
+		if (a_index > a_potion->effects.size()) {
+			a_vm->TraceForm(a_potion, "Index exceeds effect list size", a_stackID);
+			return;
+		}
+
+		if (auto effectItem = a_potion->effects[a_index]) {
+			effectItem->baseEffect = a_magicEffect;
+		}
+	}
+
 	inline void Bind(VM& a_vm)
 	{
 		BIND(AddMagicEffectToPotion);
 		BIND(AddEffectItemToPotion);
 		BIND(RemoveMagicEffectFromPotion);
 		BIND(RemoveEffectItemFromPotion);
+		BIND(SetPotionMagicEffect);
 
 		logger::info("Registered potion functions"sv);
 	}

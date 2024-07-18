@@ -20,6 +20,8 @@ jobs:
       FOMOD_MOD_NAME: "powerofthree's Papyrus Extender"
       FOMOD_MOD_AUTHOR: "powerofthree"
       FOMOD_MOD_NEXUS_ID: "22854"
+      AE_353_BRANCH: master
+      AE_353_COMMON_LIB_BRANCH: dev-1.6.640
       FOMOD_AE353_PATH: 'AE640/SKSE/Plugins'
       FOMOD_AE353_NAME: 'SSE v1.6.640 ("Anniversary Edition")'
       FOMOD_AE353_DESCR: 'Select this if you are using Skyrim Anniversary Edition v1.6.640'

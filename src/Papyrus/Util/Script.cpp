@@ -39,7 +39,7 @@ namespace SCRIPT
 
 		const auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 		const auto policy = vm ? vm->GetObjectHandlePolicy() : nullptr;
-		
+
 		if (!policy) {
 			return vec;
 		}

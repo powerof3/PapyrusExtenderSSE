@@ -13,7 +13,7 @@ namespace Papyrus::ActiveMagicEffect::Functions
 	}
 
 	inline std::vector<RE::BSFixedString> GetScriptsAttachedToActiveEffect(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
-	{			
+	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
 			return {};

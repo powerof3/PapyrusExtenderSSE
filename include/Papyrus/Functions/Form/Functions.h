@@ -151,7 +151,7 @@ namespace Papyrus::Form::Functions
 				descriptionStr = str;
 			}
 		}
-		
+
 		string::replace_all(descriptionStr, "\r"sv, ""sv);  //remove escape character not supported by BSFixedString
 		return descriptionStr;
 	}

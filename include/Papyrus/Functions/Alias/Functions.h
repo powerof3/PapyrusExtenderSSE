@@ -11,7 +11,7 @@ namespace Papyrus::Alias::Functions
 
 		return SCRIPT::get_all_scripts(a_alias);
 	}
-	
+
 	inline bool IsScriptAttachedToAlias(STATIC_ARGS, const RE::BGSBaseAlias* a_alias, RE::BSFixedString a_scriptName)
 	{
 		if (!a_alias) {

@@ -974,6 +974,27 @@ namespace Papyrus::ObjectReference
 		});
 	}
 
+	inline bool SetDoorDestination(STATIC_ARGS, const RE::TESObjectREFR* a_ref, RE::TESObjectREFR* a_door)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return false;
+		}
+		if (!a_door) {
+			a_vm->TraceStack("Destination Door is None", a_stackID);
+			return false;
+		}
+
+		const auto xTeleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
+
+		if (const auto teleportData = xTeleport ? xTeleport->teleportData : nullptr) {
+			teleportData->linkedDoor = a_door->CreateRefHandle();
+			return true;
+		}
+
+		return false;
+	}
+
 	inline void SetEffectShaderDuration(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::TESEffectShader* a_effectShader, float a_time, bool a_absolute)
 	{
 		if (!a_ref) {
@@ -1002,21 +1023,20 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline bool SetDoorDestination(STATIC_ARGS, const RE::TESObjectREFR* a_ref, RE::TESObjectREFR* a_door)
+	inline bool SetKey(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESKey* a_key)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
 			return false;
 		}
-		if (!a_door) {
-			a_vm->TraceStack("Destination Door is None", a_stackID);
+
+		if (!a_key) {
+			a_vm->TraceStack("Key is None", a_stackID);
 			return false;
 		}
 
-		const auto xTeleport = a_ref->extraList.GetByType<RE::ExtraTeleport>();
-
-		if (const auto teleportData = xTeleport ? xTeleport->teleportData : nullptr) {
-			teleportData->linkedDoor = a_door->CreateRefHandle();
+		if (auto lock = a_ref->GetLock()) {
+			lock->key = a_key;
 			return true;
 		}
 
@@ -1162,6 +1182,7 @@ namespace Papyrus::ObjectReference
 		BIND(SetCollisionLayer);
 		BIND(SetDoorDestination);
 		BIND(SetEffectShaderDuration);
+		BIND(SetKey);
 		BIND(SetLinkedRef);
 		BIND(SetMaterialType);
 		BIND(StopAllShaders);

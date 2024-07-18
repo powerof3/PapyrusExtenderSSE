@@ -1,4 +1,5 @@
 set(sources ${sources}
+	src/API/DescriptionFrameworkAPI.cpp
 	src/Game/EventHandler.cpp
 	src/Game/HookedEventHandler.cpp
 	src/Game/Manager.cpp

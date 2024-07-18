@@ -5,6 +5,13 @@
 void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
+	case SKSE::MessagingInterface::kPostPostLoad:
+		{
+			logger::info("{:*^30}", "API"sv);
+			DescriptionFrameworkAPI::GetDescriptionFrameworkInterface001();
+			logger::info("Description Framework installed: {}", g_DescriptionFrameworkInterface != nullptr);
+		}
+		break;
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			Game::Register();

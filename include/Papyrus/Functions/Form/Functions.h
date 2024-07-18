@@ -139,16 +139,21 @@ namespace Papyrus::Form::Functions
 			return {};
 		}
 
-		if (const auto description = a_form->As<RE::TESDescription>(); description) {
-			RE::BSString str;
-			description->GetDescription(str, nullptr);
-
-			std::string temp(str);
-			string::replace_all(temp, "\r"sv, ""sv);  //remove escape character not supported by BSFixedString
-			return temp;
+		std::string descriptionStr;
+		if (g_DescriptionFrameworkInterface) {
+			descriptionStr = g_DescriptionFrameworkInterface->GetDescription(a_form);
 		}
 
-		return {};
+		if (descriptionStr.empty()) {
+			if (const auto description = a_form->As<RE::TESDescription>()) {
+				RE::BSString str;
+				description->GetDescription(str, nullptr);
+				descriptionStr = str;
+			}
+		}
+		
+		string::replace_all(descriptionStr, "\r"sv, ""sv);  //remove escape character not supported by BSFixedString
+		return descriptionStr;
 	}
 
 	inline RE::BSFixedString GetFormEditorID(STATIC_ARGS, const RE::TESForm* a_form)

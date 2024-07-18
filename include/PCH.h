@@ -59,6 +59,8 @@
 #include <ClibUtil/singleton.hpp>
 #include <ClibUtil/string.hpp>
 
+#include "API/DescriptionFrameworkAPI.h"
+
 #define DLLEXPORT __declspec(dllexport)
 
 namespace logger = SKSE::log;

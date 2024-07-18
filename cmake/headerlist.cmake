@@ -1,4 +1,5 @@
 set(headers ${headers}
+	include/API/DescriptionFrameworkAPI.h
 	include/Common.h
 	include/Game/EventHandler.h
 	include/Game/HookedEventHandler.h

@@ -6,6 +6,8 @@ Scriptname PO3_SKSEFunctions Hidden
 ;ACTIVE EFFECT
 ;----------------------------------------------------------------------------------------------------------
 
+	String[] Function GetScriptsAttachedToActiveEffect(ActiveMagicEffect akActiveEffect) global native
+	
 	bool Function IsScriptAttachedToActiveEffect(ActiveMagicEffect akActiveEffect, String asScriptName) global native
 	
 	Form Function GetActiveEffectSpell(ActiveMagicEffect akActiveEffect)  global native
@@ -17,8 +19,6 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 	;GETTERS
 	;-------
-
-	bool Function IsPowerAttacking(Actor akActor) global native
 
 	MagicEffect[] Function GetActiveEffects(Actor akActor, bool abShowInactive = false) global native
 
@@ -97,6 +97,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function IsActorUnderwater(Actor akActor) global native
 
 	bool Function IsLimbGone(Actor akActor, int aiLimb) global native
+	
+	bool Function IsPowerAttacking(Actor akActor) global native
 
 	bool Function IsQuadruped(Actor akActor) global native
 
@@ -205,6 +207,8 @@ Scriptname PO3_SKSEFunctions Hidden
 ;ALIAS
 ;----------------------------------------------------------------------------------------------------------
 
+	String[] Function GetScriptsAttachedToAlias(Alias akAlias) global native
+	
 	bool Function IsScriptAttachedToAlias(Alias akAlias, String asScriptName) global native
 
 ;----------------------------------------------------------------------------------------------------------
@@ -357,6 +361,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function RemoveMagicEffectFromEnchantment(Enchantment akEnchantment, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native
 
 	Function RemoveEffectItemFromEnchantment(Enchantment akEnchantment, Enchantment akEnchantmentToMatchFrom, int aiIndex) global native
+	
+	Function SetEnchantmentMagicEffect(Enchantment akEnchantment, MagicEffect akMagicEffect, int aiIndex) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;FACTION
@@ -403,6 +409,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	String Function GetFormEditorID(Form akForm) global native
 
 	String Function GetFormModName(Form akForm, bool abLastModified) global native
+	
+	String[] Function GetScriptsAttachedToForm(Form akForm) global native
 
 	bool Function IsFormInMod(Form akForm, String asModName) global native
 
@@ -673,6 +681,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	ObjectReference[] Function GetActivateChildren(ObjectReference akRef) global native
 
 	String Function GetActiveGamebryoAnimation(ObjectReference akRef) global native
+	
+	ActiveMagicEffect[] Function GetActiveMagicEffects(ObjectReference akRef, MagicEffect akMagicEffect) global native
 
 	Actor Function GetActorCause(ObjectReference akRef) global native
 
@@ -729,6 +739,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function ApplyMaterialShader(ObjectReference akRef, MaterialObject akMatObject, float directionalThresholdAngle) global native
 
 	Function AddKeywordToRef(ObjectReference akRef, Keyword akKeyword) global native
+	
+	Function CastEx(ObjectReference akRef, Form akSpell, ObjectReference akTarget, Actor akBlameActor, int aiSource) global native
 
 	Function MoveToNearestNavmeshLocation(ObjectReference akRef) global native
 
@@ -749,6 +761,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	bool Function SetDoorDestination(ObjectReference akRef, ObjectReference akDoor) global native
 
 	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float afTime, bool abAbsolute) global native
+	
+	Function SetKey(ObjectReference akRef, Key akKey) global native
 
 	Function SetLinkedRef(ObjectReference akRef, ObjectReference akTargetRef, Keyword akKeyword = None) global native
 
@@ -790,7 +804,7 @@ Scriptname PO3_SKSEFunctions Hidden
 ;PAPYRUS EXTENDER
 ;----------------------------------------------------------------------------------------------------------
 
-	;(major,minor,patch / 5,3,0)
+	;(major,minor,patch / 5,7,0)
 	int[] Function GetPapyrusExtenderVersion() global native
 
 ;-----------------------------------------------------------------------------------------------------------
@@ -804,6 +818,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function RemoveMagicEffectFromPotion(Potion akPotion, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native
 
 	Function RemoveEffectItemFromPotion(Potion akPotion, Potion akPotionToMatchFrom, int aiIndex) global native
+	
+	Function SetPotionMagicEffect(Potion akPotion, MagicEffect akMagicEffect, int aiIndex) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;PROJECTILES
@@ -852,6 +868,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function RemoveMagicEffectFromScroll(Scroll akScroll, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0) global native
 
 	Function RemoveEffectItemFromScroll(Scroll akScroll, Scroll akScrollToMatchFrom, int aiIndex) global native
+	
+	Function SetScrollMagicEffect(Scroll akScroll, MagicEffect akMagicEffect, int aiIndex) global native
 
 ;-----------------------------------------------------------------------------------------------------------
 ;SOUND
@@ -885,6 +903,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function SetSpellDeliveryType(Spell akSpell, int aiType) global native
 	
 	Function SetSpellType(Spell akSpell, int aiType) global native
+	
+	Function SetSpellMagicEffect(Spell akSpell, MagicEffect akMagicEffect, int aiIndex) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;STRINGS
@@ -899,10 +919,14 @@ Scriptname PO3_SKSEFunctions Hidden
 ;----------------------------------------------------------------------------------------------------------
 
 	ObjectReference Function GetMenuContainer() global native
+	
+	bool Function IsShowingMenus() global native
 
 	Function ShowMenu(String asMenuName) global native
 
 	Function HideMenu(String asMenuName) global native
+	
+	Function ToggleOpenSleepWaitMenu(bool abOpenSleepMenu) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;UTILITY

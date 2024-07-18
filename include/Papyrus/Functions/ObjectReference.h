@@ -1023,24 +1023,16 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
-	inline bool SetKey(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESKey* a_key)
+	inline void SetKey(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESKey* a_key)
 	{
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
-			return false;
-		}
-
-		if (!a_key) {
-			a_vm->TraceStack("Key is None", a_stackID);
-			return false;
+			return;
 		}
 
 		if (auto lock = a_ref->GetLock()) {
 			lock->key = a_key;
-			return true;
 		}
-
-		return false;
 	}
 
 	inline void SetLinkedRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, [[maybe_unused]] RE::TESObjectREFR* a_targetRef, [[maybe_unused]] RE::BGSKeyword* a_keyword)

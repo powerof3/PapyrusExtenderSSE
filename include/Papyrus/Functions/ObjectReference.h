@@ -117,6 +117,28 @@ namespace Papyrus::ObjectReference
 		}
 	}
 
+	inline void CastEx(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_spell, RE::TESObjectREFR* a_target, RE::Actor* a_blameActor, std::uint32_t a_source)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return;
+		}
+
+		if (!a_spell) {
+			a_vm->TraceStack("Spell is None", a_stackID);
+			return;
+		}
+
+		auto magicCaster = a_ref->GetMagicCaster(static_cast<RE::MagicSystem::CastingSource>(a_source));
+		if (!magicCaster) {
+			magicCaster = a_ref->GetMagicCaster(RE::MagicSystem::CastingSource::kInstant);
+		}
+
+		if (magicCaster) {
+			magicCaster->CastSpellImmediate(a_spell->As<RE::MagicItem>(), false, a_target, 1.0f, false, 0.0f, a_blameActor);
+		}
+	}
+
 	inline RE::TESForm* FindFirstItemInList(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSListForm* a_list)
 	{
 		if (!a_ref) {
@@ -195,6 +217,46 @@ namespace Papyrus::ObjectReference
 		}
 
 		return {};
+	}
+
+	inline std::vector<RE::ActiveEffect*> GetActiveMagicEffects(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::EffectSetting* a_mgef)
+	{
+		std::vector<RE::ActiveEffect*> result;
+
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return result;
+		}
+		if (!a_mgef) {
+			a_vm->TraceStack("Magic Effect is None", a_stackID);
+			return result;
+		}
+
+		const auto magicTarget = a_ref->GetMagicTarget();
+#ifndef SKYRIMVR
+		const auto activeEffects = magicTarget ? magicTarget->GetActiveEffectList() : nullptr;
+
+		if (activeEffects) {
+			for (const auto& activeEffect : *activeEffects) {
+				const auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr;
+				if (mgef && mgef == a_mgef) {
+					result.push_back(activeEffect);
+				}
+			}
+		}
+#else
+		if (magicTarget) {
+			magicTarget->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+				const auto mgef = activeEffect ? activeEffect->GetBaseObject() : nullptr;
+				if (mgef && mgef == a_mgef) {
+					result.push_back(activeEffect);
+				}
+				return RE::BSContainer::ForEachResult::kContinue;
+			});
+		}
+#endif
+
+		return result;
 	}
 
 	inline RE::Actor* GetActorCause(STATIC_ARGS, RE::TESObjectREFR* a_ref)
@@ -1139,9 +1201,11 @@ namespace Papyrus::ObjectReference
 		BIND(AddItemsOfTypeToArray);
 		BIND(AddItemsOfTypeToList);
 		BIND(AddKeywordToRef);
+		BIND(CastEx);
 		BIND(FindFirstItemInList);
 		BIND(GetActivateChildren);
 		BIND(GetActiveGamebryoAnimation);
+		BIND(GetActiveMagicEffects);
 		BIND(GetActorCause);
 		BIND(GetAllArtObjects);
 		BIND(GetAllEffectShaders);

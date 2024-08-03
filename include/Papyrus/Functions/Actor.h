@@ -796,7 +796,9 @@ namespace Papyrus::Actor
 			return;
 		}
 
+		a_actor->AddDeathItems();
 		a_actor->KillImmediate();
+
 		a_actor->boolBits.set(RE::Actor::BOOL_BITS::kDead);
 		a_actor->boolBits.set(RE::Actor::BOOL_BITS::kSetOnDeath);
 	}

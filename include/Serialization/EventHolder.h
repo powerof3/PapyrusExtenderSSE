@@ -309,7 +309,7 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t>                       weaponHit{ "OnWeaponHit"sv };
 
 		SKSE::RegistrationSet<const RE::TESForm*, const RE::AlchemyItem*, std::int32_t> objectPoisoned{ "OnObjectPoisoned"sv };
-		
+
 		SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*> weatherChange{ "OnWeatherChange"sv };
 	};
 }

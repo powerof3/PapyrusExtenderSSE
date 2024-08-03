@@ -789,6 +789,73 @@ namespace Papyrus::Actor
 		return isBeingSoulTrapped;
 	}
 
+	inline void LaunchArrow(STATIC_ARGS, RE::Actor* a_actor, RE::TESAmmo* a_ammo, RE::TESObjectWEAP* a_weapon, RE::BSFixedString a_nodeName)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return;
+		}
+
+		if (!a_ammo) {
+			a_vm->TraceStack("Ammo is None", a_stackID);
+			return;
+		}
+
+		if (!a_weapon) {
+			a_vm->TraceStack("Weapon is None", a_stackID);
+			return;
+		}
+
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_ammo, a_weapon, a_nodeName]() {
+			auto            root = a_actor->IsPlayerRef() ? a_actor->GetCurrent3D() : a_actor->Get3D2();
+			RE::NiAVObject* fireNode{};
+			if (!a_nodeName.empty()) {
+				if (root) {
+					fireNode = root->GetObjectByName(a_nodeName);
+				}
+			} else {
+				if (const auto currentProcess = a_actor->currentProcess) {
+					const auto& biped = a_actor->GetBiped2();
+					fireNode = a_weapon->IsCrossbow() ? currentProcess->GetMagicNode(biped) : currentProcess->GetWeaponNode(biped);
+				} else {
+					fireNode = a_weapon->GetFireNode(root);
+				}
+			}
+			RE::NiPoint3                  origin;
+			RE::Projectile::ProjectileRot angles{};
+			if (fireNode) {
+				origin = fireNode->world.translate;
+				a_actor->Unk_A0(fireNode, angles.x, angles.z, origin);
+			} else {
+				origin = a_actor->GetPosition();
+				origin.z += 96.0f;
+
+				angles.x = a_actor->GetAimAngle();
+				angles.z = a_actor->GetAimHeading();
+			}
+			RE::ProjectileHandle handle{};
+			RE::Projectile::LaunchArrow(&handle, a_actor, a_ammo, a_weapon, origin, angles);
+		});
+	}
+
+	inline void LaunchSpell(STATIC_ARGS, RE::Actor* a_actor, RE::SpellItem* a_spell, std::uint32_t a_source)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return;
+		}
+
+		if (!a_spell) {
+			a_vm->TraceStack("Spell is None", a_stackID);
+			return;
+		}
+
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_spell, a_source]() {
+			RE::ProjectileHandle handle{};
+			RE::Projectile::LaunchSpell(&handle, a_actor, a_spell, static_cast<RE::MagicSystem::CastingSource>(a_source));
+		});
+	}
+
 	inline void KillNoWait(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -1125,6 +1192,8 @@ namespace Papyrus::Actor
 		BIND(IsLimbGone);
 		BIND(IsSoulTrapped);
 		BIND(KillNoWait);
+		BIND(LaunchArrow);
+		BIND(LaunchSpell);
 		BIND(RemoveAddedSpells);
 		BIND(RemoveArmorOfType);
 		BIND(RemoveBasePerk);

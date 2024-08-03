@@ -948,6 +948,33 @@ namespace Papyrus::ObjectReference
 		return form && FORM::KeywordManager::GetSingleton()->Remove(form, a_keyword);
 	}
 
+	inline void RemoveListFromContainer(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_formList, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem, RE::TESObjectREFR* a_destination)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return;
+		}
+
+		if (!a_formList) {
+			a_vm->TraceStack("FormList is None", a_stackID);
+			return;
+		}
+
+		std::vector<std::pair<RE::TESBoundObject*, std::int32_t>> forms{};
+
+		auto inv = a_ref->GetInventory();
+		for (const auto& [item, data] : inv) {
+			const auto& [count, entry] = data;
+			if (count > 0 && a_formList->HasForm(item) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+				forms.emplace_back(item, count);
+			}
+		}
+
+		for (auto& [form, count] : forms) {
+			a_ref->RemoveItem(form, count, RE::ITEM_REMOVE_REASON::kRemove, nullptr, a_destination);
+		}
+	}
+
 	inline void ReplaceKeywordOnRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSKeyword* a_remove, RE::BGSKeyword* a_add)
 	{
 		if (!a_ref) {
@@ -1225,7 +1252,7 @@ namespace Papyrus::ObjectReference
 		BIND(HasEffectShader);
 		BIND(HasNiExtraData);
 		BIND(IsCasting);
-		BIND(IsLoadDoor, true);
+		BIND(IsLoadDoor);
 		BIND(IsQuestItem);
 		BIND(IsRefInWater);
 		BIND(IsRefUnderwater);
@@ -1233,6 +1260,7 @@ namespace Papyrus::ObjectReference
 		BIND(MoveToNearestNavmeshLocation);
 		BIND(RemoveAllModItems);
 		BIND(RemoveKeywordFromRef);
+		BIND(RemoveListFromContainer);
 		BIND(ReplaceKeywordOnRef);
 		BIND(SetBaseObject);
 		BIND(SetCollisionLayer);

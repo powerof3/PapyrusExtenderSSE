@@ -301,12 +301,15 @@ namespace Event
 #endif
 		SKSE::RegistrationSet<const RE::TESObjectREFR*, const RE::BGSLocation*, const RE::TESForm*> itemCrafted{ "OnItemCrafted"sv };
 
-		SKSE::RegistrationMapUnique<Filter::MagicEffectApply, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool>      magicApply{ "OnMagicEffectApplyEx"sv };
-		SKSE::RegistrationMapUnique<Filter::Hit, const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, bool, bool, bool, bool> onHit{ "OnHitEx"sv };
+		SKSE::RegistrationMapUnique<Filter::MagicEffectApply, const RE::TESObjectREFR*, const RE::EffectSetting*, const RE::TESForm*, bool> magicApply{ "OnMagicEffectApplyEx"sv };
 
-		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>                magicHit{ "OnMagicHit"sv };
-		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>                projectileHit{ "OnProjectileHit"sv };
-		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t> weaponHit{ "OnWeaponHit"sv };
-		SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*>                                                weatherChange{ "OnWeatherChange"sv };
+		SKSE::RegistrationMapUnique<Filter::Hit, const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, bool, bool, bool, bool> onHit{ "OnHitEx"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>                                      magicHit{ "OnMagicHit"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*>                                      projectileHit{ "OnProjectileHit"sv };
+		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*, const RE::TESForm*, const RE::BGSProjectile*, std::uint32_t>                       weaponHit{ "OnWeaponHit"sv };
+
+		SKSE::RegistrationSet<const RE::TESForm*, const RE::AlchemyItem*, std::int32_t> objectPoisoned{ "OnObjectPoisoned"sv };
+		
+		SKSE::RegistrationSet<const RE::TESWeather*, const RE::TESWeather*> weatherChange{ "OnWeatherChange"sv };
 	};
 }

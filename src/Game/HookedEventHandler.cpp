@@ -551,6 +551,55 @@ namespace Event
 		}
 	}
 
+	namespace ObjectPoisoned
+	{
+		struct PoisonObject
+		{
+			static void thunk(RE::InventoryEntryData* a_this, RE::AlchemyItem* a_poison, std::uint32_t a_count)
+			{
+				func(a_this, a_poison, a_count);
+
+				if (auto object = a_this->GetObject()) {
+					GameEventHolder::GetSingleton()->objectPoisoned.QueueEvent(object, a_poison, a_count);
+				}
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		void Install()
+		{
+			REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(15786, 16024) };
+
+			struct Patch : Xbyak::CodeGenerator
+			{
+				Patch(std::uintptr_t a_originalFuncAddr, std::size_t a_originalByteLength)
+				{
+					// Hook returns here. Execute the restored bytes and jump back to the original function.
+					for (size_t i = 0; i < a_originalByteLength; i++)
+						db(*reinterpret_cast<uint8_t*>(a_originalFuncAddr + i));
+
+					jmp(qword[rip]);
+					dq(a_originalFuncAddr + a_originalByteLength);
+				}
+			};
+
+			Patch p(target.address(), 5);
+			p.ready();
+
+			SKSE::AllocTrampoline(512);
+
+			auto& trampoline = SKSE::GetTrampoline();
+			trampoline.write_branch<5>(target.address(), PoisonObject::thunk);
+
+			auto alloc = trampoline.allocate(p.getSize());
+			memcpy(alloc, p.getCode(), p.getSize());
+
+			PoisonObject::func = reinterpret_cast<std::uintptr_t>(alloc);
+
+			logger::info("Hooked Poison Object"sv);
+		}
+	}
+
 	namespace Reanimate
 	{
 		struct Start
@@ -680,9 +729,10 @@ namespace Event
 	{
 		logger::info("{:*^30}", "HOOKED EVENTS"sv);
 
+		BooksRead::Install();
 		FallLongDistance::Install();
 		ItemCrafted::Install();
-		BooksRead::Install();
+		ObjectPoisoned::Install();
 		Resurrect::Install();
 		Reanimate::Install();
 		Weather::Install();

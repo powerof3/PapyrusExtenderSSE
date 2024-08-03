@@ -301,6 +301,17 @@ namespace Papyrus::Alias::Events
 		unload.Register(a_alias, formType);
 	}
 
+	inline void RegisterForObjectPoisoned(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->objectPoisoned;
+		regs.Register(a_alias);
+	}
+
 	inline void RegisterForProjectileHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -746,6 +757,17 @@ namespace Papyrus::Alias::Events
 		unload.UnregisterAll(a_alias);
 	}
 
+	inline void UnregisterForObjectPoisoned(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
+	{
+		if (!a_alias) {
+			a_vm->TraceStack("Alias is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->objectPoisoned;
+		regs.Unregister(a_alias);
+	}
+
 	inline void UnregisterForProjectileHit(STATIC_ARGS, RE::BGSRefAlias* a_alias)
 	{
 		if (!a_alias) {
@@ -912,6 +934,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(RegisterForMagicHit, true);
 		BIND_EVENT(RegisterForObjectGrab, true);
 		BIND_EVENT(RegisterForObjectLoaded, true);
+		BIND_EVENT(RegisterForObjectPoisoned, true);
 		BIND_EVENT(RegisterForProjectileHit, true);
 		BIND_EVENT(RegisterForQuest, true);
 		BIND_EVENT(RegisterForQuestStage, true);
@@ -948,6 +971,7 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(UnregisterForObjectGrab, true);
 		BIND_EVENT(UnregisterForObjectLoaded, true);
 		BIND_EVENT(UnregisterForAllObjectsLoaded, true);
+		BIND_EVENT(UnregisterForObjectPoisoned, true);
 		BIND_EVENT(UnregisterForProjectileHit, true);
 		BIND_EVENT(UnregisterForQuest, true);
 		BIND_EVENT(UnregisterForAllQuests, true);

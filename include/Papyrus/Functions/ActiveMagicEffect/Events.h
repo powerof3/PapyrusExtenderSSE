@@ -283,6 +283,17 @@ namespace Papyrus::ActiveMagicEffect::Events
 		unload.Register(a_activeEffect, formType);
 	}
 
+	inline void RegisterForObjectPoisoned(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->objectPoisoned;
+		regs.Register(a_activeEffect);
+	}
+
 	inline void RegisterForProjectileHit(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -698,6 +709,17 @@ namespace Papyrus::ActiveMagicEffect::Events
 		unload.Unregister(a_activeEffect, formType);
 	}
 
+	inline void UnregisterForObjectPoisoned(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
+	{
+		if (!a_activeEffect) {
+			a_vm->TraceStack("Active Effect is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->objectPoisoned;
+		regs.Unregister(a_activeEffect);
+	}
+
 	inline void UnregisterForAllObjectsLoaded(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)
 	{
 		if (!a_activeEffect) {
@@ -878,6 +900,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(RegisterForMagicHit, true);
 		BIND_EVENT(RegisterForObjectGrab, true);
 		BIND_EVENT(RegisterForObjectLoaded, true);
+		BIND_EVENT(RegisterForObjectPoisoned, true);
 		BIND_EVENT(RegisterForQuest, true);
 		BIND_EVENT(RegisterForProjectileHit, true);
 		BIND_EVENT(RegisterForQuestStage, true);
@@ -914,6 +937,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(UnregisterForObjectGrab, true);
 		BIND_EVENT(UnregisterForObjectLoaded, true);
 		BIND_EVENT(UnregisterForAllObjectsLoaded, true);
+		BIND_EVENT(UnregisterForObjectPoisoned, true);
 		BIND_EVENT(UnregisterForProjectileHit, true);
 		BIND_EVENT(UnregisterForQuest, true);
 		BIND_EVENT(UnregisterForAllQuests, true);

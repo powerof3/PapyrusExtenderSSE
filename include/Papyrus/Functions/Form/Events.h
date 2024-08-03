@@ -283,6 +283,17 @@ namespace Papyrus::Form::Events
 		unload.Register(a_form, formType);
 	}
 
+	inline void RegisterForObjectPoisoned(STATIC_ARGS, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->objectPoisoned;
+		regs.Register(a_form);
+	}
+
 	inline void RegisterForProjectileHit(STATIC_ARGS, RE::TESForm* a_form)
 	{
 		if (!a_form) {
@@ -711,6 +722,17 @@ namespace Papyrus::Form::Events
 		unload.UnregisterAll(a_form);
 	}
 
+	inline void UnregisterForObjectPoisoned(STATIC_ARGS, const RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm->TraceStack("Form is None", a_stackID);
+			return;
+		}
+
+		auto& regs = Event::GameEventHolder::GetSingleton()->objectPoisoned;
+		regs.Unregister(a_form);
+	}
+
 	inline void UnregisterForProjectileHit(STATIC_ARGS, RE::TESForm* a_form)
 	{
 		if (!a_form) {
@@ -877,6 +899,7 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(RegisterForMagicHit, true);
 		BIND_EVENT(RegisterForObjectGrab, true);
 		BIND_EVENT(RegisterForObjectLoaded, true);
+		BIND_EVENT(RegisterForObjectPoisoned, true);
 		BIND_EVENT(RegisterForQuest, true);
 		BIND_EVENT(RegisterForProjectileHit, true);
 		BIND_EVENT(RegisterForQuestStage, true);
@@ -913,6 +936,7 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(UnregisterForObjectGrab, true);
 		BIND_EVENT(UnregisterForObjectLoaded, true);
 		BIND_EVENT(UnregisterForAllObjectsLoaded, true);
+		BIND_EVENT(UnregisterForObjectPoisoned, true);
 		BIND_EVENT(UnregisterForProjectileHit, true);
 		BIND_EVENT(UnregisterForQuest, true);
 		BIND_EVENT(UnregisterForAllQuests, true);

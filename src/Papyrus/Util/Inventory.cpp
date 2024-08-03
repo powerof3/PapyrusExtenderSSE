@@ -48,7 +48,7 @@ namespace INV
 	void remove_item(RE::TESObjectREFR* a_ref, RE::TESBoundObject* a_item, std::uint32_t a_count, bool a_silent, RE::TESObjectREFR* a_otherContainer, Papyrus::StackID a_stackID, Papyrus::VM* a_vm)
 	{
 		using func_t = decltype(&remove_item);
-		REL::Relocation<func_t> func{ RELOCATION_ID(56261, 56647) };
+		static REL::Relocation<func_t> func{ RELOCATION_ID(56261, 56647) };
 		return func(a_ref, a_item, a_count, a_silent, a_otherContainer, a_stackID, a_vm);
 	}
 }

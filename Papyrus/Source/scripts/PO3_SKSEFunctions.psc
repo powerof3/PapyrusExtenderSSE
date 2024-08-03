@@ -123,6 +123,10 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function FreezeActor(Actor akActor, int type, bool abFreeze) global native
 
 	Function KillNoWait(Actor akActor) global native
+	
+	Function LaunchArrow(Actor akActor, Ammo akAmmo, Weapon akWeapon, String asNodeName = "") global native
+	
+	Function LaunchSpell(Actor akActor, Spell akSpell, int aiSource) global native
 
 	;DEPRECIATED
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
@@ -745,6 +749,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function MoveToNearestNavmeshLocation(ObjectReference akRef) global native
 
 	Function RemoveAllModItems(ObjectReference akRef, String asModName, bool abOnlyUnequip = false) global native
+	
+	Function RemoveListFromContainer(ObjectReference akRef, FormList akList, bool abNoEquipped = false, bool abNoFavorited = false, bool abNoQuestItem = false, ObjectReference akDestination = NONE)  global native
 
 	bool Function RemoveKeywordFromRef(ObjectReference akRef, Keyword akKeyword) global native
 

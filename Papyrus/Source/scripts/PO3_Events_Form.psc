@@ -188,6 +188,14 @@ Scriptname PO3_Events_Form  Hidden
 
 	Event OnObjectUnloaded(ObjectReference akRef, int aiFormType)
 	EndEvent
+	
+;OBJECT POISONED
+
+	Function RegisterForObjectPoisoned(Form akForm) global native
+	Function UnregisterForObjectPoisoned(Form akForm) global native
+
+	Event OnObjectPoisoned(Form akObject, Potion akPoison, int aiDose)
+	EndEvent
 
 ;QUEST START/STOP
 

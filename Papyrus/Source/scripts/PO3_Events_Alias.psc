@@ -184,6 +184,14 @@ Scriptname PO3_Events_Alias  Hidden
 
 	Event OnObjectUnloaded(ObjectReference akRef, int aiFormType)
 	EndEvent
+	
+;OBJECT POISONED
+
+	Function RegisterForObjectPoisoned(Alias akAlias) global native
+	Function UnregisterForObjectPoisoned(Alias akAlias) global native
+
+	Event OnObjectPoisoned(Form akObject, Potion akPoison, int aiDose)
+	EndEvent
 
 ;QUEST START/STOP
 
@@ -237,7 +245,7 @@ Scriptname PO3_Events_Alias  Hidden
 
 	Event OnSpellLearned(Spell akSpell)
 	EndEvent
-
+	
 ;WEATHER CHANGE
 
 	Function RegisterForWeatherChange(Alias akAlias) global native

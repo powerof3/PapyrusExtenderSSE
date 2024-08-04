@@ -789,7 +789,7 @@ namespace Papyrus::Actor
 		return isBeingSoulTrapped;
 	}
 
-	inline void LaunchArrow(STATIC_ARGS, RE::Actor* a_actor, RE::TESAmmo* a_ammo, RE::TESObjectWEAP* a_weapon, RE::BSFixedString a_nodeName)
+	inline void LaunchArrow(STATIC_ARGS, RE::Actor* a_actor, RE::TESAmmo* a_ammo, RE::TESObjectWEAP* a_weapon, RE::BSFixedString a_nodeName, std::int32_t a_source, RE::TESObjectREFR* a_target, RE::AlchemyItem* a_poison)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -806,20 +806,37 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		SKSE::GetTaskInterface()->AddTask([a_actor, a_ammo, a_weapon, a_nodeName]() {
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_ammo, a_weapon, a_nodeName, a_source, a_target, a_poison]() {
+			RE::NiAVObject* fireNode = nullptr;
 			auto            root = a_actor->IsPlayerRef() ? a_actor->GetCurrent3D() : a_actor->Get3D2();
-			RE::NiAVObject* fireNode{};
-			if (!a_nodeName.empty()) {
-				if (root) {
-					fireNode = root->GetObjectByName(a_nodeName);
+			switch (a_source) {
+			case -1:
+				{
+					if (!a_nodeName.empty()) {
+						if (root) {
+							fireNode = root->GetObjectByName(a_nodeName);
+						}
+					} else {
+						if (const auto currentProcess = a_actor->currentProcess) {
+							const auto& biped = a_actor->GetBiped2();
+							fireNode = a_weapon->IsCrossbow() ? currentProcess->GetMagicNode(biped) : currentProcess->GetWeaponNode(biped);
+						} else {
+							fireNode = a_weapon->GetFireNode(root);
+						}
+					}
 				}
-			} else {
-				if (const auto currentProcess = a_actor->currentProcess) {
-					const auto& biped = a_actor->GetBiped2();
-					fireNode = a_weapon->IsCrossbow() ? currentProcess->GetMagicNode(biped) : currentProcess->GetWeaponNode(biped);
-				} else {
-					fireNode = a_weapon->GetFireNode(root);
-				}
+				break;
+			case 0:
+				fireNode = root ? root->GetObjectByName(RE::FixedStrings::GetSingleton()->npcLMagicNode) : nullptr;
+				break;
+			case 1:
+				fireNode = root ? root->GetObjectByName(RE::FixedStrings::GetSingleton()->npcRMagicNode) : nullptr;
+				break;
+			case 2:
+				fireNode = root ? root->GetObjectByName(RE::FixedStrings::GetSingleton()->npcHeadMagicNode) : nullptr;
+				break;
+			default:
+				break;
 			}
 			RE::NiPoint3                  origin;
 			RE::Projectile::ProjectileRot angles{};
@@ -833,8 +850,11 @@ namespace Papyrus::Actor
 				angles.x = a_actor->GetAimAngle();
 				angles.z = a_actor->GetAimHeading();
 			}
-			RE::ProjectileHandle handle{};
-			RE::Projectile::LaunchArrow(&handle, a_actor, a_ammo, a_weapon, origin, angles);
+			RE::ProjectileHandle       handle{};
+			RE::Projectile::LaunchData launchData(a_actor, origin, angles, a_ammo, a_weapon);
+			launchData.desiredTarget = a_target;
+			launchData.poison = a_poison;
+			RE::Projectile::Launch(&handle, launchData);
 		});
 	}
 

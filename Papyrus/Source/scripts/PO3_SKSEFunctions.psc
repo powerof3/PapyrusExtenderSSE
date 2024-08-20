@@ -708,6 +708,10 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	int Function GetMotionType(ObjectReference akRef) global native
 
+	int Function AmountActorsWithEffectInRange(ObjectReference akRef, float a_radius, MagicEffect akEffect, bool abignorePlayer) global native
+
+	bool Function ActorInRangeHasEffect(ObjectReference akRef, float afRadius, MagicEffect akEffect, bool abIgnorePlayer) global native
+
 	Actor Function GetRandomActorFromRef(ObjectReference akRef, float afRadius, bool abIgnorePlayer) global native
 
 	Form[] Function GetQuestItems(ObjectReference akRef, bool abNoEquipped = false, bool abNoFavorited = false) global native

@@ -41,7 +41,7 @@ namespace Papyrus::UI
 	inline void ToggleOpenSleepWaitMenu(RE::StaticFunctionTag*, bool a_openSleepMenu)
 	{
 		RE::SleepWaitMenu::ToggleOpenSleepWaitMenu(a_openSleepMenu);
-	}
+	}	
 
 	inline void Bind(VM& a_vm)
 	{

@@ -565,7 +565,7 @@ namespace Papyrus::ObjectReference
 		return motionType;
 	}
 
-	inline int AmountActorsWithEffectInRange(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer) 
+	inline int AmountActorsWithEffectInRange(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer)
 	{
 		{
 			int amount = 0;
@@ -609,7 +609,6 @@ namespace Papyrus::ObjectReference
 			}
 			return amount;
 		}
-	
 	}
 
 	inline bool ActorInRangeHasEffect(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer)
@@ -649,7 +648,7 @@ namespace Papyrus::ObjectReference
 					if (enemy->HasMagicEffect(a_effect)) {
 						hasEffect = true;
 						return hasEffect;
-					} 
+					}
 				}
 			}
 		}

@@ -571,12 +571,10 @@ namespace Papyrus::ObjectReference
 			int amount = 0;
 			if (!a_ref) {
 				a_vm->TraceStack("Object reference is None", a_stackID);
-				logger::info("returned on first if");
 				return amount;
 			}
 			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 				if (a_ignorePlayer && processLists->numberHighActors == 0) {
-					logger::info("returned on second if");
 					return amount;
 				}
 
@@ -589,7 +587,6 @@ namespace Papyrus::ObjectReference
 				const auto get_actor_within_radius = [&](RE::Actor* a_actor) {
 					if (a_actor && a_actor != a_ref && originPos.GetSquaredDistance(a_actor->GetPosition()) <= squaredRadius) {
 						result.emplace_back(a_actor);
-						logger::info("emplace_back works");
 					}
 				};
 				for (auto& actorHandle : processLists->highActorHandles) {
@@ -605,10 +602,8 @@ namespace Papyrus::ObjectReference
 					for (auto& enemy : result) {
 						if (enemy->HasMagicEffect(a_effect)) {
 							amount = amount + 1;
-							logger::info("added 1 to amount");
 						}
 					}
-					logger::info("after for amount it {}", amount);
 					return amount;
 				}
 			}
@@ -650,11 +645,8 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				logger::info("result not empty");
 				for (auto& enemy : result) {
-					logger::info("entered for loop bool func");
 					if (enemy->HasMagicEffect(a_effect)) {
-						logger::info("actor has effect");
 						hasEffect = true;
 						return hasEffect;
 					} 

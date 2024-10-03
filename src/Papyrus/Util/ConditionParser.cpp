@@ -1010,7 +1010,7 @@ namespace CONDITION
 		case PARAM_TYPE::kActor:
 		case PARAM_TYPE::kContainerRef:
 			{
-				if (string::icontains(a_param, "Player")) {
+				if (string::iequals(a_param, "PlayerRef")) {
 					data.ptr = RE::PlayerCharacter::GetSingleton();
 				} else {
 					data.ptr = lookup_form(a_param);

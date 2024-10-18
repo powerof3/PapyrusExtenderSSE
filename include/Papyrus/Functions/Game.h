@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Papyrus/Util/Graphics.h"
+
 namespace Papyrus::Game
 {
 	struct forms
@@ -346,6 +348,16 @@ namespace Papyrus::Game
 		return heightOut;
 	}
 
+	inline RE::BSFixedString GetLandMaterialType(RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
+	{
+		if (auto TES = RE::TES::GetSingleton()) {
+			RE::NiPoint3 pos(a_x, a_y, a_z);
+			return GRAPHICS::MATERIAL::get_material(TES->GetLandMaterialType(pos));
+		}
+
+		return RE::BSFixedString();
+	}
+
 	inline std::vector<float> GetLocalGravity(RE::StaticFunctionTag*)
 	{
 		std::vector<float> result(3, 0.0f);
@@ -469,6 +481,7 @@ namespace Papyrus::Game
 		BIND(GetFormFromEditorID);
 		BIND(GetGameSettingBool);
 		BIND(GetLandHeight);
+		BIND(GetLandMaterialType);
 		BIND(GetLocalGravity);
 		BIND(GetNumActorsInHigh);
 		BIND(GetPapyrusExtenderVersion, true);

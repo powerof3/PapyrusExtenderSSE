@@ -10,6 +10,12 @@ namespace GRAPHICS
 			return it != materialMap.end() ? it->second : RE::MATERIAL_ID::kNone;
 		}
 
+		std::string_view get_material(RE::MATERIAL_ID a_mat)
+		{
+			const auto it = materialMap_reverse.find(a_mat);
+			return it != materialMap_reverse.end() ? it->second : materialMap_reverse.at(RE::MATERIAL_ID::kNone);
+		}
+
 		void for_each_material_type(const RE::NiPointer<RE::bhkWorldObject>& a_body, std::function<void(RE::MATERIAL_ID&)> a_visitor)
 		{
 			if (!a_body) {

@@ -201,8 +201,8 @@ namespace Papyrus::Game
 
 			if (const auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 				for (const auto& book : dataHandler->GetFormArray<RE::TESObjectBOOK>()) {
-					if (book && book->TeachesSpell()) {
-						const auto spell = book->data.teaches.spell;
+					if (book) {
+						const auto spell = book->GetSpell();
 						if (!spell || !a_keywords.empty() && !spell->HasKeywordInArray(a_keywords, false)) {
 							continue;
 						}
@@ -334,6 +334,18 @@ namespace Papyrus::Game
 		return gmst && gmst->GetType() == RE::Setting::Type::kBool ? gmst->GetBool() : -1;
 	}
 
+	inline float GetLandHeight(RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
+	{
+		float heightOut = -1;
+		
+		if (auto TES = RE::TES::GetSingleton()) {
+			RE::NiPoint3 pos(a_x, a_y, a_z);
+			TES->GetLandHeight(pos, heightOut);
+		}
+
+		return heightOut;
+	}
+
 	inline std::vector<float> GetLocalGravity(RE::StaticFunctionTag*)
 	{
 		std::vector<float> result(3, 0.0f);
@@ -456,6 +468,7 @@ namespace Papyrus::Game
 		BIND(GetAttachedCells);
 		BIND(GetFormFromEditorID);
 		BIND(GetGameSettingBool);
+		BIND(GetLandHeight);
 		BIND(GetLocalGravity);
 		BIND(GetNumActorsInHigh);
 		BIND(GetPapyrusExtenderVersion, true);

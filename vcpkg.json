@@ -1,6 +1,6 @@
 {
   "name": "papyrusextender",
-  "version-string": "5.8.0",
+  "version-string": "5.9.0",
   "description": "Papyrus Function Library",
   "homepage": "https://github.com/powerof3/PapyrusExtenderSSE",
   "license": "MIT",
@@ -12,5 +12,5 @@
     "spdlog",
     "xbyak"
   ],
-  "builtin-baseline": "0b63bdd30d6716affc6fc0caef3886ca3022dc7b"
+  "builtin-baseline": "4d22d579c2299aaf1e0bd6b7aa64832658330c88"
 }

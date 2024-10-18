@@ -740,12 +740,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		if (!a_actor->currentProcess || !a_actor->currentProcess->high) {
-			return false;
-		}
-
-		const auto& atk_data = a_actor->currentProcess->high->attackData;
-		return atk_data && atk_data->data.flags == RE::AttackData::AttackFlag::kPowerAttack;
+		return a_actor->IsPowerAttacking();
 	}
 
 	inline bool IsQuadruped(STATIC_ARGS, const RE::Actor* a_actor)
@@ -852,8 +847,11 @@ namespace Papyrus::Actor
 			}
 			RE::ProjectileHandle       handle{};
 			RE::Projectile::LaunchData launchData(a_actor, origin, angles, a_ammo, a_weapon);
+			
 			launchData.desiredTarget = a_target;
 			launchData.poison = a_poison;
+			launchData.enchantItem = a_weapon->formEnchanting;
+			
 			RE::Projectile::Launch(&handle, launchData);
 		});
 	}

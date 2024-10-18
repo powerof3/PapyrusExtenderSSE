@@ -6,9 +6,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;ACTIVE EFFECT
 ;----------------------------------------------------------------------------------------------------------
 
-	String[] Function GetScriptsAttachedToActiveEffect(ActiveMagicEffect akActiveEffect) global native
+	string[] Function GetScriptsAttachedToActiveEffect(ActiveMagicEffect akActiveEffect) global native
 	
-	bool Function IsScriptAttachedToActiveEffect(ActiveMagicEffect akActiveEffect, String asScriptName) global native
+	Bool Function IsScriptAttachedToActiveEffect(ActiveMagicEffect akActiveEffect, string asScriptName) global native
 	
 	Form Function GetActiveEffectSpell(ActiveMagicEffect akActiveEffect)  global native
 
@@ -32,7 +32,7 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	int Function GetActorSoulSize(Actor akActor) global native
 
-	float Function GetActorValueModifier(Actor akActor, int aiModifier, String asActorValue) global native
+	float Function GetActorValueModifier(Actor akActor, int aiModifier, string asActorValue) global native
 	
 	Spell[] Function GetAllActorPlayableSpells(Actor akActor) global native
 
@@ -50,7 +50,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	Enchantment Function GetEquippedAmmoEnchantment(Actor akActor) global native
 
-	bool Function GetEquippedWeaponIsPoisoned(Actor akActor, bool abLeftHand) global native
+	Bool Function GetEquippedWeaponIsPoisoned(Actor akActor, bool abLeftHand) global native
 
 	Potion Function GetEquippedWeaponPoison(Actor akActor, bool abLeftHand) global native
 
@@ -62,13 +62,13 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	TextureSet Function GetHeadPartTextureSet(Actor akActor, int aiType) global native
 
-	Float Function GetLocalGravityActor(Actor akActor) global native
+	float Function GetLocalGravityActor(Actor akActor) global native
 
 	Actor Function GetMount(Actor akActor) global native
 
 	ObjectReference Function GetObjectUnderFeet(Actor akActor) global native
 
-	bool Function GetOffersServices(Actor akActor) global native
+	Bool Function GetOffersServices(Actor akActor) global native
 
 	Actor Function GetRider(Actor akActor) global native
 
@@ -82,39 +82,39 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Faction Function GetVendorFaction(Actor akActor) global native
 	
-	bool Function HasActiveMagicEffect(Actor akActor, MagicEffect akEffect) global native
+	Bool Function HasActiveMagicEffect(Actor akActor, MagicEffect akEffect) global native
 
-	bool Function HasActiveSpell(Actor akActor, Spell akSpell) global native
+	Bool Function HasActiveSpell(Actor akActor, Spell akSpell) global native
 
-	bool Function HasDeferredKill(Actor akActor) global native
+	Bool Function HasDeferredKill(Actor akActor) global native
 
-	bool Function HasMagicEffectWithArchetype(Actor akActor, String asArchetype) global native
+	Bool Function HasMagicEffectWithArchetype(Actor akActor, string asArchetype) global native
 
-	bool Function HasSkin(Actor akActor, Armor akArmorToCheck) global native
+	Bool Function HasSkin(Actor akActor, Armor akArmorToCheck) global native
 
-	bool Function IsActorInWater(Actor akActor) global native
+	Bool Function IsActorInWater(Actor akActor) global native
 
-	bool Function IsActorUnderwater(Actor akActor) global native
+	Bool Function IsActorUnderwater(Actor akActor) global native
 
-	bool Function IsLimbGone(Actor akActor, int aiLimb) global native
+	Bool Function IsLimbGone(Actor akActor, int aiLimb) global native
 	
-	bool Function IsPowerAttacking(Actor akActor) global native
+	Bool Function IsPowerAttacking(Actor akActor) global native
 
-	bool Function IsQuadruped(Actor akActor) global native
+	Bool Function IsQuadruped(Actor akActor) global native
 
-	bool Function IsSoulTrapped(Actor akActor) global native
+	Bool Function IsSoulTrapped(Actor akActor) global native
 
 	;-------
 	;SETTERS
 	;-------
 
-	bool Function ApplyPoisonToEquippedWeapon(Actor akActor, Potion akPoison, int aiCount, bool abLeftHand) global native
+	Bool Function ApplyPoisonToEquippedWeapon(Actor akActor, Potion akPoison, int aiCount, bool abLeftHand) global native
 
 	Form[] Function AddAllEquippedItemsToArray(Actor akActor) global native
 
-	bool Function AddBasePerk(Actor akActor, Perk akPerk) global native
+	Bool Function AddBasePerk(Actor akActor, Perk akPerk) global native
 
-	bool Function AddBaseSpell(Actor akActor, Spell akSpell) global native
+	Bool Function AddBaseSpell(Actor akActor, Spell akSpell) global native
 
 	Function BlendColorWithSkinTone(Actor akActor, ColorForm akColor, int aiBlendMode, bool abAutoLuminance, float afOpacity) global native
 
@@ -124,20 +124,20 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function KillNoWait(Actor akActor) global native
 	
-	Function LaunchArrow(Actor akActor, Ammo akAmmo, Weapon akWeapon, String asNodeName = "", int aiSource = -1, ObjectReference akTarget = None, Potion akPoison = None) global native
+	Function LaunchArrow(Actor akActor, Ammo akAmmo, Weapon akWeapon, string asNodeName = "", int aiSource = -1, ObjectReference akTarget = None, Potion akPoison = None) global native
 	
 	Function LaunchSpell(Actor akActor, Spell akSpell, int aiSource) global native
 
 	;DEPRECIATED
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
 
-	Function RemoveAddedSpells(Actor akActor, String modName, Keyword[] keywords, bool abMatchAll) global native
+	Function RemoveAddedSpells(Actor akActor, string modName, Keyword[] keywords, bool abMatchAll) global native
 	
 	Function RemoveArmorOfType(Actor akActor, int afArmorType, int[] aiSlotsToSkip, bool abEquippedOnly) global native
 
-	bool Function RemoveBasePerk(Actor akActor, Perk akPerk) global native
+	Bool Function RemoveBasePerk(Actor akActor, Perk akPerk) global native
 
-	bool Function RemoveBaseSpell(Actor akActor, Spell akSpell) global native
+	Bool Function RemoveBaseSpell(Actor akActor, Spell akSpell) global native
 
 	Function ReplaceArmorTextureSet(Actor akActor, Armor akArmor, TextureSet akSourceTXST, TextureSet akTargetTXST, int aiTextureType = -1) global native
 
@@ -145,13 +145,13 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function ReplaceSkinTextureSet(Actor akActor, TextureSet akMaleTXST, TextureSet akFemaleTXST, int aiSlotMask, int aiTextureType = -1) global native
 
-	bool Function ResetActor3D(Actor akActor, String asFolderName) global native
+	Bool Function ResetActor3D(Actor akActor, string asFolderName) global native
 
 	Function SetActorRefraction(Actor akActor, float afRefraction) global native
 
-	bool Function SetEquippedWeaponPoison(Actor akActor, Potion akPoison, bool abLeftHand) global native
+	Bool Function SetEquippedWeaponPoison(Actor akActor, Potion akPoison, bool abLeftHand) global native
 
-	bool Function SetEquippedWeaponPoisonCount(Actor akActor, int aiCount, bool abLeftHand) global native
+	Bool Function SetEquippedWeaponPoisonCount(Actor akActor, int aiCount, bool abLeftHand) global native
 
 	Function SetHairColor(Actor akActor, ColorForm akColor) global native
 
@@ -211,9 +211,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;ALIAS
 ;----------------------------------------------------------------------------------------------------------
 
-	String[] Function GetScriptsAttachedToAlias(Alias akAlias) global native
+	string[] Function GetScriptsAttachedToAlias(Alias akAlias) global native
 	
-	bool Function IsScriptAttachedToAlias(Alias akAlias, String asScriptName) global native
+	Bool Function IsScriptAttachedToAlias(Alias akAlias, string asScriptName) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;ARMOR/ADDONS
@@ -227,17 +227,17 @@ Scriptname PO3_SKSEFunctions Hidden
 ;ARRAYS
 ;----------------------------------------------------------------------------------------------------------
 
-	bool Function AddActorToArray(Actor akActor, Actor[] actorArray) global native
+	Bool Function AddActorToArray(Actor akActor, Actor[] actorArray) global native
 
-	bool Function AddStringToArray(String asString, String[] asStrings) global native
+	Bool Function AddStringToArray(string asString, string[] asStrings) global native
 
-	int Function ArrayStringCount(String asString, String[] asStrings) global native
+	int Function ArrayStringCount(string asString, string[] asStrings) global native
 
-	String[] Function SortArrayString(String[] asStrings) global native
+	string[] Function SortArrayString(string[] asStrings) global native
 
-	String[] Function GetSortedActorNames(Keyword akKeyword, String asPlural = "(s)", bool abInvertKeyword) global native
+	string[] Function GetSortedActorNames(Keyword akKeyword, string asPlural = "(s)", bool abInvertKeyword) global native
 
-	String[] Function GetSortedNPCNames(ActorBase[] aiActorBases, String asPlural = "(s)") global native
+	string[] Function GetSortedNPCNames(ActorBase[] aiActorBases, string asPlural = "(s)") global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;BOOK
@@ -265,7 +265,7 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function GivePlayerSpellBook() global native
 
-	Function DumpAnimationVariables(Actor akActor, String asAnimationVarPrefix) global native
+	Function DumpAnimationVariables(Actor akActor, string asAnimationVarPrefix) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;DETECTION
@@ -301,19 +301,19 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	int Function GetEffectShaderTotalCount(EffectShader akEffectShader, bool abActive) global native
 
-	bool Function IsEffectShaderFlagSet(EffectShader akEffectShader, int aiFlag) global native
+	Bool Function IsEffectShaderFlagSet(EffectShader akEffectShader, int aiFlag) global native
 
-	String Function GetMembraneFillTexture(EffectShader akEffectShader) global native
+	string Function GetMembraneFillTexture(EffectShader akEffectShader) global native
 
-	String Function GetMembraneHolesTexture(EffectShader akEffectShader) global native
+	string Function GetMembraneHolesTexture(EffectShader akEffectShader) global native
 
-	String Function GetMembranePaletteTexture(EffectShader akEffectShader) global native
+	string Function GetMembranePaletteTexture(EffectShader akEffectShader) global native
 
 	float Function GetParticleFullCount(EffectShader akEffectShader) global native
 
-	String Function GetParticlePaletteTexture(EffectShader akEffectShader) global native
+	string Function GetParticlePaletteTexture(EffectShader akEffectShader) global native
 
-	String Function GetParticleShaderTexture(EffectShader akEffectShader) global native
+	string Function GetParticleShaderTexture(EffectShader akEffectShader) global native
 
 	float Function GetParticlePersistentCount(EffectShader akEffectShader) global native
 
@@ -329,21 +329,21 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function SetMembraneColorKeyData(EffectShader akEffectShader, int aiColorKey, int[] aiRGB, float afAlpha, float afTime) global native
 
-	Function SetMembraneFillTexture(EffectShader akEffectShader, String asTextureName) global native
+	Function SetMembraneFillTexture(EffectShader akEffectShader, string asTextureName) global native
 
-	Function SetMembraneHolesTexture(EffectShader akEffectShader, String asTextureName) global native
+	Function SetMembraneHolesTexture(EffectShader akEffectShader, string asTextureName) global native
 
-	Function SetMembranePaletteTexture(EffectShader akEffectShader, String asTextureName) global native
+	Function SetMembranePaletteTexture(EffectShader akEffectShader, string asTextureName) global native
 
 	Function SetParticleColorKeyData(EffectShader akEffectShader, int aiColorKey, int[] aiRGB, float afAlpha, float afTime) global native
 
 	Function SetParticleFullCount(EffectShader akEffectShader, float afParticleCount) global native
 
-	Function SetParticlePaletteTexture(EffectShader akEffectShader, String asTextureName) global native
+	Function SetParticlePaletteTexture(EffectShader akEffectShader, string asTextureName) global native
 
 	Function SetParticlePersistentCount(EffectShader akEffectShader, float afParticleCount) global native
 
-	Function SetParticleShaderTexture(EffectShader akEffectShader, String asTextureName) global native
+	Function SetParticleShaderTexture(EffectShader akEffectShader, string asTextureName) global native
 
 ;-----------------------------------------------------------------------------------------------------------
 ;ENCHANTMENT
@@ -358,7 +358,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;SETTERS
 	;--------
 
-	Function AddMagicEffectToEnchantment(Enchantment akEnchantment, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native
+	Function AddMagicEffectToEnchantment(Enchantment akEnchantment, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, string[] asConditionList) global native
 
 	Function AddEffectItemToEnchantment(Enchantment akEnchantment, Enchantment akEnchantmentToCopyFrom, int aiIndex, float afCost = -1.0) global native
 
@@ -384,13 +384,13 @@ Scriptname PO3_SKSEFunctions Hidden
 ;FASTTRAVEL
 ;----------------------------------------------------------------------------------------------------------
 
-	bool Function SetFastTravelDisabled(bool abDisable) global native
+	Bool Function SetFastTravelDisabled(bool abDisable) global native
 	
-	bool Function SetFastTravelTargetFormID(int aiDestinationFormID) global native
+	Bool Function SetFastTravelTargetFormID(int aiDestinationFormID) global native
 	
-	bool Function SetFastTravelTargetRef(ObjectReference akDestination) global native
+	Bool Function SetFastTravelTargetRef(ObjectReference akDestination) global native
 	
-	bool Function SetFastTravelTargetString(String asDestination) global native
+	Bool Function SetFastTravelTargetString(string asDestination) global native
 	
 	float Function SetFastTravelWaitTimeout(float afTimeout) global native
 
@@ -402,27 +402,27 @@ Scriptname PO3_SKSEFunctions Hidden
 	;GETTERS
 	;-------
 
-	bool Function EvaluateConditionList(Form akForm, ObjectReference akActionRef, ObjectReference akTargetRef) global native
+	Bool Function EvaluateConditionList(Form akForm, ObjectReference akActionRef, ObjectReference akTargetRef) global native
 
 	Function ClearRecordFlag(Form akForm, int aiFlag) global native
 
-	String[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
+	string[] Function GetConditionList(Form akForm, int aiIndex = 0) global native
 
-	String Function GetDescription(Form akForm) global native
+	string Function GetDescription(Form akForm) global native
 
-	String Function GetFormEditorID(Form akForm) global native
+	string Function GetFormEditorID(Form akForm) global native
 
-	String Function GetFormModName(Form akForm, bool abLastModified) global native
+	string Function GetFormModName(Form akForm, bool abLastModified) global native
 	
-	String[] Function GetScriptsAttachedToForm(Form akForm) global native
+	string[] Function GetScriptsAttachedToForm(Form akForm) global native
 
-	bool Function IsFormInMod(Form akForm, String asModName) global native
+	Bool Function IsFormInMod(Form akForm, string asModName) global native
 
-	bool Function IsGeneratedForm(Form akForm) global native
+	Bool Function IsGeneratedForm(Form akForm) global native
 
-	bool Function IsRecordFlagSet(Form akForm, int aiFlag) global native
+	Bool Function IsRecordFlagSet(Form akForm, int aiFlag) global native
 
-	bool Function IsScriptAttachedToForm(Form akForm, String asScriptName) global native
+	Bool Function IsScriptAttachedToForm(Form akForm, string asScriptName) global native
 
 	Function SetRecordFlag(Form akForm, int aiFlag) global native
 
@@ -434,13 +434,13 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function MarkItemAsFavorite(Form akForm) global native
 
-	Function RemoveConditionList(Form akForm, int aiIndex, String[] asConditionList) global native
+	Function RemoveConditionList(Form akForm, int aiIndex, string[] asConditionList) global native
 	
 	Function ReplaceKeywordOnForm(Form akForm, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
 
-	bool Function RemoveKeywordOnForm(Form akForm, Keyword akKeyword) global native
+	Bool Function RemoveKeywordOnForm(Form akForm, Keyword akKeyword) global native
 	
-	Function SetConditionList(Form akForm, int aiIndex, String[] asConditionList) global native
+	Function SetConditionList(Form akForm, int aiIndex, string[] asConditionList) global native
 
 	Function UnmarkItemAsFavorite(Form akForm) global native
 
@@ -468,33 +468,37 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Actor[] Function GetActorsByProcessingLevel(int aiLevel) global native
 
-	Form[] Function GetAllFormsInMod(String asModName, int aiFormType, Keyword[] akKeywords = None) global native
+	Form[] Function GetAllFormsInMod(string asModName, int aiFormType, Keyword[] akKeywords = None) global native
 
-	Enchantment[] Function GetAllEnchantmentsInMod(String asModName, Keyword[] akKeywords = None) global native
+	Enchantment[] Function GetAllEnchantmentsInMod(string asModName, Keyword[] akKeywords = None) global native
 
-	Race[] Function GetAllRacesInMod(String asModName, Keyword[] akKeywords = None) global native
+	Race[] Function GetAllRacesInMod(string asModName, Keyword[] akKeywords = None) global native
 
-	Spell[] Function GetAllSpellsInMod(String asModName, Keyword[] akKeywords = None, bool abIsPlayable = false) global native
+	Spell[] Function GetAllSpellsInMod(string asModName, Keyword[] akKeywords = None, bool abIsPlayable = false) global native
 
 	Cell[] Function GetAttachedCells() global native
 
-	Form Function GetFormFromEditorID(String asEditorID) global native
+	Form Function GetFormFromEditorID(string asEditorID) global native
 
-	Int Function GetGameSettingBool(String asGameSetting) global native
+	int Function GetGameSettingBool(string asGameSetting) global native
 
 	Bool Function GetGodMode() global native
+	
+	float Function GetLandHeight(float afPosX, float afPosY, float afPosZ) global native
+	
+	string Function GetLandMaterialType(float afPosX, float afPosY, float afPosZ) global native
 
-	Float[] Function GetLocalGravity() global native
+	float[] Function GetLocalGravity() global native
 
 	int Function GetNumActorsInHigh() global native
 
 	Actor[] Function GetPlayerFollowers() global native
 
-	String Function GetSurfaceMaterialType(float afX, float afY, float afZ) global native
+	string Function GetSurfaceMaterialType(float afX, float afY, float afZ) global native
 
-	bool Function IsPluginFound(String akName) global native
+	Bool Function IsPluginFound(string akName) global native
 
-	bool Function IsSurvivalModeActive() global native
+	Bool Function IsSurvivalModeActive() global native
 
 	;-------
 	;SETTERS
@@ -510,7 +514,7 @@ Scriptname PO3_SKSEFunctions Hidden
 ;HAZARD
 ;----------------------------------------------------------------------------------------------------------
 
-	String Function GetHazardArt(Hazard akHazard) global native
+	string Function GetHazardArt(Hazard akHazard) global native
 
 	ImageSpaceModifier Function GetHazardIMOD(Hazard akHazard) global native
 
@@ -532,7 +536,7 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	float Function GetHazardTargetInterval(Hazard akHazard) global native
 
-	bool Function IsHazardFlagSet(Hazard akHazard, int aiFlag) global native
+	Bool Function IsHazardFlagSet(Hazard akHazard, int aiFlag) global native
 
 	;-------
 	;SETTERS
@@ -540,7 +544,7 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function ClearHazardFlag(Hazard akHazard, int aiFlag) global native
 
-	Function SetHazardArt(Hazard akHazard, String asPath) global native
+	Function SetHazardArt(Hazard akHazard, string asPath) global native
 
 	Function SetHazardFlag(Hazard akHazard, int aiFlag) global native
 
@@ -642,11 +646,11 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	int Function GetEffectArchetypeAsInt(MagicEffect akMagicEffect) global native
 
-	String Function GetEffectArchetypeAsString(MagicEffect akMagicEffect) global native
+	string Function GetEffectArchetypeAsString(MagicEffect akMagicEffect) global native
 
-	String Function GetPrimaryActorValue(MagicEffect akMagicEffect) global native
+	string Function GetPrimaryActorValue(MagicEffect akMagicEffect) global native
 
-	String Function GetSecondaryActorValue(MagicEffect akMagicEffect) global native
+	string Function GetSecondaryActorValue(MagicEffect akMagicEffect) global native
 
 	SoundDescriptor Function GetMagicEffectSound(MagicEffect akMagicEffect, int aiType) global native
 
@@ -665,6 +669,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	;--------
 	;GETTERS
 	;--------
+	
+	Bool Function ActorInRangeHasEffect(ObjectReference akRef, float afRadius, MagicEffect akEffect, bool abIgnorePlayer) global native
 
 	Form[] Function AddAllItemsToArray(ObjectReference akRef, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 
@@ -684,7 +690,7 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	ObjectReference[] Function GetActivateChildren(ObjectReference akRef) global native
 
-	String Function GetActiveGamebryoAnimation(ObjectReference akRef) global native
+	string Function GetActiveGamebryoAnimation(ObjectReference akRef) global native
 	
 	ActiveMagicEffect[] Function GetActiveMagicEffects(ObjectReference akRef, MagicEffect akMagicEffect) global native
 
@@ -704,13 +710,11 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Form[] Function GetMagicEffectSource(ObjectReference akRef, MagicEffect akEffect) global native
 
-	String[] Function GetMaterialType(ObjectReference akRef, String asNodeName = "") global native
+	string[] Function GetMaterialType(ObjectReference akRef, string asNodeName = "") global native
 
 	int Function GetMotionType(ObjectReference akRef) global native
-
-	int Function AmountActorsWithEffectInRange(ObjectReference akRef, float a_radius, MagicEffect akEffect, bool abignorePlayer) global native
-
-	bool Function ActorInRangeHasEffect(ObjectReference akRef, float afRadius, MagicEffect akEffect, bool abIgnorePlayer) global native
+	
+	int Function GetNumActorsWithEffectInRange(ObjectReference akRef, float afRadius, MagicEffect akEffect, bool abignorePlayer) global native
 
 	Actor Function GetRandomActorFromRef(ObjectReference akRef, float afRadius, bool abIgnorePlayer) global native
 
@@ -726,19 +730,19 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	int Function HasEffectShader(ObjectReference akRef, EffectShader akShader, bool abActive = false) global native
 
-	bool Function HasNiExtraData(ObjectReference akRef, String asName) global native
+	Bool Function HasNiExtraData(ObjectReference akRef, string asName) global native
 
-	bool Function IsCasting(ObjectReference akRef, Form akMagicItem) global native
+	Bool Function IsCasting(ObjectReference akRef, Form akMagicItem) global native
 
-	bool Function IsLoadDoor(ObjectReference akRef) global native
+	Bool Function IsLoadDoor(ObjectReference akRef) global native
 
-	bool Function IsQuestItem(ObjectReference akRef) global native
+	Bool Function IsQuestItem(ObjectReference akRef) global native
 
-	bool Function IsRefInWater(ObjectReference akRef) global native
+	Bool Function IsRefInWater(ObjectReference akRef) global native
 	
-	bool Function IsRefUnderwater(ObjectReference akRef) global native
+	Bool Function IsRefUnderwater(ObjectReference akRef) global native
 
-	bool Function IsVIP(ObjectReference akRef) global native
+	Bool Function IsVIP(ObjectReference akRef) global native
 
 	;-------
 	;SETTERS
@@ -752,23 +756,23 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function MoveToNearestNavmeshLocation(ObjectReference akRef) global native
 
-	Function RemoveAllModItems(ObjectReference akRef, String asModName, bool abOnlyUnequip = false) global native
+	Function RemoveAllModItems(ObjectReference akRef, string asModName, bool abOnlyUnequip = false) global native
 	
 	Function RemoveListFromContainer(ObjectReference akRef, FormList akList, bool abNoEquipped = false, bool abNoFavorited = false, bool abNoQuestItem = false, ObjectReference akDestination = None)  global native
 
-	bool Function RemoveKeywordFromRef(ObjectReference akRef, Keyword akKeyword) global native
+	Bool Function RemoveKeywordFromRef(ObjectReference akRef, Keyword akKeyword) global native
 
 	Function ReplaceKeywordOnRef(ObjectReference akRef, Keyword akKeywordAdd, Keyword akKeywordRemove) global native
 
 	Function PlayDebugShader(ObjectReference akRef, float[] afRGBA) global native
 
-	Function ScaleObject3D(ObjectReference akRef, String asNodeName, float afScale) global native
+	Function ScaleObject3D(ObjectReference akRef, string asNodeName, float afScale) global native
 
 	Function SetBaseObject(ObjectReference akRef, Form akBaseObject) global native
 
-	Function SetCollisionLayer(ObjectReference akRef, String asNodeName, int aiCollisionLayer) global native
+	Function SetCollisionLayer(ObjectReference akRef, string asNodeName, int aiCollisionLayer) global native
 
-	bool Function SetDoorDestination(ObjectReference akRef, ObjectReference akDoor) global native
+	Bool Function SetDoorDestination(ObjectReference akRef, ObjectReference akDoor) global native
 
 	Function SetEffectShaderDuration(ObjectReference akRef, EffectShader akShader, float afTime, bool abAbsolute) global native
 	
@@ -776,19 +780,19 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function SetLinkedRef(ObjectReference akRef, ObjectReference akTargetRef, Keyword akKeyword = None) global native
 
-	Function SetMaterialType(ObjectReference akRef, String asNewMaterial, String asOldMaterial = "", String asNodeName = "") global native
+	Function SetMaterialType(ObjectReference akRef, string asNewMaterial, string asOldMaterial = "", string asNodeName = "") global native
 
 	Function SetupBodyPartGeometry(ObjectReference akRef, actor akActor) global native
 
-	Function SetShaderType(ObjectReference akRef, ObjectReference akTemplate, String asDiffusePath, int aiShaderType, int aiTextureType, bool abNoWeapons, bool abNoAlphaProperty) global native
+	Function SetShaderType(ObjectReference akRef, ObjectReference akTemplate, string asDiffusePath, int aiShaderType, int aiTextureType, bool abNoWeapons, bool abNoAlphaProperty) global native
 
 	Function StopAllShaders(ObjectReference akRef) global native
 
 	Function StopArtObject(ObjectReference akRef, Art akArt) global native
 
-	Function ToggleChildNode(ObjectReference akRef, String asNodeName, bool abDisable) global native
+	Function ToggleChildNode(ObjectReference akRef, string asNodeName, bool abDisable) global native
 
-	Function UpdateHitEffectArtNode(ObjectReference akRef, Art akArt, String asNewNode, float[] afTranslate, float[] afRotate, float afRelativeScale = 1.0) global native
+	Function UpdateHitEffectArtNode(ObjectReference akRef, Art akArt, string asNewNode, float[] afTranslate, float[] afRotate, float afRelativeScale = 1.0) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;PACKAGES
@@ -814,14 +818,14 @@ Scriptname PO3_SKSEFunctions Hidden
 ;PAPYRUS EXTENDER
 ;----------------------------------------------------------------------------------------------------------
 
-	;(major,minor,patch / 5,7,0)
+	;(major,minor,patch / 5,9,0)
 	int[] Function GetPapyrusExtenderVersion() global native
 
 ;-----------------------------------------------------------------------------------------------------------
 ;POTION
 ;-----------------------------------------------------------------------------------------------------------
 
-	Function AddMagicEffectToPotion(Potion akPotion, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native
+	Function AddMagicEffectToPotion(Potion akPotion, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, string[] asConditionList) global native
 
 	Function AddEffectItemToPotion(Potion akPotion, Potion akPotionToCopyFrom, int aiIndex, float afCost = -1.0) global native
 
@@ -866,12 +870,14 @@ Scriptname PO3_SKSEFunctions Hidden
 ;-----------------------------------------------------------------------------------------------------------
 
 	int[] Function GetAllQuestObjectives(Quest akQuest) global native
+	
+	Function SetObjectiveText(Quest akQuest, string asText, int aiIndex) global native
 
 ;-----------------------------------------------------------------------------------------------------------
 ;SCROLL
 ;-----------------------------------------------------------------------------------------------------------
 
-	Function AddMagicEffectToScroll(Scroll akScroll, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native
+	Function AddMagicEffectToScroll(Scroll akScroll, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, string[] asConditionList) global native
 
 	Function AddEffectItemToScroll(Scroll akScroll, Scroll akScrollToCopyFrom, int aiIndex, float afCost = -1.0) global native
 
@@ -900,7 +906,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;SETTERS
 	;--------
 
-	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, String[] asConditionList) global native
+	Function AddMagicEffectToSpell(Spell akSpell, MagicEffect akMagicEffect, float afMagnitude, int aiArea, int aiDuration, float afCost = 0.0, string[] asConditionList) global native
 
 	Function AddEffectItemToSpell(Spell akSpell, Spell akSpellToCopyFrom, int aiIndex, float afCost = -1.0) global native
 
@@ -920,9 +926,9 @@ Scriptname PO3_SKSEFunctions Hidden
 ;STRINGS
 ;----------------------------------------------------------------------------------------------------------
 
-	String Function IntToString(int aiValue, bool abHex) global native
+	string Function IntToString(int aiValue, bool abHex) global native
 
-	int Function StringToInt(String asString) global native
+	int Function StringToInt(string asString) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;UI
@@ -930,11 +936,11 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	ObjectReference Function GetMenuContainer() global native
 	
-	bool Function IsShowingMenus() global native
+	Bool Function IsShowingMenus() global native
 
-	Function ShowMenu(String asMenuName) global native
+	Function ShowMenu(string asMenuName) global native
 
-	Function HideMenu(String asMenuName) global native
+	Function HideMenu(string asMenuName) global native
 	
 	Function ToggleOpenSleepWaitMenu(bool abOpenSleepMenu) global native
 

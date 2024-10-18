@@ -847,11 +847,11 @@ namespace Papyrus::Actor
 			}
 			RE::ProjectileHandle       handle{};
 			RE::Projectile::LaunchData launchData(a_actor, origin, angles, a_ammo, a_weapon);
-			
+
 			launchData.desiredTarget = a_target;
 			launchData.poison = a_poison;
 			launchData.enchantItem = a_weapon->formEnchanting;
-			
+
 			RE::Projectile::Launch(&handle, launchData);
 		});
 	}

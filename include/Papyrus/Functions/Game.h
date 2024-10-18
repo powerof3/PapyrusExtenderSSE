@@ -339,7 +339,7 @@ namespace Papyrus::Game
 	inline float GetLandHeight(RE::StaticFunctionTag*, float a_x, float a_y, float a_z)
 	{
 		float heightOut = -1;
-		
+
 		if (auto TES = RE::TES::GetSingleton()) {
 			RE::NiPoint3 pos(a_x, a_y, a_z);
 			TES->GetLandHeight(pos, heightOut);

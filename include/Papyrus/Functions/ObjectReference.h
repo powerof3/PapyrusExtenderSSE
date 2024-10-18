@@ -51,7 +51,7 @@ namespace Papyrus::ObjectReference
 
 		return hasEffect;
 	}
-	
+
 	inline std::vector<RE::TESForm*> AddAllItemsToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		std::vector<RE::TESForm*> result;

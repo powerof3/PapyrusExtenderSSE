@@ -5,6 +5,53 @@
 
 namespace Papyrus::ObjectReference
 {
+	inline bool ActorInRangeHasEffect(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer)
+	{
+		bool hasEffect = false;
+
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return hasEffect;
+		}
+
+		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
+			if (a_ignorePlayer && processLists->numberHighActors == 0) {
+				return hasEffect;
+			}
+
+			const auto squaredRadius = a_radius * a_radius;
+			const auto originPos = a_ref->GetPosition();
+
+			std::vector<RE::Actor*> result;
+			result.reserve(processLists->numberHighActors);
+
+			const auto get_actor_within_radius = [&](RE::Actor* a_actor) {
+				if (a_actor && a_actor != a_ref && originPos.GetSquaredDistance(a_actor->GetPosition()) <= squaredRadius) {
+					result.emplace_back(a_actor);
+				}
+			};
+			for (auto& actorHandle : processLists->highActorHandles) {
+				const auto& actor = actorHandle.get();
+				get_actor_within_radius(actor.get());
+			}
+
+			if (!a_ignorePlayer) {
+				get_actor_within_radius(RE::PlayerCharacter::GetSingleton());
+			}
+
+			if (!result.empty()) {
+				for (auto& enemy : result) {
+					if (enemy && enemy->HasMagicEffect(a_effect)) {
+						hasEffect = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return hasEffect;
+	}
+	
 	inline std::vector<RE::TESForm*> AddAllItemsToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
 		std::vector<RE::TESForm*> result;
@@ -565,62 +612,18 @@ namespace Papyrus::ObjectReference
 		return motionType;
 	}
 
-	inline int AmountActorsWithEffectInRange(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer)
+	inline std::int32_t GetNumActorsWithEffectInRange(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer)
 	{
-		{
-			int amount = 0;
-			if (!a_ref) {
-				a_vm->TraceStack("Object reference is None", a_stackID);
-				return amount;
-			}
-			if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-				if (a_ignorePlayer && processLists->numberHighActors == 0) {
-					return amount;
-				}
+		std::int32_t amount = 0;
 
-				const auto squaredRadius = a_radius * a_radius;
-				const auto originPos = a_ref->GetPosition();
-
-				std::vector<RE::Actor*> result;
-				result.reserve(processLists->numberHighActors);
-
-				const auto get_actor_within_radius = [&](RE::Actor* a_actor) {
-					if (a_actor && a_actor != a_ref && originPos.GetSquaredDistance(a_actor->GetPosition()) <= squaredRadius) {
-						result.emplace_back(a_actor);
-					}
-				};
-				for (auto& actorHandle : processLists->highActorHandles) {
-					const auto actor = actorHandle.get();
-					get_actor_within_radius(actor.get());
-				}
-
-				if (!a_ignorePlayer) {
-					get_actor_within_radius(RE::PlayerCharacter::GetSingleton());
-				}
-
-				if (!result.empty()) {
-					for (auto& enemy : result) {
-						if (enemy->HasMagicEffect(a_effect)) {
-							amount = amount + 1;
-						}
-					}
-					return amount;
-				}
-			}
-			return amount;
-		}
-	}
-
-	inline bool ActorInRangeHasEffect(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, RE::EffectSetting* a_effect, bool a_ignorePlayer)
-	{
-		bool hasEffect = false;
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
-			return hasEffect;
+			return amount;
 		}
+
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			if (a_ignorePlayer && processLists->numberHighActors == 0) {
-				return hasEffect;
+				return amount;
 			}
 
 			const auto squaredRadius = a_radius * a_radius;
@@ -634,8 +637,9 @@ namespace Papyrus::ObjectReference
 					result.emplace_back(a_actor);
 				}
 			};
+
 			for (auto& actorHandle : processLists->highActorHandles) {
-				const auto actor = actorHandle.get();
+				const auto& actor = actorHandle.get();
 				get_actor_within_radius(actor.get());
 			}
 
@@ -644,15 +648,15 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				for (auto& enemy : result) {
-					if (enemy->HasMagicEffect(a_effect)) {
-						hasEffect = true;
-						return hasEffect;
+				for (const auto& enemy : result) {
+					if (enemy && enemy->HasMagicEffect(a_effect)) {
+						amount++;
 					}
 				}
+				return amount;
 			}
 		}
-		return hasEffect;
+		return amount;
 	}
 
 	inline RE::Actor* GetRandomActorFromRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, float a_radius, bool a_ignorePlayer)
@@ -1313,6 +1317,7 @@ namespace Papyrus::ObjectReference
 
 	inline void Bind(VM& a_vm)
 	{
+		BIND(ActorInRangeHasEffect);
 		BIND(AddAllItemsToArray);
 		BIND(AddAllItemsToList);
 		BIND(AddItemsOfTypeToArray);
@@ -1333,6 +1338,7 @@ namespace Papyrus::ObjectReference
 		BIND(GetMagicEffectSource);
 		BIND(GetMaterialType);
 		BIND(GetMotionType);
+		BIND(GetNumActorsWithEffectInRange);
 		BIND(GetRandomActorFromRef);
 		BIND(GetQuestItems);
 		BIND(GetRefAliases);
@@ -1361,8 +1367,6 @@ namespace Papyrus::ObjectReference
 		BIND(SetMaterialType);
 		BIND(StopAllShaders);
 		BIND(StopArtObject);
-		BIND(ActorInRangeHasEffect);
-		BIND(AmountActorsWithEffectInRange);
 
 		logger::info("Registered object reference functions"sv);
 	}

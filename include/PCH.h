@@ -48,6 +48,7 @@
 #include "SKSE/SKSE.h"
 
 #include <frozen/map.h>
+#include <frozen/set.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>
 #include <xbyak/xbyak.h>

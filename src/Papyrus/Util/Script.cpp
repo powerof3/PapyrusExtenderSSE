@@ -14,7 +14,7 @@ namespace SCRIPT
 			if (const auto it = a_vm.attachedScripts.find(a_handle); it != a_vm.attachedScripts.end()) {
 				return std::ranges::any_of(it->second, [&](const auto& script) {
 					auto typeInfo = script ? script->GetTypeInfo() : nullptr;
-					return typeInfo && std::find(baseScripts.begin(), baseScripts.end(), typeInfo->name) == baseScripts.end();  // is not a base script
+					return typeInfo && baseScripts.find(typeInfo->name) == baseScripts.end();  // is not a base script
 				});
 			}
 			return false;

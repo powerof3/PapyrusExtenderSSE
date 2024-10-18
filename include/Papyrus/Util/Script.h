@@ -2,7 +2,7 @@
 
 namespace SCRIPT
 {
-	inline constexpr std::array<std::string_view, 86> baseScripts = {
+	inline constexpr frozen::set<std::string_view, 86> baseScripts = {
 		"Action"sv,
 		"Activator"sv,
 		"ActiveMagicEffect"sv,

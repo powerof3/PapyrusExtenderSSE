@@ -12,7 +12,7 @@ namespace FORM
 	};
 
 	class KeywordManager final :
-		public ISingleton<KeywordManager>,
+		public REX::Singleton<KeywordManager>,
 		public FormMapPair<RE::TESForm, RE::BGSKeyword>
 	{
 		bool Process(RE::TESForm* a_form, RE::BGSKeyword* a_data, std::uint32_t a_index) override
@@ -27,7 +27,7 @@ namespace FORM
 	};
 
 	class PerkManager final :
-		public ISingleton<PerkManager>,
+		public REX::Singleton<PerkManager>,
 		public FormMapPair<RE::Actor, RE::BGSPerk>
 	{
 		bool Process(RE::Actor* a_form, RE::BGSPerk* a_data, std::uint32_t a_index) override
@@ -70,13 +70,13 @@ namespace DETECTION
 
 	//target
 	class TargetManager final :
-		public ISingleton<TargetManager>,
+		public REX::Singleton<TargetManager>,
 		public FormSetPair<RE::Actor>
 	{};
 
 	//searcher
 	class SourceManager final :
-		public ISingleton<SourceManager>,
+		public REX::Singleton<SourceManager>,
 		public FormSetPair<RE::Actor>
 	{};
 }
@@ -97,7 +97,7 @@ namespace MAGIC
 	};
 
 	class MGEFManager final :
-		public ISingleton<MGEFManager>,
+		public REX::Singleton<MGEFManager>,
 		public FormDataMapPair<RE::MagicItem, MGEFData>
 	{
 	public:
@@ -311,7 +311,7 @@ namespace MAGIC
 	};
 
 	class EffectManager final :
-		public ISingleton<EffectManager>,
+		public REX::Singleton<EffectManager>,
 		public FormDataMapPair<RE::MagicItem, EffectData>
 	{
 	public:

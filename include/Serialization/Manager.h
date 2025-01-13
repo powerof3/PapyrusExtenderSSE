@@ -73,7 +73,7 @@ namespace Serialization
 		using EventResult = RE::BSEventNotifyControl;
 
 		class EventHandler :
-			public ISingleton<EventHandler>,
+			public REX::Singleton<EventHandler>,
 			public RE::BSTEventSink<RE::TESFormDeleteEvent>
 		{
 		public:

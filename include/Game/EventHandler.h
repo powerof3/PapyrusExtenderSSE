@@ -5,7 +5,7 @@ namespace Event
 	using EventResult = RE::BSEventNotifyControl;
 
 	class ScriptEventHandler final :
-		public ISingleton<ScriptEventHandler>,
+		public REX::Singleton<ScriptEventHandler>,
 		public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>,
 		public RE::BSTEventSink<RE::TESQuestStartStopEvent>,
 		public RE::BSTEventSink<RE::TESQuestStageEvent>,
@@ -43,7 +43,7 @@ namespace Event
 	};
 
 	class StoryEventHandler final :
-		public ISingleton<StoryEventHandler>,
+		public REX::Singleton<StoryEventHandler>,
 		public RE::BSTEventSink<RE::ActorKill::Event>,
 		public RE::BSTEventSink<RE::CriticalHit::Event>,
 		public RE::BSTEventSink<RE::DisarmedEvent::Event>,

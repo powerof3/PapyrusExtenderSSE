@@ -45,6 +45,7 @@
 #include <ranges>
 
 #include "RE/Skyrim.h"
+#include "REX/REX/Singleton.h"
 #include "SKSE/SKSE.h"
 
 #include <frozen/map.h>
@@ -57,7 +58,6 @@
 #include <ClibUtil/editorID.hpp>
 #include <ClibUtil/numeric.hpp>
 #include <ClibUtil/rng.hpp>
-#include <ClibUtil/singleton.hpp>
 #include <ClibUtil/string.hpp>
 
 #include "API/DescriptionFrameworkAPI.h"
@@ -72,7 +72,6 @@ namespace editorID = clib_util::editorID;
 
 using namespace std::literals;
 using namespace string::literals;
-using namespace clib_util::singleton;
 
 #ifdef SKYRIM_AE
 #	define OFFSET(se, ae) ae

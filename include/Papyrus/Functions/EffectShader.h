@@ -152,39 +152,30 @@ namespace Papyrus::EffectShader
 			return;
 		}
 
-		switch (a_colorKey) {
-		case 1:
-			{
-				auto& color = a_effectShader->data.fillTextureEffectColorKey1;
-				for (std::size_t i = 0; i < 3; ++i) {
-					color[i] = static_cast<std::uint8_t>(a_rgb[i]);
-				}
-				a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey1Scale = a_alpha;
-				a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey1Time = a_time;
+		const auto get_key_data = [a_colorKey, a_effectShader]() -> std::tuple<RE::Color&, float&, float&> {
+			if (a_colorKey == 1) {
+				return { a_effectShader->data.fillTextureEffectColorKey1, a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey1Scale, a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey1Time };
 			}
-			break;
-		case 2:
-			{
-				auto& color = a_effectShader->data.fillTextureEffectColorKey2;
-				for (std::size_t i = 0; i < 3; ++i) {
-					color[i] = static_cast<std::uint8_t>(a_rgb[i]);
-				}
-				a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey2Scale = a_alpha;
-				a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey2Time = a_time;
+			if (a_colorKey == 2) {
+				return { a_effectShader->data.fillTextureEffectColorKey2, a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey2Scale, a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey2Time };
 			}
-			break;
-		case 3:
-			{
-				auto& color = a_effectShader->data.fillTextureEffectColorKey3;
-				for (std::size_t i = 0; i < 3; ++i) {
-					color[i] = static_cast<std::uint8_t>(a_rgb[i]);
-				}
-				a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey3Scale = a_alpha;
-				a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey3Time = a_time;
+			return { a_effectShader->data.fillTextureEffectColorKey3, a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey3Scale, a_effectShader->data.fillTextureEffectColorKeyScaleTimeColorKey3Time };
+		};
+
+		auto [color, alpha, time] = get_key_data();
+
+		if (!a_rgb.empty()) {
+			for (std::size_t i = 0; i < 3; ++i) {
+				color[i] = static_cast<std::uint8_t>(a_rgb[i]);
 			}
-			break;
-		default:
-			break;
+		}
+
+		if (a_alpha != -1.0f) {
+			alpha = a_alpha;
+		}
+
+		if (a_time != -1.0f) {
+			time = a_time;
 		}
 	}
 
@@ -225,39 +216,30 @@ namespace Papyrus::EffectShader
 			return;
 		}
 
-		switch (a_colorKey) {
-		case 1:
-			{
-				auto& color = a_effectShader->data.colorKey1;
-				for (std::size_t i = 0; i < 3; ++i) {
-					color[i] = static_cast<std::uint8_t>(a_rgb[i]);
-				}
-				a_effectShader->data.colorKey1ColorAlpha = a_alpha;
-				a_effectShader->data.colorKey1ColorKeyTime = a_time;
+		const auto get_key_data = [a_colorKey, a_effectShader]() -> std::tuple<RE::Color&, float&, float&> {
+			if (a_colorKey == 1) {
+				return { a_effectShader->data.colorKey1, a_effectShader->data.colorKey1ColorAlpha, a_effectShader->data.colorKey1ColorKeyTime };
 			}
-			break;
-		case 2:
-			{
-				auto& color = a_effectShader->data.colorKey2;
-				for (std::size_t i = 0; i < 3; ++i) {
-					color[i] = static_cast<std::uint8_t>(a_rgb[i]);
-				}
-				a_effectShader->data.colorKey2ColorAlpha = a_alpha;
-				a_effectShader->data.colorKey2ColorKeyTime = a_time;
+			if (a_colorKey == 2) {
+				return { a_effectShader->data.colorKey2, a_effectShader->data.colorKey2ColorAlpha, a_effectShader->data.colorKey2ColorKeyTime };
 			}
-			break;
-		case 3:
-			{
-				auto& color = a_effectShader->data.colorKey3;
-				for (std::size_t i = 0; i < 3; ++i) {
-					color[i] = static_cast<std::uint8_t>(a_rgb[i]);
-				}
-				a_effectShader->data.colorKey3ColorAlpha = a_alpha;
-				a_effectShader->data.colorKey3ColorKeyTime = a_time;
+			return { a_effectShader->data.colorKey3, a_effectShader->data.colorKey3ColorAlpha, a_effectShader->data.colorKey3ColorKeyTime };
+		};
+
+		auto [color, alpha, time] = get_key_data();
+
+		if (!a_rgb.empty()) {
+			for (std::size_t i = 0; i < 3; ++i) {
+				color[i] = static_cast<std::uint8_t>(a_rgb[i]);
 			}
-			break;
-		default:
-			break;
+		}
+
+		if (a_alpha != -1.0f) {
+			alpha = a_alpha;
+		}
+
+		if (a_time != -1.0f) {
+			time = a_time;
 		}
 	}
 

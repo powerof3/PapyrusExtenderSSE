@@ -851,6 +851,7 @@ namespace Papyrus::Actor
 			launchData.desiredTarget = a_target;
 			launchData.poison = a_poison;
 			launchData.enchantItem = a_weapon->formEnchanting;
+			launchData.autoAim = false;
 
 			RE::Projectile::Launch(&handle, launchData);
 		});

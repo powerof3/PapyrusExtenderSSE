@@ -57,33 +57,25 @@ namespace Event
 		public RE::BSTEventSink<RE::SpellsLearned::Event>
 	{
 	public:
-//weird compile error with template function (it worked perfectly fine for ages???)
-#define register_story_event(T)                                           \
-	{                                                                     \
-		T::GetEventSource()->AddEventSink<T::Event>(GetSingleton());      \
-		logger::info("Registered {} handler"sv, typeid(T::Event).name()); \
-	}
-
 		static void Register()
 		{
 			logger::info("{:*^30}", "STORY EVENTS"sv);
 
-			register_story_event(RE::ActorKill);
-			register_story_event(RE::CriticalHit);
-			register_story_event(RE::DisarmedEvent);
-			register_story_event(RE::DragonSoulsGained);
+			register_story_event<RE::ActorKill>();
+			register_story_event<RE::CriticalHit>();
+			register_story_event<RE::DisarmedEvent>();
+			register_story_event<RE::DragonSoulsGained>();
 
 			RE::TESHarvestedEvent::GetEventSource()->AddEventSink<RE::TESHarvestedEvent::ItemHarvested>(GetSingleton());
 			logger::info("Registered {} handler"sv, typeid(RE::TESHarvestedEvent::ItemHarvested).name());
 
-			register_story_event(RE::LevelIncrease);
-			register_story_event(RE::LocationDiscovery);
-			register_story_event(RE::ShoutAttack);
-			register_story_event(RE::SkillIncrease);
-			register_story_event(RE::SoulsTrapped);
-			register_story_event(RE::SpellsLearned);
+			register_story_event<RE::LevelIncrease>();
+			register_story_event<RE::LocationDiscovery>();
+			register_story_event<RE::ShoutAttack>();
+			register_story_event<RE::SkillIncrease>();
+			register_story_event<RE::SoulsTrapped>();
+			register_story_event<RE::SpellsLearned>();
 		}
-#undef register_story_event
 
 		EventResult ProcessEvent(const RE::ActorKill::Event* a_event, RE::BSTEventSource<RE::ActorKill::Event>*) override;
 		EventResult ProcessEvent(const RE::CriticalHit::Event* a_event, RE::BSTEventSource<RE::CriticalHit::Event>*) override;
@@ -96,6 +88,14 @@ namespace Event
 		EventResult ProcessEvent(const RE::SkillIncrease::Event* a_event, RE::BSTEventSource<RE::SkillIncrease::Event>*) override;
 		EventResult ProcessEvent(const RE::SoulsTrapped::Event* a_event, RE::BSTEventSource<RE::SoulsTrapped::Event>*) override;
 		EventResult ProcessEvent(const RE::SpellsLearned::Event* a_event, RE::BSTEventSource<RE::SpellsLearned::Event>*) override;
+
+	private:
+		template <class T>
+		static void register_story_event()
+		{
+			T::GetEventSource()->AddEventSink<typename T::Event>(GetSingleton());
+			logger::info("Registered {} handler"sv, typeid(T::Event).name());
+		}
 	};
 
 	void Register();

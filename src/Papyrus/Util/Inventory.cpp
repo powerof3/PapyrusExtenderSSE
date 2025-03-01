@@ -2,8 +2,11 @@
 
 namespace INV
 {
-	bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+	bool can_be_taken(const RE::InventoryEntryData* a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
+		if (!a_entry) {
+			return false;
+		}		
 		if (a_noEquipped && a_entry->IsWorn()) {
 			return false;
 		}

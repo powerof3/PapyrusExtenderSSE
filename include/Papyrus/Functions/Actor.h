@@ -803,7 +803,7 @@ namespace Papyrus::Actor
 
 		SKSE::GetTaskInterface()->AddTask([a_actor, a_ammo, a_weapon, a_nodeName, a_source, a_target, a_poison]() {
 			RE::NiAVObject* fireNode = nullptr;
-			auto            root = a_actor->IsPlayerRef() ? a_actor->GetCurrent3D() : a_actor->Get3D2();
+			auto            root = a_actor->GetCurrent3D();
 			switch (a_source) {
 			case -1:
 				{
@@ -1150,7 +1150,7 @@ namespace Papyrus::Actor
 			return false;
 		});
 
-		for (auto& [item, data] : inv) {
+		for (const auto& [item, data] : inv) {
 			const auto& [count, entry] = data;
 			if (count > 0 && entry->IsWorn()) {
 				RE::ActorEquipManager::GetSingleton()->UnequipObject(a_actor, item);

@@ -67,7 +67,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				result.push_back(item);
 			}
 		}
@@ -92,7 +92,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				a_list->AddForm(item);
 			}
 		}
@@ -115,7 +115,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				result.push_back(item);
 			}
 		}
@@ -142,7 +142,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				a_list->AddForm(item);
 			}
 		}
@@ -715,7 +715,7 @@ namespace Papyrus::ObjectReference
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsQuestObject() && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, false)) {
+			if (count > 0 && entry->IsQuestObject() && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, false)) {
 				result.push_back(item);
 			}
 		}
@@ -1059,13 +1059,13 @@ namespace Papyrus::ObjectReference
 		auto inv = a_ref->GetInventory();
 		for (const auto& [item, data] : inv) {
 			const auto& [count, entry] = data;
-			if (count > 0 && a_formList->HasForm(item) && INV::can_be_taken(entry, a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && a_formList->HasForm(item) && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				forms.emplace_back(item, count);
 			}
 		}
 
 		for (auto& [form, count] : forms) {
-			a_ref->RemoveItem(form, count, RE::ITEM_REMOVE_REASON::kRemove, nullptr, a_destination);
+			INV::remove_item(a_ref, form, count, true, a_destination, a_stackID, a_vm);
 		}
 	}
 

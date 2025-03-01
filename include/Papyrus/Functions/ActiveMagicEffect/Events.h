@@ -265,9 +265,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		release.Register(a_activeEffect);
 	}
 
-	inline void RegisterForObjectLoaded(STATIC_ARGS,
-		const RE::ActiveEffect* a_activeEffect,
-		std::uint32_t           a_formType)
+	inline void RegisterForObjectLoaded(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, std::uint32_t a_formType)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -305,7 +303,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Register(a_activeEffect);
 	}
 
-	inline void RegisterForQuest(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, RE::TESQuest* a_quest)
+	inline void RegisterForQuest(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, const RE::TESQuest* a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -323,9 +321,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		stop.Register(a_activeEffect, a_quest->GetFormID());
 	}
 
-	inline void RegisterForQuestStage(STATIC_ARGS,
-		const RE::ActiveEffect* a_activeEffect,
-		const RE::TESQuest*     a_quest)
+	inline void RegisterForQuestStage(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, const RE::TESQuest* a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -691,9 +687,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		release.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForObjectLoaded(STATIC_ARGS,
-		const RE::ActiveEffect* a_activeEffect,
-		std::uint32_t           a_formType)
+	inline void UnregisterForObjectLoaded(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, std::uint32_t a_formType)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -745,9 +739,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		regs.Unregister(a_activeEffect);
 	}
 
-	inline void UnregisterForQuest(STATIC_ARGS,
-		const RE::ActiveEffect* a_activeEffect,
-		const RE::TESQuest*     a_quest)
+	inline void UnregisterForQuest(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, const RE::TESQuest* a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);
@@ -779,9 +771,7 @@ namespace Papyrus::ActiveMagicEffect::Events
 		stop.UnregisterAll(a_activeEffect);
 	}
 
-	inline void UnregisterForQuestStage(STATIC_ARGS,
-		const RE::ActiveEffect* a_activeEffect,
-		const RE::TESQuest*     a_quest)
+	inline void UnregisterForQuestStage(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect, const RE::TESQuest* a_quest)
 	{
 		if (!a_activeEffect) {
 			a_vm->TraceStack("Active Effect is None", a_stackID);

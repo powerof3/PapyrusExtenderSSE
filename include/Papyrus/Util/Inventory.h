@@ -2,7 +2,7 @@
 
 namespace INV
 {
-	bool can_be_taken(const std::unique_ptr<RE::InventoryEntryData>& a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
+	bool can_be_taken(const RE::InventoryEntryData* a_entry, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
 
 	RE::ExtraPoison* get_equipped_weapon_poison_data(const RE::Actor* a_actor, bool a_leftHand);
 

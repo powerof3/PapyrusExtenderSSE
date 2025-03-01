@@ -6,7 +6,7 @@ namespace INV
 	{
 		if (!a_entry) {
 			return false;
-		}		
+		}
 		if (a_noEquipped && a_entry->IsWorn()) {
 			return false;
 		}

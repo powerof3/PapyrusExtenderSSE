@@ -843,7 +843,7 @@ namespace Papyrus::Actor
 					if (a_ammo->IsBolt()) {
 						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting("f1PBoltTiltUpAngle:Combat")->GetFloat();
 					} else {
-						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting(RE::PlayerCamera::GetSingleton()->IsInFirstPerson() ? "f1PArrowTiltUpAngle:Combat" : "f3PArrowTiltUpAngle:Combat")->GetFloat();					
+						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting(RE::PlayerCamera::GetSingleton()->IsInFirstPerson() ? "f1PArrowTiltUpAngle:Combat" : "f3PArrowTiltUpAngle:Combat")->GetFloat();
 					}
 					angles.x = a_actor->GetAngleX() - (RE::deg_to_rad(tiltUpAngle));
 
@@ -868,6 +868,22 @@ namespace Papyrus::Actor
 			launchData.enchantItem = a_weapon->formEnchanting;
 
 			RE::Projectile::Launch(&handle, launchData);
+
+			RE::BGSSoundDescriptorForm* sound = nullptr;
+			std::uint32_t               flags = 0;
+			if (a_actor->IsPlayerRef() && !a_weapon->attackSound2D) {
+				sound = a_weapon->attackSound2D;
+				flags = 18;
+			} else {
+				sound = a_weapon->attackSound;
+				flags = 16;
+			}
+			if (sound) {
+				RE::BSSoundHandle soundHandle;
+				RE::BSAudioManager::GetSingleton()->BuildSoundDataFromDescriptor(soundHandle, sound, 16);
+				soundHandle.SetPosition(origin);
+				soundHandle.Play();
+			}
 		});
 	}
 

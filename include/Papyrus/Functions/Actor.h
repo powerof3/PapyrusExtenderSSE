@@ -813,7 +813,7 @@ namespace Papyrus::Actor
 						}
 					} else {
 						if (const auto currentProcess = a_actor->currentProcess) {
-							const auto& biped = a_actor->GetBiped2();
+							const auto& biped = a_actor->GetCurrentBiped();
 							fireNode = a_weapon->IsCrossbow() ? currentProcess->GetMagicNode(biped) : currentProcess->GetWeaponNode(biped);
 						} else {
 							fireNode = a_weapon->GetFireNode(root);
@@ -836,8 +836,23 @@ namespace Papyrus::Actor
 			RE::NiPoint3                  origin;
 			RE::Projectile::ProjectileRot angles{};
 			if (fireNode) {
-				origin = fireNode->world.translate;
-				a_actor->Unk_A0(fireNode, angles.x, angles.z, origin);
+				if (a_actor->IsPlayerRef()) {
+					angles.z = a_actor->GetHeading(false);
+
+					float tiltUpAngle;
+					if (a_ammo->IsBolt()) {
+						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting("f1PBoltTiltUpAngle:Combat")->GetFloat();
+					} else {
+						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting(RE::PlayerCamera::GetSingleton()->IsInFirstPerson() ? "f1PArrowTiltUpAngle:Combat" : "f3PArrowTiltUpAngle:Combat")->GetFloat();					
+					}
+					angles.x = a_actor->GetAngleX() - (RE::deg_to_rad(tiltUpAngle));
+
+					origin = fireNode->world.translate;
+					a_actor->Unk_117(origin);
+				} else {
+					origin = fireNode->world.translate;
+					a_actor->Unk_A0(fireNode, angles.x, angles.z, origin);
+				}
 			} else {
 				origin = a_actor->GetPosition();
 				origin.z += 96.0f;
@@ -851,7 +866,6 @@ namespace Papyrus::Actor
 			launchData.desiredTarget = a_target;
 			launchData.poison = a_poison;
 			launchData.enchantItem = a_weapon->formEnchanting;
-			launchData.autoAim = false;
 
 			RE::Projectile::Launch(&handle, launchData);
 		});

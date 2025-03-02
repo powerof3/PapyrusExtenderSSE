@@ -22,8 +22,7 @@ namespace Papyrus::Debug
 				if (book && book->TeachesSpell()) {
 					if (const auto spell = book->GetSpell(); spell && !spell->fullName.empty()) {
 						if (const auto mod = spell->GetDescriptionOwnerFile(); mod) {
-							auto modName{ "[" + std::string(mod->fileName).substr(0, 4) + "] " };
-							spell->fullName = modName + spell->fullName.c_str();
+							spell->fullName = std::format("[{}] {}", std::string(mod->fileName).substr(0, 4), spell->fullName.c_str()).c_str();
 						}
 						player->AddSpell(spell);
 					}

@@ -871,7 +871,7 @@ namespace Papyrus::Actor
 
 			RE::BGSSoundDescriptorForm* sound = nullptr;
 			std::uint32_t               flags = 0;
-			if (a_actor->IsPlayerRef() && !a_weapon->attackSound2D) {
+			if (a_actor->IsPlayerRef() && a_weapon->attackSound2D) {
 				sound = a_weapon->attackSound2D;
 				flags = 18;
 			} else {
@@ -880,7 +880,7 @@ namespace Papyrus::Actor
 			}
 			if (sound) {
 				RE::BSSoundHandle soundHandle;
-				RE::BSAudioManager::GetSingleton()->BuildSoundDataFromDescriptor(soundHandle, sound, 16);
+				RE::BSAudioManager::GetSingleton()->BuildSoundDataFromDescriptor(soundHandle, sound, flags);
 				soundHandle.SetPosition(origin);
 				soundHandle.Play();
 			}

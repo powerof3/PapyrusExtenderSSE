@@ -22,6 +22,7 @@
 #include "Papyrus/Functions/Game.h"
 #include "Papyrus/Functions/Graphics.h"
 #include "Papyrus/Functions/Hazard.h"
+#include "Papyrus/Functions/Idle.h"
 #include "Papyrus/Functions/LeveledItem.h"
 #include "Papyrus/Functions/Light.h"
 #include "Papyrus/Functions/Location.h"
@@ -82,6 +83,7 @@ namespace Papyrus
 		Game::Bind(*a_vm);
 		Graphics::Bind(*a_vm);
 		Hazard::Bind(*a_vm);
+		Idle::Bind(*a_vm);
 		LeveledItem::Bind(*a_vm);
 		Light::Bind(*a_vm);
 		Location::Bind(*a_vm);

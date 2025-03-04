@@ -27,6 +27,7 @@ set(headers ${headers}
 	include/Papyrus/Functions/Game.h
 	include/Papyrus/Functions/Graphics.h
 	include/Papyrus/Functions/Hazard.h
+	include/Papyrus/Functions/Idle.h
 	include/Papyrus/Functions/LeveledItem.h
 	include/Papyrus/Functions/Light.h
 	include/Papyrus/Functions/Location.h

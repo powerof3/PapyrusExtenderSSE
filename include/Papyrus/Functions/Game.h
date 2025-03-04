@@ -457,7 +457,7 @@ namespace Papyrus::Game
 
 	inline void UpdateCrosshairs(RE::StaticFunctionTag*)
 	{
-		SKSE::GetTaskInterface()->AddTask([]() {
+		SKSE::GetTaskInterface()->AddUITask([]() {
 			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
 		});
 	}

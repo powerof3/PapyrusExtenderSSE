@@ -74,6 +74,43 @@ namespace Papyrus::Actor
 		return result;
 	}
 
+	inline std::vector<RE::TESForm*> AddAllEquippedItemsBySlotToArray(STATIC_ARGS, RE::Actor* a_actor, std::vector<std::uint32_t> a_slots)
+	{
+		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
+		
+		std::vector<RE::TESForm*> result;
+
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return result;
+		}
+
+		auto inv = a_actor->GetInventory([a_slots](RE::TESBoundObject& a_object) {
+			const auto armor = a_object.As<RE::TESObjectARMO>();
+			if (armor) {
+				if (a_slots.empty() || std::ranges::any_of(a_slots,
+												 [&](const auto& slot) {
+													 return armor->HasPartOf(static_cast<Slot>(slot));
+												 })) {
+					return true;
+				}
+			}
+			return false;
+		});
+
+		for (const auto& [item, data] : inv) {
+			if (item->Is(RE::FormType::LeveledItem)) {
+				continue;
+			}
+			const auto& [count, entry] = data;
+			if (count > 0 && entry->IsWorn()) {
+				result.push_back(item);
+			}
+		}
+
+		return result;
+	}
+
 	inline bool ApplyPoisonToEquippedWeapon(STATIC_ARGS, const RE::Actor* a_actor, RE::AlchemyItem* a_poison, std::uint32_t a_count, bool a_leftHand)
 	{
 		if (!a_actor) {
@@ -1194,6 +1231,7 @@ namespace Papyrus::Actor
 		BIND(AddBasePerk);
 		BIND(AddBaseSpell);
 		BIND(AddAllEquippedItemsToArray);
+		BIND(AddAllEquippedItemsBySlotToArray);
 		BIND(ApplyPoisonToEquippedWeapon);
 		BIND(DecapitateActor);
 		BIND(FreezeActor);

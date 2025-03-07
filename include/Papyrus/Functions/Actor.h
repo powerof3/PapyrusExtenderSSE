@@ -77,7 +77,7 @@ namespace Papyrus::Actor
 	inline std::vector<RE::TESForm*> AddAllEquippedItemsBySlotToArray(STATIC_ARGS, RE::Actor* a_actor, std::vector<std::uint32_t> a_slots)
 	{
 		using Slot = RE::BIPED_MODEL::BipedObjectSlot;
-		
+
 		std::vector<RE::TESForm*> result;
 
 		if (!a_actor) {
@@ -89,9 +89,9 @@ namespace Papyrus::Actor
 			const auto armor = a_object.As<RE::TESObjectARMO>();
 			if (armor) {
 				if (a_slots.empty() || std::ranges::any_of(a_slots,
-												 [&](const auto& slot) {
-													 return armor->HasPartOf(static_cast<Slot>(slot));
-												 })) {
+										   [&](const auto& slot) {
+											   return armor->HasPartOf(static_cast<Slot>(slot));
+										   })) {
 					return true;
 				}
 			}

@@ -17,7 +17,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	Form Function GetActiveEffectSpell(ActiveMagicEffect akActiveEffect)  global native
 
 ;----------------------------------------------------------------------------------------------------------
-;ACTORS
+;ACTOR
 ;----------------------------------------------------------------------------------------------------------
 
 	;-------
@@ -115,6 +115,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Bool Function ApplyPoisonToEquippedWeapon(Actor akActor, Potion akPoison, int aiCount, bool abLeftHand) global native
 
 	Form[] Function AddAllEquippedItemsToArray(Actor akActor) global native
+	
+	Form[] Function AddAllEquippedItemsBySlotToArray(Actor akActor, int[] aiSlots) global native
 
 	Bool Function AddBasePerk(Actor akActor, Perk akPerk) global native
 

@@ -586,8 +586,6 @@ namespace Event
 			Patch p(target.address(), 5);
 			p.ready();
 
-			SKSE::AllocTrampoline(512);
-
 			auto& trampoline = SKSE::GetTrampoline();
 			trampoline.write_branch<5>(target.address(), PoisonObject::thunk);
 

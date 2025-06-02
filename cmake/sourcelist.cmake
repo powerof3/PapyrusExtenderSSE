@@ -4,7 +4,48 @@ set(sources ${sources}
 	src/Game/HookedEventHandler.cpp
 	src/Game/Manager.cpp
 	src/Game/Services.cpp
+	src/Papyrus/Functions/ActiveMagicEffect/Events.cpp
+	src/Papyrus/Functions/ActiveMagicEffect/Functions.cpp
+	src/Papyrus/Functions/Actor.cpp
+	src/Papyrus/Functions/ActorBase.cpp
+	src/Papyrus/Functions/Alias/Events.cpp
+	src/Papyrus/Functions/Alias/Functions.cpp
+	src/Papyrus/Functions/Ammo.cpp
+	src/Papyrus/Functions/ArmorAddon.cpp
+	src/Papyrus/Functions/Array.cpp
+	src/Papyrus/Functions/Book.cpp
+	src/Papyrus/Functions/Cell.cpp
+	src/Papyrus/Functions/Debug.cpp
+	src/Papyrus/Functions/Detection.cpp
+	src/Papyrus/Functions/EffectShader.cpp
+	src/Papyrus/Functions/Enchantment.cpp
+	src/Papyrus/Functions/Faction.cpp
+	src/Papyrus/Functions/Form/Events.cpp
+	src/Papyrus/Functions/Form/Functions.cpp
+	src/Papyrus/Functions/Furniture.cpp
+	src/Papyrus/Functions/Game.cpp
+	src/Papyrus/Functions/Graphics.cpp
+	src/Papyrus/Functions/Hazard.cpp
+	src/Papyrus/Functions/Idle.cpp
+	src/Papyrus/Functions/LeveledItem.cpp
+	src/Papyrus/Functions/Light.cpp
+	src/Papyrus/Functions/Location.cpp
+	src/Papyrus/Functions/MagicEffect.cpp
+	src/Papyrus/Functions/ObjectReference.cpp
+	src/Papyrus/Functions/Package.cpp
+	src/Papyrus/Functions/Potion.cpp
+	src/Papyrus/Functions/Projectile.cpp
+	src/Papyrus/Functions/Quest.cpp
+	src/Papyrus/Functions/Scroll.cpp
+	src/Papyrus/Functions/Sound.cpp
+	src/Papyrus/Functions/Spell.cpp
+	src/Papyrus/Functions/Strings.cpp
+	src/Papyrus/Functions/UI.cpp
+	src/Papyrus/Functions/Utility.cpp
+	src/Papyrus/Functions/VisualEffect.cpp
+	src/Papyrus/Functions/Weather.cpp
 	src/Papyrus/Manager.cpp
+	src/Papyrus/ObjectTypes.cpp
 	src/Papyrus/Util/ConditionParser.cpp
 	src/Papyrus/Util/Graphics.cpp
 	src/Papyrus/Util/Inventory.cpp

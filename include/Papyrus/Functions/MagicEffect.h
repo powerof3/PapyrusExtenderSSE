@@ -2,128 +2,14 @@
 
 namespace Papyrus::MagicEffect
 {
-	inline RE::TESForm* GetAssociatedForm(STATIC_ARGS, const RE::EffectSetting* a_mgef)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return nullptr;
-		}
+	RE::TESForm*                GetAssociatedForm(STATIC_ARGS, const RE::EffectSetting* a_mgef);
+	std::uint32_t               GetEffectArchetypeAsInt(STATIC_ARGS, const RE::EffectSetting* a_mgef);
+	RE::BSFixedString           GetEffectArchetypeAsString(STATIC_ARGS, const RE::EffectSetting* a_mgef);
+	RE::BGSSoundDescriptorForm* GetMagicEffectSound(STATIC_ARGS, RE::EffectSetting* a_mgef, std::uint32_t a_type);
+	RE::BSFixedString           GetPrimaryActorValue(STATIC_ARGS, const RE::EffectSetting* a_mgef);
+	RE::BSFixedString           GetSecondaryActorValue(STATIC_ARGS, const RE::EffectSetting* a_mgef);
+	void                        SetAssociatedForm(STATIC_ARGS, RE::EffectSetting* a_mgef, RE::TESForm* a_form);
+	void                        SetMagicEffectSound(STATIC_ARGS, RE::EffectSetting* a_mgef, RE::BGSSoundDescriptorForm* a_sound, std::uint32_t a_type);
 
-		return a_mgef->data.associatedForm;
-	}
-
-	inline std::uint32_t GetEffectArchetypeAsInt(STATIC_ARGS, const RE::EffectSetting* a_mgef)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return 0;
-		}
-
-		return std::to_underlying(a_mgef->GetArchetype());
-	}
-
-	inline RE::BSFixedString GetEffectArchetypeAsString(STATIC_ARGS, const RE::EffectSetting* a_mgef)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return {};
-		}
-
-		return RE::EffectArchetypeToString(a_mgef->GetArchetype());
-	}
-
-	inline RE::BGSSoundDescriptorForm* GetMagicEffectSound(STATIC_ARGS, RE::EffectSetting* a_mgef, std::uint32_t a_type)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return nullptr;
-		}
-		if (a_type > 6) {
-			a_vm->TraceForm(a_mgef, "Sound index is invalid", a_stackID);
-			return nullptr;
-		}
-
-		const auto soundID = static_cast<RE::MagicSystem::SoundID>(a_type);
-		for (const auto& effectSound : a_mgef->effectSounds) {
-			if (effectSound.id == soundID) {
-				return effectSound.sound;
-			}
-		}
-
-		return nullptr;
-	}
-
-	inline RE::BSFixedString GetPrimaryActorValue(STATIC_ARGS, const RE::EffectSetting* a_mgef)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return {};
-		}
-
-		const auto actorValueList = RE::ActorValueList::GetSingleton();
-		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValue(a_mgef->data.primaryAV) : nullptr;
-
-		return actorValueInfo ? actorValueInfo->enumName : RE::BSFixedString();
-	}
-
-	inline RE::BSFixedString GetSecondaryActorValue(STATIC_ARGS, const RE::EffectSetting* a_mgef)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return {};
-		}
-
-		const auto actorValueList = RE::ActorValueList::GetSingleton();
-		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValue(a_mgef->data.secondaryAV) : nullptr;
-
-		return actorValueInfo ? actorValueInfo->enumName : RE::BSFixedString();
-	}
-
-	inline void SetAssociatedForm(STATIC_ARGS, RE::EffectSetting* a_mgef, RE::TESForm* a_form)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return;
-		}
-
-		a_mgef->data.associatedForm = a_form;
-	}
-
-	inline void SetMagicEffectSound(STATIC_ARGS, RE::EffectSetting* a_mgef, RE::BGSSoundDescriptorForm* a_sound, std::uint32_t a_type)
-	{
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return;
-		}
-		if (!a_sound) {
-			a_vm->TraceStack("Sound is None", a_stackID);
-			return;
-		}
-		if (a_type > 6) {
-			a_vm->TraceForm(a_mgef, "Sound index is invalid", a_stackID);
-			return;
-		}
-
-		const auto soundID = static_cast<RE::MagicSystem::SoundID>(a_type);
-		for (auto& effectSound : a_mgef->effectSounds) {
-			if (effectSound.id == soundID) {
-				effectSound.sound = a_sound;
-				break;
-			}
-		}
-	}
-
-	inline void Bind(VM& a_vm)
-	{
-		BIND(GetAssociatedForm, true);
-		BIND(GetEffectArchetypeAsInt, true);
-		BIND(GetEffectArchetypeAsString, true);
-		BIND(GetPrimaryActorValue, true);
-		BIND(GetSecondaryActorValue, true);
-		BIND(GetMagicEffectSound);
-		BIND(SetAssociatedForm);
-		BIND(SetMagicEffectSound);
-
-		logger::info("Registered magiceffect functions"sv);
-	}
+	void Bind(VM& a_vm);
 }

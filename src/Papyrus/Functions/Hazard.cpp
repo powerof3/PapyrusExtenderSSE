@@ -252,7 +252,7 @@ namespace Papyrus::Hazard
 		a_hazard->data.targetInterval = a_interval;
 	}
 
-		void Bind(VM& a_vm)
+	void Bind(VM& a_vm)
 	{
 		BIND(ClearHazardFlag);
 		BIND(GetHazardArt, true);

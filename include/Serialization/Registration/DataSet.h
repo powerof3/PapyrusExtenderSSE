@@ -9,6 +9,7 @@ public:
 		_lock()
 	{
 	}
+
 	DataSetPair(const DataSetPair& a_rhs) :
 		_pair(),
 		_lock()
@@ -17,6 +18,7 @@ public:
 		_pair = a_rhs._pair;
 		a_rhs._lock.unlock();
 	}
+
 	DataSetPair(DataSetPair&& a_rhs) noexcept :
 		_pair(),
 		_lock()
@@ -46,6 +48,7 @@ public:
 
 		return *this;
 	}
+
 	DataSetPair& operator=(DataSetPair&& a_rhs) noexcept
 	{
 		if (this == &a_rhs) {
@@ -70,6 +73,7 @@ public:
 		return a_index == 1 ? _pair.first :
 		                      _pair.second;
 	}
+
 	void Add(D a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
@@ -77,12 +81,14 @@ public:
 		GetData(!a_index).erase(a_data);
 		GetData(a_index).insert(a_data);
 	}
+
 	void Remove(D a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
 
 		GetData(a_index).erase(a_data);
 	}
+
 	bool Contains(D a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
@@ -95,11 +101,13 @@ public:
 		_pair.first.clear();
 		_pair.second.clear();
 	}
+
 	void Clear(std::uint32_t a_index)
 	{
 		Locker locker(_lock);
 		GetData(a_index).clear();
 	}
+
 	void Revert(SKSE::SerializationInterface*)
 	{
 		Clear();
@@ -135,14 +143,17 @@ public:
 	{
 		return DataSetPair::Add(a_form->GetFormID(), a_index);
 	}
+
 	void Remove(F* a_form, std::uint32_t a_index)
 	{
 		return DataSetPair::Remove(a_form->GetFormID(), a_index);
 	}
+
 	void Remove(F* a_form)
 	{
 		return Remove(a_form->GetFormID());
 	}
+
 	bool Contains(F* a_form, std::uint32_t a_index)
 	{
 		return DataSetPair::Contains(a_form->GetFormID(), a_index);
@@ -156,6 +167,7 @@ public:
 		}
 		return Save(a_intfc, a_index);
 	}
+
 	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
@@ -177,6 +189,7 @@ public:
 
 		return true;
 	}
+
 	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);

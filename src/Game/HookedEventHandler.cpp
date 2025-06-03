@@ -15,6 +15,7 @@ namespace Event
 				}
 				return result;
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -49,6 +50,7 @@ namespace Event
 
 				return hasAppliedEffect;
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -96,6 +98,7 @@ namespace Event
 
 					func(a_source, a_event);
 				}
+
 				static inline REL::Relocation<decltype(thunk)> func;
 			};
 
@@ -214,6 +217,7 @@ namespace Event
 
 						func(a_source, a_event);
 					}
+
 					static inline REL::Relocation<decltype(thunk)> func;
 				};
 			}
@@ -254,6 +258,7 @@ namespace Event
 
 						func(a_source, a_event);
 					}
+
 					static inline REL::Relocation<decltype(thunk)> func;
 				};
 			}
@@ -281,6 +286,7 @@ namespace Event
 				}
 				return fallDamage;
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -315,11 +321,13 @@ namespace Event
 		{
 			return GetMapMarkerFromObject<RE::TESObjectREFR>(a_refr.get());
 		}
+
 		RE::TESObjectREFR* GetMapMarkerObject(const RE::FormID a_formID)
 		{
 			auto* refr = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_formID);
 			return GetMapMarkerFromObject<RE::FormID>(refr);
 		}
+
 		RE::TESObjectREFR* GetMapMarkerObject(const char* a_name)
 		{
 			const auto& mapMarkers = RE::PlayerCharacter::GetSingleton()->currentMapMarkers;
@@ -386,6 +394,7 @@ namespace Event
 
 				func(a_this, a_message);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 
 			static inline RE::TESObjectREFR* newDestination{ nullptr };
@@ -408,6 +417,7 @@ namespace Event
 				}
 				return func(a_buffer, a_template, a_target);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -464,6 +474,7 @@ namespace Event
 				func(a_process);
 				GameEventHolder::GetSingleton()->fastTravelEnd.QueueEvent(afTravelGameTimeHours);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 
 			static inline float afTravelGameTimeHours{ 0.0f };
@@ -486,6 +497,7 @@ namespace Event
 				const auto result = gameDaysPassedPostTravel ? (gameDaysPassedPostTravel->value - GameDaysPassedPreTravel) * 24.0f : 0.0f;
 				FastTravelEndEvent::afTravelGameTimeHours = result;
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -520,6 +532,7 @@ namespace Event
 			RE::BGSLocation*    location;      // 08
 			RE::TESForm*        form;          // 10
 		};
+
 		static_assert(sizeof(StoryItemCraft) == 0x18);
 
 		struct StoryCraftItem
@@ -530,6 +543,7 @@ namespace Event
 
 				return func(a_event, a_refr, a_loc, a_form);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -563,6 +577,7 @@ namespace Event
 					GameEventHolder::GetSingleton()->objectPoisoned.QueueEvent(object, a_poison, a_count);
 				}
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -635,6 +650,7 @@ namespace Event
 					}
 				}
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -651,6 +667,7 @@ namespace Event
 
 				func(a_this);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -674,6 +691,7 @@ namespace Event
 
 				GameEventHolder::GetSingleton()->actorResurrect.QueueEvent(a_this, a_this, a_resetInventory);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
@@ -708,6 +726,7 @@ namespace Event
 
 				func(a_region, a_currentWeather);
 			}
+
 			static inline REL::Relocation<decltype(thunk)> func;
 
 		private:

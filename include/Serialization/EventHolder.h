@@ -209,6 +209,7 @@ namespace Event
 		struct MagicEffectApply
 		{
 			MagicEffectApply() = default;
+
 			MagicEffectApply(RE::TESForm* a_effectFilter) :
 				effectID(a_effectFilter ? a_effectFilter->GetFormID() : 0)
 			{}
@@ -228,6 +229,7 @@ namespace Event
 		struct Hit
 		{
 			Hit() = default;
+
 			Hit(RE::TESForm* a_aggressor, RE::TESForm* a_source, RE::TESForm* a_projectile, std::int32_t powerAttack, std::int32_t sneakAttack, std::int32_t bashAttack, std::int32_t blockAttack) :
 				aggressorID(a_aggressor ? a_aggressor->GetFormID() : 0),
 				sourceID(a_source ? a_source->GetFormID() : 0),

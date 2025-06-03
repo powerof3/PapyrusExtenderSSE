@@ -873,6 +873,7 @@ namespace CONDITION
 			}
 			return std::nullopt;
 		}
+
 		template <class T>
 		std::optional<T> get_value(const std::string& a_str)
 		{
@@ -909,6 +910,7 @@ namespace CONDITION
 		// members
 		std::optional<PARAM_TYPE> type;
 		STATE                     state;
+
 		union
 		{
 			char*        c;

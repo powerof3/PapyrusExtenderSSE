@@ -21,7 +21,7 @@ namespace Papyrus::Utility
 			localTime.wYear,
 			localTime.wMonth,
 			localTime.wDayOfWeek + 1,
-			localTime.wDay, 
+			localTime.wDay,
 			localTime.wHour,
 			localTime.wMinute,
 			localTime.wSecond,

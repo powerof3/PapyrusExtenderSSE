@@ -1,6 +1,7 @@
 #include "Papyrus/Functions/Alias/Functions.h"
 
-namespace Papyrus::Alias::Functions {
+namespace Papyrus::Alias::Functions
+{
 
 	std::vector<RE::BSFixedString> GetScriptsAttachedToAlias(STATIC_ARGS, const RE::BGSBaseAlias* a_alias)
 	{

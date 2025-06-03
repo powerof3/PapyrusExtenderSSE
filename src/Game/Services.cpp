@@ -20,6 +20,7 @@ namespace DETECTION
 
 			return result;
 		}
+
 		static inline REL::Relocation<decltype(thunk)> func;
 	};
 

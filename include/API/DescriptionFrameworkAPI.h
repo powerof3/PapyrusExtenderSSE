@@ -1,11 +1,13 @@
 #pragma once
 #include <RE/Skyrim.h>
 #include <SKSE/SKSE.h>
+
 // Interface code based on https://github.com/adamhynek/higgs
 
 namespace DescriptionFrameworkAPI
 {
 	constexpr const auto DescriptionFrameworkPluginName = "DescriptionFramework";
+
 	// A message used to fetch DescriptionFramework's interface
 	struct DescriptionFrameworkMessage
 	{
@@ -13,6 +15,7 @@ namespace DescriptionFrameworkAPI
 		{
 			kMessage_GetInterface = 0xfbdfacfe
 		};  // Randomly generated
+
 		void* (*GetApiFunction)(unsigned int revisionNumber) = nullptr;
 	};
 
@@ -31,4 +34,5 @@ namespace DescriptionFrameworkAPI
 	};
 
 }  // namespace DescriptionFrameworkAPI
+
 extern DescriptionFrameworkAPI::IDescriptionFrameworkInterface001* g_DescriptionFrameworkInterface;

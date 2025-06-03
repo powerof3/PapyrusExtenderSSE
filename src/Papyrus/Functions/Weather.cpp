@@ -55,7 +55,7 @@ namespace Papyrus::Weather
 
 		return -1;
 	}
-	
+
 	void Bind(VM& a_vm)
 	{
 		BIND(GetWindSpeedAsFloat);

@@ -157,6 +157,7 @@ namespace MAGIC
 
 			return true;
 		}
+
 		bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
 		{
 			assert(a_intfc);
@@ -355,6 +356,7 @@ namespace MAGIC
 
 			return true;
 		}
+
 		bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override
 		{
 			assert(a_intfc);

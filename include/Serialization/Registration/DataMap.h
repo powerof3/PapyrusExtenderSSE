@@ -8,6 +8,7 @@ public:
 		_pair(),
 		_lock()
 	{}
+
 	DataMapPair(const DataMapPair& a_rhs) :
 		_pair(),
 		_lock()
@@ -16,6 +17,7 @@ public:
 		_pair = a_rhs._pair;
 		a_rhs._lock.unlock();
 	}
+
 	DataMapPair(DataMapPair&& a_rhs) noexcept :
 		_pair(),
 		_lock()
@@ -45,6 +47,7 @@ public:
 
 		return *this;
 	}
+
 	DataMapPair& operator=(DataMapPair&& a_rhs) noexcept
 	{
 		if (this == &a_rhs) {
@@ -69,6 +72,7 @@ public:
 		return a_index == 1 ? _pair.first :
 		                      _pair.second;
 	}
+
 	void AddData(K a_key, D a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
@@ -82,6 +86,7 @@ public:
 
 		GetData(a_index)[a_key].insert(a_data);
 	}
+
 	void RemoveData(K a_key, D a_data, std::uint32_t a_index)
 	{
 		Locker locker(_lock);
@@ -100,11 +105,13 @@ public:
 		_pair.first.clear();
 		_pair.second.clear();
 	}
+
 	void Clear(std::uint32_t a_index)
 	{
 		Locker locker(_lock);
 		GetData(a_index).clear();
 	}
+
 	void Revert(SKSE::SerializationInterface*)
 	{
 		Clear();
@@ -139,6 +146,7 @@ public:
 		}
 		return false;
 	}
+
 	bool Remove(F* a_form, D* a_data)
 	{
 		if (Process(a_form, a_data, 0)) {
@@ -156,6 +164,7 @@ public:
 		}
 		return Save(a_intfc, a_index);
 	}
+
 	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
@@ -188,6 +197,7 @@ public:
 
 		return true;
 	}
+
 	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
@@ -265,6 +275,7 @@ public:
 		}
 		return false;
 	}
+
 	bool Remove(F* a_form, const D& a_data)
 	{
 		if (Process(a_form, a_data, 0)) {
@@ -282,6 +293,7 @@ public:
 		}
 		return Save_Impl(a_intfc, a_index);
 	}
+
 	virtual bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
 	virtual bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
 

@@ -1,6 +1,7 @@
 #include "Papyrus/Functions/Form/Events.h"
 
-namespace Papyrus::Form::Events {
+namespace Papyrus::Form::Events
+{
 	void RegisterForActorFallLongDistance(STATIC_ARGS, RE::TESForm* a_form)
 	{
 		if (!a_form) {

@@ -96,6 +96,7 @@ namespace Event
 		soulsTrapped.Save(a_intfc, kSoulTrap, a_version);
 		spellsLearned.Save(a_intfc, kSpellLearned, a_version);
 	}
+
 	void StoryEventHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type)
 	{
 		switch (a_type) {
@@ -133,6 +134,7 @@ namespace Event
 			break;
 		}
 	}
+
 	void StoryEventHolder::Revert(SKSE::SerializationInterface* a_intfc)
 	{
 		actorKill.Revert(a_intfc);
@@ -147,6 +149,7 @@ namespace Event
 		soulsTrapped.Revert(a_intfc);
 		spellsLearned.Revert(a_intfc);
 	}
+
 	void StoryEventHolder::FormDelete(RE::VMHandle a_handle)
 	{
 		actorKill.Unregister(a_handle);
@@ -169,10 +172,12 @@ namespace Event::Filter
 	{
 		return stl::read_formID(a_intfc, effectID);
 	}
+
 	bool MagicEffectApply::Save(SKSE::SerializationInterface* a_intfc) const
 	{
 		return a_intfc->WriteRecordData(effectID);
 	}
+
 	bool MagicEffectApply::PassesFilter(RE::EffectSetting* a_baseEffect) const
 	{
 		return detail::passes_simple_filter(a_baseEffect, RE::TESForm::LookupByID(effectID));
@@ -188,6 +193,7 @@ namespace Event::Filter
 		}
 		return true;
 	}
+
 	bool Hit::Save(SKSE::SerializationInterface* a_intfc) const
 	{
 		if (!a_intfc->WriteRecordData(aggressorID) || !a_intfc->WriteRecordData(sourceID) || !a_intfc->WriteRecordData(projectileID)) {
@@ -198,6 +204,7 @@ namespace Event::Filter
 		}
 		return true;
 	}
+
 	bool Hit::PassesFilter(RE::TESObjectREFR* a_aggressor, RE::TESForm* a_source, RE::BGSProjectile* a_projectile, bool a_powerAttack, bool a_sneakAttack, bool a_bashAttack, bool a_blockAttack) const
 	{
 		bool result = true;

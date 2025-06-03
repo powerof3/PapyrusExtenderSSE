@@ -1,6 +1,7 @@
 #include "Papyrus/Functions/Form/Functions.h"
 
-namespace Papyrus::Form::Functions {
+namespace Papyrus::Form::Functions
+{
 	void AddKeywordToForm(STATIC_ARGS, RE::TESForm* a_form, RE::BGSKeyword* a_keyword)
 	{
 		using namespace Form;

@@ -20,7 +20,7 @@ namespace Papyrus::Spell
 			a_vm->TraceStack("Spell is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::AddEffectItem(a_vm, a_stackID, a_spell, a_copySpell, a_index, a_cost);
 	}
 
@@ -40,7 +40,7 @@ namespace Papyrus::Spell
 			a_vm->TraceStack("Spell is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::RemoveMagicEffect(a_vm, a_stackID, a_spell, a_mgef, a_mag, a_area, a_dur, a_cost);
 	}
 
@@ -50,7 +50,7 @@ namespace Papyrus::Spell
 			a_vm->TraceStack("Spell is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::RemoveEffectItem(a_vm, a_stackID, a_spell, a_copySpell, a_index);
 	}
 
@@ -115,7 +115,6 @@ namespace Papyrus::Spell
 			a_vm->TraceStack("Spell is None", a_stackID);
 			return;
 		}
-
 
 		MAGIC::SetMagicEffect(a_vm, a_stackID, a_spell, a_magicEffect, a_index);
 	}

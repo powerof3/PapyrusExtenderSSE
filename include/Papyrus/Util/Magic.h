@@ -5,7 +5,7 @@
 namespace MAGIC
 {
 	using namespace Serialization;
-	
+
 	template <class T>
 	void AddMagicEffect(VM* a_vm, StackID a_stackID, T* a_spell, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost, std::vector<std::string> a_conditionList)
 	{

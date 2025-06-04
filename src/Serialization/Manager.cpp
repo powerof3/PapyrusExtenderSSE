@@ -578,7 +578,7 @@ namespace Serialization
 
 		return RE::BSEventNotifyControl::kContinue;
 	}
-	
+
 	void SaveCallback(SKSE::SerializationInterface* a_intfc)
 	{
 		Manager::GetSingleton()->Save(a_intfc);

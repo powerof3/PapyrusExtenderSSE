@@ -5,7 +5,7 @@
 namespace Papyrus::Detection
 {
 	using namespace Serialization;
-	
+
 	std::int32_t CanActorBeDetected(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {

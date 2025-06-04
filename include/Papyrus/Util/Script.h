@@ -2,7 +2,7 @@
 
 namespace SCRIPT
 {
-	inline constexpr std::array baseScripts {
+	inline constexpr std::array baseScripts{
 		"Action"sv,
 		"Activator"sv,
 		"ActiveMagicEffect"sv,

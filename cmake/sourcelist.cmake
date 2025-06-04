@@ -3,6 +3,7 @@ set(sources ${sources}
 	src/Game/EventHandler.cpp
 	src/Game/HookedEventHandler.cpp
 	src/Game/Manager.cpp
+	src/Game/Services.cpp
 	src/Papyrus/Functions/ActiveMagicEffect/Events.cpp
 	src/Papyrus/Functions/ActiveMagicEffect/Functions.cpp
 	src/Papyrus/Functions/Actor.cpp

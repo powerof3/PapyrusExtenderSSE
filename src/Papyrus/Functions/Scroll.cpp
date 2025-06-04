@@ -10,7 +10,7 @@ namespace Papyrus::Scroll
 			a_vm->TraceStack("Scroll is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::AddMagicEffect(a_vm, a_stackID, a_scroll, a_mgef, a_mag, a_area, a_dur, a_cost, std::move(a_conditionList));
 	}
 
@@ -20,7 +20,7 @@ namespace Papyrus::Scroll
 			a_vm->TraceStack("Scroll is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::AddEffectItem(a_vm, a_stackID, a_scroll, a_copyScroll, a_index, a_cost);
 	}
 
@@ -30,7 +30,7 @@ namespace Papyrus::Scroll
 			a_vm->TraceStack("Scroll is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::RemoveMagicEffect(a_vm, a_stackID, a_scroll, a_mgef, a_mag, a_area, a_dur, a_cost);
 	}
 
@@ -40,7 +40,7 @@ namespace Papyrus::Scroll
 			a_vm->TraceStack("Scroll is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::RemoveEffectItem(a_vm, a_stackID, a_scroll, a_copyScroll, a_index);
 	}
 

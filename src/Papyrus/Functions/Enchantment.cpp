@@ -30,7 +30,7 @@ namespace Papyrus::Enchantment
 			a_vm->TraceStack("Enchantment is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::AddEffectItem(a_vm, a_stackID, a_enchantment, a_copyEnchantment, a_index, a_cost);
 	}
 
@@ -50,7 +50,7 @@ namespace Papyrus::Enchantment
 			a_vm->TraceStack("Enchantment is None", a_stackID);
 			return;
 		}
-		
+
 		MAGIC::RemoveEffectItem(a_vm, a_stackID, a_enchantment, a_copyEnchantment, a_index);
 	}
 

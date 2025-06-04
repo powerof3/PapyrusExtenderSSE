@@ -7,7 +7,7 @@ void MAGIC::RemoveMagicEffect(VM* a_vm, StackID a_stackID, RE::MagicItem* a_spel
 		return;
 	}
 
-	MGEFData data(a_mgef,a_mag,a_area,a_dur,a_cost);
+	MGEFData data(a_mgef, a_mag, a_area, a_dur, a_cost);
 	if (Manager::GetSingleton()->mgefs.Remove(a_spell, data)) {
 		a_vm->TraceForm(a_spell, "Failed to remove magic effect", a_stackID);
 	}

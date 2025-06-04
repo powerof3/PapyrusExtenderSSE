@@ -1,5 +1,7 @@
 #include "Papyrus/Functions/Enchantment.h"
 
+#include "Papyrus/Util/Magic.h"
+
 namespace Papyrus::Enchantment
 {
 	void AddMagicEffectToEnchantment(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost, std::vector<std::string> a_conditionList)
@@ -8,29 +10,8 @@ namespace Papyrus::Enchantment
 			a_vm->TraceStack("Enchantment is None", a_stackID);
 			return;
 		}
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return;
-		}
-		if (a_mgef->data.castingType != a_enchantment->data.castingType) {
-			a_vm->TraceForm(a_mgef, "Casting types don't match", a_stackID);
-			return;
-		}
-		if (a_mgef->data.delivery != a_enchantment->data.delivery) {
-			a_vm->TraceForm(a_mgef, "Delivery types don't match", a_stackID);
-			return;
-		}
 
-		MAGIC::MGEFData data{
-			std::make_pair(a_mgef, a_mgef->GetFormID()),
-			a_mag,
-			a_area,
-			a_dur,
-			a_cost,
-			std::move(a_conditionList)
-		};
-
-		MAGIC::MGEFManager::GetSingleton()->Add(a_enchantment, data);
+		MAGIC::AddMagicEffect(a_vm, a_stackID, a_enchantment, a_mgef, a_mag, a_area, a_dur, a_cost, std::move(a_conditionList));
 	}
 
 	std::int32_t GetEnchantmentType(STATIC_ARGS, RE::EnchantmentItem* a_enchantment)
@@ -49,30 +30,8 @@ namespace Papyrus::Enchantment
 			a_vm->TraceStack("Enchantment is None", a_stackID);
 			return;
 		}
-		if (!a_copyEnchantment) {
-			a_vm->TraceStack("Copy Enchantment is None", a_stackID);
-			return;
-		}
-		if (a_index > a_copyEnchantment->effects.size()) {
-			a_vm->TraceForm(a_copyEnchantment, "Copy Enchantment index exceeds effect list size", a_stackID);
-			return;
-		}
-		if (a_enchantment->data.castingType != a_copyEnchantment->data.castingType) {
-			a_vm->TraceForm(a_enchantment, "Casting types don't match", a_stackID);
-			return;
-		}
-		if (a_enchantment->data.delivery != a_copyEnchantment->data.delivery) {
-			a_vm->TraceForm(a_enchantment, "Delivery types don't match", a_stackID);
-			return;
-		}
-
-		MAGIC::EffectData data{
-			std::make_pair(a_copyEnchantment, a_copyEnchantment->GetFormID()),
-			a_index,
-			a_cost
-		};
-
-		MAGIC::EffectManager::GetSingleton()->Add(a_enchantment, data);
+		
+		MAGIC::AddEffectItem(a_vm, a_stackID, a_enchantment, a_copyEnchantment, a_index, a_cost);
 	}
 
 	void RemoveMagicEffectFromEnchantment(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EffectSetting* a_mgef, float a_mag, std::uint32_t a_area, std::uint32_t a_dur, float a_cost)
@@ -81,21 +40,8 @@ namespace Papyrus::Enchantment
 			a_vm->TraceStack("Enchantment is None", a_stackID);
 			return;
 		}
-		if (!a_mgef) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return;
-		}
 
-		MAGIC::MGEFData data{
-			std::make_pair(a_mgef, a_mgef->GetFormID()),
-			a_mag,
-			a_area,
-			a_dur,
-			a_cost,
-			std::vector<std::string>()
-		};
-
-		MAGIC::MGEFManager::GetSingleton()->Remove(a_enchantment, data);
+		MAGIC::RemoveMagicEffect(a_vm, a_stackID, a_enchantment, a_mgef, a_mag, a_area, a_dur, a_cost);
 	}
 
 	void RemoveEffectItemFromEnchantment(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EnchantmentItem* a_copyEnchantment, std::uint32_t a_index)
@@ -104,22 +50,8 @@ namespace Papyrus::Enchantment
 			a_vm->TraceStack("Enchantment is None", a_stackID);
 			return;
 		}
-		if (!a_copyEnchantment) {
-			a_vm->TraceStack("Copy Enchantment is None", a_stackID);
-			return;
-		}
-		if (a_index > a_copyEnchantment->effects.size()) {
-			a_vm->TraceForm(a_copyEnchantment, "Copy Enchantment index exceeds effect list size", a_stackID);
-			return;
-		}
-
-		MAGIC::EffectData data{
-			std::make_pair(a_copyEnchantment, a_copyEnchantment->GetFormID()),
-			a_index,
-			-1.0f
-		};
-
-		MAGIC::EffectManager::GetSingleton()->Remove(a_enchantment, data);
+		
+		MAGIC::RemoveEffectItem(a_vm, a_stackID, a_enchantment, a_copyEnchantment, a_index);
 	}
 
 	void SetEnchantmentMagicEffect(STATIC_ARGS, RE::EnchantmentItem* a_enchantment, RE::EffectSetting* a_magicEffect, std::uint32_t a_index)
@@ -129,19 +61,7 @@ namespace Papyrus::Enchantment
 			return;
 		}
 
-		if (!a_magicEffect) {
-			a_vm->TraceStack("MagicEffect is None", a_stackID);
-			return;
-		}
-
-		if (a_index > a_enchantment->effects.size()) {
-			a_vm->TraceForm(a_enchantment, "Index exceeds effect list size", a_stackID);
-			return;
-		}
-
-		if (auto effectItem = a_enchantment->effects[a_index]) {
-			effectItem->baseEffect = a_magicEffect;
-		}
+		MAGIC::SetMagicEffect(a_vm, a_stackID, a_enchantment, a_magicEffect, a_index);
 	}
 
 	void Bind(VM& a_vm)

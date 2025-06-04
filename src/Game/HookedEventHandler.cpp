@@ -145,7 +145,7 @@ namespace Event
 						}
 
 						if (aggressor && hitTarget) {
-							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
+							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget, source, nullptr, a_data.flags.underlying());
 						}
 					}
 #else
@@ -175,7 +175,7 @@ namespace Event
 						}
 
 						if (aggressor) {
-							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, std::to_underlying(*a_data.flags));
+							GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, nullptr, a_data.flags.underlying());
 						}
 
 						func(a_holder, a_target, a_aggressor, a_source, a_projectile, a_data);

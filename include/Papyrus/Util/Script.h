@@ -2,7 +2,7 @@
 
 namespace SCRIPT
 {
-	inline constexpr frozen::set<std::string_view, 86> baseScripts = {
+	inline constexpr std::array baseScripts {
 		"Action"sv,
 		"Activator"sv,
 		"ActiveMagicEffect"sv,
@@ -88,7 +88,7 @@ namespace SCRIPT
 		"WEAPON"sv,
 		"Weather"sv,
 		"WordOfPower"sv,
-		"WorldSpace"
+		"WorldSpace"sv
 	};
 
 	std::vector<RE::BSFixedString> get_all_scripts(const RE::TESForm* a_form);

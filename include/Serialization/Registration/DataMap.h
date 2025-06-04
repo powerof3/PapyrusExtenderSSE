@@ -4,31 +4,32 @@ template <class K, class D>
 class DataMapPair
 {
 public:
-	DataMapPair() :
-		_pair(),
-		_lock()
-	{}
+	using Type = Map<K, std::vector<D>>;
+
+	DataMapPair() = default;
+	~DataMapPair() = default;
 
 	DataMapPair(const DataMapPair& a_rhs) :
-		_pair(),
-		_lock()
-	{
-		a_rhs._lock.lock();
-		_pair = a_rhs._pair;
-		a_rhs._lock.unlock();
-	}
-
-	DataMapPair(DataMapPair&& a_rhs) noexcept :
-		_pair(),
+		_addMap(),
+		_removeMap(),
 		_lock()
 	{
 		Locker locker(a_rhs._lock);
-		_pair = std::move(a_rhs._pair);
-		a_rhs._pair.first.clear();
-		a_rhs._pair.second.clear();
+		_addMap = a_rhs._addMap;
+		_removeMap = a_rhs._removeMap;
 	}
 
-	virtual ~DataMapPair() = default;
+	DataMapPair(DataMapPair&& a_rhs) noexcept :
+		_addMap(),
+		_removeMap(),
+		_lock()
+	{
+		Locker locker(a_rhs._lock);
+		_addMap = std::move(a_rhs._addMap);
+		_removeMap = std::move(a_rhs._removeMap);
+		a_rhs._addMap.clear();
+		a_rhs._removeMap.clear();
+	}
 
 	DataMapPair& operator=(const DataMapPair& a_rhs)
 	{
@@ -37,13 +38,9 @@ public:
 		}
 
 		Locker lhsLocker(_lock);
-		_pair.first.clear();
-		_pair.second.clear();
-
-		{
-			Locker rhsLocker(a_rhs._lock);
-			_pair = a_rhs._pair;
-		}
+		Locker rhsLocker(a_rhs._lock);
+		_addMap = a_rhs._addMap;
+		_removeMap = a_rhs._removeMap;
 
 		return *this;
 	}
@@ -57,20 +54,23 @@ public:
 		Locker lhsLocker(_lock);
 		Locker rhsLocker(a_rhs._lock);
 
-		_pair.first.clear();
-		_pair.second.clear();
+		_addMap = std::move(a_rhs._addMap);
+		_removeMap = std::move(a_rhs._removeMap);
 
-		_pair = std::move(a_rhs._pair);
-		a_rhs._pair.first.clear();
-		a_rhs._pair.second.clear();
+		a_rhs._addMap.clear();
+		a_rhs._removeMap.clear();
 
 		return *this;
 	}
 
-	std::map<K, std::set<D>>& GetData(std::uint32_t a_index)
+	Type& GetData(std::uint32_t a_index)
 	{
-		return a_index == 1 ? _pair.first :
-		                      _pair.second;
+		return a_index == 1 ? _addMap : _removeMap;
+	}
+
+	const Type& GetData(std::uint32_t a_index) const
+	{
+		return a_index == 1 ? _addMap : _removeMap;
 	}
 
 	void AddData(K a_key, D a_data, std::uint32_t a_index)
@@ -78,13 +78,14 @@ public:
 		Locker locker(_lock);
 
 		auto& otherDataMap = GetData(!a_index);
-		for (auto& [key, data] : otherDataMap) {
-			if (key == a_key) {
-				data.erase(a_data);
+		if (auto it = otherDataMap.find(a_key); it != otherDataMap.end()) {
+			std::erase(it->second, a_data);
+			if (it->second.empty()) {
+				otherDataMap.erase(it);
 			}
 		}
 
-		GetData(a_index)[a_key].insert(a_data);
+		GetData(a_index)[a_key].push_back(a_data);
 	}
 
 	void RemoveData(K a_key, D a_data, std::uint32_t a_index)
@@ -92,18 +93,26 @@ public:
 		Locker locker(_lock);
 
 		auto& dataMap = GetData(a_index);
-		for (auto& [key, data] : dataMap) {
-			if (key == a_key) {
-				data.erase(a_data);
+		if (auto it = dataMap.find(a_key); it != dataMap.end()) {
+			std::erase(it->second, a_data);
+			if (it->second.empty()) {
+				dataMap.erase(it);
 			}
 		}
+	}
+
+	void Remove(K a_key)
+	{
+		Locker locker(_lock);
+		_addMap.erase(a_key);
+		_removeMap.erase(a_key);
 	}
 
 	void Clear()
 	{
 		Locker locker(_lock);
-		_pair.first.clear();
-		_pair.second.clear();
+		_addMap.clear();
+		_removeMap.clear();
 	}
 
 	void Clear(std::uint32_t a_index)
@@ -119,10 +128,11 @@ public:
 
 protected:
 	using Lock = std::recursive_mutex;
-	using Locker = std::lock_guard<Lock>;
+	using Locker = std::scoped_lock<Lock>;
 
-	std::pair<std::map<K, std::set<D>>, std::map<K, std::set<D>>> _pair;
-	mutable Lock                                                  _lock;
+	Type         _addMap;
+	Type         _removeMap;
+	mutable Lock _lock;
 };
 
 template <class F, class D>
@@ -133,7 +143,7 @@ public:
 	FormMapPair(const FormMapPair&) = default;
 	FormMapPair(FormMapPair&&) = default;
 
-	~FormMapPair() override = default;
+	virtual ~FormMapPair() = default;
 
 	FormMapPair& operator=(const FormMapPair&) = default;
 	FormMapPair& operator=(FormMapPair&&) = default;
@@ -156,7 +166,12 @@ public:
 		return false;
 	}
 
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index)
+	void Remove(RE::FormID a_formID)
+	{
+		DataMapPair::Remove(a_formID);
+	}
+
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) const
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
 			logger::error("Failed to open serialization record!"sv);
@@ -165,12 +180,13 @@ public:
 		return Save(a_intfc, a_index);
 	}
 
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const
 	{
 		assert(a_intfc);
 		Locker locker(_lock);
 
-		auto&             formMap = GetData(a_index);
+		auto& formMap = GetData(a_index);
+
 		const std::size_t numRegs = formMap.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
 			logger::error("Failed to save reg count ({})", numRegs);
@@ -201,13 +217,14 @@ public:
 	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 	{
 		assert(a_intfc);
-		std::size_t numRegs;
-		a_intfc->ReadRecordData(numRegs);
 
 		Locker locker(_lock);
 
 		auto& formMap = GetData(a_index);
 		formMap.clear();
+
+		std::size_t numRegs;
+		a_intfc->ReadRecordData(numRegs);
 
 		RE::FormID  formID;
 		RE::FormID  dataID;
@@ -224,7 +241,7 @@ public:
 					logger::warn("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
 					continue;
 				}
-				formMap[formID].insert(dataID);
+				formMap[formID].push_back(dataID);
 			}
 		}
 
@@ -241,15 +258,6 @@ public:
 		return true;
 	}
 
-	void Remove(RE::FormID a_formID)
-	{
-		Locker locker(_lock);
-
-		for (std::uint32_t i = 0; i < 2; i++) {
-			GetData(i).erase(a_formID);
-		}
-	}
-
 private:
 	virtual bool Process(F* a_form, D* a_data, std::uint32_t a_index) = 0;
 };
@@ -262,7 +270,7 @@ public:
 	FormDataMapPair(const FormDataMapPair&) = default;
 	FormDataMapPair(FormDataMapPair&&) = default;
 
-	~FormDataMapPair() override = default;
+	virtual ~FormDataMapPair() = default;
 
 	FormDataMapPair& operator=(const FormDataMapPair&) = default;
 	FormDataMapPair& operator=(FormDataMapPair&&) = default;
@@ -285,7 +293,7 @@ public:
 		return false;
 	}
 
-	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index)
+	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) const
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
 			logger::error("Failed to open serialization record!"sv);
@@ -294,18 +302,8 @@ public:
 		return Save_Impl(a_intfc, a_index);
 	}
 
-	virtual bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
+	virtual bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const = 0;
 	virtual bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
-
-	void Remove(RE::FormID a_formID)
-	{
-		typename DataMapPair<RE::FormID, D>::Locker locker(this->_lock);
-
-		for (std::uint32_t i = 0; i < 2; i++) {
-			auto& formMap = this->GetData(i);
-			formMap.erase(a_formID);
-		}
-	}
 
 private:
 	virtual bool Process(F* a_form, const D& a_data, std::uint32_t a_index) = 0;

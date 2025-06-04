@@ -1,5 +1,8 @@
 #include "Papyrus/Functions/Alias/Functions.h"
 
+
+#include "Papyrus/Util/Script.h"
+
 namespace Papyrus::Alias::Functions
 {
 

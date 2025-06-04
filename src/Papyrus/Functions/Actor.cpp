@@ -1,7 +1,7 @@
 #include "Papyrus/Functions/Actor.h"
 
 #include "Papyrus/Util/Inventory.h"
-#include "Serialization/Services.h"
+#include "Serialization/Manager.h"
 
 namespace Papyrus::Actor
 {
@@ -17,7 +17,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		return FORM::PerkManager::GetSingleton()->Add(a_actor, a_perk);
+		return Serialization::Manager::GetSingleton()->perks.Add(a_actor, a_perk);
 	}
 
 	bool AddBaseSpell(STATIC_ARGS, RE::Actor* a_actor, RE::SpellItem* a_spell)
@@ -1034,7 +1034,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		return FORM::PerkManager::GetSingleton()->Remove(a_actor, a_perk);
+		return Serialization::Manager::GetSingleton()->perks.Remove(a_actor, a_perk);
 	}
 
 	bool RemoveBaseSpell(STATIC_ARGS, RE::Actor* a_actor, RE::SpellItem* a_spell)

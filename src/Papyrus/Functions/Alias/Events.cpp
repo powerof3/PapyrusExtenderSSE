@@ -1,5 +1,7 @@
 #include "Papyrus/Functions/Alias/Events.h"
 
+#include "Serialization/EventHolder.h"
+
 namespace Papyrus::Alias::Events
 {
 	void RegisterForActorFallLongDistance(STATIC_ARGS, RE::BGSRefAlias* a_alias)

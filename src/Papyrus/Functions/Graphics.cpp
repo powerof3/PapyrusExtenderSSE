@@ -1,7 +1,11 @@
 #include "Papyrus/Functions/Graphics.h"
 
+#include "Papyrus/Util/Graphics.h"
+
 namespace Papyrus::Graphics
 {
+	using namespace GRAPHICS;
+	
 	void ApplyMaterialShader(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSMaterialObject* a_shader, float a_materialThresholdAngle)
 	{
 		if (!a_ref) {

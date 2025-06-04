@@ -1,5 +1,7 @@
 #include "Papyrus/Functions/ActiveMagicEffect/Functions.h"
 
+#include "Papyrus/Util/Script.h"
+
 namespace Papyrus::ActiveMagicEffect::Functions
 {
 	RE::TESForm* GetActiveEffectSpell(STATIC_ARGS, const RE::ActiveEffect* a_activeEffect)

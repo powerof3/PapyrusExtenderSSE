@@ -3,7 +3,6 @@ set(sources ${sources}
 	src/Game/EventHandler.cpp
 	src/Game/HookedEventHandler.cpp
 	src/Game/Manager.cpp
-	src/Game/Services.cpp
 	src/Papyrus/Functions/ActiveMagicEffect/Events.cpp
 	src/Papyrus/Functions/ActiveMagicEffect/Functions.cpp
 	src/Papyrus/Functions/Actor.cpp
@@ -49,6 +48,7 @@ set(sources ${sources}
 	src/Papyrus/Util/ConditionParser.cpp
 	src/Papyrus/Util/Graphics.cpp
 	src/Papyrus/Util/Inventory.cpp
+	src/Papyrus/Util/Magic.cpp
 	src/Papyrus/Util/Script.cpp
 	src/Serialization/EventHolder.cpp
 	src/Serialization/Manager.cpp

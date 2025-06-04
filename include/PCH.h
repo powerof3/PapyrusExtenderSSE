@@ -48,8 +48,9 @@
 #include "REX/REX/Singleton.h"
 #include "SKSE/SKSE.h"
 
-#include <frozen/map.h>
-#include <frozen/set.h>
+#include <ankerl/unordered_dense.h>
+#include <frozen/bits/elsa_std.h>
+#include <frozen/unordered_map.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>
 #include <xbyak/xbyak.h>
@@ -72,6 +73,52 @@ namespace editorID = clib_util::editorID;
 
 using namespace std::literals;
 using namespace string::literals;
+
+template <class D>
+using Set = ankerl::unordered_dense::set<D>;
+template <class K, class D>
+using Map = ankerl::unordered_dense::map<K, D>;
+
+namespace frozen
+{
+	template <typename K, typename V, std::size_t N>
+	struct bidirectional_map
+	{
+		constexpr bidirectional_map() = delete;
+
+		constexpr bidirectional_map(std::initializer_list<std::pair<K, V>> list) :
+			_map(list),
+			_reverseMap(reverse(list))
+		{}
+
+		constexpr const V* find(const K& key) const
+		{
+			auto it = _map.find(key);
+			return (it != _map.end()) ? &it->second : nullptr;
+		}
+
+		constexpr const K* find(const V& value) const
+		{
+			auto it = _reverseMap.find(value);
+			return (it != _reverseMap.end()) ? &it->second : nullptr;
+		}
+
+	private:
+		static constexpr std::array<std::pair<V, K>, N> reverse(const std::initializer_list<std::pair<K, V>>& list)
+		{
+			std::array<std::pair<V, K>, N> reversed{};
+			std::size_t                    i = 0;
+			for (auto it = list.begin(); it != list.end(); it++) {
+				reversed[i] = { it->second, it->first };
+				i++;
+			}
+			return reversed;
+		}
+
+		const frozen::unordered_map<K, V, N> _map;
+		const frozen::unordered_map<V, K, N> _reverseMap;
+	};
+}
 
 #ifdef SKYRIM_AE
 #	define OFFSET(se, ae) ae

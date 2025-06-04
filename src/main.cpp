@@ -15,7 +15,7 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			Game::Register();
-			Serialization::FormDeletion::EventHandler::Register();
+			Serialization::Manager::Register();
 		}
 		break;
 	default:

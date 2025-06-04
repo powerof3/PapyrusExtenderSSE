@@ -1,9 +1,11 @@
 #include "Papyrus/Functions/Detection.h"
 
-#include "Serialization/Services.h"
+#include "Serialization/Manager.h"
 
 namespace Papyrus::Detection
 {
+	using namespace Serialization;
+	
 	std::int32_t CanActorBeDetected(STATIC_ARGS, RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -11,11 +13,11 @@ namespace Papyrus::Detection
 			return -1;
 		}
 
-		const auto targetManager = DETECTION::TargetManager::GetSingleton();
-		if (targetManager->Contains(a_actor, DETECTION::kHide)) {
+		const auto& targetManager = Serialization::Manager::GetSingleton()->detectionTargets;
+		if (targetManager.Contains(a_actor, DETECTION::kHide)) {
 			return 0;
 		}
-		if (targetManager->Contains(a_actor, DETECTION::kAlert)) {
+		if (targetManager.Contains(a_actor, DETECTION::kAlert)) {
 			return 2;
 		}
 		return 1;
@@ -28,11 +30,11 @@ namespace Papyrus::Detection
 			return -1;
 		}
 
-		const auto sourceManager = DETECTION::SourceManager::GetSingleton();
-		if (sourceManager->Contains(a_actor, DETECTION::kHide)) {
+		const auto& sourceManager = Serialization::Manager::GetSingleton()->detectionSources;
+		if (sourceManager.Contains(a_actor, DETECTION::kHide)) {
 			return 0;
 		}
-		if (sourceManager->Contains(a_actor, DETECTION::kAlert)) {
+		if (sourceManager.Contains(a_actor, DETECTION::kAlert)) {
 			return 2;
 		}
 		return 1;
@@ -45,7 +47,7 @@ namespace Papyrus::Detection
 			return;
 		}
 
-		DETECTION::TargetManager::GetSingleton()->Add(a_actor, DETECTION::kAlert);
+		Serialization::Manager::GetSingleton()->detectionTargets.Add(a_actor, DETECTION::kAlert);
 	}
 
 	void ForceActorDetecting(STATIC_ARGS, RE::Actor* a_actor)
@@ -55,7 +57,7 @@ namespace Papyrus::Detection
 			return;
 		}
 
-		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kAlert);
+		Serialization::Manager::GetSingleton()->detectionSources.Add(a_actor, DETECTION::kAlert);
 	}
 
 	bool IsDetectedByAnyone(STATIC_ARGS, RE::Actor* a_actor)
@@ -90,7 +92,7 @@ namespace Papyrus::Detection
 			return;
 		}
 
-		DETECTION::TargetManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
+		Serialization::Manager::GetSingleton()->detectionTargets.Add(a_actor, DETECTION::kHide);
 	}
 
 	void PreventActorDetecting(STATIC_ARGS, RE::Actor* a_actor)
@@ -100,7 +102,7 @@ namespace Papyrus::Detection
 			return;
 		}
 
-		DETECTION::SourceManager::GetSingleton()->Add(a_actor, DETECTION::kHide);
+		Serialization::Manager::GetSingleton()->detectionSources.Add(a_actor, DETECTION::kHide);
 	}
 
 	void ResetActorDetection(STATIC_ARGS, RE::Actor* a_actor)
@@ -110,7 +112,7 @@ namespace Papyrus::Detection
 			return;
 		}
 
-		DETECTION::TargetManager::GetSingleton()->Remove(a_actor);
+		Serialization::Manager::GetSingleton()->detectionTargets.Remove(a_actor);
 	}
 
 	void ResetActorDetecting(STATIC_ARGS, RE::Actor* a_actor)
@@ -120,7 +122,7 @@ namespace Papyrus::Detection
 			return;
 		}
 
-		DETECTION::SourceManager::GetSingleton()->Remove(a_actor);
+		Serialization::Manager::GetSingleton()->detectionSources.Remove(a_actor);
 	}
 
 	void Bind(VM& a_vm)

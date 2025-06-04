@@ -1,7 +1,8 @@
 #include "Papyrus/Functions/ObjectReference.h"
 
+#include "Papyrus/Util/Graphics.h"
 #include "Papyrus/Util/Inventory.h"
-#include "Serialization/Services.h"
+#include "Serialization/Manager.h"
 
 namespace Papyrus::ObjectReference
 {
@@ -160,7 +161,7 @@ namespace Papyrus::ObjectReference
 		}
 
 		if (const auto form = a_ref->GetObjectReference(); form) {
-			FORM::KeywordManager::GetSingleton()->Add(form, a_keyword);
+			Serialization::Manager::GetSingleton()->keywords.Add(form, a_keyword);
 		}
 	}
 
@@ -1036,7 +1037,7 @@ namespace Papyrus::ObjectReference
 		}
 
 		const auto form = a_ref->GetObjectReference();
-		return form && FORM::KeywordManager::GetSingleton()->Remove(form, a_keyword);
+		return form && Serialization::Manager::GetSingleton()->keywords.Remove(form, a_keyword);
 	}
 
 	void RemoveListFromContainer(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_formList, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem, RE::TESObjectREFR* a_destination)

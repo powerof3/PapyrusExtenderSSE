@@ -1,5 +1,11 @@
 #include "Papyrus/Functions/Form/Functions.h"
 
+#include "Game/HookedEventHandler.h"
+#include "Papyrus/Util/ConditionParser.h"
+#include "Papyrus/Util/Inventory.h"
+#include "Papyrus/Util/Script.h"
+#include "Serialization/Manager.h"
+
 namespace Papyrus::Form::Functions
 {
 	void AddKeywordToForm(STATIC_ARGS, RE::TESForm* a_form, RE::BGSKeyword* a_keyword)
@@ -15,7 +21,7 @@ namespace Papyrus::Form::Functions
 			return;
 		}
 
-		FORM::KeywordManager::GetSingleton()->Add(a_form, a_keyword);
+		Serialization::Manager::GetSingleton()->keywords.Add(a_form, a_keyword);
 	}
 
 	void ClearRecordFlag(STATIC_ARGS, RE::TESForm* a_form, std::uint32_t a_flag)
@@ -305,7 +311,7 @@ namespace Papyrus::Form::Functions
 			return false;
 		}
 
-		return FORM::KeywordManager::GetSingleton()->Remove(a_form, a_keyword);
+		return Serialization::Manager::GetSingleton()->keywords.Remove(a_form, a_keyword);
 	}
 
 	void ReplaceKeywordOnForm(STATIC_ARGS, RE::TESForm* a_form, const RE::BGSKeyword* a_remove, RE::BGSKeyword* a_add)

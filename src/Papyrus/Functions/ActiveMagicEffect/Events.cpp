@@ -1,5 +1,7 @@
 #include "Papyrus/Functions/ActiveMagicEffect/Events.h"
 
+#include "Serialization/EventHolder.h"
+
 namespace Papyrus::ActiveMagicEffect::Events
 {
 	void RegisterForActorFallLongDistance(STATIC_ARGS, RE::ActiveEffect* a_activeEffect)

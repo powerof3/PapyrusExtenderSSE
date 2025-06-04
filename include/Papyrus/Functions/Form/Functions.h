@@ -1,9 +1,5 @@
 #pragma once
 
-#include "Game/HookedEventHandler.h"
-#include "Papyrus/Util/Inventory.h"
-#include "Serialization/Services.h"
-
 namespace Papyrus::Form::Functions
 {
 	void                           AddKeywordToForm(STATIC_ARGS, RE::TESForm* a_form, RE::BGSKeyword* a_keyword);

@@ -4,7 +4,7 @@ namespace SCRIPT
 {
 	struct detail
 	{
-		static bool check_script(const Papyrus::VM& a_vm, const RE::VMHandle a_handle, const RE::BSFixedString& a_scriptName)
+		static bool check_script(const VM& a_vm, const RE::VMHandle a_handle, const RE::BSFixedString& a_scriptName)
 		{
 			if (!a_scriptName.empty()) {
 				RE::BSTSmartPointer<RE::BSScript::Object> object;
@@ -14,13 +14,13 @@ namespace SCRIPT
 			if (const auto it = a_vm.attachedScripts.find(a_handle); it != a_vm.attachedScripts.end()) {
 				return std::ranges::any_of(it->second, [&](const auto& script) {
 					auto typeInfo = script ? script->GetTypeInfo() : nullptr;
-					return typeInfo && baseScripts.find(typeInfo->name) == baseScripts.end();  // is not a base script
+					return typeInfo && std::find(baseScripts.begin(), baseScripts.end(), typeInfo->name) == baseScripts.end();  // is not a base script
 				});
 			}
 			return false;
 		}
 
-		static void get_all_scripts(const Papyrus::VM& a_vm, const RE::VMHandle a_handle, std::vector<RE::BSFixedString>& a_vec)
+		static void get_all_scripts(const VM& a_vm, const RE::VMHandle a_handle, std::vector<RE::BSFixedString>& a_vec)
 		{
 			RE::BSSpinLockGuard locker(a_vm.attachedScriptsLock);
 			if (const auto it = a_vm.attachedScripts.find(a_handle); it != a_vm.attachedScripts.end()) {

@@ -6,18 +6,24 @@ using Severity = RE::BSScript::ErrorLogger::Severity;
 
 namespace stl
 {
-	using namespace SKSE::stl;
-
 	inline bool read_string(SKSE::SerializationInterface* a_intfc, std::string& a_str)
 	{
 		std::size_t size = 0;
 		if (!a_intfc->ReadRecordData(size)) {
 			return false;
 		}
-		a_str.reserve(size);
-		if (!a_intfc->ReadRecordData(a_str.data(), static_cast<std::uint32_t>(size))) {
+
+		char* buf = new char[size];
+
+		if (!a_intfc->ReadRecordData(buf, static_cast<std::uint32_t>(size))) {
+			delete[] buf;
 			return false;
 		}
+
+		buf[size - 1] = '\0';
+		a_str = buf;
+
+		delete[] buf;
 		return true;
 	}
 
@@ -35,39 +41,6 @@ namespace stl
 		}
 		return true;
 	}
-
-	template <class T>
-	void write_thunk_call(std::uintptr_t a_src)
-	{
-		auto& trampoline = SKSE::GetTrampoline();
-		T::func = trampoline.write_call<5>(a_src, T::thunk);
-	}
-
-	template <class F, std::size_t idx, class T>
-	void write_vfunc()
-	{
-		REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[0] };
-		T::func = vtbl.write_vfunc(idx, T::thunk);
-	}
-
-	template <typename First, typename... T>
-	[[nodiscard]] bool is_in(First&& first, T&&... t)
-	{
-		return ((first == t) || ...);
-	}
-
-	constexpr inline auto enum_range(auto first, auto last)
-	{
-		auto enum_range =
-			std::views::iota(
-				std::to_underlying(first),
-				std::to_underlying(last) + 1) |
-			std::views::transform([](auto enum_val) {
-				return (decltype(first))enum_val;
-			});
-
-		return enum_range;
-	};
 }
 
 namespace Papyrus

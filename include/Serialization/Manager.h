@@ -93,14 +93,14 @@ namespace Serialization
 	{
 		MGEFData() = default;
 
-		MGEFData(RE::EffectSetting* a_effect, float a_mag, std::uint32_t a_area, std::uint32_t a_duration, float a_cost, std::vector<std::string> a_conditionList = {}) :
+		MGEFData(RE::EffectSetting* a_effect, float a_mag, std::uint32_t a_area, std::uint32_t a_duration, float a_cost, const std::vector<std::string>& a_conditionList = {}) :
 			mgef(a_effect),
 			mgefFormID(a_effect->GetFormID()),
 			mag(a_mag),
 			area(a_area),
 			dur(a_duration),
 			cost(a_cost),
-			conditionList(std::move(a_conditionList))
+			conditionList(a_conditionList)
 		{}
 
 		bool operator<(const MGEFData& a_rhs) const { return mgefFormID < a_rhs.mgefFormID; }
@@ -212,6 +212,7 @@ namespace Serialization
 		template <class T>
 		void save(const T& a_regs, SKSE::SerializationInterface* a_intfc)
 		{
+			logger::info("{}: {}/{}", typeid(T).name(), a_regs.GetData(1).size(), a_regs.GetData(0).size());
 			if (!a_regs.GetData(1).empty()) {
 				if (!a_regs.Save(a_intfc, a_regs.addUUID, kSerializationVersion, 1)) {
 					logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 1);
@@ -227,6 +228,7 @@ namespace Serialization
 		template <class T>
 		void load(T& a_regs, SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 		{
+			logger::info("{}", typeid(T).name());
 			if (!a_regs.Load(a_intfc, a_index)) {
 				logger::critical("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
 			}

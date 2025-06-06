@@ -30,7 +30,7 @@ namespace MAGIC
 			}
 		}
 
-		MGEFData data(a_mgef, a_mag, a_area, a_dur, a_cost, std::move(a_conditionList));
+		MGEFData data(a_mgef, a_mag, a_area, a_dur, a_cost, a_conditionList);
 		if (!Manager::GetSingleton()->mgefs.Add(a_spell, data)) {
 			a_vm->TraceForm(a_spell, "Failed to add magic effect", a_stackID);
 		}

@@ -120,6 +120,44 @@ namespace frozen
 	};
 }
 
+namespace stl
+{
+	using namespace SKSE::stl;
+
+	template <class T>
+	void write_thunk_call(std::uintptr_t a_src)
+	{
+		auto& trampoline = SKSE::GetTrampoline();
+		T::func = trampoline.write_call<5>(a_src, T::thunk);
+	}
+
+	template <class F, std::size_t idx, class T>
+	void write_vfunc()
+	{
+		REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[0] };
+		T::func = vtbl.write_vfunc(idx, T::thunk);
+	}
+
+	template <typename First, typename... T>
+	[[nodiscard]] bool is_in(First&& first, T&&... t)
+	{
+		return ((first == t) || ...);
+	}
+
+	constexpr inline auto enum_range(auto first, auto last)
+	{
+		auto enum_range =
+			std::views::iota(
+				std::to_underlying(first),
+				std::to_underlying(last) + 1) |
+			std::views::transform([](auto enum_val) {
+				return (decltype(first))enum_val;
+			});
+
+		return enum_range;
+	};
+}
+
 #ifdef SKYRIM_AE
 #	define OFFSET(se, ae) ae
 #	define OFFSET_3(se, ae, vr) ae

@@ -552,6 +552,8 @@ namespace Serialization
 		perks.Revert(a_intfc);
 		detectionTargets.Revert(a_intfc);
 		detectionSources.Revert(a_intfc);
+		mgefs.Revert(a_intfc);
+		effectItems.Revert(a_intfc);
 
 		logger::info("Finished reverting data"sv);
 	}

@@ -9,6 +9,8 @@ namespace GRAPHICS
 	using ShaderFlags = RE::BSShaderProperty::EShaderPropertyFlag;
 	using ShaderFlags8 = RE::BSShaderProperty::EShaderPropertyFlag8;
 	using VertexFlags = RE::BSGraphics::Vertex::Flags;
+	using MaterialBase = RE::BSLightingShaderMaterialBase;
+	using Slot = RE::BGSBipedObjectForm::BipedObjectSlot;
 
 	inline constexpr std::array headSlots{ RE::BIPED_OBJECT::kHair, RE::BIPED_OBJECT::kLongHair, RE::BIPED_OBJECT::kCirclet };
 

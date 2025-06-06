@@ -252,7 +252,7 @@ namespace Papyrus::Graphics
 				const auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
 				if (!data) {
 					std::vector<RE::BSFixedString> results;
-					results.resize(Texture::kTotal+1);
+					results.resize(Texture::kTotal + 1);
 					for (const auto type : stl::enum_range(Texture::kDiffuse, Texture::kTotal)) {
 						results[type] = (a_srcTXST->GetTexturePath(type));
 					}

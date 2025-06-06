@@ -55,6 +55,19 @@ namespace stl
 	{
 		return ((first == t) || ...);
 	}
+
+	constexpr inline auto enum_range(auto first, auto last)
+	{
+		auto enum_range =
+			std::views::iota(
+				std::to_underlying(first),
+				std::to_underlying(last) + 1) |
+			std::views::transform([](auto enum_val) {
+				return (decltype(first))enum_val;
+			});
+
+		return enum_range;
+	};
 }
 
 namespace Papyrus

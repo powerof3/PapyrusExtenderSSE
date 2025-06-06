@@ -1,5 +1,6 @@
 #include "Papyrus/Functions/Graphics.h"
 
+#include "Papyrus/Util/ActorGraphics.h"
 #include "Papyrus/Util/Graphics.h"
 
 namespace Papyrus::Graphics
@@ -64,12 +65,8 @@ namespace Papyrus::Graphics
 			                          a_opacity;
 			auto        newColor = RE::ColorUtil::Blend(actorbase->bodyTintColor, a_color->color, static_cast<BLEND_MODE>(a_blendMode), opacity);
 
-			SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
-				SET::tint_face(a_actor, newColor);
-
-				root->UpdateBodyTint(newColor);
-
-				SET::update_color_data(root, EXTRA::SKIN_TINT, newColor);
+			SKSE::GetTaskInterface()->AddTask([a_actor, root, newColor]() {
+				ActorApplier::BodyTint(a_actor, root, newColor);
 			});
 		}
 	}
@@ -178,11 +175,7 @@ namespace Papyrus::Graphics
 				auto        newColor = RE::ColorUtil::Mix(actorbase->bodyTintColor, a_color->color, skinLuminance);
 
 				SKSE::GetTaskInterface()->AddTask([a_actor, newColor, root]() {
-					SET::tint_face(a_actor, newColor);
-
-					root->UpdateBodyTint(newColor);
-
-					SET::update_color_data(root, EXTRA::SKIN_TINT, newColor);
+					ActorApplier::BodyTint(a_actor, root, newColor);
 				});
 			}
 		}
@@ -246,7 +239,7 @@ namespace Papyrus::Graphics
 
 			if (const auto arma = a_armor->GetArmorAddon(a_actor->GetRace()); arma) {
 				a_actor->VisitArmorAddon(a_armor, arma, [&](bool, RE::NiAVObject& a_obj) -> bool {
-					SET::ArmorTXST(&a_obj, a_tgtTXST, a_type, targetPath, replaced);
+					ActorApplier::ArmorTXST(&a_obj, a_tgtTXST, a_type, targetPath, replaced);
 					return true;
 				});
 			}
@@ -258,13 +251,13 @@ namespace Papyrus::Graphics
 
 				const auto data = root->GetExtraData<RE::NiStringsExtraData>(name);
 				if (!data) {
-					std::vector<RE::BSFixedString> result;
-					result.reserve(Texture::kTotal);
-					for (const auto& type : TEXTURE::types) {
-						result.emplace_back(a_srcTXST->GetTexturePath(type));
+					std::vector<RE::BSFixedString> results;
+					results.resize(Texture::kTotal+1);
+					for (const auto type : stl::enum_range(Texture::kDiffuse, Texture::kTotal)) {
+						results[type] = (a_srcTXST->GetTexturePath(type));
 					}
-					result.emplace_back(armorID);
-					if (const auto newData = RE::NiStringsExtraData::Create(name, result); newData) {
+					results[Texture::kTotal] = armorID;
+					if (const auto newData = RE::NiStringsExtraData::Create(name, results); newData) {
 						root->AddExtraData(newData);
 					}
 				}
@@ -291,12 +284,11 @@ namespace Papyrus::Graphics
 		if (const auto txst = isFemale ? a_femaleTXST : a_maleTXST; txst) {
 			SKSE::GetTaskInterface()->AddTask([txst, a_type, a_actor]() {
 				if (const auto faceObject = a_actor->GetHeadPartObject(RE::BGSHeadPart::HeadPartType::kFace); faceObject) {
-					std::vector<RE::BSFixedString> result;
-					SET::SkinTXST(faceObject, txst, result, a_type);
-
+					std::vector<RE::BSFixedString> results;
+					ActorApplier::SkinTXST(faceObject, txst, results, a_type);
 					const auto root = a_actor->Get3D(false);
-					if (!result.empty() && root) {
-						SET::add_data_if_none<RE::NiStringsExtraData>(root, EXTRA::FACE_TXST, result);
+					if (!results.empty() && root) {
+						EXTRA::Add<RE::NiStringsExtraData>(root, EXTRA::FACE_TXST, results);
 					}
 				}
 			});
@@ -328,7 +320,7 @@ namespace Papyrus::Graphics
 			return;
 		}
 
-		SET::ArmorSkinTXST(a_actor,
+		ActorApplier::ArmorSkinTXST(a_actor,
 			isFemale ? a_femaleTXST : a_maleTXST,
 			static_cast<BipedSlot>(a_slot), a_type);
 	}
@@ -346,41 +338,8 @@ namespace Papyrus::Graphics
 			return false;
 		}
 
-		bool             result = true;
-		RESET::ResetData resetData;
-
-		std::tie(result, resetData) = RESET::get_data(root);
-		if (!result) {
-			return false;
-		}
-
-		SKSE::GetTaskInterface()->AddTask([a_actor, a_folderName, root, resetData]() {
-			auto& [toggleData, skinTintData, hairTintData, skinAlphaData, txstFaceData, headpartAlphaVec, txstVec, txstSkinVec, shaderVec] = resetData;
-
-			RESET::Toggle(root, toggleData);
-			RESET::SkinAlpha(root, skinAlphaData);
-			RESET::HeadPartAlpha(a_actor, root, headpartAlphaVec);
-			RESET::SkinTint(a_actor, root, skinTintData);
-			RESET::HairTint(a_actor, root, hairTintData);
-			RESET::FaceTXST(a_actor, root, txstFaceData);
-			RESET::SkinTXST(a_actor, root, txstSkinVec);
-
-			if (!a_folderName.empty()) {
-				RESET::ArmorTXST(a_actor, root, a_folderName, txstVec);
-			}
-
-			RESET::MaterialShader(root, shaderVec);
-		});
-
-		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
-			if (!a_actor->IsPlayerRef()) {
-				processLists->StopAllMagicEffects(*a_actor);
-			} else {
-				RESET::stop_all_skin_shaders(a_actor);
-			}
-		}
-
-		return true;
+		ActorResetter resetter(a_actor, root, a_folderName);
+		return resetter.ResetActor3D();
 	}
 
 	void ScaleObject3D(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::string a_nodeName, float a_scale)
@@ -494,7 +453,7 @@ namespace Papyrus::Graphics
 			return;
 		}
 		if (!a_color) {
-			a_vm->TraceStack("Colorform is None", a_stackID);
+			a_vm->TraceStack("ColorForm is None", a_stackID);
 			return;
 		}
 
@@ -504,19 +463,8 @@ namespace Papyrus::Graphics
 			return;
 		}
 
-		SKSE::GetTaskInterface()->AddTask([root, a_actor, a_color]() {
-			root->UpdateHairColor(a_color->color);
-
-			if (const auto& biped = a_actor->GetCurrentBiped(); biped) {
-				for (auto& slot : ACTOR::headSlots) {
-					const auto node = biped->objects[slot].partClone;
-					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
-						node->UpdateHairColor(a_color->color);
-					}
-				}
-			}
-
-			SET::update_color_data(root, EXTRA::HAIR_TINT, a_color->color);
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_color, root]() {
+			ActorApplier::HairTint(a_actor, root, a_color->color);
 		});
 	}
 
@@ -547,7 +495,7 @@ namespace Papyrus::Graphics
 				if (a_alpha == 1.0f) {
 					root->RemoveExtraData(name);
 				} else {
-					SET::add_data_if_none<RE::NiIntegerExtraData>(root, name, a_type);
+					EXTRA::Add<RE::NiIntegerExtraData>(root, name, a_type);
 				}
 			}
 		});
@@ -590,42 +538,24 @@ namespace Papyrus::Graphics
 			a_vm->TraceStack("Template is None", a_stackID);
 			return;
 		}
-		if (!a_ref->Is3DLoaded()) {
+
+		const auto root = a_ref->Get3D();
+		if (!root) {
 			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
 			return;
 		}
-		if (!a_template->Is3DLoaded()) {
-			a_vm->TraceForm(a_template, "template object has no 3D", a_stackID);
+
+		const auto templateRoot = a_template->Get3D();
+		if (!templateRoot) {
+			a_vm->TraceForm(a_template, "has no 3D", a_stackID);
 			return;
 		}
 
-		using Feature = RE::BSShaderMaterial::Feature;
+		ShaderData::Input inputData(a_ref, a_filter, a_shaderType, a_textureType, a_noWeapons, a_noAlpha);
 
-		auto sourcePath{ std::string() };
-		if (!a_filter.empty()) {
-			sourcePath = a_filter.c_str();
-			TEXTURE::sanitize_path(sourcePath);
-		}
-
-		const std::vector<bool> params{ a_noWeapons, a_noAlpha, a_ref->Is(RE::FormType::ActorCharacter) };
-
-		const auto root = a_ref->Get3D()->AsNode();
-		const auto template_root = a_template->Get3D()->AsNode();
-		const auto feature = static_cast<Feature>(a_shaderType);
-
-		if (root && template_root) {
-			SKSE::GetTaskInterface()->AddTask([root, template_root, feature, sourcePath, a_textureType, params]() {
-				if (const auto template_geo = template_root->GetFirstGeometryOfShaderType(feature); template_geo) {
-					std::vector<RE::BSFixedString> result;
-					SET::ShaderType(root, template_geo, sourcePath, a_textureType, result, params);
-
-					if (!result.empty()) {
-						const auto& name = std::string("PO3_SHADER | "sv).append(std::to_string(std::to_underlying(feature)));
-						SET::add_data_if_none<RE::NiStringsExtraData>(root, name, result);
-					}
-				}
-			});
-		}
+		SKSE::GetTaskInterface()->AddTask([root, templateRoot, inputData]() {
+			inputData.SetShaderType(root, templateRoot);
+		});
 	}
 
 	void SetupBodyPartGeometry(STATIC_ARGS, RE::TESObjectREFR* a_bodyparts, RE::Actor* a_actor)
@@ -674,7 +604,7 @@ namespace Papyrus::Graphics
 					if (a_alpha == 1.0f) {
 						root->RemoveExtraData(EXTRA::SKIN_ALPHA);
 					} else {
-						SET::add_data_if_none<RE::NiBooleanExtraData>(root, EXTRA::SKIN_ALPHA, true);
+						EXTRA::Add<RE::NiBooleanExtraData>(root, EXTRA::SKIN_ALPHA, true);
 					}
 				});
 			}
@@ -699,11 +629,7 @@ namespace Papyrus::Graphics
 		}
 
 		SKSE::GetTaskInterface()->AddTask([a_actor, a_color, root]() {
-			SET::tint_face(a_actor, a_color->color);
-
-			root->UpdateBodyTint(a_color->color);
-
-			SET::update_color_data(root, EXTRA::SKIN_TINT, a_color->color);
+			ActorApplier::BodyTint(a_actor, root, a_color->color);
 		});
 	}
 
@@ -722,7 +648,7 @@ namespace Papyrus::Graphics
 
 		SKSE::GetTaskInterface()->AddTask([root, a_nodeName, a_disable]() {
 			if (const auto object = root->GetObjectByName(a_nodeName); object) {
-				SET::Toggle(root, object, a_disable);
+				ActorApplier::ToggleNode(root, object, a_disable);
 			}
 		});
 	}
@@ -742,10 +668,10 @@ namespace Papyrus::Graphics
 
 		SKSE::GetTaskInterface()->AddTask([a_actor, root, a_disable]() {
 			if (const auto& biped = a_actor->GetCurrentBiped(); biped) {
-				for (auto& slot : ACTOR::headSlots) {
-					const auto node = biped->objects[slot].partClone;
+				for (auto& slot : headSlots) {
+					const auto& node = biped->objects[slot].partClone;
 					if (node && node->HasShaderType(RE::BSShaderMaterial::Feature::kHairTint)) {
-						SET::Toggle(root, node.get(), a_disable);
+						ActorApplier::ToggleNode(root, node.get(), a_disable);
 					}
 				}
 			}

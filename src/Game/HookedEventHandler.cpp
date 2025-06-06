@@ -19,7 +19,7 @@ namespace Event
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
-		inline void Install()
+		void Install()
 		{
 			REL::Relocation<std::uintptr_t> bookMenu{ RELOCATION_ID(50122, 51053), OFFSET_3(0x22D, 0x231, 0x295) };
 			stl::write_thunk_call<Read>(bookMenu.address());
@@ -353,11 +353,11 @@ namespace Event
 					const auto xMapMarker = refr ? refr->extraList.GetByType<RE::ExtraMapMarker>() : nullptr;
 					const auto name = xMapMarker && xMapMarker->mapData ? xMapMarker->mapData->locationName.GetFullName() : "Unknown";
 					const auto formID = refr ? refr->GetFormID() : 0;
-					logger::info("Found Fast Travel Confirmed target to {} ({:x})", name, formID);
+					logger::debug("Found Fast Travel Confirmed target to {} ({:x})", name, formID);
 				}
 
 				if (disableFastTravel) {
-					logger::info("Fast Travel is disabled; cancelling trip");
+					logger::debug("Fast Travel is disabled; cancelling trip");
 
 					func(a_this, RE::IMessageBoxCallback::Message::kUnk0);
 					RE::UIMessageQueue::GetSingleton()->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
@@ -366,16 +366,16 @@ namespace Event
 
 				const auto start = std::chrono::steady_clock::now();
 				if (!newDestination && defaultTimeout > 0.0f) {
-					logger::info("Waiting for newDestination for {:.2f} seconds", defaultTimeout);
+					logger::debug("Waiting for newDestination for {:.2f} seconds", defaultTimeout);
 				}
 				while (defaultTimeout > 0.0f) {
 					std::chrono::duration<float> elapsed_seconds = std::chrono::steady_clock::now() - start;
 					if (newDestination) {
-						logger::info("newDestination received after {:.2f} seconds", elapsed_seconds.count());
+						logger::debug("newDestination received after {:.2f} seconds", elapsed_seconds.count());
 						break;
 					}
 					if (elapsed_seconds.count() > defaultTimeout) {
-						logger::info("newDestination not received after {:.2f} seconds; proceeding", elapsed_seconds.count());
+						logger::debug("newDestination not received after {:.2f} seconds; proceeding", elapsed_seconds.count());
 						break;
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -389,7 +389,7 @@ namespace Event
 					const auto xMapMarker = refr ? refr->extraList.GetByType<RE::ExtraMapMarker>() : nullptr;
 					const auto name = xMapMarker && xMapMarker->mapData ? xMapMarker->mapData->locationName.GetFullName() : "Unknown";
 					const auto formID = refr ? refr->GetFormID() : 0;
-					logger::info("Changed Fast Travel target to {} ({:X})", name, formID);
+					logger::debug("Changed Fast Travel target to {} ({:X})", name, formID);
 				}
 
 				func(a_this, a_message);

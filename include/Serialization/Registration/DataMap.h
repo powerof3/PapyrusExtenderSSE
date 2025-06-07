@@ -120,7 +120,7 @@ public:
 		Locker locker(_lock);
 
 		for (auto& [key, data] : _addMap) {
-			ProcessEntry(key, data, 0); // flip add/remove on revert
+			ProcessEntry(key, data, 0);  // flip add/remove on revert
 		}
 		_addMap.clear();
 

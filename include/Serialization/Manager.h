@@ -160,9 +160,9 @@ namespace Serialization
 		MGEFHolder() = default;
 		~MGEFHolder() override = default;
 
-		bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const override;
-		bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override;
+		void ProcessEntry(const RE::FormID a_key, std::vector<MGEFData>& a_data, std::uint32_t a_index) override;
 		bool Process(RE::MagicItem* a_form, const MGEFData& a_data, std::uint32_t a_index) override;
+		bool SaveImpl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const override;
 
 		// members
 		static constexpr std::uint32_t addUUID{ kAddMGEF };
@@ -175,9 +175,9 @@ namespace Serialization
 		EffectHolder() = default;
 		~EffectHolder() override = default;
 
-		bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const override;
-		bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) override;
+		void ProcessEntry(const RE::FormID a_key, std::vector<EffectData>& a_data, std::uint32_t a_index) override;
 		bool Process(RE::MagicItem* a_form, const EffectData& a_data, std::uint32_t a_index) override;
+		bool SaveImpl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const override;
 
 		// members
 		static constexpr std::uint32_t addUUID{ kAddEffect };
@@ -212,7 +212,6 @@ namespace Serialization
 		template <class T>
 		void save(const T& a_regs, SKSE::SerializationInterface* a_intfc)
 		{
-			logger::info("{}: {}/{}", typeid(T).name(), a_regs.GetData(1).size(), a_regs.GetData(0).size());
 			if (!a_regs.GetData(1).empty()) {
 				if (!a_regs.Save(a_intfc, a_regs.addUUID, kSerializationVersion, 1)) {
 					logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 1);
@@ -228,7 +227,6 @@ namespace Serialization
 		template <class T>
 		void load(T& a_regs, SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 		{
-			logger::info("{}", typeid(T).name());
 			if (!a_regs.Load(a_intfc, a_index)) {
 				logger::critical("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
 			}

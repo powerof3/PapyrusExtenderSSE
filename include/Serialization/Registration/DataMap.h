@@ -4,7 +4,8 @@ template <class K, class D>
 class DataMapPair
 {
 public:
-	using Type = Map<K, std::vector<D>>;
+	using ValueType = std::vector<D>;
+	using Container = Map<K, ValueType>;
 
 	DataMapPair() = default;
 	~DataMapPair() = default;
@@ -63,12 +64,12 @@ public:
 		return *this;
 	}
 
-	Type& GetData(std::uint32_t a_index)
+	Container& GetData(std::uint32_t a_index)
 	{
 		return a_index == 1 ? _addMap : _removeMap;
 	}
 
-	const Type& GetData(std::uint32_t a_index) const
+	const Container& GetData(std::uint32_t a_index) const
 	{
 		return a_index == 1 ? _addMap : _removeMap;
 	}
@@ -108,13 +109,6 @@ public:
 		_removeMap.erase(a_key);
 	}
 
-	void Clear()
-	{
-		Locker locker(_lock);
-		_addMap.clear();
-		_removeMap.clear();
-	}
-
 	void Clear(std::uint32_t a_index)
 	{
 		Locker locker(_lock);
@@ -123,15 +117,27 @@ public:
 
 	void Revert(SKSE::SerializationInterface*)
 	{
-		Clear();
+		Locker locker(_lock);
+
+		for (auto& [key, data] : _addMap) {
+			ProcessEntry(key, data, 0); // flip add/remove on revert
+		}
+		_addMap.clear();
+
+		for (auto& [key, data] : _removeMap) {
+			ProcessEntry(key, data, 1);
+		}
+		_removeMap.clear();
 	}
 
 protected:
 	using Lock = std::recursive_mutex;
 	using Locker = std::scoped_lock<Lock>;
 
-	Type         _addMap;
-	Type         _removeMap;
+	virtual void ProcessEntry(const K a_key, ValueType& a_data, std::uint32_t a_index) = 0;
+
+	Container    _addMap;
+	Container    _removeMap;
 	mutable Lock _lock;
 };
 
@@ -139,6 +145,8 @@ template <class F, class D>
 class FormMapPair : public DataMapPair<RE::FormID, RE::FormID>
 {
 public:
+	using Base = DataMapPair<RE::FormID, RE::FormID>;
+
 	FormMapPair() = default;
 	FormMapPair(const FormMapPair&) = default;
 	FormMapPair(FormMapPair&&) = default;
@@ -151,7 +159,7 @@ public:
 	bool Add(F* a_form, D* a_data)
 	{
 		if (Process(a_form, a_data, 1)) {
-			DataMapPair::AddData(a_form->GetFormID(), a_data->GetFormID(), 1);
+			Base::AddData(a_form->GetFormID(), a_data->GetFormID(), 1);
 			return true;
 		}
 		return false;
@@ -160,7 +168,7 @@ public:
 	bool Remove(F* a_form, D* a_data)
 	{
 		if (Process(a_form, a_data, 0)) {
-			DataMapPair::RemoveData(a_form->GetFormID(), a_data->GetFormID(), 0);
+			Base::RemoveData(a_form->GetFormID(), a_data->GetFormID(), 0);
 			return true;
 		}
 		return false;
@@ -168,7 +176,17 @@ public:
 
 	void Remove(RE::FormID a_formID)
 	{
-		DataMapPair::Remove(a_formID);
+		Locker locker(_lock);
+
+		if (auto it = _addMap.find(a_formID); it != _addMap.end()) {
+			ProcessEntry(it->first, it->second, 0);
+			_addMap.erase(it);
+		}
+
+		if (auto it = _removeMap.find(a_formID); it != _removeMap.end()) {
+			ProcessEntry(it->first, it->second, 1);
+			_removeMap.erase(it);
+		}
 	}
 
 	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) const
@@ -245,20 +263,26 @@ public:
 			}
 		}
 
-		for (const auto& [fID, dataSet] : formMap) {
-			if (const auto form = RE::TESForm::LookupByID<F>(fID); form) {
-				for (auto& dID : dataSet) {
-					if (const auto data = RE::TESForm::LookupByID<D>(dID); data) {
-						Process(form, data, a_index);
-					}
-				}
-			}
+		for (auto& [key, data] : formMap) {
+			ProcessEntry(key, data, a_index);
 		}
 
 		return true;
 	}
 
-private:
+protected:
+	void ProcessEntry(const RE::FormID a_key, std::vector<RE::FormID>& a_data, std::uint32_t a_index) override
+	{
+		if (const auto form = RE::TESForm::LookupByID<F>(a_key); form) {
+			for (auto& dID : a_data) {
+				if (const auto data = RE::TESForm::LookupByID<D>(dID); data) {
+					logger::info("processing {} : {}", editorID::get_editorID(data), a_index);
+					Process(form, data, a_index);
+				}
+			}
+		}
+	}
+
 	virtual bool Process(F* a_form, D* a_data, std::uint32_t a_index) = 0;
 };
 
@@ -266,6 +290,8 @@ template <class F, class D>
 class FormDataMapPair : public DataMapPair<RE::FormID, D>
 {
 public:
+	using Base = DataMapPair<RE::FormID, D>;
+
 	FormDataMapPair() = default;
 	FormDataMapPair(const FormDataMapPair&) = default;
 	FormDataMapPair(FormDataMapPair&&) = default;
@@ -278,7 +304,7 @@ public:
 	bool Add(F* a_form, const D& a_data)
 	{
 		if (Process(a_form, a_data, 1)) {
-			DataMapPair<RE::FormID, D>::AddData(a_form->GetFormID(), a_data, 1);
+			Base::AddData(a_form->GetFormID(), a_data, 1);
 			return true;
 		}
 		return false;
@@ -287,7 +313,7 @@ public:
 	bool Remove(F* a_form, const D& a_data)
 	{
 		if (Process(a_form, a_data, 0)) {
-			DataMapPair<RE::FormID, D>::RemoveData(a_form->GetFormID(), a_data, 0);
+			Base::RemoveData(a_form->GetFormID(), a_data, 0);
 			return true;
 		}
 		return false;
@@ -299,12 +325,46 @@ public:
 			logger::error("Failed to open serialization record!"sv);
 			return false;
 		}
-		return Save_Impl(a_intfc, a_index);
+		return SaveImpl(a_intfc, a_index);
 	}
 
-	virtual bool Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const = 0;
-	virtual bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) = 0;
+	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
+	{
+		assert(a_intfc);
+		typename Base::Locker locker(this->_lock);
 
-private:
+		auto& formMap = this->GetData(a_index);
+		formMap.clear();
+
+		std::size_t numRegs;
+		a_intfc->ReadRecordData(numRegs);
+
+		RE::FormID  formID;
+		std::size_t numData;
+
+		for (std::size_t i = 0; i < numRegs; i++) {
+			if (!stl::read_formID(a_intfc, formID)) {
+				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
+				continue;
+			}
+			a_intfc->ReadRecordData(numData);
+			for (std::size_t j = 0; j < numData; j++) {
+				D data{};
+				if (!data.load(a_intfc, j)) {
+					continue;
+				}
+				formMap[formID].emplace_back(std::move(data));
+			}
+		}
+
+		for (auto& [dataID, dataVec] : formMap) {
+			this->ProcessEntry(dataID, dataVec, a_index);
+		}
+
+		return true;
+	}
+
+protected:
 	virtual bool Process(F* a_form, const D& a_data, std::uint32_t a_index) = 0;
+	virtual bool SaveImpl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const = 0;
 };

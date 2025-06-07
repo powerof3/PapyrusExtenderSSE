@@ -281,7 +281,20 @@ namespace Serialization
 		return true;
 	}
 
-	bool MGEFHolder::Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const
+	void MGEFHolder::ProcessEntry(const RE::FormID a_key, std::vector<MGEFData>& a_data, std::uint32_t a_index)
+	{
+		const auto form = RE::TESForm::LookupByID(a_key);
+		if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr; magicItem) {
+			for (auto& effectData : a_data) {
+				effectData.mgef = RE::TESForm::LookupByID<RE::EffectSetting>(effectData.mgefFormID);
+				if (effectData.mgef) {
+					Process(magicItem, effectData, a_index);
+				}
+			}
+		}
+	}
+
+	bool MGEFHolder::SaveImpl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const
 	{
 		assert(a_intfc);
 		Locker locker(_lock);
@@ -314,49 +327,6 @@ namespace Serialization
 		return true;
 	}
 
-	bool MGEFHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
-	{
-		assert(a_intfc);
-		Locker locker(_lock);
-
-		auto& formMap = GetData(a_index);
-		formMap.clear();
-
-		std::size_t numRegs;
-		a_intfc->ReadRecordData(numRegs);
-
-		for (std::size_t i = 0; i < numRegs; i++) {
-			RE::FormID formID;
-			if (!stl::read_formID(a_intfc, formID)) {
-				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
-				continue;
-			}
-			std::size_t numData;
-			a_intfc->ReadRecordData(numData);
-			for (std::size_t j = 0; j < numData; j++) {
-				MGEFData data;
-				if (!data.load(a_intfc, j)) {
-					continue;
-				}
-				formMap[formID].emplace_back(std::move(data));
-			}
-		}
-
-		for (auto& [dataID, dataVec] : formMap) {
-			const auto form = RE::TESForm::LookupByID(dataID);
-			if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr; magicItem) {
-				for (auto& effectData : dataVec) {
-					effectData.mgef = RE::TESForm::LookupByID<RE::EffectSetting>(effectData.mgefFormID);
-					if (effectData.mgef) {
-						Process(magicItem, effectData, a_index);
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-
 	bool MGEFHolder::Process(RE::MagicItem* a_form, const MGEFData& a_data, std::uint32_t a_index)
 	{
 		return a_index == FORM::kAdd ?
@@ -364,7 +334,20 @@ namespace Serialization
 		           a_data.remove_magic_effect(a_form);
 	}
 
-	bool EffectHolder::Save_Impl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const
+	void EffectHolder::ProcessEntry(const RE::FormID a_key, std::vector<EffectData>& a_data, std::uint32_t a_index)
+	{
+		const auto form = RE::TESForm::LookupByID(a_key);
+		if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
+			for (auto& effectData : a_data) {
+				effectData.magicItem = RE::TESForm::LookupByID<RE::MagicItem>(effectData.magicItemFormID);
+				if (effectData.magicItem && effectData.index < magicItem->effects.size()) {
+					Process(magicItem, effectData, a_index);
+				}
+			}
+		}
+	}
+
+	bool EffectHolder::SaveImpl(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index) const
 	{
 		assert(a_intfc);
 		Locker locker(_lock);
@@ -389,50 +372,6 @@ namespace Serialization
 			for (auto& data : dataSet) {
 				if (!data.save(a_intfc)) {
 					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	bool EffectHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
-	{
-		assert(a_intfc);
-		Locker locker(_lock);
-
-		auto& formMap = GetData(a_index);
-		formMap.clear();
-
-		std::size_t numRegs;
-		a_intfc->ReadRecordData(numRegs);
-
-		RE::FormID  formID;
-		std::size_t numData;
-
-		for (std::size_t i = 0; i < numRegs; i++) {
-			if (!stl::read_formID(a_intfc, formID)) {
-				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
-				continue;
-			}
-			a_intfc->ReadRecordData(numData);
-			for (std::size_t j = 0; j < numData; j++) {
-				EffectData data{};
-				if (!data.load(a_intfc, j)) {
-					continue;
-				}
-				formMap[formID].emplace_back(std::move(data));
-			}
-		}
-
-		for (auto& [dataID, dataSet] : formMap) {
-			const auto form = RE::TESForm::LookupByID(dataID);
-			if (const auto magicItem = form ? form->As<RE::MagicItem>() : nullptr) {
-				for (auto& effectData : dataSet) {
-					effectData.magicItem = RE::TESForm::LookupByID<RE::MagicItem>(effectData.magicItemFormID);
-					if (effectData.magicItem && effectData.index < magicItem->effects.size()) {
-						Process(magicItem, effectData, a_index);
-					}
 				}
 			}
 		}

@@ -82,7 +82,7 @@ namespace Event
 
 		if (const auto furniture = a_event->targetFurniture; furniture) {
 			auto& event = a_event->type == RE::TESFurnitureEvent::FurnitureEventType::kEnter ? ScriptEventHolder::GetSingleton()->furnitureEnter : ScriptEventHolder::GetSingleton()->furnitureExit;
-			event.QueueEvent(furniture.get(), a_event->actor.get());
+			event.QueueEvent(a_event->actor.get(), furniture.get());
 		}
 
 		return EventResult::kContinue;

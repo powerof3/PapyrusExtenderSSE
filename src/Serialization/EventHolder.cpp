@@ -369,10 +369,6 @@ namespace Event
 
 	void GameEventHolder::FormDelete(RE::FormID a_uniqueID)
 	{
-		actorFallLongDistance.Unregister(a_uniqueID);
-		actorReanimateStart.Unregister(a_uniqueID);
-		actorReanimateStop.Unregister(a_uniqueID);
-		actorResurrect.Unregister(a_uniqueID);
 		magicApply.UnregisterAll(a_uniqueID);
 		magicHit.Unregister(a_uniqueID);
 		onHit.UnregisterAll(a_uniqueID);

@@ -293,10 +293,10 @@ namespace Event
 		void FormDelete(RE::FormID a_uniqueID);
 
 		// members
-		SKSE::RegistrationSetUnique<const RE::Actor*, float, float>     actorFallLongDistance{ "OnActorFallLongDistance"sv };
-		SKSE::RegistrationSetUnique<const RE::Actor*, bool>             actorResurrect{ "OnActorResurrected"sv };
-		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
-		SKSE::RegistrationSetUnique<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
+		SKSE::RegistrationSet<const RE::Actor*, float, float>     actorFallLongDistance{ "OnActorFallLongDistance"sv };
+		SKSE::RegistrationSet<const RE::Actor*, bool>             actorResurrect{ "OnActorResurrected"sv };
+		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
+		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
 		SKSE::RegistrationSet<const RE::TESObjectBOOK*>                 booksRead{ "OnBookRead"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*>                 fastTravelPrompt{ "OnFastTravelPrompt"sv };
 		SKSE::RegistrationSet<const RE::TESObjectREFR*>                 fastTravelConfirmed{ "OnFastTravelConfirmed"sv };

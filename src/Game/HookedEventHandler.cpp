@@ -300,7 +300,7 @@ namespace Event
 			{
 				const auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
 				if (fallDamage > 0.0f) {
-					GameEventHolder::GetSingleton()->actorFallLongDistance.QueueEvent(a_this, a_this, a_fallDistance, fallDamage);
+					GameEventHolder::GetSingleton()->actorFallLongDistance.QueueEvent(a_this, a_fallDistance, fallDamage);
 				}
 				return fallDamage;
 			}
@@ -641,7 +641,7 @@ namespace Event
 
 					const auto caster = a_this->caster.get();
 					if (caster) {
-						GameEventHolder::GetSingleton()->actorReanimateStart.QueueEvent(zombie, zombie, caster.get());
+						GameEventHolder::GetSingleton()->actorReanimateStart.QueueEvent(zombie, caster.get());
 					}
 				}
 			}
@@ -657,7 +657,7 @@ namespace Event
 				const auto caster = a_this->caster.get();
 				if (zombiePtr && caster) {
 					const auto zombie = zombiePtr.get();
-					GameEventHolder::GetSingleton()->actorReanimateStop.QueueEvent(zombie, zombie, caster.get());
+					GameEventHolder::GetSingleton()->actorReanimateStop.QueueEvent(zombie, caster.get());
 				}
 
 				func(a_this);
@@ -684,7 +684,7 @@ namespace Event
 			{
 				func(a_this, a_resetInventory, a_attach3D);
 
-				GameEventHolder::GetSingleton()->actorResurrect.QueueEvent(a_this, a_this, a_resetInventory);
+				GameEventHolder::GetSingleton()->actorResurrect.QueueEvent(a_this, a_resetInventory);
 			}
 
 			static inline REL::Relocation<decltype(thunk)> func;

@@ -514,6 +514,7 @@ namespace Serialization
 			detectionTargets.Remove(formID);
 			detectionSources.Remove(formID);
 
+			Event::ScriptEventHolder::GetSingleton()->FormDelete(formID);
 			Event::GameEventHolder::GetSingleton()->FormDelete(formID);
 		}
 

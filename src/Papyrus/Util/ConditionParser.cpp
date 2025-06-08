@@ -785,7 +785,7 @@ namespace CONDITION
 			data.f = string::to_num<float>(a_param);
 			break;
 		case PARAM_TYPE::kActorValue:
-			data.i = static_cast<std::int32_t>(RE::ActorValueList::GetSingleton()->LookupActorValueByName(a_param));
+			data.i = static_cast<std::int32_t>(RE::ActorValueList::GetSingleton()->LookupActorValueByName(a_param.c_str()));
 			break;
 		case RE::SCRIPT_PARAM_TYPE::kAxis:
 			{
@@ -1116,7 +1116,10 @@ namespace CONDITION
 		case PARAM_TYPE::kFloat:
 			return std::to_string(data.f);
 		case PARAM_TYPE::kActorValue:
-			return RE::ActorValueList::GetSingleton()->GetActorValue(static_cast<RE::ActorValue>(data.i))->enumName;
+			{
+				auto avInfo = RE::ActorValueList::GetSingleton()->GetActorValueInfo(static_cast<RE::ActorValue>(data.i));
+				return avInfo ? avInfo->enumName : "None"s;
+			}
 		case PARAM_TYPE::kAxis:
 			{
 				switch (data.i) {

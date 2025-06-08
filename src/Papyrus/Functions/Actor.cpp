@@ -302,7 +302,7 @@ namespace Papyrus::Actor
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
 		const auto actorValue = actorValueList ?
-		                            actorValueList->LookupActorValueByName(a_actorValue) :
+		                            actorValueList->LookupActorValueByName(a_actorValue.c_str()) :
 		                            RE::ActorValue::kNone;
 
 		const auto modifier = static_cast<RE::ACTOR_VALUE_MODIFIER>(a_modifier);

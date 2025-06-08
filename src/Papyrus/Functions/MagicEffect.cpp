@@ -61,7 +61,7 @@ namespace Papyrus::MagicEffect
 		}
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
-		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValue(a_mgef->data.primaryAV) : nullptr;
+		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValueInfo(a_mgef->data.primaryAV) : nullptr;
 
 		return actorValueInfo ? actorValueInfo->enumName : RE::BSFixedString();
 	}
@@ -74,7 +74,7 @@ namespace Papyrus::MagicEffect
 		}
 
 		const auto actorValueList = RE::ActorValueList::GetSingleton();
-		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValue(a_mgef->data.secondaryAV) : nullptr;
+		const auto actorValueInfo = actorValueList ? actorValueList->GetActorValueInfo(a_mgef->data.secondaryAV) : nullptr;
 
 		return actorValueInfo ? actorValueInfo->enumName : RE::BSFixedString();
 	}

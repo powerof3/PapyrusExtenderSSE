@@ -225,26 +225,26 @@ namespace Event
 			namespace Projectile
 			{
 				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(43022, 44213) };
-				
+
 				struct SpawnCollisionEffects
-				{				
+				{
 					static void thunk(RE::Projectile* a_this, RE::TESObjectREFR* a_collidee, const RE::NiPoint3& a_contactPoint, const RE::NiPoint3& a_contactNormal, RE::MATERIAL_ID a_material, bool a_rotateToProjectileDirection)
 					{
 						auto effectNotSpawned = a_this->flags.none(RE::Projectile::Flags::kAddedVisualEffectOnGround);
 						func(a_this, a_collidee, a_contactPoint, a_contactNormal, a_material, a_rotateToProjectileDirection);
 						if (effectNotSpawned && a_collidee) {
 							RE::BGSProjectile* projectile = a_this->GetProjectileBase();
-							
+
 							RE::ActorPtr aggressor{};
 							if (const auto actorCause = a_this->GetActorCause()) {
 								aggressor = actorCause->actor.get();
 							}
-							
+
 							RE::TESObjectREFRPtr hitTarget{};
 							if (auto handle = a_collidee->CreateRefHandle()) {
 								hitTarget = handle.get();
 							}
-							
+
 							RE::TESForm* source{};
 							if (a_this->weaponSource) {
 								source = a_this->weaponSource;
@@ -254,7 +254,7 @@ namespace Event
 
 							if (hitTarget) {
 								constexpr auto powerAttack = false;
-								const auto     sneakAttack = aggressor && aggressor->IsSneaking(); // Magic Sneak Attacks
+								const auto     sneakAttack = aggressor && aggressor->IsSneaking();  // Magic Sneak Attacks
 								constexpr auto bashAttack = false;
 								constexpr auto hitBlocked = false;
 
@@ -268,7 +268,7 @@ namespace Event
 
 							if (aggressor) {
 								if (projectile && projectile->IsArrow()) {
-									if (!hitTarget || !hitTarget->IsActor()) { // actor version takes care of arrow hits
+									if (!hitTarget || !hitTarget->IsActor()) {  // actor version takes care of arrow hits
 										GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget.get(), source, projectile, 0);
 									}
 								}
@@ -285,7 +285,7 @@ namespace Event
 			{
 				stl::write_thunk_call<Actor::SendHitEvent>(Actor::target.address());
 				stl::write_thunk_call<Static::SendHitEvent>(Static::target.address());
-				stl::hook_function_prologue<Projectile::SpawnCollisionEffects, OFFSET(6,7)>(Projectile::target.address());
+				stl::hook_function_prologue<Projectile::SpawnCollisionEffects, OFFSET(6, 7)>(Projectile::target.address());
 
 				logger::info("Hooked Weapon Hit"sv);
 			}

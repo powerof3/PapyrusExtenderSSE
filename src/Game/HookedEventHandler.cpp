@@ -224,39 +224,57 @@ namespace Event
 
 			namespace Projectile
 			{
-				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(43022, 44213), OFFSET(0x38D, 0x357) };
-
-				struct SendHitEvent
-				{
-					static void thunk(RE::BSTEventSource<RE::TESHitEvent>& a_source, RE::TESHitEvent& a_event)
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(43022, 44213) };
+				
+				struct SpawnCollisionEffects
+				{				
+					static void thunk(RE::Projectile* a_this, RE::TESObjectREFR* a_collidee, const RE::NiPoint3& a_contactPoint, const RE::NiPoint3& a_contactNormal, RE::MATERIAL_ID a_material, bool a_rotateToProjectileDirection)
 					{
-						const auto aggressor = a_event.cause.get();
-						const auto hitTarget = a_event.target.get();
-						const auto source = RE::TESForm::LookupByID(a_event.source);
-						const auto projectile = RE::TESForm::LookupByID<RE::BGSProjectile>(a_event.projectile);
-
-						if (hitTarget) {
-							const auto powerAttack = a_event.flags.any(RE::TESHitEvent::Flag::kPowerAttack);
-							const auto sneakAttack = a_event.flags.any(RE::TESHitEvent::Flag::kSneakAttack);
-							const auto bashAttack = a_event.flags.any(RE::TESHitEvent::Flag::kBashAttack);
-							const auto hitBlocked = a_event.flags.any(RE::TESHitEvent::Flag::kHitBlocked);
-
-							GameEventHolder::GetSingleton()->onHit.QueueEvent(
-								hitTarget,
-								[=](const Filter::Hit& a_filter, bool a_match) {
-									return a_match == a_filter.PassesFilter(aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
-								},
-								aggressor, source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
-						}
-
-						if (aggressor) {
-							if (projectile && projectile->IsArrow()) {
-								GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor, hitTarget, source, projectile, 0);
+						auto effectNotSpawned = a_this->flags.none(RE::Projectile::Flags::kAddedVisualEffectOnGround);
+						func(a_this, a_collidee, a_contactPoint, a_contactNormal, a_material, a_rotateToProjectileDirection);
+						if (effectNotSpawned && a_collidee) {
+							RE::BGSProjectile* projectile = a_this->GetProjectileBase();
+							
+							RE::ActorPtr aggressor{};
+							if (const auto actorCause = a_this->GetActorCause()) {
+								aggressor = actorCause->actor.get();
 							}
-							GameEventHolder::GetSingleton()->projectileHit.QueueEvent(aggressor, hitTarget, source, projectile);
-						}
+							
+							RE::TESObjectREFRPtr hitTarget{};
+							if (auto handle = a_collidee->CreateRefHandle()) {
+								hitTarget = handle.get();
+							}
+							
+							RE::TESForm* source{};
+							if (a_this->weaponSource) {
+								source = a_this->weaponSource;
+							} else if (a_this->spell) {
+								source = a_this->spell;
+							}
 
-						func(a_source, a_event);
+							if (hitTarget) {
+								constexpr auto powerAttack = false;
+								const auto     sneakAttack = aggressor && aggressor->IsSneaking(); // Magic Sneak Attacks
+								constexpr auto bashAttack = false;
+								constexpr auto hitBlocked = false;
+
+								GameEventHolder::GetSingleton()->onHit.QueueEvent(
+									hitTarget.get(),
+									[=](const Filter::Hit& a_filter, bool a_match) {
+										return a_match == a_filter.PassesFilter(aggressor.get(), source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
+									},
+									aggressor.get(), source, projectile, powerAttack, sneakAttack, bashAttack, hitBlocked);
+							}
+
+							if (aggressor) {
+								if (projectile && projectile->IsArrow()) {
+									if (!hitTarget || !hitTarget->IsActor()) { // actor version takes care of arrow hits
+										GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget.get(), source, projectile, 0);
+									}
+								}
+								GameEventHolder::GetSingleton()->projectileHit.QueueEvent(aggressor.get(), hitTarget.get(), source, projectile);
+							}
+						}
 					}
 
 					static inline REL::Relocation<decltype(thunk)> func;
@@ -267,7 +285,7 @@ namespace Event
 			{
 				stl::write_thunk_call<Actor::SendHitEvent>(Actor::target.address());
 				stl::write_thunk_call<Static::SendHitEvent>(Static::target.address());
-				stl::write_thunk_call<Projectile::SendHitEvent>(Projectile::target.address());
+				stl::hook_function_prologue<Projectile::SpawnCollisionEffects, OFFSET(6,7)>(Projectile::target.address());
 
 				logger::info("Hooked Weapon Hit"sv);
 			}

@@ -297,9 +297,9 @@ namespace Event
 		SKSE::RegistrationSet<const RE::Actor*, bool>             actorResurrect{ "OnActorResurrected"sv };
 		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> actorReanimateStart{ "OnActorReanimateStart"sv };
 		SKSE::RegistrationSet<const RE::Actor*, const RE::Actor*> actorReanimateStop{ "OnActorReanimateStop"sv };
-		SKSE::RegistrationSet<const RE::TESObjectBOOK*>                 booksRead{ "OnBookRead"sv };
-		SKSE::RegistrationSet<const RE::TESObjectREFR*>                 fastTravelPrompt{ "OnFastTravelPrompt"sv };
-		SKSE::RegistrationSet<const RE::TESObjectREFR*>                 fastTravelConfirmed{ "OnFastTravelConfirmed"sv };
+		SKSE::RegistrationSet<const RE::TESObjectBOOK*>           booksRead{ "OnBookRead"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*>           fastTravelPrompt{ "OnFastTravelPrompt"sv };
+		SKSE::RegistrationSet<const RE::TESObjectREFR*>           fastTravelConfirmed{ "OnFastTravelConfirmed"sv };
 #ifdef SKYRIMVR
 		SKSE::RegistrationSet<float> fastTravelEnd{ "OnPlayerFastTravelEnd"sv };
 #endif

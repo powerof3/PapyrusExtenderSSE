@@ -1,4 +1,5 @@
 #pragma once
+
 // Interface code based on https://github.com/adamhynek/higgs
 
 namespace DescriptionFrameworkAPI

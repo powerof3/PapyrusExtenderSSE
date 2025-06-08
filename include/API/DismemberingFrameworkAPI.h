@@ -24,7 +24,7 @@ SKSE::GetMessagingInterface()->RegisterListener([](MessagingInterface::Message* 
 */
 
 // Define the API type key
-#define DF_API_TYPE_KEY static_cast<uint32_t>(0x46440000/*0x00000107*/) // 'DF'
+#define DF_API_TYPE_KEY static_cast<uint32_t>(0x46440000 /*0x00000107*/)  // 'DF'
 
 // Define the API version in a structured format
 #define DF_API_VERSION_MAJOR 1
@@ -38,12 +38,12 @@ namespace DismemberingFrameworkAPI
 {
 	struct DismembermentParams
 	{
-		bool forceExecution = false;
-		std::string specificNode = "";
-		bool ignoreArmorClass = false;
-		bool noLimbImpulse = false;
-		bool noSoundEffect = false;
-		bool noPlayerEffect = false;
+		bool         forceExecution = false;
+		std::string  specificNode = "";
+		bool         ignoreArmorClass = false;
+		bool         noLimbImpulse = false;
+		bool         noSoundEffect = false;
+		bool         noPlayerEffect = false;
 		RE::HitData* hitData = nullptr;
 	};
 
@@ -54,11 +54,11 @@ namespace DismemberingFrameworkAPI
 		virtual size_t GetVersion() const;
 
 		virtual void Dismember(RE::Actor* target, const RE::BSFixedString& node, RE::Actor* aggressor = nullptr, RE::TESObjectWEAP* weapon = nullptr, const DismembermentParams* params = nullptr) const;
-	
+
 		virtual bool IsDismembered(RE::Actor* actor) const;
-		
+
 		virtual bool IsDismemberedNode(RE::Actor* actor, const RE::BSFixedString& node) const;
-		
+
 		virtual void RefreshActorDismemberedState(RE::Actor* actor) const;
 	};
 
@@ -68,9 +68,10 @@ namespace DismemberingFrameworkAPI
 	// Call this function only after the kDataLoaded event
 	inline bool LoadAPI()
 	{
-		if (g_API != nullptr) return true;
+		if (g_API != nullptr)
+			return true;
 		SKSE::GetMessagingInterface()->Dispatch(DF_API_TYPE_KEY, (void*)&g_API, sizeof(void*), NULL);
-		if (g_API) { // API successfully received!
+		if (g_API) {  // API successfully received!
 			// Check if the API version matches
 			return (g_API->GetVersion() == DF_API_VERSION);
 		}

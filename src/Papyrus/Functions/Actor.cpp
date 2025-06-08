@@ -123,7 +123,6 @@ namespace Papyrus::Actor
 				return false;
 			}
 			equippedEntryData->PoisonObject(a_poison, a_count);
-
 			return true;
 		}
 
@@ -137,7 +136,11 @@ namespace Papyrus::Actor
 			return;
 		}
 
-		a_actor->Decapitate();
+		if (NGDecapitationsAPI::g_API) {
+			NGDecapitationsAPI::g_API->Decapitate(a_actor);
+		} else {
+			a_actor->Decapitate();
+		}
 	}
 
 	bool DamageActorHealth(STATIC_ARGS, RE::Actor* a_actor, float a_damage, RE::Actor* a_source)
@@ -770,6 +773,35 @@ namespace Papyrus::Actor
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return false;
+		}
+
+		if (DismemberingFrameworkAPI::g_API || NGDecapitationsAPI::g_API) {
+			RE::BSFixedString nodeName;
+			switch (a_limbEnum) {
+			case RE::BGSBodyPartDefs::LIMB_ENUM::kTorso:
+				nodeName = "NPC COM [COM ]";
+				break;
+			case RE::BGSBodyPartDefs::LIMB_ENUM::kHead:
+				{
+					if (NGDecapitationsAPI::g_API) {
+						return NGDecapitationsAPI::g_API->IsDecapitated(a_actor);
+					} else {
+						nodeName = "NPC Head [Head]";
+					}
+				}
+				break;
+			case RE::BGSBodyPartDefs::LIMB_ENUM::kEye:
+				nodeName = "NPCEyeBone";
+				break;
+			case RE::BGSBodyPartDefs::LIMB_ENUM::kFlyGrab:
+				nodeName = "NPC Spine1 [Spn1]";
+				break;
+			default:
+				break;
+			}
+			if (DismemberingFrameworkAPI::g_API) {
+				return DismemberingFrameworkAPI::g_API->IsDismemberedNode(a_actor, nodeName);
+			}
 		}
 
 		return a_actor->IsLimbGone(a_limbEnum);

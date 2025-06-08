@@ -7,7 +7,7 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kPostPostLoad:
 		{
-			logger::info("{:*^30}", "API"sv);
+			logger::info("{:*^30}", "POSTLOAD API"sv);
 			DescriptionFrameworkAPI::GetDescriptionFrameworkInterface001();
 			logger::info("Description Framework installed: {}", g_DescriptionFrameworkInterface != nullptr);
 		}
@@ -16,6 +16,16 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 		{
 			Game::Register();
 			Serialization::Manager::Register();
+		}
+		break;
+	case SKSE::MessagingInterface::kPostLoadGame:
+	case SKSE::MessagingInterface::kNewGame:
+		{
+			logger::info("{:*^30}", "POSTLOAD API"sv);
+			DismemberingFrameworkAPI::LoadAPI();
+			logger::info("Dismembering Framework installed: {} (version {})", DismemberingFrameworkAPI::g_API != nullptr, DismemberingFrameworkAPI::g_API ? DismemberingFrameworkAPI::g_API->GetVersion() : -1);
+			NGDecapitationsAPI::LoadAPI();
+			logger::info("Next Gen Decapitations installed: {} (version {})", NGDecapitationsAPI::g_API != nullptr, NGDecapitationsAPI::g_API ? NGDecapitationsAPI::g_API->GetVersion() : -1);
 		}
 		break;
 	default:

@@ -1,5 +1,8 @@
 set(headers ${headers}
+	include/API/API.h
 	include/API/DescriptionFrameworkAPI.h
+	include/API/DismemberingFrameworkAPI.h
+	include/API/NextGenDecapitationsAPI.h
 	include/Common.h
 	include/Game/EventHandler.h
 	include/Game/HookedEventHandler.h

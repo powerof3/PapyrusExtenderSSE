@@ -61,8 +61,6 @@
 #include <ClibUtil/rng.hpp>
 #include <ClibUtil/string.hpp>
 
-#include "API/DescriptionFrameworkAPI.h"
-
 #define DLLEXPORT __declspec(dllexport)
 
 namespace logger = SKSE::log;
@@ -198,5 +196,6 @@ namespace stl
 #	define OFFSET_3(se, ae, vr) se
 #endif
 
+#include "API/API.h"
 #include "Common.h"
 #include "Version.h"

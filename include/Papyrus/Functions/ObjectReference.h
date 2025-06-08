@@ -35,6 +35,7 @@ namespace Papyrus::ObjectReference
 	bool                              IsLoadDoor(STATIC_ARGS, const RE::TESObjectREFR* a_ref);
 	bool                              IsQuestItem(STATIC_ARGS, const RE::TESObjectREFR* a_ref);
 	bool                              IsRefInWater(STATIC_ARGS, RE::TESObjectREFR* a_ref);
+	bool                              IsRefNodeInWater(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_nodeName);
 	bool                              IsRefUnderwater(STATIC_ARGS, RE::TESObjectREFR* a_ref);
 	bool                              IsVIP(STATIC_ARGS, RE::TESObjectREFR* a_ref);
 	bool                              HasNiExtraData(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_name);

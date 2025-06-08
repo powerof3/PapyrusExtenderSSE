@@ -887,6 +887,29 @@ namespace Papyrus::ObjectReference
 		return a_ref->IsPointSubmergedMoreThan(a_ref->GetPosition(), a_ref->GetParentCell(), 0.01f);
 	}
 
+	bool IsRefNodeInWater(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_nodeName)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return false;
+		}
+
+		auto root = a_ref->Get3D();
+		if (!root) {
+			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
+		}
+
+		RE::NiAVObject* node = nullptr;
+
+		if (!a_nodeName.empty()) {
+			node = root;
+		} else {
+			node = root->GetObjectByName(a_nodeName);
+		}
+
+		return node ? a_ref->IsPointSubmergedMoreThan(node->world.translate, a_ref->GetParentCell(), 0.01f) : false;
+	}
+
 	bool IsRefUnderwater(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		if (!a_ref) {
@@ -1349,6 +1372,7 @@ namespace Papyrus::ObjectReference
 		BIND(IsLoadDoor);
 		BIND(IsQuestItem);
 		BIND(IsRefInWater);
+		BIND(IsRefNodeInWater);
 		BIND(IsRefUnderwater);
 		BIND(IsVIP);
 		BIND(MoveToNearestNavmeshLocation);

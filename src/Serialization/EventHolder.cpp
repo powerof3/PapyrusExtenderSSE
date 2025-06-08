@@ -78,6 +78,12 @@ namespace Event
 		furnitureEnter.Unregister(a_handle);
 		furnitureExit.Unregister(a_handle);
 	}
+
+	void ScriptEventHolder::FormDelete(RE::FormID a_uniqueID)
+	{
+		furnitureEnter.Unregister(a_uniqueID);
+		furnitureExit.Unregister(a_uniqueID);
+	}
 }
 
 namespace Event
@@ -256,6 +262,7 @@ namespace Event
 		projectileHit.Save(a_intfc, kProjectileHit, a_version);
 		weaponHit.Save(a_intfc, kWeaponHit, a_version);
 		weatherChange.Save(a_intfc, kWeatherChange, a_version);
+		objectPoisoned.Save(a_intfc, kPoisonObject, a_version);
 	}
 
 	void GameEventHolder::Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type)
@@ -308,6 +315,9 @@ namespace Event
 		case kWeatherChange:
 			weatherChange.Load(a_intfc);
 			break;
+		case kPoisonObject:
+			objectPoisoned.Load(a_intfc);
+			break;
 		default:
 			break;
 		}
@@ -332,6 +342,7 @@ namespace Event
 		projectileHit.Revert(a_intfc);
 		weaponHit.Revert(a_intfc);
 		weatherChange.Revert(a_intfc);
+		objectPoisoned.Revert(a_intfc);
 	}
 
 	void GameEventHolder::FormDelete(RE::VMHandle a_handle)
@@ -353,6 +364,7 @@ namespace Event
 		projectileHit.Unregister(a_handle);
 		weaponHit.Unregister(a_handle);
 		weatherChange.Unregister(a_handle);
+		objectPoisoned.Unregister(a_handle);
 	}
 
 	void GameEventHolder::FormDelete(RE::FormID a_uniqueID)
@@ -361,11 +373,6 @@ namespace Event
 		actorReanimateStart.Unregister(a_uniqueID);
 		actorReanimateStop.Unregister(a_uniqueID);
 		actorResurrect.Unregister(a_uniqueID);
-		fastTravelConfirmed.Unregister(a_uniqueID);
-		fastTravelPrompt.Unregister(a_uniqueID);
-#ifdef SKYRIMVR
-		fastTravelEnd.Unregister(a_uniqueID);
-#endif
 		magicApply.UnregisterAll(a_uniqueID);
 		magicHit.Unregister(a_uniqueID);
 		onHit.UnregisterAll(a_uniqueID);

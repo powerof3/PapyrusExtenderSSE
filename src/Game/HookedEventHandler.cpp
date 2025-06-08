@@ -310,7 +310,7 @@ namespace Event
 			if (const auto marker = a_refr ? a_refr->extraList.GetByType<RE::ExtraMapMarker>() : nullptr) {
 				if (const auto mapData = marker->mapData) {
 					logger::debug("Found candidate map marker {} {}", mapData->locationName.GetFullName(), mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo));
-					logger::info("Found mapmarker match for {} target {} {} ({:X})", typeid(T).name(), mapData->locationName.GetFullName(), mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo), a_refr->GetFormID());
+					logger::debug("Found mapmarker match for {} target {} {} ({:X})", typeid(T).name(), mapData->locationName.GetFullName(), mapData->flags.any(RE::MapMarkerData::Flag::kCanTravelTo), a_refr->GetFormID());
 					return a_refr;
 				}
 			}
@@ -424,7 +424,7 @@ namespace Event
 		bool SetFastTravelDisabled(const bool a_disable)
 		{
 			if (ChangeFastTravelTarget::disableFastTravel != a_disable) {
-				logger::info("Set Fast Travel Disabled {} -> {}", ChangeFastTravelTarget::disableFastTravel, a_disable);
+				logger::debug("Set Fast Travel Disabled {} -> {}", ChangeFastTravelTarget::disableFastTravel, a_disable);
 				ChangeFastTravelTarget::disableFastTravel = a_disable;
 			}
 			return ChangeFastTravelTarget::disableFastTravel;
@@ -433,7 +433,7 @@ namespace Event
 		float SetFastTravelWaitTimeout(const float a_timeout)
 		{
 			if (ChangeFastTravelTarget::defaultTimeout != a_timeout) {
-				logger::info("Set Fast Travel Wait Timeout {:.2f} -> {:.2f}", ChangeFastTravelTarget::defaultTimeout, a_timeout);
+				logger::debug("Set Fast Travel Wait Timeout {:.2f} -> {:.2f}", ChangeFastTravelTarget::defaultTimeout, a_timeout);
 
 				ChangeFastTravelTarget::defaultTimeout = a_timeout;
 			}
@@ -447,10 +447,10 @@ namespace Event
 			if (const auto newDestination = ChangeFastTravelTarget::newDestination) {
 				if (const auto mapmarker = newDestination->extraList.GetByType<RE::ExtraMapMarker>(); mapmarker && mapmarker->mapData) {
 					const auto name = mapmarker->mapData->locationName.GetFullName();
-					logger::info("Set new Fast Travel target {}", name);
+					logger::debug("Set new Fast Travel target {}", name);
 				}
 			} else {
-				logger::info("Cleared Fast Travel target");
+				logger::debug("Cleared Fast Travel target");
 			}
 
 			return ChangeFastTravelTarget::newDestination != nullptr;
@@ -584,30 +584,7 @@ namespace Event
 		void Install()
 		{
 			REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(15786, 16024) };
-
-			struct Patch : Xbyak::CodeGenerator
-			{
-				Patch(std::uintptr_t a_originalFuncAddr, std::size_t a_originalByteLength)
-				{
-					// Hook returns here. Execute the restored bytes and jump back to the original function.
-					for (size_t i = 0; i < a_originalByteLength; i++)
-						db(*reinterpret_cast<uint8_t*>(a_originalFuncAddr + i));
-
-					jmp(qword[rip]);
-					dq(a_originalFuncAddr + a_originalByteLength);
-				}
-			};
-
-			Patch p(target.address(), 5);
-			p.ready();
-
-			auto& trampoline = SKSE::GetTrampoline();
-			trampoline.write_branch<5>(target.address(), PoisonObject::thunk);
-
-			auto alloc = trampoline.allocate(p.getSize());
-			memcpy(alloc, p.getCode(), p.getSize());
-
-			PoisonObject::func = reinterpret_cast<std::uintptr_t>(alloc);
+			stl::hook_function_prologue<PoisonObject, 5>(target.address());
 
 			logger::info("Hooked Poison Object"sv);
 		}

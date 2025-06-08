@@ -16,13 +16,14 @@ namespace Event
 			kObjectGrab = 'GRAB',
 			kObjectRelease = 'RELS',
 			kFurnitureEnter = 'FETR',
-			kFurnitureExit = 'FEXT',
+			kFurnitureExit = 'FEXT'
 		};
 
 		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
 		void Load(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type);
 		void Revert(SKSE::SerializationInterface* a_intfc);
 		void FormDelete(RE::VMHandle a_handle);
+		void FormDelete(RE::FormID a_formID);
 
 		// members
 		SKSE::RegistrationSet<const RE::TESObjectCELL*> cellFullyLoaded{ "OnCellFullyLoaded"sv };
@@ -281,7 +282,8 @@ namespace Event
 			kHit = 'OHIT',
 			kWeaponHit = 'WHIT',
 			kMagicHit = 'MHIT',
-			kProjectileHit = 'PHIT'
+			kProjectileHit = 'PHIT',
+			kPoisonObject = 'POBJ'
 		};
 
 		void Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);

@@ -140,6 +140,16 @@ namespace Papyrus::Actor
 		a_actor->Decapitate();
 	}
 
+	bool DamageActorHealth(STATIC_ARGS, RE::Actor* a_actor, float a_damage, RE::Actor* a_source)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return false;
+		}
+
+		return a_actor->DoDamage(a_damage, a_source, false);
+	}
+
 	void FreezeActor(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_type, bool a_enable)
 	{
 		using Flags = RE::CHARACTER_FLAGS;
@@ -1229,6 +1239,7 @@ namespace Papyrus::Actor
 		BIND(AddAllEquippedItemsBySlotToArray);
 		BIND(ApplyPoisonToEquippedWeapon);
 		BIND(DecapitateActor);
+		BIND(DamageActorHealth);
 		BIND(FreezeActor);
 		BIND(GetActiveEffects);
 		BIND(GetActorAlpha);

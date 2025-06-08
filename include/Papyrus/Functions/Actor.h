@@ -8,6 +8,7 @@ namespace Papyrus::Actor
 	std::vector<RE::TESForm*>       AddAllEquippedItemsBySlotToArray(STATIC_ARGS, RE::Actor* a_actor, std::vector<std::uint32_t> a_slots);
 	bool                            ApplyPoisonToEquippedWeapon(STATIC_ARGS, const RE::Actor* a_actor, RE::AlchemyItem* a_poison, std::uint32_t a_count, bool a_leftHand);
 	void                            DecapitateActor(STATIC_ARGS, RE::Actor* a_actor);
+	bool                            DamageActorHealth(STATIC_ARGS, RE::Actor* a_actor, float a_damage, RE::Actor* a_source);
 	void                            FreezeActor(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_type, bool a_enable);
 	std::vector<RE::EffectSetting*> GetActiveEffects(STATIC_ARGS, RE::Actor* a_actor, bool a_inactive);
 	float                           GetActorAlpha(STATIC_ARGS, const RE::Actor* a_actor);

@@ -62,7 +62,10 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	float Function GetEquippedWeight(Actor akActor) global native
 
+	;DEPRECATED
 	ColorForm Function GetHairColor(Actor akActor) global native
+	
+	int[] Function GetHairRGB(Actor akActor) global native
 
 	TextureSet Function GetHeadPartTextureSet(Actor akActor, int aiType) global native
 
@@ -78,7 +81,10 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Package Function GetRunningPackage(Actor akActor) global native
 
+	;DEPRECATED
 	ColorForm Function GetSkinColor(Actor akActor) global native
+	
+	int[] Function GetSkinRGB(Actor akActor) global native
 
 	float Function GetTimeDead(Actor akActor) global native
 
@@ -123,6 +129,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Bool Function AddBaseSpell(Actor akActor, Spell akSpell) global native
 
 	Function BlendColorWithSkinTone(Actor akActor, ColorForm akColor, int aiBlendMode, bool abAutoLuminance, float afOpacity) global native
+	
+	Bool Function DamageActorHealth(Actor akActor, float afHealthDamage, Actor akSource) global native
 
 	Function DecapitateActor(Actor akActor) global native
 
@@ -134,7 +142,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	Function LaunchSpell(Actor akActor, Spell akSpell, int aiSource) global native
 
-	;DEPRECIATED
+	;DEPRECATED
 	Function MixColorWithSkinTone(Actor akActor, ColorForm akColor, bool abManualMode, float afPercentage) global native
 
 	Function RemoveAddedSpells(Actor akActor, string modName, Keyword[] keywords, bool abMatchAll) global native
@@ -270,11 +278,17 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	;-------
 	;SETTERS
-	;-------	
-	
+	;-------
+
+	Function ClearBookCantBeTakenFlag(Book akBook) global native
+
 	Function ClearReadFlag(Book akBook) global native
+	
+	Function SetBookCantBeTakenFlag(Book akBook) global native	
 
 	Function SetReadFlag(Book akBook) global native
+	
+	Function ShowBookMenu(Book akBook) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;CELL
@@ -690,6 +704,26 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 	
 	Form[] Function GetContentFromLeveledItem(LeveledItem akLeveledItem, ObjectReference akRef) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;LEVELED NPC
+;----------------------------------------------------------------------------------------------------------
+
+	;-------
+	;GETTERS
+	;-------
+	
+	Form[] Function GetContentFromLeveledActor(LeveledActor akLeveledActor, ObjectReference akRef) global native
+	
+;----------------------------------------------------------------------------------------------------------
+;LEVELED SPELL
+;----------------------------------------------------------------------------------------------------------
+
+	;-------
+	;GETTERS
+	;-------
+	
+	Form[] Function GetContentFromLeveledSpell(LeveledSpell akLeveledSpell, ObjectReference akRef) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;LOCATION
@@ -812,6 +846,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	Bool Function IsQuestItem(ObjectReference akRef) global native
 
 	Bool Function IsRefInWater(ObjectReference akRef) global native
+	
+	Bool Function IsRefNodeInWater(ObjectReference akRef, String asNodeName) global native
 	
 	Bool Function IsRefUnderwater(ObjectReference akRef) global native
 
@@ -952,11 +988,25 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	int[] Function GetAllQuestObjectives(Quest akQuest) global native
 	
+	int[] Function GetAllQuestStages(Quest akQuest) global native
+	
 	;-------
 	;SETTERS
 	;-------
 	
 	Function SetObjectiveText(Quest akQuest, string asText, int aiIndex) global native
+	
+;-----------------------------------------------------------------------------------------------------------
+;SCENE
+;-----------------------------------------------------------------------------------------------------------
+
+	;-------
+	;GETTERS
+	;-------
+	
+	Actor[] Function GetActorsInScene(Scene akScene) global native
+	
+	bool Function IsActorInScene(Scene akScene, Actor akActor) global native
 
 ;-----------------------------------------------------------------------------------------------------------
 ;SCROLL

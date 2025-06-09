@@ -35,6 +35,7 @@ set(sources ${sources}
 	src/Papyrus/Functions/Potion.cpp
 	src/Papyrus/Functions/Projectile.cpp
 	src/Papyrus/Functions/Quest.cpp
+	src/Papyrus/Functions/Scene.cpp
 	src/Papyrus/Functions/Scroll.cpp
 	src/Papyrus/Functions/Sound.cpp
 	src/Papyrus/Functions/Spell.cpp

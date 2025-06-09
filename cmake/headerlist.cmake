@@ -40,6 +40,7 @@ set(headers ${headers}
 	include/Papyrus/Functions/Potion.h
 	include/Papyrus/Functions/Projectile.h
 	include/Papyrus/Functions/Quest.h
+	include/Papyrus/Functions/Scene.h
 	include/Papyrus/Functions/Scroll.h
 	include/Papyrus/Functions/Sound.h
 	include/Papyrus/Functions/Spell.h

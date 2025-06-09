@@ -32,6 +32,7 @@
 #include "Papyrus/Functions/Potion.h"
 #include "Papyrus/Functions/Projectile.h"
 #include "Papyrus/Functions/Quest.h"
+#include "Papyrus/Functions/Scene.h"
 #include "Papyrus/Functions/Scroll.h"
 #include "Papyrus/Functions/Sound.h"
 #include "Papyrus/Functions/Spell.h"
@@ -93,6 +94,7 @@ namespace Papyrus
 		Potion::Bind(*a_vm);
 		Projectile::Bind(*a_vm);
 		Quest::Bind(*a_vm);
+		Scene::Bind(*a_vm);`
 		Scroll::Bind(*a_vm);
 		Sound::Bind(*a_vm);
 		Spell::Bind(*a_vm);

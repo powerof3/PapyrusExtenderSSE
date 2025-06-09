@@ -26,7 +26,7 @@ set(sources ${sources}
 	src/Papyrus/Functions/Graphics.cpp
 	src/Papyrus/Functions/Hazard.cpp
 	src/Papyrus/Functions/Idle.cpp
-	src/Papyrus/Functions/LeveledItem.cpp
+	src/Papyrus/Functions/LeveledList.cpp
 	src/Papyrus/Functions/Light.cpp
 	src/Papyrus/Functions/Location.cpp
 	src/Papyrus/Functions/MagicEffect.cpp

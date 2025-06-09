@@ -34,7 +34,7 @@ namespace Papyrus::Scene
 
 		return std::ranges::find(a_scene->actors, a_actor->GetFormID()) != a_scene->actors.end();
 	}
-	
+
 	void Bind(VM& a_vm)
 	{
 		BIND(GetActorsInScene);

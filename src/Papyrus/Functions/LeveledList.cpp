@@ -18,6 +18,21 @@ namespace Papyrus::LeveledList
 		}
 	};
 
+	std::vector<RE::TESForm*> GetContentFromLeveledActor(STATIC_ARGS, RE::TESLevCharacter* a_lvlActor, const RE::TESObjectREFR* a_refr)
+	{
+		if (!a_lvlActor) {
+			a_vm->TraceStack("Leveled Actor is None", a_stackID);
+			return {};
+		}
+
+		if (!a_refr) {
+			a_vm->TraceStack("Reference is None", a_stackID);
+			return {};
+		}
+
+		return detail::GetContentFromLeveledList(a_lvlActor, a_refr);
+	}
+
 	std::vector<RE::TESForm*> GetContentFromLeveledItem(STATIC_ARGS, RE::TESLevItem* a_lvlItem, const RE::TESObjectREFR* a_refr)
 	{
 		if (!a_lvlItem) {
@@ -31,21 +46,6 @@ namespace Papyrus::LeveledList
 		}
 
 		return detail::GetContentFromLeveledList(a_lvlItem, a_refr);
-	}
-
-	std::vector<RE::TESForm*> GetContentFromLeveledNPC(STATIC_ARGS, RE::TESLevCharacter* a_lvlActor, const RE::TESObjectREFR* a_refr)
-	{
-		if (!a_lvlActor) {
-			a_vm->TraceStack("Leveled NPC is None", a_stackID);
-			return {};
-		}
-
-		if (!a_refr) {
-			a_vm->TraceStack("Reference is None", a_stackID);
-			return {};
-		}
-
-		return detail::GetContentFromLeveledList(a_lvlActor, a_refr);
 	}
 
 	std::vector<RE::TESForm*> GetContentFromLeveledSpell(STATIC_ARGS, RE::TESLevSpell* a_lvlSpell, const RE::TESObjectREFR* a_refr)
@@ -65,8 +65,8 @@ namespace Papyrus::LeveledList
 
 	void Bind(VM& a_vm)
 	{
+		BIND(GetContentFromLeveledActor);
 		BIND(GetContentFromLeveledItem);
-		BIND(GetContentFromLeveledNPC);
 		BIND(GetContentFromLeveledSpell);
 
 		logger::info("Registered leveled item functions"sv);

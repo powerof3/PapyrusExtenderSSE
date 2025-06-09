@@ -30,7 +30,7 @@ namespace Papyrus::LeveledList
 			return {};
 		}
 
-		return detail::GetContentFromLeveledList(a_lvlItem, a_refr)
+		return detail::GetContentFromLeveledList(a_lvlItem, a_refr);
 	}
 
 	std::vector<RE::TESForm*> GetContentFromLeveledNPC(STATIC_ARGS, RE::TESLevCharacter* a_lvlActor, const RE::TESObjectREFR* a_refr)

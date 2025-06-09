@@ -31,6 +31,23 @@ namespace Papyrus::UI
 		return RE::UI::GetSingleton() ? RE::UI::GetSingleton()->IsShowingMenus() : false;
 	}
 
+	void ShowBookMenu(STATIC_ARGS, RE::TESObjectBOOK* a_book)
+	{
+		if (!a_book) {
+			a_vm->TraceStack("Book is None", a_stackID);
+			return;
+		}
+
+		RE::NiMatrix3 rot{};
+		rot.SetEulerAnglesXYZ(-0.05f, -0.05f, 1.50f);
+
+		RE::BSString str;
+		a_book->GetDescription(str, nullptr);
+		logger::info("{}", str.c_str());
+
+		RE::BookMenu::OpenBookMenu(str, nullptr, nullptr, a_book, RE::NiPoint3(), rot, 1.0f, true);
+	}
+
 	void ShowMenu(RE::StaticFunctionTag*, RE::BSFixedString a_menuName)
 	{
 		if (const auto UIMsgQueue = RE::UIMessageQueue::GetSingleton(); UIMsgQueue) {
@@ -49,6 +66,7 @@ namespace Papyrus::UI
 		BIND(HideMenu);
 		BIND(IsShowingMenus, true);
 		BIND(ShowMenu);
+		BIND(ShowBookMenu);
 		BIND(ToggleOpenSleepWaitMenu);
 
 		logger::info("Registered UI functions"sv);

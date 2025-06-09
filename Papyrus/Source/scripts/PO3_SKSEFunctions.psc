@@ -287,8 +287,6 @@ Scriptname PO3_SKSEFunctions Hidden
 	Function SetBookCantBeTakenFlag(Book akBook) global native	
 
 	Function SetReadFlag(Book akBook) global native
-	
-	Function ShowBookMenu(Book akBook) global native
 
 ;----------------------------------------------------------------------------------------------------------
 ;CELL
@@ -1087,11 +1085,13 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	ObjectReference Function GetMenuContainer() global native
 	
+	Function HideMenu(string asMenuName) global native	
+	
 	Bool Function IsShowingMenus() global native
-
+		
+	Function ShowBookMenu(Book akBook) global native
+	
 	Function ShowMenu(string asMenuName) global native
-
-	Function HideMenu(string asMenuName) global native
 	
 	Function ToggleOpenSleepWaitMenu(bool abOpenSleepMenu) global native
 

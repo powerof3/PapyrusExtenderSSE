@@ -9,11 +9,17 @@ namespace Papyrus::Scene
 			return {};
 		}
 
-		std::vector<RE::Actor*> actors;
+		auto quest = a_scene->parentQuest;
+		if (!quest) {
+			a_vm->TraceStack("Scene has no parent quest", a_stackID);
+			return {};
+		}
 
-		for (auto& formID : a_scene->actors) {
-			if (auto actor = RE::TESForm::LookupByID<RE::Actor>(formID)) {
-				actors.push_back(actor);
+		std::vector<RE::Actor*> actors;
+		for (const auto& aliasID : a_scene->actors) {
+			auto handle = quest->GetAliasedRef(aliasID);
+			if (auto actor = handle.get().get()) {
+				actors.push_back(actor->As<RE::Actor>());
 			}
 		}
 
@@ -32,7 +38,18 @@ namespace Papyrus::Scene
 			return false;
 		}
 
-		return std::ranges::find(a_scene->actors, a_actor->GetFormID()) != a_scene->actors.end();
+		auto quest = a_scene->parentQuest;
+		if (!quest) {
+			a_vm->TraceStack("Scene has no parent quest", a_stackID);
+			return false;
+		}
+
+		return std::ranges::find_if(a_scene->actors, [a_actor, quest](const auto& aliasID) {
+			auto handle = quest->GetAliasedRef(aliasID);
+			auto ref = handle.get().get();
+
+			return ref == a_actor;
+		}) != a_scene->actors.end();
 	}
 
 	void Bind(VM& a_vm)

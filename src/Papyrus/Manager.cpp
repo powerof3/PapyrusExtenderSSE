@@ -95,7 +95,7 @@ namespace Papyrus
 		Projectile::Bind(*a_vm);
 		Quest::Bind(*a_vm);
 		Scene::Bind(*a_vm);
-		` Scroll::Bind(*a_vm);
+		Scroll::Bind(*a_vm);
 		Sound::Bind(*a_vm);
 		Spell::Bind(*a_vm);
 		Strings::Bind(*a_vm);

@@ -18,6 +18,23 @@ namespace Papyrus::Quest
 		return indices;
 	}
 
+	std::vector<std::uint32_t> GetAllQuestStages(STATIC_ARGS, RE::TESQuest* a_quest)
+	{
+		if (!a_quest) {
+			a_vm->TraceStack("Quest is None", a_stackID);
+			return {};
+		}
+
+		std::vector<std::uint32_t> indices;
+		if (a_quest->executedStages) {
+			for (const auto& stage : *a_quest->executedStages) {
+				indices.push_back(stage.data.index);
+			}
+		}
+
+		return indices;
+	}
+
 	void SetObjectiveText(STATIC_ARGS, RE::TESQuest* a_quest, RE::BSFixedString a_text, std::int32_t a_index)
 	{
 		if (!a_quest) {
@@ -35,6 +52,7 @@ namespace Papyrus::Quest
 	void Bind(VM& a_vm)
 	{
 		BIND(GetAllQuestObjectives);
+		BIND(GetAllQuestStages);
 		BIND(SetObjectiveText);
 
 		logger::info("Registered quest functions"sv);

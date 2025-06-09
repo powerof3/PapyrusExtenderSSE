@@ -98,28 +98,34 @@ namespace Papyrus::Graphics
 		return result;
 	}
 
-	RE::BGSColorForm* GetHairColor(STATIC_ARGS, const RE::Actor* a_actor)
+	RE::BGSColorForm* GetHairColor(STATIC_ARGS, [[maybe_unused]] const RE::Actor* a_actor)
+	{
+		a_vm->TraceStack("Function is deprecated. Use GetHairRGB instead", a_stackID);
+		return nullptr;
+	}
+
+	std::vector<std::uint32_t> GetHairRGB(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
-			return nullptr;
+			return {};
 		}
+
+		RE::Color color;
 
 		const auto root = a_actor->Get3D(false);
 		const auto data = root ? root->GetExtraData<RE::NiIntegerExtraData>(EXTRA::HAIR_TINT) : nullptr;
 
 		if (data) {
-			auto factory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>();
-			auto color = factory ? factory->Create() : nullptr;
-			if (color) {
-				color->color = RE::Color(data->value);
-				return color;
+			color = RE::Color(data->value);
+		} else {
+			const auto actorbase = a_actor->GetActorBase();
+			if (const auto headData = actorbase ? actorbase->headRelatedData : nullptr; headData && headData->hairColor) {
+				color = headData->hairColor->color;
 			}
 		}
 
-		const auto actorbase = a_actor->GetActorBase();
-		const auto headData = actorbase ? actorbase->headRelatedData : nullptr;
-		return headData ? headData->hairColor : nullptr;
+		return { static_cast<std::uint32_t>(color.red), static_cast<std::uint32_t>(color.green), static_cast<std::uint32_t>(color.blue) };
 	}
 
 	RE::BGSTextureSet* GetHeadPartTextureSet(STATIC_ARGS, RE::Actor* a_actor, std::uint32_t a_type)
@@ -137,30 +143,32 @@ namespace Papyrus::Graphics
 		return headpart ? headpart->textureSet : nullptr;
 	}
 
-	RE::BGSColorForm* GetSkinColor(STATIC_ARGS, RE::Actor* a_actor)
+	RE::BGSColorForm* GetSkinColor(STATIC_ARGS, [[maybe_unused]] const RE::Actor* a_actor)
+	{
+		a_vm->TraceStack("Function is deprecated. Use GetSkinRGB instead", a_stackID);
+		return nullptr;
+	}
+
+	std::vector<std::uint32_t> GetSkinRGB(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
-			return nullptr;
+			return {};
 		}
 
-		const auto actorBase = a_actor->GetActorBase();
-		const auto factory = actorBase ? RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>() : nullptr;
-		const auto color = factory ? factory->Create() : nullptr;
+		RE::Color color;
 
-		if (color) {
-			const auto root = a_actor->Get3D(false);
-			const auto data = root ? root->GetExtraData<RE::NiIntegerExtraData>(EXTRA::SKIN_TINT) : nullptr;
-			if (data) {
-				color->color = RE::Color(data->value);
-			} else {
-				color->color = actorBase->bodyTintColor;
+		const auto root = a_actor->Get3D(false);
+		const auto data = root ? root->GetExtraData<RE::NiIntegerExtraData>(EXTRA::SKIN_TINT) : nullptr;
+		if (data) {
+			color = RE::Color(data->value);
+		} else {
+			if (auto actorBase = a_actor->GetActorBase()) {
+				color = actorBase->bodyTintColor;
 			}
-
-			return color;
 		}
 
-		return nullptr;
+		return { static_cast<std::uint32_t>(color.red), static_cast<std::uint32_t>(color.green), static_cast<std::uint32_t>(color.blue) };
 	}
 
 	void MixColorWithSkinTone(STATIC_ARGS, RE::Actor* a_actor, RE::BGSColorForm* a_color, bool a_manual, float a_percent)
@@ -750,8 +758,10 @@ namespace Papyrus::Graphics
 		BIND(BlendColorWithSkinTone);
 		BIND(HasSkin);
 		BIND(GetHairColor);
+		BIND(GetHairRGB);
 		BIND(GetHeadPartTextureSet);
 		BIND(GetSkinColor);
+		BIND(GetSkinRGB);
 		BIND(MixColorWithSkinTone);
 		BIND(PlayDebugShader);
 		BIND(ReplaceArmorTextureSet);

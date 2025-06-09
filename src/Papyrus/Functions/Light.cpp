@@ -2,22 +2,9 @@
 
 namespace Papyrus::Light
 {
-	RE::BGSColorForm* GetLightColor(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
+	RE::BGSColorForm* GetLightColor(STATIC_ARGS, [[maybe_unused]] const RE::TESObjectLIGH* a_light)
 	{
-		if (!a_light) {
-			a_vm->TraceStack("Light is None", a_stackID);
-			return nullptr;
-		}
-
-		auto factory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::BGSColorForm>();
-		auto color = factory ? factory->Create() : nullptr;
-
-		if (color) {
-			color->flags.reset(RE::BGSColorForm::Flag::kPlayable);
-			color->color = a_light->data.color;
-			return color;
-		}
-
+		a_vm->TraceStack("Function is deprecated. Use GetLightRGB instead", a_stackID);
 		return nullptr;
 	}
 
@@ -53,19 +40,13 @@ namespace Papyrus::Light
 
 	std::vector<std::uint32_t> GetLightRGB(STATIC_ARGS, const RE::TESObjectLIGH* a_light)
 	{
-		std::vector<std::uint32_t> result(3, 0);
-
 		if (!a_light) {
 			a_vm->TraceStack("Light is None", a_stackID);
-			return result;
+			return {};
 		}
 
-		const auto color = a_light->data.color;
-		for (std::uint32_t i = 0; i < 3; ++i) {
-			result[i] = color[i];
-		}
-
-		return result;
+		const auto& color = a_light->data.color;
+		return { static_cast<std::uint32_t>(color.red), static_cast<std::uint32_t>(color.green), static_cast<std::uint32_t>(color.blue) };
 	}
 
 	float GetLightShadowDepthBias(STATIC_ARGS, RE::TESObjectREFR* a_lightObject)

@@ -54,7 +54,7 @@ namespace Papyrus::Book
 			a_vm->TraceStack("Book is None", a_stackID);
 			return;
 		}
-		
+
 		RE::NiMatrix3 rot{};
 		rot.SetEulerAnglesXYZ(-0.05f, -0.05f, 1.50f);
 

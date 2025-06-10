@@ -176,7 +176,7 @@ namespace stl
 		auto enum_range =
 			std::views::iota(
 				std::to_underlying(first),
-				std::to_underlying(last) + 1) |
+				std::to_underlying(last)) |
 			std::views::transform([](auto enum_val) {
 				return (decltype(first))enum_val;
 			});

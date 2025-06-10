@@ -526,18 +526,16 @@ namespace GRAPHICS
 
 	void ActorResetter::ResetToggle() const
 	{
-		if (root) {
-			if (toggle && toggle->value && toggle->size > 0) {
-				std::span<char*> span(toggle->value, toggle->size);
-				for (const auto& string : span) {
-					if (!string::is_empty(string)) {
-						if (const auto object = root->GetObjectByName(string); object) {
-							object->CullNode(false);
-						}
+		if (toggle && toggle->value && toggle->size > 0) {
+			std::span<char*> span(toggle->value, toggle->size);
+			for (const auto& string : span) {
+				if (!string::is_empty(string)) {
+					if (const auto object = root->GetObjectByName(string); object) {
+						object->CullNode(false);
 					}
 				}
-				root->RemoveExtraData(toggle->GetName());
 			}
+			root->RemoveExtraData(toggle->GetName());
 		}
 	}
 

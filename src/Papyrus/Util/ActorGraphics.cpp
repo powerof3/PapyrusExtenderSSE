@@ -428,7 +428,7 @@ namespace GRAPHICS
 		root(a_object),
 		folderName(a_folderName)
 	{
-		if (!a_object->extra || a_object->extraDataSize == 0) {
+		if (!a_object || !a_object->extra || a_object->extraDataSize == 0) {
 			hasData = false;
 			return;
 		}
@@ -499,27 +499,25 @@ namespace GRAPHICS
 
 	bool ActorResetter::ResetActor3D() const
 	{
-		if (!hasData) {
+		if (!actor || !root || !hasData) {
 			return false;
 		}
 
-		SKSE::GetTaskInterface()->AddTask([this]() {
-			ResetToggle();
-			ResetSkinAlpha();
-			ResetHeadPartAlpha();
-			ResetSkinTint();
-			ResetHairTint();
-			ResetFaceTXST();
-			ResetSkinTXST();
-			ResetArmorTXST();
-			ResetMaterialShader();
-		});
+		ResetToggle();
+		ResetSkinAlpha();
+		ResetHeadPartAlpha();
+		ResetSkinTint();
+		ResetHairTint();
+		ResetFaceTXST();
+		ResetSkinTXST();
+		ResetArmorTXST();
+		ResetMaterialShader();
 
 		if (const auto processLists = RE::ProcessLists::GetSingleton(); processLists) {
 			if (!actor->IsPlayerRef()) {
 				processLists->StopAllMagicEffects(*actor);
 			} else {
-				stop_all_skin_shaders(actor);
+				stop_all_skin_shaders(actor.get());
 			}
 		}
 
@@ -528,16 +526,18 @@ namespace GRAPHICS
 
 	void ActorResetter::ResetToggle() const
 	{
-		if (toggle && toggle->value && toggle->size > 0) {
-			std::span<char*> span(toggle->value, toggle->size);
-			for (const auto& string : span) {
-				if (!string::is_empty(string)) {
-					if (const auto object = root->GetObjectByName(string); object) {
-						object->CullNode(false);
+		if (root) {
+			if (toggle && toggle->value && toggle->size > 0) {
+				std::span<char*> span(toggle->value, toggle->size);
+				for (const auto& string : span) {
+					if (!string::is_empty(string)) {
+						if (const auto object = root->GetObjectByName(string); object) {
+							object->CullNode(false);
+						}
 					}
 				}
+				root->RemoveExtraData(toggle->GetName());
 			}
-			root->RemoveExtraData(toggle->GetName());
 		}
 	}
 
@@ -592,6 +592,10 @@ namespace GRAPHICS
 
 	void ActorResetter::ResetHeadPartAlpha() const
 	{
+		if (alphaHDPT.empty()) {
+			return;
+		}
+
 		for (auto& data : alphaHDPT) {
 			if (data) {
 				if (const auto object = actor->GetHeadPartObject(static_cast<HeadPartType>(data->value)); object) {
@@ -689,8 +693,7 @@ namespace GRAPHICS
 		for (auto& data : shaders) {
 			if (data && data->value && data->size > 0) {
 				std::vector<RE::BSFixedString> vec({ data->value, data->value + data->size });
-				reset_shaderdata(root, vec);
-
+				reset_shaderdata(root.get(), vec);
 				root->RemoveExtraData(data->GetName());
 			}
 		}

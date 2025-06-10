@@ -346,8 +346,12 @@ namespace Papyrus::Graphics
 			return false;
 		}
 
-		ActorResetter resetter(a_actor, root, a_folderName);
-		return resetter.ResetActor3D();
+		SKSE::GetTaskInterface()->AddTask([a_actor, root, a_folderName]() {
+			ActorResetter resetter(a_actor, root, a_folderName);
+			resetter.ResetActor3D();
+		});
+
+		return true;
 	}
 
 	void ScaleObject3D(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::string a_nodeName, float a_scale)

@@ -129,8 +129,8 @@ namespace GRAPHICS
 		void ResetMaterialShader() const;
 
 		// members
-		RE::Actor*                           actor{};
-		RE::NiAVObject*                      root{};
+		RE::NiPointer<RE::Actor>             actor{};
+		RE::NiPointer<RE::NiAVObject>        root{};
 		std::string                          folderName{};
 		RE::NiStringsExtraData*              toggle{};
 		RE::NiIntegerExtraData*              tintSkin{};

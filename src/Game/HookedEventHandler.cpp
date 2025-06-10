@@ -268,7 +268,7 @@ namespace Event
 
 							if (aggressor) {
 								if (projectile && projectile->IsArrow()) {
-									if (!hitTarget || !hitTarget->IsActor()) {  // actor version takes care of arrow hits
+									if (hitTarget && !hitTarget->IsActor()) {  // actor version takes care of arrow hits
 										GameEventHolder::GetSingleton()->weaponHit.QueueEvent(aggressor.get(), hitTarget.get(), source, projectile, 0);
 									}
 								}

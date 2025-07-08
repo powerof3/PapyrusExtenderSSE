@@ -632,10 +632,10 @@ namespace Event
 
 							root->UpdateRigidConstraints(false);
 
-							std::uint32_t filterInfo = 0;
+							RE::CFilter filterInfo;
 							charController->GetCollisionFilterInfo(filterInfo);
 
-							root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo >> 16);
+							root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo.GetSystemGroup());
 						}
 					}
 

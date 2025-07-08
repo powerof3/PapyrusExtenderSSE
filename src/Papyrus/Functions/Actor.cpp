@@ -188,16 +188,16 @@ namespace Papyrus::Actor
 		} else if (a_type == 1) {
 			if (const auto charController = a_actor->GetCharController()) {
 				SKSE::GetTaskInterface()->AddTask([root, charController, a_actor, a_enable]() {
-					std::uint32_t filterInfo = 0;
+					RE::CFilter filterInfo;
 					charController->GetCollisionFilterInfo(filterInfo);
 					if (a_enable) {
 						a_actor->boolBits.set(BOOL_BITS::kParalyzed);
-						root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo + 1);
+						root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo.filter + 1);
 						root->UpdateRigidConstraints(true);
 					} else {
 						a_actor->boolBits.reset(BOOL_BITS::kParalyzed);
 						root->UpdateRigidConstraints(false);
-						root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo >> 16);
+						root->SetCollisionLayerAndGroup(RE::COL_LAYER::kDeadBip, filterInfo.GetSystemGroup());
 					}
 				});
 			}

@@ -41,7 +41,7 @@ namespace GRAPHICS::MATERIAL
 		{ RE::MATERIAL_ID::kBoulderSmall, "BoulderSmall"sv },
 		{ RE::MATERIAL_ID::kSnowStairs, "SnowStairs"sv },
 		{ RE::MATERIAL_ID::kStoneHeavy, "StoneHeavy"sv },
-		{ RE::MATERIAL_ID::kDragonSkeleton, "DragonSkeleton"sv },
+		{ RE::MATERIAL_ID::kCharacterBumper, "CharacterBumper"sv },
 		{ RE::MATERIAL_ID::kTrap, "Trap"sv },
 		{ RE::MATERIAL_ID::kBowsStaves, "BowsStaves"sv },
 		{ RE::MATERIAL_ID::kAlduin, "Alduin"sv },

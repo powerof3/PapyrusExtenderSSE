@@ -25,14 +25,23 @@ namespace Papyrus::Quest
 			return {};
 		}
 
-		std::vector<std::uint32_t> indices;
+		std::set<std::uint32_t> indices;
 		if (a_quest->executedStages) {
 			for (const auto& stage : *a_quest->executedStages) {
-				indices.push_back(stage.data.index);
+				indices.insert(stage.data.index);
+			}
+		}
+		if (a_quest->waitingStages) {
+			for (const auto& stage : *a_quest->waitingStages) {
+				if (stage) {
+					indices.insert(stage->data.index);
+				}
 			}
 		}
 
-		return indices;
+		std::vector<std::uint32_t> indicesVec(indices.begin(), indices.end());
+
+		return indicesVec;
 	}
 
 	void SetObjectiveText(STATIC_ARGS, RE::TESQuest* a_quest, RE::BSFixedString a_text, std::int32_t a_index)

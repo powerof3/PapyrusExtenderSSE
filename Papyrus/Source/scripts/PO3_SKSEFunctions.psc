@@ -62,6 +62,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	float Function GetEquippedWeight(Actor akActor) global native
 
+	Quest[] Function GetAllAssociatedQuests(Actor akActor) global native
+
 	;DEPRECATED
 	ColorForm Function GetHairColor(Actor akActor) global native
 	

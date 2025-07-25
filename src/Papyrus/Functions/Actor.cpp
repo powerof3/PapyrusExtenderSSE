@@ -474,6 +474,46 @@ namespace Papyrus::Actor
 		return result;
 	}
 
+	std::vector<RE::TESQuest*> GetAllAssociatedQuests(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return {};
+		} 
+#if 0
+		// Keep this ready in case someone tries to query the player. SLOW SLOW SLOW.
+		else if (a_actor->IsPlayerRef()) {
+			a_vm->TraceStack("Player actor is not supported", a_stackID);
+			return {};
+		}
+#endif
+		if (!a_actor->extraList.HasType(RE::ExtraDataType::kAliasInstanceArray)) {
+			return {};
+		}
+
+		auto* aliasInstancesBase = a_actor->extraList.GetByType(RE::ExtraDataType::kAliasInstanceArray);
+		if (!aliasInstancesBase) {
+			a_vm->TraceStack("Actor has no alias instances", a_stackID);
+			return {};
+		}
+
+		auto* aliasInstanceArray = skyrim_cast<RE::ExtraAliasInstanceArray*>(aliasInstancesBase);
+		if (!aliasInstanceArray) {
+			a_vm->TraceStack("Actor has no alias instance array", a_stackID); // this is an error.
+			return {};
+		}
+
+		std::vector<RE::TESQuest*> quests{};
+		quests.reserve(aliasInstanceArray->aliases.size());
+		for (const auto* instance : aliasInstanceArray->aliases) {
+			auto* quest = instance ? instance->quest : nullptr;
+			if (quest && std::ranges::find(quests, quest) == quests.end()) {
+				quests.push_back(quest);
+			}
+		}
+		return quests;
+	}
+
 	// Fix missing GetEquippedArmorInSlot declared in SKSEVR but that doesn't exist in VR.
 	// https://www.creationkit.com/index.php?title=Actor_Script#Special_Edition_Exclusive_Functions
 	RE::TESObjectARMO* GetEquippedArmorInSlot(VM* a_vm, StackID a_stackID, RE::Actor* a_actor, std::int32_t a_slot)
@@ -1289,6 +1329,7 @@ namespace Papyrus::Actor
 		BIND(GetEquippedAmmo);
 		//SeaSparrow - New Binds
 		BIND(GetEquippedAmmoEnchantment);
+		BIND(GetAllAssociatedQuests);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
 		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");

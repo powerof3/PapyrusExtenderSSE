@@ -208,6 +208,49 @@ namespace Papyrus::ObjectReference
 		return nullptr;
 	}
 
+	std::vector<RE::TESQuest*> GetActiveAssociatedQuests(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_allowEmptyStages)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object Reference is None", a_stackID);
+			return {};
+		}
+#if 0
+		// Keep this ready in case someone tries to query the player. SLOW SLOW SLOW.
+		else if (a_actor->IsPlayerRef()) {
+			a_vm->TraceStack("Player actor is not supported", a_stackID);
+			return {};
+		}
+#endif
+		auto* aliasInstanceArray = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>();
+		if (!aliasInstanceArray) {
+			a_vm->TraceStack("Object Reference has no alias instances", a_stackID);
+			return {};
+		}
+
+		std::vector<RE::TESQuest*> quests{};
+		quests.reserve(aliasInstanceArray->aliases.size());
+		for (const auto* instance : aliasInstanceArray->aliases) {
+			auto* quest = instance ? instance->quest : nullptr;
+			if (!quest) {
+				continue;
+			}
+			if (!a_allowEmptyStages) {
+				auto* wating = quest->waitingStages;
+				auto* executed = quest->executedStages;
+				if (!wating || !executed) {
+					continue;
+				}
+				if (wating->empty() && executed->empty()) {
+					continue;
+				}
+			}
+			if (std::ranges::find(quests, quest) == quests.end()) {
+				quests.emplace_back(quest);
+			}
+		}
+		return quests;
+	}
+
 	std::vector<RE::TESObjectREFR*> GetActivateChildren(STATIC_ARGS, RE::TESObjectREFR* a_ref)
 	{
 		std::vector<RE::TESObjectREFR*> result;
@@ -343,6 +386,84 @@ namespace Papyrus::ObjectReference
 			});
 		}
 
+		return result;
+	}
+
+	std::vector<RE::TESQuest*> GetAllAssociatedQuests(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_allowEmptyStages)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("ObjectReference is None", a_stackID);
+			return {};
+		}
+#if 0
+		// Keep this ready in case someone tries to query the player. SLOW SLOW SLOW.
+		else if (a_actor->IsPlayerRef()) {
+			a_vm->TraceStack("Player actor is not supported", a_stackID);
+			return {};
+		}
+#endif
+		auto* dh = RE::TESDataHandler::GetSingleton();
+		if (!dh) {
+			a_vm->TraceStack("Data handler is None", a_stackID);
+			return {};
+		}
+		auto& quests = dh->GetFormArray<RE::TESQuest>();
+
+		const auto*                base = a_ref->GetBaseObject();
+		std::vector<RE::TESQuest*> result{};
+		for (auto* quest : quests) {
+			if (!quest) {
+				continue;
+			}
+
+			if (!a_allowEmptyStages) {
+				auto* wating = quest->waitingStages;
+				auto* executed = quest->executedStages;
+				if (!wating || !executed) {
+					continue;
+				}
+				if (wating->empty() && executed->empty()) {
+					continue;
+				}
+			}
+
+			auto& aliases = quest->aliases;
+			if (aliases.empty()) {
+				continue;
+			}
+			bool hasActorAlias = false;
+			for (auto it = aliases.begin(); !hasActorAlias && it != aliases.end(); ++it) {
+				if (!*it) {
+					continue;
+				}
+				const auto* refAlias = (*it) ? skyrim_cast<RE::BGSRefAlias*>(*it) : nullptr;
+				if (!refAlias) {
+					continue;
+				}
+
+				if (refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kUniqueActor) {
+					if (base != refAlias->fillData.uniqueActor.uniqueActor) {
+						continue;
+					}
+				} else if (refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kForced) {
+					if (const auto handle = refAlias->fillData.forced.forcedRef; handle) {
+						const auto ref = handle.get();
+						if (!ref || ref.get() != a_ref) {
+							continue;
+						}
+					} else {
+						continue;
+					}
+				} else {
+					continue;
+				}
+
+				hasActorAlias = true;
+			}
+			if (hasActorAlias) {
+				result.push_back(quest);
+			}
+		}
 		return result;
 	}
 
@@ -1346,11 +1467,13 @@ namespace Papyrus::ObjectReference
 		BIND(AddKeywordToRef);
 		BIND(CastEx);
 		BIND(FindFirstItemInList);
+		BIND(GetActiveAssociatedQuests);
 		BIND(GetActivateChildren);
 		BIND(GetActiveGamebryoAnimation);
 		BIND(GetActiveMagicEffects);
 		BIND(GetActorCause);
 		BIND(GetAllArtObjects);
+		BIND(GetAllAssociatedQuests);
 		BIND(GetAllEffectShaders);
 		BIND(GetClosestActorFromRef);
 		BIND(GetDoorDestination);

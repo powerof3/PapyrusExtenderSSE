@@ -10,11 +10,13 @@ namespace Papyrus::ObjectReference
 	void                              AddKeywordToRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword);
 	void                              CastEx(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_spell, RE::TESObjectREFR* a_target, RE::Actor* a_blameActor, std::uint32_t a_source);
 	RE::TESForm*                      FindFirstItemInList(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSListForm* a_list);
+	std::vector<RE::TESQuest*>        GetActiveAssociatedQuests(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_allowEmptyStages = true);  // SeaSparrow - New Functions
 	std::vector<RE::TESObjectREFR*>   GetActivateChildren(STATIC_ARGS, RE::TESObjectREFR* a_ref);
 	RE::BSFixedString                 GetActiveGamebryoAnimation(STATIC_ARGS, RE::TESObjectREFR* a_ref);
 	std::vector<RE::ActiveEffect*>    GetActiveMagicEffects(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::EffectSetting* a_mgef);
 	RE::Actor*                        GetActorCause(STATIC_ARGS, RE::TESObjectREFR* a_ref);
 	std::vector<RE::BGSArtObject*>    GetAllArtObjects(STATIC_ARGS, RE::TESObjectREFR* a_ref);
+	std::vector<RE::TESQuest*>        GetAllAssociatedQuests(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_allowEmptyStages = true);  // SeaSparrow - New Functions
 	std::vector<RE::TESEffectShader*> GetAllEffectShaders(STATIC_ARGS, RE::TESObjectREFR* a_ref);
 	RE::Actor*                        GetClosestActorFromRef(STATIC_ARGS, const RE::TESObjectREFR* a_ref, bool a_ignorePlayer);
 	float                             GetEffectShaderDuration(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::TESEffectShader* a_effectShader);

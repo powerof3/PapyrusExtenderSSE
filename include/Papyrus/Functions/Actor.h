@@ -25,8 +25,6 @@ namespace Papyrus::Actor
 	RE::Actor*                      GetCommandingActor(STATIC_ARGS, const RE::Actor* a_actor);
 	RE::TESAmmo*                    GetEquippedAmmo(STATIC_ARGS, const RE::Actor* a_actor);
 	RE::EnchantmentItem*            GetEquippedAmmoEnchantment(STATIC_ARGS, RE::Actor* a_actor);                                 // SeaSparrow - New Functions
-	std::vector<RE::TESQuest*>      GetActiveAssociatedQuests(STATIC_ARGS, RE::Actor* a_actor, bool a_allowEmptyStages = true);  // SeaSparrow - New Functions
-	std::vector<RE::TESQuest*>      GetAllAssociatedQuests(STATIC_ARGS, RE::Actor* a_actor, bool a_allowEmptyStages = true);     // SeaSparrow - New Functions
 #ifdef SKYRIMVR
 	// Fix missing GetEquippedArmorInSlot declared in SKSEVR but that doesn't exist in VR.
 	// https://www.creationkit.com/index.php?title=Actor_Script#Special_Edition_Exclusive_Functions

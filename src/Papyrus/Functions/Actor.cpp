@@ -487,19 +487,9 @@ namespace Papyrus::Actor
 			return {};
 		}
 #endif
-		if (!a_actor->extraList.HasType(RE::ExtraDataType::kAliasInstanceArray)) {
-			return {};
-		}
-
-		auto* aliasInstancesBase = a_actor->extraList.GetByType(RE::ExtraDataType::kAliasInstanceArray);
-		if (!aliasInstancesBase) {
-			a_vm->TraceStack("Actor has no alias instances", a_stackID);
-			return {};
-		}
-
-		auto* aliasInstanceArray = skyrim_cast<RE::ExtraAliasInstanceArray*>(aliasInstancesBase);
+		auto* aliasInstanceArray = a_actor->extraList.GetByType<RE::ExtraAliasInstanceArray>();
 		if (!aliasInstanceArray) {
-			a_vm->TraceStack("Actor has no alias instance array", a_stackID);  // this is an error.
+			a_vm->TraceStack("Actor has no alias instances", a_stackID);
 			return {};
 		}
 
@@ -515,12 +505,13 @@ namespace Papyrus::Actor
 				auto* executed = quest->executedStages;
 				if (!wating || !executed) {
 					continue;
-				} else if (wating->empty() && executed->empty()) {
+				}
+				if (wating->empty() && executed->empty()) {
 					continue;
 				}
 			}
 			if (std::ranges::find(quests, quest) == quests.end()) {
-				quests.push_back(quest);
+				quests.emplace_back(quest);
 			}
 		}
 		return quests;
@@ -545,10 +536,6 @@ namespace Papyrus::Actor
 			return {};
 		}
 		auto& quests = dh->GetFormArray<RE::TESQuest>();
-		if (quests.empty()) {
-			a_vm->TraceStack("No quests found", a_stackID);
-			return {};
-		}
 
 		const auto*                base = a_actor->GetActorBase();
 		std::vector<RE::TESQuest*> result{};
@@ -562,7 +549,8 @@ namespace Papyrus::Actor
 				auto* executed = quest->executedStages;
 				if (!wating || !executed) {
 					continue;
-				} else if (wating->empty() && executed->empty()) {
+				}
+				if (wating->empty() && executed->empty()) {
 					continue;
 				}
 			}
@@ -587,8 +575,8 @@ namespace Papyrus::Actor
 					}
 				} else if (refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kForced) {
 					if (const auto handle = refAlias->fillData.forced.forcedRef; handle) {
-						const auto* ref = handle.get().get();
-						if (!ref || ref != a_actor) {
+						const auto ref = handle.get();
+						if (!ref || ref.get() != a_actor) {
 							continue;
 						}
 					} else {

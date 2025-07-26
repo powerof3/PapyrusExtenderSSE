@@ -479,7 +479,7 @@ namespace Papyrus::Actor
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
 			return {};
-		} 
+		}
 #if 0
 		// Keep this ready in case someone tries to query the player. SLOW SLOW SLOW.
 		else if (a_actor->IsPlayerRef()) {
@@ -499,7 +499,7 @@ namespace Papyrus::Actor
 
 		auto* aliasInstanceArray = skyrim_cast<RE::ExtraAliasInstanceArray*>(aliasInstancesBase);
 		if (!aliasInstanceArray) {
-			a_vm->TraceStack("Actor has no alias instance array", a_stackID); // this is an error.
+			a_vm->TraceStack("Actor has no alias instance array", a_stackID);  // this is an error.
 			return {};
 		}
 
@@ -550,7 +550,7 @@ namespace Papyrus::Actor
 			return {};
 		}
 
-		const auto* base = a_actor->GetActorBase();
+		const auto*                base = a_actor->GetActorBase();
 		std::vector<RE::TESQuest*> result{};
 		for (auto* quest : quests) {
 			if (!quest) {
@@ -562,8 +562,7 @@ namespace Papyrus::Actor
 				auto* executed = quest->executedStages;
 				if (!wating || !executed) {
 					continue;
-				} 
-				else if (wating->empty() && executed->empty()) {
+				} else if (wating->empty() && executed->empty()) {
 					continue;
 				}
 			}
@@ -586,19 +585,16 @@ namespace Papyrus::Actor
 					if (base != refAlias->fillData.uniqueActor.uniqueActor) {
 						continue;
 					}
-				} 
-				else if (refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kForced) {
+				} else if (refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kForced) {
 					if (const auto handle = refAlias->fillData.forced.forcedRef; handle) {
 						const auto* ref = handle.get().get();
 						if (!ref || ref != a_actor) {
 							continue;
 						}
-					} 
-					else {
+					} else {
 						continue;
 					}
-				} 
-				else {
+				} else {
 					continue;
 				}
 

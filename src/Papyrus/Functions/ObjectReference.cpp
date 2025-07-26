@@ -227,6 +227,8 @@ namespace Papyrus::ObjectReference
 			return {};
 		}
 
+		RE::BSReadLockGuard locker(aliasInstanceArray->lock);
+
 		std::vector<RE::TESQuest*> quests{};
 		quests.reserve(aliasInstanceArray->aliases.size());
 		for (const auto* instance : aliasInstanceArray->aliases) {

@@ -550,6 +550,7 @@ namespace Papyrus::Actor
 			return {};
 		}
 
+		const auto* base = a_actor->GetActorBase();
 		std::vector<RE::TESQuest*> result{};
 		for (auto* quest : quests) {
 			if (!quest) {
@@ -577,9 +578,30 @@ namespace Papyrus::Actor
 					continue;
 				}
 				const auto* refAlias = (*it) ? skyrim_cast<RE::BGSRefAlias*>(*it) : nullptr;
-				if (!refAlias || refAlias->GetActorReference() != a_actor) {
+				if (!refAlias) {
 					continue;
 				}
+
+				if (base && refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kUniqueActor) {
+					if (base != refAlias->fillData.uniqueActor.uniqueActor) {
+						continue;
+					}
+				} 
+				else if (refAlias->fillType == RE::BGSBaseAlias::FILL_TYPE::kForced) {
+					if (const auto handle = refAlias->fillData.forced.forcedRef; handle) {
+						const auto* ref = handle.get().get();
+						if (!ref || ref != a_actor) {
+							continue;
+						}
+					} 
+					else {
+						continue;
+					}
+				} 
+				else {
+					continue;
+				}
+
 				hasActorAlias = true;
 			}
 			if (hasActorAlias) {

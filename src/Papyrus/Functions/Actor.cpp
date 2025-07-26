@@ -474,7 +474,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	std::vector<RE::TESQuest*> GetAllAssociatedQuests(STATIC_ARGS, RE::Actor* a_actor)
+	std::vector<RE::TESQuest*> GetActiveAssociatedQuests(STATIC_ARGS, RE::Actor* a_actor, bool a_allowEmptyStages)
 	{
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
@@ -507,11 +507,86 @@ namespace Papyrus::Actor
 		quests.reserve(aliasInstanceArray->aliases.size());
 		for (const auto* instance : aliasInstanceArray->aliases) {
 			auto* quest = instance ? instance->quest : nullptr;
-			if (quest && std::ranges::find(quests, quest) == quests.end()) {
+			if (!quest) {
+				continue;
+			}
+			if (!a_allowEmptyStages) {
+				auto* wating = quest->waitingStages;
+				auto* executed = quest->executedStages;
+				if (!wating || !executed) {
+					continue;
+				} else if (wating->empty() && executed->empty()) {
+					continue;
+				}
+			}
+			if (std::ranges::find(quests, quest) == quests.end()) {
 				quests.push_back(quest);
 			}
 		}
 		return quests;
+	}
+
+	std::vector<RE::TESQuest*> GetAllAssociatedQuests(STATIC_ARGS, RE::Actor* a_actor, bool a_allowEmptyStages)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return {};
+		}
+#if 0
+		// Keep this ready in case someone tries to query the player. SLOW SLOW SLOW.
+		else if (a_actor->IsPlayerRef()) {
+			a_vm->TraceStack("Player actor is not supported", a_stackID);
+			return {};
+		}
+#endif
+		auto* dh = RE::TESDataHandler::GetSingleton();
+		if (!dh) {
+			a_vm->TraceStack("Data handler is None", a_stackID);
+			return {};
+		}
+		auto& quests = dh->GetFormArray<RE::TESQuest>();
+		if (quests.empty()) {
+			a_vm->TraceStack("No quests found", a_stackID);
+			return {};
+		}
+
+		std::vector<RE::TESQuest*> result{};
+		for (auto* quest : quests) {
+			if (!quest) {
+				continue;
+			}
+
+			if (!a_allowEmptyStages) {
+				auto* wating = quest->waitingStages;
+				auto* executed = quest->executedStages;
+				if (!wating || !executed) {
+					continue;
+				} 
+				else if (wating->empty() && executed->empty()) {
+					continue;
+				}
+			}
+
+			auto& aliases = quest->aliases;
+			if (aliases.empty()) {
+				continue;
+			}
+			bool hasActorAlias = false;
+			for (auto it = aliases.begin(); !hasActorAlias && it != aliases.end(); ++it) {
+				if (!*it) {
+					continue;
+				}
+				const auto* refAlias = (*it) ? skyrim_cast<RE::BGSRefAlias*>(*it) : nullptr;
+				if (!refAlias || refAlias->GetActorReference() != a_actor) {
+					continue;
+				}
+				hasActorAlias = true;
+			}
+			if (hasActorAlias) {
+				result.push_back(quest);
+			}
+		}
+		return result;
 	}
 
 	// Fix missing GetEquippedArmorInSlot declared in SKSEVR but that doesn't exist in VR.
@@ -1329,6 +1404,7 @@ namespace Papyrus::Actor
 		BIND(GetEquippedAmmo);
 		//SeaSparrow - New Binds
 		BIND(GetEquippedAmmoEnchantment);
+		BIND(GetActiveAssociatedQuests);
 		BIND(GetAllAssociatedQuests);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);

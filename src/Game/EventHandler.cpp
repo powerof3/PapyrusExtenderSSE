@@ -50,12 +50,20 @@ namespace Event
 		}
 
 		const auto object = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_event->formID);
-		const auto base = object ? object->GetBaseObject() : nullptr;
-
-		if (base) {
-			auto& event = a_event->loaded ? ScriptEventHolder::GetSingleton()->objectLoaded : ScriptEventHolder::GetSingleton()->objectUnloaded;
-			event.QueueEvent(base->GetFormType(), object, base->GetFormType());
+		if (!object) {
+			return EventResult::kContinue;
 		}
+
+		const auto base = object->GetBaseObject();
+		if (!base) {
+			return EventResult::kContinue;
+		}
+
+		const auto baseFormType = base->GetFormType();
+
+		auto* scriptEvents = ScriptEventHolder::GetSingleton();
+		auto& event = a_event->loaded ? scriptEvents->objectLoaded : scriptEvents->objectUnloaded;
+		event.QueueEvent(baseFormType, a_event->loaded || object->IsPersistent() ? object : nullptr, baseFormType);
 
 		return EventResult::kContinue;
 	}

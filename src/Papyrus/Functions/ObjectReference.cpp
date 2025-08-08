@@ -1024,7 +1024,7 @@ namespace Papyrus::ObjectReference
 
 		RE::NiAVObject* node = nullptr;
 
-		if (!a_nodeName.empty()) {
+		if (a_nodeName.empty()) {
 			node = root;
 		} else {
 			node = root->GetObjectByName(a_nodeName);

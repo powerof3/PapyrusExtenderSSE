@@ -143,36 +143,38 @@ namespace Serialization
 
 	bool MGEFData::load(SKSE::SerializationInterface* a_intfc, std::size_t index)
 	{
+		bool success = true;
 		if (!stl::read_formID(a_intfc, mgefFormID)) {
 			logger::warn("{} : Failed to resolve effect formID {:X}"sv, index, mgefFormID);
-			return false;
+			success = false;
 		}
 		if (!a_intfc->ReadRecordData(mag)) {
 			logger::warn("Failed to resolve magnitude ({})", mag);
-			return false;
+			success = false;
 		}
 		if (!a_intfc->ReadRecordData(area)) {
 			logger::warn("Failed to read area ({})", area);
-			return false;
+			success = false;
 		}
 		if (!a_intfc->ReadRecordData(dur)) {
 			logger::error("Failed to read duration ({})", dur);
-			return false;
+			success = false;
 		}
 		if (!a_intfc->ReadRecordData(cost)) {
 			logger::warn("Failed to resolve cost ({})", cost);
-			return false;
+			success = false;
 		}
 		std::size_t numConditions;
 		a_intfc->ReadRecordData(numConditions);
 		for (std::size_t k = 0; k < numConditions; k++) {
 			std::string str;
-			if (!stl::read_string(a_intfc, str)) {
-				return false;
+			if (stl::read_string(a_intfc, str)) {
+				conditionList.emplace_back(str);
+			} else {
+				success = false;
 			}
-			conditionList.emplace_back(str);
 		}
-		return true;
+		return success;
 	}
 
 	bool EffectData::equals(const RE::Effect* a_effect, const RE::Effect* a_copyEffect) const
@@ -266,19 +268,20 @@ namespace Serialization
 
 	bool EffectData::load(SKSE::SerializationInterface* a_intfc, std::size_t a_index)
 	{
+		bool success = true;
 		if (!stl::read_formID(a_intfc, magicItemFormID)) {
 			logger::warn("{} : Failed to resolve effect formID {:X}"sv, a_index, magicItemFormID);
-			return false;
+			success = false;
 		}
 		if (!a_intfc->ReadRecordData(index)) {
 			logger::warn("Failed to resolve index ({})", index);
-			return false;
+			success = false;
 		}
 		if (!a_intfc->ReadRecordData(cost)) {
 			logger::warn("Failed to read cost ({})", cost);
-			return false;
+			success = false;
 		}
-		return true;
+		return success;
 	}
 
 	void MGEFHolder::ProcessEntry(const RE::FormID a_key, std::vector<MGEFData>& a_data, std::uint32_t a_index)

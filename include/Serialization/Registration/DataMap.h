@@ -249,17 +249,19 @@ public:
 		std::size_t numData;
 
 		for (std::size_t i = 0; i < numRegs; i++) {
-			if (!stl::read_formID(a_intfc, formID)) {
+			bool validFormID = stl::read_formID(a_intfc, formID);
+			if (!validFormID) {
 				logger::warn("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
-				continue;
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {
-				if (!stl::read_formID(a_intfc, dataID)) {
+				bool validDataID = stl::read_formID(a_intfc, dataID);
+				if (!validDataID) {
 					logger::warn("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
-					continue;
 				}
-				formMap[formID].push_back(dataID);
+				if (validFormID && validDataID) {
+					formMap[formID].push_back(dataID);
+				}
 			}
 		}
 
@@ -343,17 +345,17 @@ public:
 		std::size_t numData;
 
 		for (std::size_t i = 0; i < numRegs; i++) {
-			if (!stl::read_formID(a_intfc, formID)) {
+			bool validFormID = stl::read_formID(a_intfc, formID);
+			if (!validFormID) {
 				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
-				continue;
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {
-				D data{};
-				if (!data.load(a_intfc, j)) {
-					continue;
+				D    data{};
+				bool validData = data.load(a_intfc, j);
+				if (validFormID && validData) {
+					formMap[formID].emplace_back(std::move(data));
 				}
-				formMap[formID].emplace_back(std::move(data));
 			}
 		}
 

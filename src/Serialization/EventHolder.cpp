@@ -191,13 +191,15 @@ namespace Event::Filter
 
 	bool Hit::Load(SKSE::SerializationInterface* a_intfc)
 	{
-		if (!stl::read_formID(a_intfc, aggressorID) || !stl::read_formID(a_intfc, sourceID) || !stl::read_formID(a_intfc, projectileID)) {
-			return false;
-		}
-		if (!a_intfc->ReadRecordData(powerAttack) || !a_intfc->ReadRecordData(sneakAttack) || !a_intfc->ReadRecordData(bashAttack) || !a_intfc->ReadRecordData(blockAttack)) {
-			return false;
-		}
-		return true;
+		bool success = true;
+		success &= stl::read_formID(a_intfc, aggressorID);
+		success &= stl::read_formID(a_intfc, sourceID);
+		success &= stl::read_formID(a_intfc, projectileID);
+		success &= static_cast<bool>(a_intfc->ReadRecordData(powerAttack));
+		success &= static_cast<bool>(a_intfc->ReadRecordData(sneakAttack));
+		success &= static_cast<bool>(a_intfc->ReadRecordData(bashAttack));
+		success &= static_cast<bool>(a_intfc->ReadRecordData(blockAttack));
+		return success;
 	}
 
 	bool Hit::Save(SKSE::SerializationInterface* a_intfc) const

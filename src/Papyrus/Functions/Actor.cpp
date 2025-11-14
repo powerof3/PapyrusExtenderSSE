@@ -1,6 +1,7 @@
 #include "Papyrus/Functions/Actor.h"
 
 #include "Papyrus/Util/Inventory.h"
+#include "Papyrus/Util/Magic.h"
 #include "Serialization/Manager.h"
 
 namespace Papyrus::Actor

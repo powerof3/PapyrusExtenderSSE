@@ -1,5 +1,7 @@
 #include "Papyrus/Functions/MagicEffect.h"
 
+#include "Papyrus/Util/Magic.h"
+
 namespace Papyrus::MagicEffect
 {
 	RE::TESForm* GetAssociatedForm(STATIC_ARGS, const RE::EffectSetting* a_mgef)

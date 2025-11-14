@@ -2,6 +2,11 @@
 
 #include "Serialization/Manager.h"
 
+namespace RE
+{
+	std::string_view EffectArchetypeToString(EffectArchetype a_archetype) noexcept;
+}
+
 namespace MAGIC
 {
 	using namespace Serialization;

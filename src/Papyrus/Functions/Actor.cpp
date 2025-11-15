@@ -418,6 +418,46 @@ namespace Papyrus::Actor
 		return nullptr;
 	}
 
+	float GetEditorLocationX(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0.0f;
+		}
+
+		return a_actor->editorLocCoord.x;
+	}
+
+	float GetEditorLocationY(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0.0f;
+		}
+
+		return a_actor->editorLocCoord.y;
+	}
+
+	float GetEditorLocationZ(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0.0f;
+		}
+
+		return a_actor->editorLocCoord.z;
+	}
+
+	float GetEditorLocationAngle(STATIC_ARGS, RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm->TraceStack("Actor is None", a_stackID);
+			return 0.0f;
+		}
+
+		return a_actor->editorLocRot;
+	}
+
 	RE::TESAmmo* GetEquippedAmmo(STATIC_ARGS, const RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -1279,6 +1319,10 @@ namespace Papyrus::Actor
 		BIND(GetCombatTargets);
 		BIND(GetCommandedActors);
 		BIND(GetCommandingActor);
+		BIND(GetEditorLocationX);
+		BIND(GetEditorLocationY);
+		BIND(GetEditorLocationZ);
+		BIND(GetEditorLocationAngle);
 		BIND(GetEquippedAmmo);
 		//SeaSparrow - New Binds
 		BIND(GetEquippedAmmoEnchantment);

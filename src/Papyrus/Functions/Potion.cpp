@@ -57,7 +57,7 @@ namespace Papyrus::Potion
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(AddMagicEffectToPotion);
 		BIND(AddEffectItemToPotion);
 		BIND(RemoveMagicEffectFromPotion);

@@ -230,7 +230,7 @@ namespace Papyrus::Light
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(GetLightColor);
 		BIND(GetLightFade, true);
 		BIND(GetLightFOV, true);

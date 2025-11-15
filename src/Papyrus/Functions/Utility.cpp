@@ -32,7 +32,7 @@ namespace Papyrus::Utility
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(GenerateRandomFloat, true);
 		BIND(GenerateRandomInt, true);
 		BIND(GetSystemTime, true);

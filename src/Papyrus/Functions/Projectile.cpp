@@ -117,7 +117,7 @@ namespace Papyrus::Projectile
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(GetProjectileGravity, true);
 		BIND(GetProjectileImpactForce, true);
 		BIND(GetProjectileRange, true);

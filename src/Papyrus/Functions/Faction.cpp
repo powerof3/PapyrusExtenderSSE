@@ -51,7 +51,7 @@ namespace Papyrus::Faction
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(GetVendorFactionContainer, true);
 		BIND(GetAllActorsInFaction);
 		logger::info("Registered {} faction functions"sv, count);

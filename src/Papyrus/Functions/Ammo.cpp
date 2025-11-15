@@ -17,7 +17,7 @@ namespace Papyrus::Ammo
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(GetBaseAmmoEnchantment);
 
 		logger::info("Registered {} ammo functions"sv, count);

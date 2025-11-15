@@ -61,7 +61,7 @@ namespace Papyrus::Quest
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(GetAllQuestObjectives);
 		BIND(GetAllQuestStages);
 		BIND(SetObjectiveText);

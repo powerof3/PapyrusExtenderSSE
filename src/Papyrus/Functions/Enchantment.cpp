@@ -67,7 +67,7 @@ namespace Papyrus::Enchantment
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
-		
+
 		BIND(AddMagicEffectToEnchantment);
 		BIND(AddEffectItemToEnchantment);
 		BIND(GetEnchantmentType);

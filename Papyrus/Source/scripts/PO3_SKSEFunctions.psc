@@ -49,6 +49,14 @@ Scriptname PO3_SKSEFunctions Hidden
 	Actor[] Function GetCommandedActors(Actor akActor) global native
 
 	Actor Function GetCommandingActor(Actor akActor) global native
+	
+	float Function GetEditorLocationX(Actor akActor) global native
+	
+	float Function GetEditorLocationY(Actor akActor) global native
+	
+	float Function GetEditorLocationZ(Actor akActor) global native
+	
+	float Function GetEditorLocationAngle(Actor akActor) global native
 
 	Ammo Function GetEquippedAmmo(Actor akActor) global native
 	
@@ -784,6 +792,14 @@ Scriptname PO3_SKSEFunctions Hidden
 	Form[] Function AddItemsOfTypeToArray(ObjectReference akRef, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 
 	Function AddItemsOfTypeToList(ObjectReference akRef, Formlist akList, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+	
+	Form[] Function AddItemsWithKeywordToArray(ObjectReference akRef, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+
+	Function AddItemsWithKeywordToList(ObjectReference akRef, Formlist akList, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+	
+	Form[] Function AddItemsWithKeywordStringToArray(ObjectReference akRef, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+
+	Function AddItemsWithKeywordStringToList(ObjectReference akRef, Formlist akList, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 
 	ObjectReference[] Function FindAllReferencesOfFormType(ObjectReference akRef, int formType, float afRadius) global native
 

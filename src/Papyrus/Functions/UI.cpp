@@ -62,6 +62,8 @@ namespace Papyrus::UI
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetMenuContainer);
 		BIND(HideMenu);
 		BIND(IsShowingMenus, true);
@@ -69,6 +71,6 @@ namespace Papyrus::UI
 		BIND(ShowBookMenu);
 		BIND(ToggleOpenSleepWaitMenu);
 
-		logger::info("Registered UI functions"sv);
+		logger::info("Registered {} UI functions"sv, count);
 	}
 }

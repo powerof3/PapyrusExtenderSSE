@@ -70,11 +70,13 @@ namespace Papyrus::Package
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(AddPackageIdle);
 		BIND(GetPackageIdles);
 		BIND(GetPackageType);
 		BIND(RemovePackageIdle);
 
-		logger::info("Registered package functions"sv);
+		logger::info("Registered {} package functions"sv, count);
 	}
 }

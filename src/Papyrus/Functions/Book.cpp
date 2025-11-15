@@ -50,11 +50,13 @@ namespace Papyrus::Book
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(ClearBookCantBeTakenFlag);
 		BIND(ClearReadFlag);
 		BIND(SetBookCantBeTakenFlag);
 		BIND(SetReadFlag);
 
-		logger::info("Registered book functions"sv);
+		logger::info("Registered {} book functions"sv, count);
 	}
 }

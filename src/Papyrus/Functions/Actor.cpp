@@ -1305,6 +1305,8 @@ namespace Papyrus::Actor
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(AddBasePerk);
 		BIND(AddBaseSpell);
 		BIND(AddAllEquippedItemsToArray);
@@ -1375,6 +1377,6 @@ namespace Papyrus::Actor
 		BIND(SetSoulTrapped);
 		BIND(UnequipAllOfType);
 
-		logger::info("Registered actor functions"sv);
+		logger::info("Registered {} actor functions"sv, count);
 	}
 }

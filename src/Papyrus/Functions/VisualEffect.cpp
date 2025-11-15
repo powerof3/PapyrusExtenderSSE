@@ -55,10 +55,12 @@ namespace Papyrus::VisualEffect
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetArtObject);
 		BIND(GetArtObjectTotalCount);
 		BIND(SetArtObject);
 
-		logger::info("Registered visual effect functions"sv);
+		logger::info("Registered {} visual effect functions"sv, count);
 	}
 }

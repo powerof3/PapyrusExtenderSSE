@@ -54,9 +54,11 @@ namespace Papyrus::Scene
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+
 		BIND(GetActorsInScene);
 		BIND(IsActorInScene);
 
-		logger::info("Registered scene functions"sv);
+		logger::info("Registered {} scene functions"sv, count);
 	}
 }

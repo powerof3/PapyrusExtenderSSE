@@ -1486,6 +1486,8 @@ namespace Papyrus::ObjectReference
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(ActorInRangeHasEffect);
 		BIND(AddAllItemsToArray);
 		BIND(AddAllItemsToList);
@@ -1544,6 +1546,6 @@ namespace Papyrus::ObjectReference
 		BIND(StopAllShaders);
 		BIND(StopArtObject);
 
-		logger::info("Registered object reference functions"sv);
+		logger::info("Registered {} object reference functions"sv, count);
 	}
 }

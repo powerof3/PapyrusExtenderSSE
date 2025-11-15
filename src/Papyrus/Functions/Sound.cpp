@@ -18,8 +18,10 @@ namespace Papyrus::Sound
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(SetSoundDescriptor);
 
-		logger::info("Registered sound functions"sv);
+		logger::info("Registered {} sound functions"sv, count);
 	}
 }

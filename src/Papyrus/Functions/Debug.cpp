@@ -70,10 +70,12 @@ namespace Papyrus::Debug
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GivePlayerSpellBook);
 		BIND(DumpAnimationVariables);
 		BIND(GetGodMode);
 
-		logger::info("Registered debug functions"sv);
+		logger::info("Registered {} debug functions"sv, count);
 	}
 }

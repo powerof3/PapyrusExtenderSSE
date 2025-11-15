@@ -56,12 +56,14 @@ namespace Papyrus::Scroll
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(AddMagicEffectToScroll);
 		BIND(AddEffectItemToScroll);
 		BIND(RemoveMagicEffectFromScroll);
 		BIND(RemoveEffectItemFromScroll);
 		BIND(SetScrollMagicEffect);
 
-		logger::info("Registered scroll functions"sv);
+		logger::info("Registered {} scroll functions"sv, count);
 	}
 }

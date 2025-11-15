@@ -285,6 +285,8 @@ namespace Papyrus::EffectShader
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(ClearEffectShaderFlag);
 		BIND(GetAddonModels, true);
 		BIND(GetMembraneHolesTexture, true);
@@ -306,6 +308,6 @@ namespace Papyrus::EffectShader
 		BIND(SetParticlePersistentCount);
 		BIND(SetParticleShaderTexture);
 
-		logger::info("Registered effect shader functions"sv);
+		logger::info("Registered {} effect shader functions"sv, count);
 	}
 }

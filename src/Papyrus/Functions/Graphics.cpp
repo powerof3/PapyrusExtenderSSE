@@ -758,6 +758,8 @@ namespace Papyrus::Graphics
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(ApplyMaterialShader);
 		BIND(BlendColorWithSkinTone);
 		BIND(HasSkin);
@@ -784,6 +786,6 @@ namespace Papyrus::Graphics
 		BIND(ToggleHairWigs);
 		BIND(UpdateHitEffectArtNode);
 
-		logger::info("Registered graphic functions"sv);
+		logger::info("Registered {} graphic functions"sv, count);
 	}
 }

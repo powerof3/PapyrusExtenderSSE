@@ -26,9 +26,11 @@ namespace Papyrus::Strings
 
 	void Bind(VM& a_vm)
 	{
-		BIND(IntToString);
+		std::uint32_t count = 0;
+		
+		BIND(IntToString);		
 		BIND(StringToInt);
 
-		logger::info("Registered string functions"sv);
+		logger::info("Registered {} string functions"sv, count);
 	}
 }

@@ -116,6 +116,8 @@ namespace Papyrus::Projectile
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetProjectileGravity, true);
 		BIND(GetProjectileImpactForce, true);
 		BIND(GetProjectileRange, true);
@@ -126,6 +128,6 @@ namespace Papyrus::Projectile
 		BIND(SetProjectileRange);
 		BIND(SetProjectileSpeed);
 
-		logger::info("Registered projectile functions"sv);
+		logger::info("Registered {} projectile functions"sv, count);
 	}
 }

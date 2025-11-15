@@ -117,6 +117,8 @@ namespace Papyrus::MagicEffect
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetAssociatedForm, true);
 		BIND(GetEffectArchetypeAsInt, true);
 		BIND(GetEffectArchetypeAsString, true);
@@ -126,6 +128,6 @@ namespace Papyrus::MagicEffect
 		BIND(SetAssociatedForm);
 		BIND(SetMagicEffectSound);
 
-		logger::info("Registered magiceffect functions"sv);
+		logger::info("Registered {} magiceffect functions"sv, count);
 	}
 }

@@ -109,6 +109,8 @@ namespace Papyrus::Array
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+
 		BIND(AddActorToArray);
 		BIND(AddStringToArray);
 		BIND(ArrayStringCount);
@@ -116,6 +118,6 @@ namespace Papyrus::Array
 		BIND(GetSortedActorNames);
 		BIND(GetSortedNPCNames);
 
-		logger::info("Registered array functions"sv);
+		logger::info("Registered {} array functions"sv, count);
 	}
 }

@@ -86,6 +86,8 @@ namespace Papyrus::ActorBase
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetAssociationType);
 		BIND(GetDeathItem);
 		BIND(GetNthPerk);
@@ -93,6 +95,6 @@ namespace Papyrus::ActorBase
 		BIND(GetPerkCount);
 		BIND(SetDeathItem);
 
-		logger::info("Registered actorbase functions"sv);
+		logger::info("Registered {} actorbase functions"sv, count);
 	}
 }

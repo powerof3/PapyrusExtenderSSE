@@ -843,6 +843,8 @@ namespace Papyrus::Form::Events
 	{
 		auto constexpr obj = "PO3_Events_Form"sv;
 
+		std::uint32_t count = 0;
+
 		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
@@ -916,6 +918,6 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered form events"sv);
+		logger::info("Registered {} form events"sv, count);
 	}
 }

@@ -895,6 +895,8 @@ namespace Papyrus::Alias::Events
 	{
 		auto constexpr obj = "PO3_Events_Alias"sv;
 
+		std::uint32_t count = 0;
+
 		BIND_EVENT(RegisterForActorFallLongDistance, true);
 		BIND_EVENT(RegisterForActorKilled, true);
 		BIND_EVENT(RegisterForActorReanimateStart, true);
@@ -968,6 +970,6 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered alias events"sv);
+		logger::info("Registered {} alias events"sv, count);
 	}
 }

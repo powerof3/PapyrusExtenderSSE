@@ -62,11 +62,13 @@ namespace Papyrus::Cell
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetLightingTemplate);
 		BIND(SetLightingTemplate);
 		BIND(GetCellNorthRotation);
 		BIND(SetCellNorthRotation);
 
-		logger::info("Registered cell functions"sv);
+		logger::info("Registered {} cell functions"sv, count);
 	}
 }

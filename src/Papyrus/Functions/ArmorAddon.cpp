@@ -24,9 +24,11 @@ namespace Papyrus::ArmorAddon
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetFootstepSet);
 		BIND(SetFootstepSet);
 
-		logger::info("Registered armor addon functions"sv);
+		logger::info("Registered {} armor addon functions"sv, count);
 	}
 }

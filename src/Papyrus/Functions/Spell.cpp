@@ -121,6 +121,8 @@ namespace Papyrus::Spell
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(AddMagicEffectToSpell);
 		BIND(AddEffectItemToSpell);
 		BIND(GetSpellType);
@@ -131,6 +133,6 @@ namespace Papyrus::Spell
 		BIND(SetSpellType);
 		BIND(SetSpellMagicEffect);
 
-		logger::info("Registered spell functions"sv);
+		logger::info("Registered {} spell functions"sv, count);
 	}
 }

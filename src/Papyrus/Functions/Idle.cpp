@@ -24,9 +24,11 @@ namespace Papyrus::Idle
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetAnimationEventName);
 		BIND(GetAnimationFileName);
 
-		logger::info("Registered idle functions"sv);
+		logger::info("Registered {} idle functions"sv, count);
 	}
 }

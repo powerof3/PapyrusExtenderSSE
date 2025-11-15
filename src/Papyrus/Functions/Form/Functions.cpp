@@ -471,6 +471,8 @@ namespace Papyrus::Form::Functions
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(AddKeywordToForm);
 		BIND(ClearRecordFlag);
 		BIND(EvaluateConditionList);
@@ -496,6 +498,6 @@ namespace Papyrus::Form::Functions
 		BIND(SetRecordFlag);
 		BIND(UnmarkItemAsFavorite);
 
-		logger::info("Registered form functions"sv);
+		logger::info("Registered {} form functions"sv, count);
 	}
 }

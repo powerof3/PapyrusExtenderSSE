@@ -24,9 +24,11 @@ namespace Papyrus::Location
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetParentLocation);
 		BIND(SetParentLocation);
 
-		logger::info("Registered location functions"sv);
+		logger::info("Registered {} location functions"sv, count);
 	}
 }

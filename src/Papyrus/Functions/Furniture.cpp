@@ -30,8 +30,10 @@ namespace Papyrus::Furniture
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetFurnitureType, true);
 
-		logger::info("Registered furniture functions"sv);
+		logger::info("Registered {} furniture functions"sv, count);
 	}
 }

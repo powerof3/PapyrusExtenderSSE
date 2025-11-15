@@ -58,10 +58,12 @@ namespace Papyrus::Weather
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(GetWindSpeedAsFloat);
 		BIND(GetWindSpeedAsInt);
 		BIND(GetWeatherType);
 
-		logger::info("Registered weather functions"sv);
+		logger::info("Registered {} weather functions"sv, count);
 	}
 }

@@ -254,6 +254,8 @@ namespace Papyrus::Hazard
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+
 		BIND(ClearHazardFlag);
 		BIND(GetHazardArt, true);
 		BIND(GetHazardIMOD, true);
@@ -279,6 +281,6 @@ namespace Papyrus::Hazard
 		BIND(SetHazardSpell);
 		BIND(SetHazardTargetInterval);
 
-		logger::info("Registered hazard functions"sv);
+		logger::info("Registered {} hazard functions"sv, count);
 	}
 }

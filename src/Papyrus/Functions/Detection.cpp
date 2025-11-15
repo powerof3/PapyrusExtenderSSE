@@ -127,6 +127,8 @@ namespace Papyrus::Detection
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(CanActorBeDetected);
 		BIND(CanActorDetect);
 		BIND(ForceActorDetection);
@@ -137,6 +139,6 @@ namespace Papyrus::Detection
 		BIND(ResetActorDetection);
 		BIND(ResetActorDetecting);
 
-		logger::info("Registered detection functions"sv);
+		logger::info("Registered {} detection functions"sv, count);
 	}
 }

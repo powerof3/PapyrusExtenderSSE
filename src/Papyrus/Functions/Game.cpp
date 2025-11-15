@@ -424,6 +424,8 @@ namespace Papyrus::Game
 
 	void Bind(VM& a_vm)
 	{
+		std::uint32_t count = 0;
+		
 		BIND(ClearCachedFactionFightReactions);
 		BIND(FindAllReferencesOfFormType);
 		BIND(FindAllReferencesOfType);
@@ -452,6 +454,6 @@ namespace Papyrus::Game
 		BIND(SetLocalGravity);
 		BIND(UpdateCrosshairs);
 
-		logger::info("Registered game functions"sv);
+		logger::info("Registered {} game functions"sv, count);
 	}
 }

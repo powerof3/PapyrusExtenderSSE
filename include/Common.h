@@ -47,8 +47,20 @@ namespace Papyrus
 {
 	inline constexpr auto script = "PO3_SKSEFunctions"sv;
 
-#define BIND(a_method, ...) a_vm.RegisterFunction(#a_method##sv, script, a_method __VA_OPT__(, ) __VA_ARGS__)
-#define BIND_EVENT(a_method, ...) a_vm.RegisterFunction(#a_method##sv, obj, a_method __VA_OPT__(, ) __VA_ARGS__)
+	inline std::uint32_t numFunctionsRegistered = 0;
+	inline std::uint32_t numEventsRegistered = 0;
+
+#define BIND(a_method, ...)                      \
+	a_vm.RegisterFunction(#a_method##sv, script, \
+		a_method __VA_OPT__(, ) __VA_ARGS__);    \
+	++(count);                                   \
+	++(numFunctionsRegistered);
+
+#define BIND_EVENT(a_method, ...)             \
+	a_vm.RegisterFunction(#a_method##sv, obj, \
+		a_method __VA_OPT__(, ) __VA_ARGS__); \
+	++(count);                                \
+	++(numEventsRegistered);
 
 #define STATIC_ARGS [[maybe_unused]] VM *a_vm, [[maybe_unused]] StackID a_stackID, RE::StaticFunctionTag *
 }

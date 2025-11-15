@@ -23,7 +23,7 @@ namespace Papyrus::Actor
 	std::vector<RE::Actor*>         GetCombatTargets(STATIC_ARGS, const RE::Actor* a_actor);
 	std::vector<RE::Actor*>         GetCommandedActors(STATIC_ARGS, const RE::Actor* a_actor);
 	RE::Actor*                      GetCommandingActor(STATIC_ARGS, const RE::Actor* a_actor);
-	float                           GetEditorLocationX(STATIC_ARGS,RE::Actor* a_actor);
+	float                           GetEditorLocationX(STATIC_ARGS, RE::Actor* a_actor);
 	float                           GetEditorLocationY(STATIC_ARGS, RE::Actor* a_actor);
 	float                           GetEditorLocationZ(STATIC_ARGS, RE::Actor* a_actor);
 	float                           GetEditorLocationAngle(STATIC_ARGS, RE::Actor* a_actor);

@@ -918,6 +918,6 @@ namespace Papyrus::Form::Events
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered {} form events"sv, count);
+		logger::info("Registered {} form event functions"sv, count);
 	}
 }

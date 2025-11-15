@@ -935,6 +935,6 @@ namespace Papyrus::ActiveMagicEffect::Events
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered {} activemagiceffect events"sv, count);
+		logger::info("Registered {} activemagiceffect event functions"sv, count);
 	}
 }

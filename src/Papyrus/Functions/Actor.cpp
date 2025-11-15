@@ -948,9 +948,9 @@ namespace Papyrus::Actor
 
 					float tiltUpAngle;
 					if (a_ammo->IsBolt()) {
-						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting("f1PBoltTiltUpAngle:Combat")->GetFloat();
+						tiltUpAngle = "f1PBoltTiltUpAngle:Combat"_ini.value();
 					} else {
-						tiltUpAngle = RE::INISettingCollection::GetSingleton()->GetSetting(RE::PlayerCamera::GetSingleton()->IsInFirstPerson() ? "f1PArrowTiltUpAngle:Combat" : "f3PArrowTiltUpAngle:Combat")->GetFloat();
+						tiltUpAngle = RE::PlayerCamera::GetSingleton()->IsInFirstPerson() ? "f1PArrowTiltUpAngle:Combat"_ini.value() : "f3PArrowTiltUpAngle:Combat"_ini.value();
 					}
 					angles.x = a_actor->GetAngleX() - (RE::deg_to_rad(tiltUpAngle));
 

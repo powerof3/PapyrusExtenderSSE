@@ -168,7 +168,7 @@ public:
 	bool Remove(F* a_form, D* a_data)
 	{
 		if (Process(a_form, a_data, 0)) {
-			Base::RemoveData(a_form->GetFormID(), a_data->GetFormID(), 0);
+			Base::AddData(a_form->GetFormID(), a_data->GetFormID(), 0);
 			return true;
 		}
 		return false;

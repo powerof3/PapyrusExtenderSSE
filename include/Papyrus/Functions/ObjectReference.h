@@ -7,6 +7,10 @@ namespace Papyrus::ObjectReference
 	void                              AddAllItemsToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
 	std::vector<RE::TESForm*>         AddItemsOfTypeToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::uint32_t a_formType, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
 	void                              AddItemsOfTypeToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, std::uint32_t a_formType, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
+	std::vector<RE::TESForm*>         AddItemsWithKeywordToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
+	void                              AddItemsWithKeywordToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, RE::BGSKeyword* a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
+	std::vector<RE::TESForm*>         AddItemsWithKeywordStringToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
+	void                              AddItemsWithKeywordStringToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, RE::BSFixedString a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem);
 	void                              AddKeywordToRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword);
 	void                              CastEx(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_spell, RE::TESObjectREFR* a_target, RE::Actor* a_blameActor, std::uint32_t a_source);
 	RE::TESForm*                      FindFirstItemInList(STATIC_ARGS, RE::TESObjectREFR* a_ref, const RE::BGSListForm* a_list);

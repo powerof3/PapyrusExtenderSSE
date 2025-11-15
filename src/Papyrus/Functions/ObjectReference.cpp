@@ -55,25 +55,15 @@ namespace Papyrus::ObjectReference
 
 	std::vector<RE::TESForm*> AddAllItemsToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
-		std::vector<RE::TESForm*> result;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
-			return result;
+			return {};
 		}
 
-		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
-			if (item->Is(RE::FormType::LeveledItem)) {
-				continue;
-			}
-			const auto& [count, entry] = data;
-			if (count > 0 && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				result.push_back(item);
-			}
-		}
-
-		return result;
+		return INV::collect_items_array(a_ref, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[](RE::TESForm*, RE::InventoryEntryData*) {
+				return true;
+			});
 	}
 
 	void AddAllItemsToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
@@ -87,41 +77,25 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
-			if (item->Is(RE::FormType::LeveledItem)) {
-				continue;
-			}
-			const auto& [count, entry] = data;
-			if (count > 0 && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				a_list->AddForm(item);
-			}
-		}
+		INV::collect_items(a_ref, a_list, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[](RE::TESForm*, RE::InventoryEntryData*) {
+				return true;
+			});
 	}
 
 	std::vector<RE::TESForm*> AddItemsOfTypeToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, std::uint32_t a_formType, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
 	{
-		std::vector<RE::TESForm*> result;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
-			return result;
+			return {};
 		}
 
 		const auto formType = static_cast<RE::FormType>(a_formType);
 
-		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
-			if (item->Is(RE::FormType::LeveledItem)) {
-				continue;
-			}
-			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				result.push_back(item);
-			}
-		}
-
-		return result;
+		return INV::collect_items_array(a_ref, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[formType](RE::TESForm* item, RE::InventoryEntryData*) {
+				return formType == RE::FormType::None || item->Is(formType);
+			});
 	}
 
 	void AddItemsOfTypeToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, std::uint32_t a_formType, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
@@ -137,16 +111,82 @@ namespace Papyrus::ObjectReference
 
 		const auto formType = static_cast<RE::FormType>(a_formType);
 
-		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
-			if (item->Is(RE::FormType::LeveledItem)) {
-				continue;
-			}
-			const auto& [count, entry] = data;
-			if (count > 0 && (formType == RE::FormType::None || item->Is(formType)) && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				a_list->AddForm(item);
-			}
+		INV::collect_items(a_ref, a_list, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[formType](RE::TESForm* item, RE::InventoryEntryData*) {
+				return formType == RE::FormType::None || item->Is(formType);
+			});
+	}
+
+	std::vector<RE::TESForm*> AddItemsWithKeywordToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return {};
 		}
+
+		if (!a_keyword) {
+			a_vm->TraceStack("Keyword is None", a_stackID);
+			return {};
+		}
+
+		return INV::collect_items_array(a_ref, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[a_keyword](RE::TESForm* item, RE::InventoryEntryData*) {
+				return item->HasKeywordByEditorID(a_keyword->formEditorID);
+			});
+	}
+
+	void AddItemsWithKeywordToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, RE::BGSKeyword* a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return;
+		}
+
+		if (!a_list) {
+			a_vm->TraceStack("Formlist is None", a_stackID);
+			return;
+		}
+
+		if (!a_keyword) {
+			a_vm->TraceStack("Keyword is None", a_stackID);
+			return;
+		}
+
+		INV::collect_items(a_ref, a_list, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[a_keyword](RE::TESForm* item, RE::InventoryEntryData*) {
+				return item->HasKeywordByEditorID(a_keyword->formEditorID);
+			});
+	}
+
+	std::vector<RE::TESForm*> AddItemsWithKeywordStringToArray(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BSFixedString a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return {};
+		}
+
+		return INV::collect_items_array(a_ref, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[&](RE::TESForm* item, RE::InventoryEntryData*) {
+				return item->HasKeywordByEditorID(a_keyword.c_str());
+			});
+	}
+
+	void AddItemsWithKeywordStringToList(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSListForm* a_list, RE::BSFixedString a_keyword, bool a_noEquipped, bool a_noFavourited, bool a_noQuestItem)
+	{
+		if (!a_ref) {
+			a_vm->TraceStack("Object reference is None", a_stackID);
+			return;
+		}
+
+		if (!a_list) {
+			a_vm->TraceStack("Formlist is None", a_stackID);
+			return;
+		}
+
+		INV::collect_items(a_ref, a_list, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[&](RE::TESForm* item, RE::InventoryEntryData*) {
+				return item->HasKeywordByEditorID(a_keyword.c_str());
+			});
 	}
 
 	void AddKeywordToRef(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::BGSKeyword* a_keyword)
@@ -826,25 +866,15 @@ namespace Papyrus::ObjectReference
 
 	std::vector<RE::TESForm*> GetQuestItems(STATIC_ARGS, RE::TESObjectREFR* a_ref, bool a_noEquipped, bool a_noFavourited)
 	{
-		std::vector<RE::TESForm*> result;
-
 		if (!a_ref) {
 			a_vm->TraceStack("Object reference is None", a_stackID);
-			return result;
+			return {};
 		}
 
-		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
-			if (item->Is(RE::FormType::LeveledItem)) {
-				continue;
-			}
-			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsQuestObject() && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, false)) {
-				result.push_back(item);
-			}
-		}
-
-		return result;
+		return INV::collect_items_array(a_ref, a_noEquipped, a_noFavourited, false,
+			[](RE::TESForm*, RE::InventoryEntryData* entry) {
+				return entry->IsQuestObject();
+			});
 	}
 
 	std::vector<RE::BGSBaseAlias*> GetRefAliases(STATIC_ARGS, RE::TESObjectREFR* a_ref)
@@ -1198,15 +1228,10 @@ namespace Papyrus::ObjectReference
 			return;
 		}
 
-		std::vector<std::pair<RE::TESBoundObject*, std::int32_t>> forms{};
-
-		auto inv = a_ref->GetInventory();
-		for (const auto& [item, data] : inv) {
-			const auto& [count, entry] = data;
-			if (count > 0 && a_formList->HasForm(item) && INV::can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
-				forms.emplace_back(item, count);
-			}
-		}
+		auto forms = INV::collect_items_array<std::pair<RE::TESBoundObject*, std::int32_t>>(a_ref, a_noEquipped, a_noFavourited, a_noQuestItem,
+			[&](RE::TESForm* item, RE::InventoryEntryData*) {
+				return a_formList->HasForm(item);
+			});
 
 		for (auto& [form, count] : forms) {
 			INV::remove_item(a_ref, form, count, true, a_destination, a_stackID, a_vm);
@@ -1466,6 +1491,10 @@ namespace Papyrus::ObjectReference
 		BIND(AddAllItemsToList);
 		BIND(AddItemsOfTypeToArray);
 		BIND(AddItemsOfTypeToList);
+		BIND(AddItemsWithKeywordToArray);
+		BIND(AddItemsWithKeywordToList);
+		BIND(AddItemsWithKeywordStringToArray);
+		BIND(AddItemsWithKeywordStringToList);
 		BIND(AddKeywordToRef);
 		BIND(CastEx);
 		BIND(FindFirstItemInList);

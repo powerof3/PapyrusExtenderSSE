@@ -13,11 +13,5 @@
     "unordered-dense",
     "xbyak"
   ],
-  "builtin-baseline": "f2e1c41da38c71be74ef48684666991929b45418",
-  "overrides": [
-    {
-      "name": "xbyak",
-      "version": "7.23.1"
-    }
-  ]
+  "builtin-baseline": "f2e1c41da38c71be74ef48684666991929b45418"
 }

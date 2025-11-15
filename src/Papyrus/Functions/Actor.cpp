@@ -54,21 +54,13 @@ namespace Papyrus::Actor
 
 		if (!a_actor) {
 			a_vm->TraceStack("Actor is None", a_stackID);
-			return result;
+			return {};
 		}
 
-		auto inv = a_actor->GetInventory();
-		for (const auto& [item, data] : inv) {
-			if (item->Is(RE::FormType::LeveledItem)) {
-				continue;
-			}
-			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsWorn()) {
-				result.push_back(item);
-			}
-		}
-
-		return result;
+		return INV::collect_items_array(a_actor, false, false, false,
+			[](RE::TESForm*, RE::InventoryEntryData* a_entry) {
+				return a_entry->IsWorn();
+			});
 	}
 
 	std::vector<RE::TESForm*> AddAllEquippedItemsBySlotToArray(STATIC_ARGS, RE::Actor* a_actor, std::vector<std::uint32_t> a_slots)

@@ -793,13 +793,13 @@ Scriptname PO3_SKSEFunctions Hidden
 
 	Function AddItemsOfTypeToList(ObjectReference akRef, Formlist akList, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 	
-	Form[] Function AddItemsWithKeywordToArray(ObjectReference akRef, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+	Form[] Function AddItemsWithKeywordToArray(ObjectReference akRef, Keyword akKeyword, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 
-	Function AddItemsWithKeywordToList(ObjectReference akRef, Formlist akList, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+	Function AddItemsWithKeywordToList(ObjectReference akRef, Formlist akList, Keyword akKeyword, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 	
-	Form[] Function AddItemsWithKeywordStringToArray(ObjectReference akRef, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+	Form[] Function AddItemsWithKeywordStringToArray(ObjectReference akRef, String asKeywordString, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 
-	Function AddItemsWithKeywordStringToList(ObjectReference akRef, Formlist akList, int aiFormType, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
+	Function AddItemsWithKeywordStringToList(ObjectReference akRef, Formlist akList, String asKeywordString, bool abNoEquipped = true, bool abNoFavorited = false, bool abNoQuestItem = false) global native
 
 	ObjectReference[] Function FindAllReferencesOfFormType(ObjectReference akRef, int formType, float afRadius) global native
 

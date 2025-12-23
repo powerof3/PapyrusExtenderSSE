@@ -908,7 +908,7 @@ namespace CONDITION
 					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kEscape);
 					break;
 				case "Werewolf Transformation"_h:
-					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kUnused);
+					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kWerewolf);
 					break;
 				default:
 					data.i = -1;
@@ -1202,7 +1202,7 @@ namespace CONDITION
 					return "Murder"s;
 				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kEscape):
 					return "Escape"s;
-				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kUnused):
+				case static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kWerewolf):
 					return "Werewolf Transformation"s;
 				default:
 					return "ANY";

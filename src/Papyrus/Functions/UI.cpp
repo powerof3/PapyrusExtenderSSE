@@ -38,14 +38,7 @@ namespace Papyrus::UI
 			return;
 		}
 
-		RE::NiMatrix3 rot{};
-		rot.SetEulerAnglesXYZ(-0.05f, -0.05f, 1.50f);
-
-		RE::BSString str;
-		a_book->GetDescription(str, nullptr);
-		logger::info("{}", str.c_str());
-
-		RE::BookMenu::OpenBookMenu(str, nullptr, nullptr, a_book, RE::NiPoint3(), rot, 1.0f, true);
+		RE::BookMenu::OpenMenuFromBaseForm(a_book);
 	}
 
 	void ShowMenu(RE::StaticFunctionTag*, RE::BSFixedString a_menuName)
@@ -57,7 +50,7 @@ namespace Papyrus::UI
 
 	void ToggleOpenSleepWaitMenu(RE::StaticFunctionTag*, bool a_openSleepMenu)
 	{
-		RE::SleepWaitMenu::ToggleOpenSleepWaitMenu(a_openSleepMenu);
+		RE::SleepWaitMenu::ToggleOpenMenu(a_openSleepMenu);
 	}
 
 	void Bind(VM& a_vm)

@@ -740,6 +740,7 @@ Scriptname PO3_SKSEFunctions Hidden
 	;-------
 
 	Location Function GetParentLocation(Location akLoc) global native
+	ObjectReference[] Function GetLocationBossReferences(Location akLoc) global native
 
 	;-------
 	;SETTERS

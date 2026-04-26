@@ -53,7 +53,7 @@ namespace Papyrus::UI
 		RE::SleepWaitMenu::ToggleOpenMenu(a_openSleepMenu);
 	}
 
-	void ShowTutorialMessage(STATIC_ARGS, RE::BGSMessage* a_msg) 
+	void ShowTutorialMessage(STATIC_ARGS, RE::BGSMessage* a_msg)
 	{
 		// Credit - Parapets (Exit-9B) / Staff Enchanting Plus:
 		// https://github.com/Exit-9B/StaffEnchanting/blob/d28df324948bcd14ae6760f21124cbde8fb54682/src/UI/StaffCraftingMenu.cpp#L92

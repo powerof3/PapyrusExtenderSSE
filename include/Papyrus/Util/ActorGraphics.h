@@ -4,7 +4,6 @@ namespace GRAPHICS
 {
 	using Feature = RE::BSShaderMaterial::Feature;
 	using HeadPartType = RE::BGSHeadPart::HeadPartType;
-	using States = RE::BSGeometry::States;
 	using Texture = RE::BSTextureSet::Texture;
 	using ShaderFlags = RE::BSShaderProperty::EShaderPropertyFlag;
 	using ShaderFlags8 = RE::BSShaderProperty::EShaderPropertyFlag8;

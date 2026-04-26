@@ -8,6 +8,7 @@ namespace Papyrus::UI
 	void               ShowBookMenu(STATIC_ARGS, RE::TESObjectBOOK* a_book);
 	void               ShowMenu(RE::StaticFunctionTag*, RE::BSFixedString a_menuName);
 	void               ToggleOpenSleepWaitMenu(RE::StaticFunctionTag*, bool a_openSleepMenu);
+	void               ShowTutorialMessage(STATIC_ARGS, RE::BGSMessage* a_msg);
 
 	void Bind(VM& a_vm);
 }

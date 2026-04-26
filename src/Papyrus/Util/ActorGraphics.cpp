@@ -60,14 +60,14 @@ namespace GRAPHICS
 			if (const auto parent = a_geometry->parent; parent && parent->AsFadeNode() && noWeapons && isActor) {
 				return RE::BSVisit::BSVisitControl::kContinue;
 			}
-			if (const auto alpha = a_geometry->properties[States::kProperty]; alpha && noAlphaMeshes) {
+			if (const auto alpha = a_geometry->alphaProperty; alpha && noAlphaMeshes) {
 				return RE::BSVisit::BSVisitControl::kContinue;
 			}
 
-			const auto& effect = a_geometry->properties[States::kEffect];
+			const auto& effect = a_geometry->shaderProperty;
 			const auto  lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 
-			const auto& tempEffect = a_templateGeo->properties[States::kEffect];
+			const auto& tempEffect = a_templateGeo->shaderProperty;
 			const auto  tempLightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(tempEffect.get());
 
 			if (lightingShader && tempLightingShader) {
@@ -236,7 +236,7 @@ namespace GRAPHICS
 	void ActorApplier::ArmorTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::int32_t a_type, std::string_view a_tgtPath, bool& replaced)
 	{
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+			const auto effect = a_geometry->shaderProperty;
 			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 
 			const auto material = lightingShader ? static_cast<MaterialBase*>(lightingShader->material) : nullptr;
@@ -290,7 +290,7 @@ namespace GRAPHICS
 	void ActorApplier::SkinTXST(RE::NiAVObject* a_object, RE::BGSTextureSet* a_txst, std::vector<RE::BSFixedString>& a_vec, std::int32_t a_type)
 	{
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+			const auto effect = a_geometry->shaderProperty;
 			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 
 			const auto material = lightingShader ? static_cast<MaterialBase*>(lightingShader->material) : nullptr;
@@ -384,7 +384,7 @@ namespace GRAPHICS
 		const auto geometry = object ? object->AsGeometry() : nullptr;
 
 		if (geometry) {
-			const auto& effect = geometry->properties[States::kEffect];
+			const auto& effect = geometry->shaderProperty;
 			const auto  lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 			if (lightingShader) {
 				const auto material = static_cast<MaterialBase*>(lightingShader->material);
@@ -719,7 +719,7 @@ namespace GRAPHICS
 	void ActorResetter::reset_textureset(RE::NiAVObject* a_object, RE::BSShaderTextureSet* a_txst, bool a_doOnlySkin, const std::string& a_folder)
 	{
 		RE::BSVisit::TraverseScenegraphGeometries(a_object, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-			const auto& effect = a_geometry->properties[States::kEffect];
+			const auto& effect = a_geometry->shaderProperty;
 			const auto  lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 			if (lightingShader) {
 				const auto material = static_cast<MaterialBase*>(lightingShader->material);
@@ -764,7 +764,7 @@ namespace GRAPHICS
 				return RE::BSVisit::BSVisitControl::kContinue;
 			}
 
-			const auto& effect = a_geometry->properties[States::kEffect];
+			const auto& effect = a_geometry->shaderProperty;
 			const auto  lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 
 			if (lightingShader) {

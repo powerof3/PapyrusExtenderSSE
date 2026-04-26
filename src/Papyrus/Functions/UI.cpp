@@ -53,6 +53,17 @@ namespace Papyrus::UI
 		RE::SleepWaitMenu::ToggleOpenMenu(a_openSleepMenu);
 	}
 
+	void ShowTutorialMessage(STATIC_ARGS, RE::BGSMessage* a_msg) 
+	{
+		// Credit - Parapets (Exit-9B) / Staff Enchanting Plus:
+		// https://github.com/Exit-9B/StaffEnchanting/blob/d28df324948bcd14ae6760f21124cbde8fb54682/src/UI/StaffCraftingMenu.cpp#L92
+		if (!a_msg) {
+			a_vm->TraceStack("[ShowTutorialMessage]: Cannot call with a NONE message.", a_stackID, RE::BSScript::IVirtualMachine::Severity::kWarning);
+			return;
+		}
+		RE::TutorialMenu::OpenMenu(a_msg);
+	}
+
 	void Bind(VM& a_vm)
 	{
 		std::uint32_t count = 0;
@@ -63,6 +74,7 @@ namespace Papyrus::UI
 		BIND(ShowMenu);
 		BIND(ShowBookMenu);
 		BIND(ToggleOpenSleepWaitMenu);
+		BIND(ShowTutorialMessage);
 
 		logger::info("Registered {} UI functions"sv, count);
 	}

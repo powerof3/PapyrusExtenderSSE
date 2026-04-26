@@ -1115,6 +1115,8 @@ Scriptname PO3_SKSEFunctions Hidden
 	
 	Function ToggleOpenSleepWaitMenu(bool abOpenSleepMenu) global native
 
+	Function ShowTutorialMessage(Message akMessage) global native
+
 ;----------------------------------------------------------------------------------------------------------
 ;UTILITY
 ;----------------------------------------------------------------------------------------------------------

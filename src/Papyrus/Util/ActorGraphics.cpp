@@ -6,12 +6,16 @@ namespace GRAPHICS
 	{
 		void sanitize_path(std::string& a_path)
 		{
+			static const srell::regex slashPattern("/+|\\\\+");
+			static const srell::regex leadingSlashPattern("^\\\\+");
+			static const srell::regex texturesPattern(R"(.*?[^\s]textures\\|^textures\\)", srell::regex::icase);
+
 			std::ranges::transform(a_path, a_path.begin(),
 				[](char c) { return static_cast<char>(std::tolower(c)); });
 
-			a_path = srell::regex_replace(a_path, srell::regex("/+|\\\\+"), "\\");
-			a_path = srell::regex_replace(a_path, srell::regex("^\\\\+"), "");
-			a_path = srell::regex_replace(a_path, srell::regex(R"(.*?[^\s]textures\\|^textures\\)", srell::regex::icase), "");
+			a_path = srell::regex_replace(a_path, slashPattern, "\\");
+			a_path = srell::regex_replace(a_path, leadingSlashPattern, "");
+			a_path = srell::regex_replace(a_path, texturesPattern, "");
 		}
 
 		RE::BSShaderTextureSet* create_textureset(char** a_value)

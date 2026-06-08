@@ -427,17 +427,17 @@ namespace GRAPHICS
 		}
 	}
 
-	ActorResetter::ActorResetter(RE::Actor* a_actor, RE::NiAVObject* a_object, const RE::BSFixedString& a_folderName) :
+	ActorResetter::ActorResetter(RE::Actor* a_actor, const RE::BSFixedString& a_folderName) :
 		actor(a_actor),
-		root(a_object),
+		root(a_actor ? a_actor->Get3D(false) : nullptr),
 		folderName(a_folderName)
 	{
-		if (!a_object || !a_object->extra || a_object->extraDataSize == 0) {
+		if (!root || !root->extra || root->extraDataSize == 0) {
 			hasData = false;
 			return;
 		}
 
-		std::span<RE::NiExtraData*> span(a_object->extra, a_object->extraDataSize);
+		std::span<RE::NiExtraData*> span(root->extra, root->extraDataSize);
 		for (const auto& extraData : span) {
 			if (!extraData) {
 				continue;

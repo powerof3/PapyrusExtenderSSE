@@ -346,8 +346,8 @@ namespace Papyrus::Graphics
 			return false;
 		}
 
-		SKSE::GetTaskInterface()->AddTask([a_actor, root, a_folderName]() {
-			ActorResetter resetter(a_actor, root, a_folderName);
+		SKSE::GetTaskInterface()->AddTask([a_actor, a_folderName]() {
+			const ActorResetter resetter(a_actor, a_folderName);
 			resetter.ResetActor3D();
 		});
 

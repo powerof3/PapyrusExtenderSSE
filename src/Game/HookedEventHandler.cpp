@@ -362,9 +362,9 @@ namespace Event
 
 		struct ChangeFastTravelTarget
 		{
-			static void thunk(RE::FastTravelConfirmCallback* a_this, RE::IMessageBoxCallback::Message a_message)
+			static void thunk(RE::FastTravelConfirmCallback* a_this, std::uint8_t a_message)
 			{
-				if (a_message == RE::IMessageBoxCallback::Message::kUnk1) {
+				if (a_message == static_cast<std::uint8_t>(1)) {
 					const auto refr = GetMapMarkerObject(a_this->mapMenu->mapMarker.get());
 					GameEventHolder::GetSingleton()->fastTravelConfirmed.QueueEvent(refr);
 
@@ -377,7 +377,7 @@ namespace Event
 				if (disableFastTravel) {
 					logger::debug("Fast Travel is disabled; cancelling trip");
 
-					func(a_this, RE::IMessageBoxCallback::Message::kUnk0);
+					func(a_this, static_cast<std::uint8_t>(0));
 					RE::UIMessageQueue::GetSingleton()->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 					return;
 				}

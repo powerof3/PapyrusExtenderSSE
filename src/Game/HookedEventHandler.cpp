@@ -294,27 +294,13 @@ namespace Event
 
 	namespace FallLongDistance
 	{
-		struct CalcDoDamage
-		{
-			static float thunk(RE::Actor* a_this, float a_fallDistance, float a_defaultMult)
-			{
-				const auto fallDamage = func(a_this, a_fallDistance, a_defaultMult);
-				if (fallDamage > 0.0f) {
-					GameEventHolder::GetSingleton()->actorFallLongDistance.QueueEvent(a_this, a_fallDistance, fallDamage);
-				}
-				return fallDamage;
-			}
-
-			static inline REL::Relocation<decltype(thunk)> func;
-		};
-
 		void Install()
 		{
 			REL::Relocation<std::uintptr_t> take_ragdoll_damage{ RELOCATION_ID(36346, 37336), 0x35 };
-			stl::write_thunk_call<CalcDoDamage>(take_ragdoll_damage.address());
+			stl::write_thunk_call<CalcDoDamage<0>>(take_ragdoll_damage.address());
 
 			REL::Relocation<std::uintptr_t> process_movefinish_event{ RELOCATION_ID(36973, 37998), OFFSET(0xAE, 0xAB) };
-			stl::write_thunk_call<CalcDoDamage>(process_movefinish_event.address());
+			stl::write_thunk_call<CalcDoDamage<1>>(process_movefinish_event.address());
 
 			logger::info("Hooked Fall Damage"sv);
 		}
@@ -544,40 +530,19 @@ namespace Event
 
 	namespace ItemCrafted
 	{
-		struct StoryItemCraft
-		{
-			RE::ObjectRefHandle objectHandle;  // 00
-			RE::BGSLocation*    location;      // 08
-			RE::TESForm*        form;          // 10
-		};
-
-		static_assert(sizeof(StoryItemCraft) == 0x18);
-
-		struct StoryCraftItem
-		{
-			static StoryItemCraft* thunk(StoryItemCraft* a_event, RE::TESObjectREFR* a_refr, RE::BGSLocation* a_loc, RE::TESForm* a_form)
-			{
-				GameEventHolder::GetSingleton()->itemCrafted.QueueEvent(a_refr, a_loc, a_form);
-
-				return func(a_event, a_refr, a_loc, a_form);
-			}
-
-			static inline REL::Relocation<decltype(thunk)> func;
-		};
-
 		void Install()
 		{
 			REL::Relocation<std::uintptr_t> smithing{ RELOCATION_ID(50477, 51370), OFFSET(0x17D, 0x1B3) };
-			stl::write_thunk_call<StoryCraftItem>(smithing.address());
+			stl::write_thunk_call<StoryCraftItem<0>>(smithing.address());
 
 			REL::Relocation<std::uintptr_t> tempering{ RELOCATION_ID(50476, 51369), OFFSET(0x11E, 0x227) };
-			stl::write_thunk_call<StoryCraftItem>(tempering.address());
+			stl::write_thunk_call<StoryCraftItem<1>>(tempering.address());
 
 			REL::Relocation<std::uintptr_t> enchanting{ RELOCATION_ID(50450, 51355), OFFSET(0x2FC, 0x2FA) };
-			stl::write_thunk_call<StoryCraftItem>(enchanting.address());
+			stl::write_thunk_call<StoryCraftItem<2>>(enchanting.address());
 
 			REL::Relocation<std::uintptr_t> alchemy{ RELOCATION_ID(50449, 51354), OFFSET(0x29E, 0x296) };
-			stl::write_thunk_call<StoryCraftItem>(alchemy.address());
+			stl::write_thunk_call<StoryCraftItem<3>>(alchemy.address());
 
 			logger::info("Hooked Item Crafted"sv);
 		}

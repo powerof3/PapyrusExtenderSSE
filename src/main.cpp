@@ -102,7 +102,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	SKSE::Init(a_skse, false);
 
-	SKSE::AllocTrampoline(208);
+	SKSE::AllocTrampoline(264);
 
 	const auto papyrus = SKSE::GetPapyrusInterface();
 	papyrus->Register(Papyrus::Bind);

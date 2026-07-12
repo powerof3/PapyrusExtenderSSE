@@ -1050,6 +1050,7 @@ namespace Papyrus::ObjectReference
 		auto root = a_ref->Get3D();
 		if (!root) {
 			a_vm->TraceForm(a_ref, "has no 3D", a_stackID);
+			return false;
 		}
 
 		RE::NiAVObject* node = nullptr;

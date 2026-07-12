@@ -1,5 +1,4 @@
 #include "Game/HookedEventHandler.h"
-#include "Serialization/EventHolder.h"
 
 namespace Event
 {

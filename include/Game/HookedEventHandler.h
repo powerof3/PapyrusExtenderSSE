@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Serialization/EventHolder.h"
+
 namespace Event
 {
 	void RegisterHookEvents();

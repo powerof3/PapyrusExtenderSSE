@@ -13,10 +13,12 @@ concurrency:
 jobs:
   run:
     if: github.repository_owner == 'powerof3'
-    uses: powerof3/pack-skse-mod/.github/workflows/pack.yml@main
+    uses: powerof3/pack-skse-mod/.github/workflows/pack.yml@main-vs2022
     with:
-      CMAKE_VR_CONFIG_PRESET: ''
-      CMAKE_VR_BUILD_PRESET: ''
+      CMAKE_SE_CONFIG_PRESET: 'vs2022-se'
+      CMAKE_SE_BUILD_PRESET: 'vs2022-se'
+      CMAKE_AE_CONFIG_PRESET: 'vs2022-ae'
+      CMAKE_AE_BUILD_PRESET: 'vs2022-ae'
       FOMOD_INCLUDE_PDB: true
       FOMOD_MOD_NAME: "powerofthree's Papyrus Extender"
       FOMOD_MOD_AUTHOR: "powerofthree"

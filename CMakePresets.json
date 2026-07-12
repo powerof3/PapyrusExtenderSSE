@@ -39,6 +39,17 @@
       }
     },
     {
+      "name": "base",
+      "hidden": true,
+      "inherits": [ "cmake-dev", "vcpkg", "windows" ]
+    },
+    {
+      "name": "vs2022",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "toolset": "v143"
+    },
+    {
       "name": "vs2026",
       "hidden": true,
       "generator": "Visual Studio 18 2026",
@@ -66,51 +77,65 @@
       }
     },
     {
-      "name": "vs2026-windows-vcpkg-se",
-      "inherits": [
-        "cmake-dev",
-        "vcpkg",
-        "windows",
-        "vs2026",
-        "se"
-      ]
+      "name": "vs2022-se",
+      "inherits": [ "base", "vs2022", "se" ]
     },
     {
-      "name": "vs2026-windows-vcpkg-ae",
-      "inherits": [
-        "cmake-dev",
-        "vcpkg",
-        "windows",
-        "vs2026",
-        "ae"
-      ]
+      "name": "vs2022-ae",
+      "inherits": [ "base", "vs2022", "ae" ]
     },
     {
-      "name": "vs2026-windows-vcpkg-vr",
-      "inherits": [
-        "cmake-dev",
-        "vcpkg",
-        "windows",
-        "vs2026",
-        "vr"
-      ]
+      "name": "vs2022-vr",
+      "inherits": [ "base", "vs2022", "vr" ]
+    },
+    {
+      "name": "vs2026-se",
+      "inherits": [ "base", "vs2026", "se" ]
+    },
+    {
+      "name": "vs2026-ae",
+      "inherits": [ "base", "vs2026", "ae" ]
+    },
+    {
+      "name": "vs2026-vr",
+      "inherits": [ "base", "vs2026", "vr" ]
     }
   ],
   "buildPresets": [
     {
-      "name": "vs2026-windows-vcpkg-ae",
-      "configurePreset": "vs2026-windows-vcpkg-ae",
+      "name": "release",
+      "hidden": true,
       "configuration": "Release"
     },
     {
-      "name": "vs2026-windows-vcpkg-se",
-      "configurePreset": "vs2026-windows-vcpkg-se",
-      "configuration": "Release"
+      "name": "vs2022-se",
+      "inherits": "release",
+      "configurePreset": "vs2022-se"
     },
     {
-      "name": "vs2026-windows-vcpkg-vr",
-      "configurePreset": "vs2026-windows-vcpkg-vr",
-      "configuration": "Release"
+      "name": "vs2022-ae",
+      "inherits": "release",
+      "configurePreset": "vs2022-ae"
+    },
+    {
+      "name": "vs2022-vr",
+      "inherits": "release",
+      "configurePreset": "vs2022-vr"
+    },
+    {
+      "name": "vs2026-se",
+      "inherits": "release",
+      "configurePreset": "vs2026-se"
+    },
+    {
+      "name": "vs2026-ae",
+      "inherits": "release",
+      "configurePreset": "vs2026-ae"
+    },
+    {
+      "name": "vs2026-vr",
+      "inherits": "release",
+      "configurePreset": "vs2026-vr"
     }
   ]
 }

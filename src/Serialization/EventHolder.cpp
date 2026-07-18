@@ -28,6 +28,9 @@ namespace Event
 		case kQuestStop:
 			questStop.Load(a_intfc);
 			break;
+		case kQuestStage:
+			questStage.Load(a_intfc);
+			break;
 		case kObjectLoaded:
 			objectLoaded.Load(a_intfc);
 			break;
@@ -108,6 +111,9 @@ namespace Event
 		switch (a_type) {
 		case kActorKill:
 			actorKill.Load(a_intfc);
+			break;
+		case kCritHit:
+			criticalHit.Load(a_intfc);
 			break;
 		case kDisarm:
 			disarmed.Load(a_intfc);

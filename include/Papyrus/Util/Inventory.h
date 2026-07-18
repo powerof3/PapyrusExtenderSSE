@@ -18,7 +18,7 @@ namespace INV
 
 			const auto& [count, entry] = data;
 
-			if (count > 0 && a_filter(item, entry.get()) && can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
+			if (count > 0 && entry && a_filter(item, entry.get()) && can_be_taken(entry.get(), a_noEquipped, a_noFavourited, a_noQuestItem)) {
 				if constexpr (std::is_same_v<T, RE::BGSListForm*>) {
 					a_result->AddForm(item);
 				} else if constexpr (std::is_same_v<T, std::vector<std::pair<RE::TESBoundObject*, std::int32_t>>>) {

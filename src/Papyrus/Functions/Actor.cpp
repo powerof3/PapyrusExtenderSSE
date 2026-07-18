@@ -92,7 +92,7 @@ namespace Papyrus::Actor
 				continue;
 			}
 			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsWorn()) {
+			if (count > 0 && entry && entry->IsWorn()) {
 				result.push_back(item);
 			}
 		}
@@ -1099,7 +1099,7 @@ namespace Papyrus::Actor
 
 		for (auto& [item, data] : inv) {
 			const auto& [count, entry] = data;
-			if (!entry->IsQuestObject() && (!a_equippedOnly || entry->IsWorn())) {
+			if (count > 0 && entry && !entry->IsQuestObject() && (!a_equippedOnly || entry->IsWorn())) {
 				INV::remove_item(a_actor, item, count, true, nullptr, a_stackID, a_vm);
 			}
 		}
@@ -1297,7 +1297,7 @@ namespace Papyrus::Actor
 
 		for (const auto& [item, data] : inv) {
 			const auto& [count, entry] = data;
-			if (count > 0 && entry->IsWorn()) {
+			if (count > 0 && entry && entry->IsWorn()) {
 				RE::ActorEquipManager::GetSingleton()->UnequipObject(a_actor, item);
 			}
 		}

@@ -110,7 +110,7 @@ void MAGIC::RemoveMagicEffect(VM* a_vm, StackID a_stackID, RE::MagicItem* a_spel
 	}
 
 	MGEFData data(a_mgef, a_mag, a_area, a_dur, a_cost);
-	if (Manager::GetSingleton()->mgefs.Remove(a_spell, data)) {
+	if (!Manager::GetSingleton()->mgefs.Remove(a_spell, data)) {
 		a_vm->TraceForm(a_spell, "Failed to remove magic effect", a_stackID);
 	}
 }
@@ -125,13 +125,13 @@ void MAGIC::RemoveEffectItem(VM* a_vm, StackID a_stackID, RE::MagicItem* a_spell
 		a_vm->TraceStack("Copy Spell is None", a_stackID);
 		return;
 	}
-	if (a_index > a_copySpell->effects.size()) {
+	if (a_index >= a_copySpell->effects.size()) {
 		a_vm->TraceStack("Copy Spell index exceeds effect list size", a_stackID);
 		return;
 	}
 
 	EffectData data(a_copySpell, a_index, a_cost);
-	if (Manager::GetSingleton()->effectItems.Remove(a_spell, data)) {
+	if (!Manager::GetSingleton()->effectItems.Remove(a_spell, data)) {
 		a_vm->TraceForm(a_spell, "Failed to remove magic effect", a_stackID);
 	}
 }
@@ -143,7 +143,7 @@ void MAGIC::SetMagicEffect(VM* a_vm, StackID a_stackID, RE::MagicItem* a_spell, 
 		return;
 	}
 
-	if (a_index > a_spell->effects.size()) {
+	if (a_index >= a_spell->effects.size()) {
 		a_vm->TraceForm(a_spell, "Index exceeds effect list size", a_stackID);
 		return;
 	}

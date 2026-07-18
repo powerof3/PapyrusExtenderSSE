@@ -164,7 +164,7 @@ namespace Papyrus::EffectShader
 
 		auto [color, alpha, time] = get_key_data();
 
-		if (!a_rgb.empty()) {
+		if (a_rgb.size() == 3) {
 			for (std::size_t i = 0; i < 3; ++i) {
 				color[i] = static_cast<std::uint8_t>(a_rgb[i]);
 			}
@@ -228,7 +228,7 @@ namespace Papyrus::EffectShader
 
 		auto [color, alpha, time] = get_key_data();
 
-		if (!a_rgb.empty()) {
+		if (a_rgb.size() == 3) {
 			for (std::size_t i = 0; i < 3; ++i) {
 				color[i] = static_cast<std::uint8_t>(a_rgb[i]);
 			}

@@ -254,7 +254,7 @@ namespace Papyrus::Form::Functions
 				auto inv = player->GetInventory();
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
-					if (count > 0 && item == a_form && !entry->IsFavorited()) {
+					if (count > 0 && item == a_form && entry && !entry->IsFavorited()) {
 						const auto extralist = entry->extraLists ? entry->extraLists->front() : nullptr;
 						invChanges->SetFavorite(entry.get(), extralist);
 						break;
@@ -458,7 +458,7 @@ namespace Papyrus::Form::Functions
 				auto inv = player->GetInventory();
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
-					if (count > 0 && item == a_form) {
+					if (count > 0 && item == a_form && entry) {
 						if (const auto extralist = INV::get_hotkey_extralist(entry.get()); extralist) {
 							invChanges->RemoveFavorite(entry.get(), extralist);
 						}

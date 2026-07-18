@@ -1190,7 +1190,7 @@ namespace Papyrus::ObjectReference
 			if (const auto actor = a_ref->As<RE::Actor>()) {
 				for (const auto& [item, data] : inv) {
 					const auto& [count, entry] = data;
-					if (count > 0 && entry->IsWorn()) {
+					if (count > 0 && entry && entry->IsWorn()) {
 						RE::ActorEquipManager::GetSingleton()->UnequipObject(actor, item);
 					}
 				}

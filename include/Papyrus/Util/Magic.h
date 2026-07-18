@@ -65,7 +65,7 @@ namespace MAGIC
 		}
 
 		EffectData data{ a_copySpell, a_index, a_cost };
-		if (Manager::GetSingleton()->effectItems.Add(a_spell, data)) {
+		if (!Manager::GetSingleton()->effectItems.Add(a_spell, data)) {
 			a_vm->TraceForm(a_spell, "Failed to add magic effect", a_stackID);
 		}
 	}

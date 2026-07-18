@@ -40,7 +40,7 @@ namespace INV
 	{
 		if (a_changes->extraLists) {
 			for (const auto& xList : *a_changes->extraLists) {
-				if (const auto hotkey = xList->HasType<RE::ExtraHotkey>()) {
+				if (xList && xList->HasType<RE::ExtraHotkey>()) {
 					return xList;
 				}
 			}

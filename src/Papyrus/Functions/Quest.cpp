@@ -48,6 +48,7 @@ namespace Papyrus::Quest
 	{
 		if (!a_quest) {
 			a_vm->TraceStack("Quest is None", a_stackID);
+			return;
 		}
 
 		for (const auto& objective : a_quest->objectives) {

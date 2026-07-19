@@ -769,7 +769,7 @@ namespace CONDITION
 			return;
 		}
 
-		if (!a_param.empty() || string::icontains(a_param, "NONE"sv) && !stl::is_in(*type, PARAM_TYPE::kWardState, PARAM_TYPE::kCritStage)) {
+		if (a_param.empty() || (string::iequals(a_param, "NONE"sv) && !stl::is_in(*type, PARAM_TYPE::kWardState, PARAM_TYPE::kCritStage))) {
 			type = std::nullopt;
 			state = STATE::kNull;
 			return;
@@ -854,6 +854,7 @@ namespace CONDITION
 					data.i = static_cast<std::int32_t>(RE::MagicSystem::WardState::kBreak);
 					break;
 				case "NONE"_h:
+				case "None"_h:
 					data.i = static_cast<std::int32_t>(RE::MagicSystem::WardState::kNone);
 					break;
 				default:
@@ -866,6 +867,7 @@ namespace CONDITION
 			{
 				switch (string::const_hash(a_param)) {
 				case "NONE"_h:
+				case "None"_h:
 					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kNone);
 					break;
 				case "GooStart"_h:

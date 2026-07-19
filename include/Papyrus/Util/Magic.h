@@ -48,7 +48,7 @@ namespace MAGIC
 			a_vm->TraceStack("Copy Item is None", a_stackID);
 			return;
 		}
-		if (a_index > a_copySpell->effects.size()) {
+		if (a_index >= a_copySpell->effects.size()) {
 			a_vm->TraceForm(a_spell, "Copy Item index exceeds effect list size", a_stackID);
 			return;
 		}

@@ -48,6 +48,10 @@
 #include "REX/REX.h"
 #include "SKSE/SKSE.h"
 
+using namespace std::literals;
+using namespace RE::literals;
+using namespace REX::STR::literals;
+
 #include "Version.h"
 
 #include <boost/regex.hpp>
@@ -60,14 +64,11 @@
 
 #include <ClibUtil/distribution.hpp>
 #include <ClibUtil/editorID.hpp>
+
 #define DLLEXPORT __declspec(dllexport)
 
 namespace dist = clib_util::distribution;
 namespace editorID = clib_util::editorID;
-
-using namespace std::literals;
-using namespace RE::literals;
-using namespace REX::STR::literals;
 
 template <class K, class D, class H = boost::hash<K>, class KEqual = std::equal_to<K>>
 using Map = boost::unordered_flat_map<K, D, H, KEqual>;

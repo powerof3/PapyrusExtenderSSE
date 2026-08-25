@@ -48,12 +48,6 @@
 #include "REX/REX.h"
 #include "SKSE/SKSE.h"
 
-using namespace std::literals;
-using namespace RE::literals;
-using namespace REX::STR::literals;
-
-#include "Version.h"
-
 #include <boost/regex.hpp>
 #include <boost/unordered/unordered_flat_map.hpp>
 #include <boost/unordered/unordered_flat_set.hpp>
@@ -66,6 +60,10 @@ using namespace REX::STR::literals;
 #include <ClibUtil/editorID.hpp>
 
 #define DLLEXPORT __declspec(dllexport)
+
+using namespace std::literals;
+using namespace RE::literals;
+using namespace REX::STR::literals;
 
 namespace dist = clib_util::distribution;
 namespace editorID = clib_util::editorID;
@@ -191,27 +189,8 @@ namespace Runtime
 
 	[[nodiscard]] inline bool IsAtLeast1_7_99() noexcept
 	{
-		return version >= Runtime::SSE_1_7_99;
-	}
-
-	inline void Init(const REL::Version& a_runtimeVersion)
-	{
-		version = a_runtimeVersion;
-
-		REX::INFO("Game version : {}", version);
-
-#ifdef SKYRIM_SUPPORT_AE
-		if constexpr (SKSE::RUNTIME_SSE_LATEST < MIN_ADDRESS_LIBRARY_V5) {
-			if (version >= MIN_ADDRESS_LIBRARY_V5) {
-				REX::FAIL(
-					"You are using a newer version of Skyrim than this version of {0} supports.\n"
-					"Install the correct version of {0} for your game version.\n"
-					"Runtime: {1}\n"
-					"Supported: 1.6.1170 (Steam) / 1.6.1179 (GOG)",
-					Version::PROJECT, version);
-			}
-		}
-#endif
+		static bool result = REX::FModule().GetExecutingModule().GetFileVersion() >= Runtime::SSE_1_7_99;
+		return result;
 	}
 }
 
@@ -232,3 +211,4 @@ namespace Runtime
 
 #include "API/API.h"
 #include "Common.h"
+#include "Version.h"

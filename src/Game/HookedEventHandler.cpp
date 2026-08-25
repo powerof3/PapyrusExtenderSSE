@@ -186,7 +186,7 @@ namespace Event
 
 			namespace Static
 			{
-				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37674, 38628), OFFSET(0x6C7, 0x785) };
+				REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(37674, 38628), OFFSET_VERSIONED(0x6C7, 0x785, 0x79D, 0x6C7) };
 
 				struct SendHitEvent
 				{

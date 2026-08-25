@@ -61,6 +61,6 @@ namespace Papyrus::VisualEffect
 		BIND(GetArtObjectTotalCount);
 		BIND(SetArtObject);
 
-		logger::info("Registered {} visual effect functions"sv, count);
+		REX::INFO("Registered {} visual effect functions"sv, count);
 	}
 }

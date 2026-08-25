@@ -32,6 +32,6 @@ namespace Papyrus::Alias::Functions
 		BIND(GetScriptsAttachedToAlias);
 		BIND(IsScriptAttachedToAlias);
 
-		logger::info("Registered {} alias functions"sv, count);
+		REX::INFO("Registered {} alias functions"sv, count);
 	}
 }

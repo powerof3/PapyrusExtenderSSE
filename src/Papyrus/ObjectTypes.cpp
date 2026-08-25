@@ -10,7 +10,7 @@ namespace Papyrus::ObjectTypes
 
 	void Bind(VM& a_vm)
 	{
-		logger::info("Registered object types"sv);
+		REX::INFO("Registered object types"sv);
 
 		EXTEND(RE::FormType::FootstepSet, FootstepSet);
 		EXTEND(RE::FormType::LightingMaster, LightingTemplate);

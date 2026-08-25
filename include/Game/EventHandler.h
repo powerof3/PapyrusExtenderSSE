@@ -5,7 +5,7 @@ namespace Event
 	using EventResult = RE::BSEventNotifyControl;
 
 	class ScriptEventHandler final :
-		public REX::Singleton<ScriptEventHandler>,
+		public REX::TSingleton<ScriptEventHandler>,
 		public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>,
 		public RE::BSTEventSink<RE::TESQuestStartStopEvent>,
 		public RE::BSTEventSink<RE::TESQuestStageEvent>,
@@ -16,7 +16,7 @@ namespace Event
 	public:
 		static void Register()
 		{
-			logger::info("{:*^30}", "SCRIPT EVENTS"sv);
+			REX::INFO("{:*^30}", "SCRIPT EVENTS"sv);
 
 			register_event<RE::TESCellFullyLoadedEvent>();
 			register_event<RE::TESQuestStartStopEvent>();
@@ -38,12 +38,12 @@ namespace Event
 		static void register_event()
 		{
 			RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink<T>(GetSingleton());
-			logger::info("Registered {} handler"sv, typeid(T).name());
+			REX::INFO("Registered {} handler"sv, typeid(T).name());
 		}
 	};
 
 	class StoryEventHandler final :
-		public REX::Singleton<StoryEventHandler>,
+		public REX::TSingleton<StoryEventHandler>,
 		public RE::BSTEventSink<RE::ActorKill::Event>,
 		public RE::BSTEventSink<RE::CriticalHit::Event>,
 		public RE::BSTEventSink<RE::DisarmedEvent::Event>,
@@ -59,7 +59,7 @@ namespace Event
 	public:
 		static void Register()
 		{
-			logger::info("{:*^30}", "STORY EVENTS"sv);
+			REX::INFO("{:*^30}", "STORY EVENTS"sv);
 
 			register_story_event<RE::ActorKill>();
 			register_story_event<RE::CriticalHit>();
@@ -67,7 +67,7 @@ namespace Event
 			register_story_event<RE::DragonSoulsGained>();
 
 			RE::TESHarvestedEvent::GetEventSource()->AddEventSink<RE::TESHarvestedEvent::ItemHarvested>(GetSingleton());
-			logger::info("Registered {} handler"sv, typeid(RE::TESHarvestedEvent::ItemHarvested).name());
+			REX::INFO("Registered {} handler"sv, typeid(RE::TESHarvestedEvent::ItemHarvested).name());
 
 			register_story_event<RE::LevelIncrease>();
 			register_story_event<RE::LocationDiscovery>();
@@ -94,7 +94,7 @@ namespace Event
 		static void register_story_event()
 		{
 			T::GetEventSource()->AddEventSink<typename T::Event>(GetSingleton());
-			logger::info("Registered {} handler"sv, typeid(T::Event).name());
+			REX::INFO("Registered {} handler"sv, typeid(T::Event).name());
 		}
 	};
 

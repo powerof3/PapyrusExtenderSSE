@@ -29,6 +29,6 @@ namespace Papyrus::Idle
 		BIND(GetAnimationEventName);
 		BIND(GetAnimationFileName);
 
-		logger::info("Registered {} idle functions"sv, count);
+		REX::INFO("Registered {} idle functions"sv, count);
 	}
 }

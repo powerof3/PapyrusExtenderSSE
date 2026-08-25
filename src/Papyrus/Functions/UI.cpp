@@ -76,6 +76,6 @@ namespace Papyrus::UI
 		BIND(ToggleOpenSleepWaitMenu);
 		BIND(ShowTutorialMessage);
 
-		logger::info("Registered {} UI functions"sv, count);
+		REX::INFO("Registered {} UI functions"sv, count);
 	}
 }

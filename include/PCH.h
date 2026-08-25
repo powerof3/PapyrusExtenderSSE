@@ -45,38 +45,33 @@
 #include <ranges>
 
 #include "RE/Skyrim.h"
-#include "REX/REX/Singleton.h"
+#include "REX/REX.h"
 #include "SKSE/SKSE.h"
 
-#include <ankerl/unordered_dense.h>
+#include <boost/regex.hpp>
+#include <boost/unordered/unordered_flat_map.hpp>
+#include <boost/unordered/unordered_flat_set.hpp>
 #include <frozen/bits/elsa_std.h>
 #include <frozen/unordered_map.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <srell.hpp>
 #include <xbyak/xbyak.h>
 
 #include <ClibUtil/distribution.hpp>
 #include <ClibUtil/editorID.hpp>
-#include <ClibUtil/numeric.hpp>
-#include <ClibUtil/rng.hpp>
-#include <ClibUtil/string.hpp>
-
 #define DLLEXPORT __declspec(dllexport)
 
-namespace logger = SKSE::log;
-namespace numeric = clib_util::numeric;
-namespace string = clib_util::string;
 namespace dist = clib_util::distribution;
 namespace editorID = clib_util::editorID;
 
 using namespace std::literals;
-using namespace string::literals;
 using namespace RE::literals;
+using namespace REX::STR::literals;
 
-template <class D>
-using Set = ankerl::unordered_dense::set<D>;
-template <class K, class D>
-using Map = ankerl::unordered_dense::map<K, D>;
+template <class K, class D, class H = boost::hash<K>, class KEqual = std::equal_to<K>>
+using Map = boost::unordered_flat_map<K, D, H, KEqual>;
+
+template <class K, class H = boost::hash<K>, class KEqual = std::equal_to<K>>
+using Set = boost::unordered_flat_set<K, H, KEqual>;
 
 namespace frozen
 {
@@ -121,12 +116,10 @@ namespace frozen
 
 namespace stl
 {
-	using namespace SKSE::stl;
-
 	template <class T>
 	void write_thunk_call(std::uintptr_t a_src)
 	{
-		auto& trampoline = SKSE::GetTrampoline();
+		auto& trampoline = REL::GetTrampoline();
 		T::func = trampoline.write_call<5>(a_src, T::thunk);
 	}
 
@@ -157,8 +150,8 @@ namespace stl
 		Patch p(a_src, BYTES);
 		p.ready();
 
-		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_branch<5>(a_src, T::thunk);
+		auto& trampoline = REL::GetTrampoline();
+		trampoline.write_jmp<5>(a_src, T::thunk);
 
 		auto alloc = trampoline.allocate(p.getSize());
 		std::memcpy(alloc, p.getCode(), p.getSize());

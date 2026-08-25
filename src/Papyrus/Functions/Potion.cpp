@@ -64,6 +64,6 @@ namespace Papyrus::Potion
 		BIND(RemoveEffectItemFromPotion);
 		BIND(SetPotionMagicEffect);
 
-		logger::info("Registered {} potion functions"sv, count);
+		REX::INFO("Registered {} potion functions"sv, count);
 	}
 }

@@ -95,6 +95,6 @@ namespace Papyrus::ActorBase
 		BIND(GetPerkCount);
 		BIND(SetDeathItem);
 
-		logger::info("Registered {} actorbase functions"sv, count);
+		REX::INFO("Registered {} actorbase functions"sv, count);
 	}
 }

@@ -246,6 +246,6 @@ namespace Papyrus::Light
 		BIND(SetLightShadowDepthBias);
 		BIND(SetLightType);
 
-		logger::info("Registered {} light functions"sv, count);
+		REX::INFO("Registered {} light functions"sv, count);
 	}
 }

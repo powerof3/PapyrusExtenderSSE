@@ -308,6 +308,6 @@ namespace Papyrus::EffectShader
 		BIND(SetParticlePersistentCount);
 		BIND(SetParticleShaderTexture);
 
-		logger::info("Registered {} effect shader functions"sv, count);
+		REX::INFO("Registered {} effect shader functions"sv, count);
 	}
 }

@@ -64,6 +64,6 @@ namespace Papyrus::Weather
 		BIND(GetWindSpeedAsInt);
 		BIND(GetWeatherType);
 
-		logger::info("Registered {} weather functions"sv, count);
+		REX::INFO("Registered {} weather functions"sv, count);
 	}
 }

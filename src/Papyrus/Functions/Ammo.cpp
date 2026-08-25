@@ -20,6 +20,6 @@ namespace Papyrus::Ammo
 
 		BIND(GetBaseAmmoEnchantment);
 
-		logger::info("Registered {} ammo functions"sv, count);
+		REX::INFO("Registered {} ammo functions"sv, count);
 	}
 }

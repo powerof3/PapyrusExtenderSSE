@@ -154,7 +154,7 @@ namespace Papyrus::Form::Functions
 			}
 		}
 
-		string::replace_all(descriptionStr, "\r"sv, ""sv);  //remove escape character not supported by BSFixedString
+		REX::STR::REPLACE_ALL(descriptionStr, "\r"sv, ""sv);  //remove escape character not supported by BSFixedString
 		return descriptionStr;
 	}
 
@@ -498,6 +498,6 @@ namespace Papyrus::Form::Functions
 		BIND(SetRecordFlag);
 		BIND(UnmarkItemAsFavorite);
 
-		logger::info("Registered {} form functions"sv, count);
+		REX::INFO("Registered {} form functions"sv, count);
 	}
 }

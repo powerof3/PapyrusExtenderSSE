@@ -53,11 +53,11 @@ namespace Papyrus::Debug
 			const auto cache = middleHigh ? middleHigh->animationVariableCache : nullptr;
 
 			if (cache) {
-				logger::info("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix.c_str());
+				REX::INFO("{} [0x{:X}] ANIMATION VARIABLES ({})", a_actor->GetName(), a_actor->GetFormID(), a_prefix.c_str());
 
 				RE::BSSpinLockGuard locker(cache->updateLock);
 				for (auto& var : cache->variableCache) {
-					logger::info("\t{} : {}", var.variableName.c_str(), get_value(var));
+					REX::INFO("\t{} : {}", var.variableName.c_str(), get_value(var));
 				}
 			}
 		}
@@ -76,6 +76,6 @@ namespace Papyrus::Debug
 		BIND(DumpAnimationVariables);
 		BIND(GetGodMode);
 
-		logger::info("Registered {} debug functions"sv, count);
+		REX::INFO("Registered {} debug functions"sv, count);
 	}
 }

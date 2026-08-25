@@ -445,8 +445,8 @@ namespace CONDITION
 		template <class T>
 		std::optional<T> get_value(const std::string& a_str)
 		{
-			if (string::is_only_digit(a_str)) {
-				return string::to_num<T>(a_str);
+			if (REX::STR::IS_ONLY_DIGIT(a_str)) {
+				return REX::STR::TO_NUM<T>(a_str);
 			} else {
 				constexpr auto get_result = [](const std::string& str) {
 					if (std::is_same_v<COND_OBJECT, T>) {

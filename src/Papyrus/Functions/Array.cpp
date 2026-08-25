@@ -118,6 +118,6 @@ namespace Papyrus::Array
 		BIND(GetSortedActorNames);
 		BIND(GetSortedNPCNames);
 
-		logger::info("Registered {} array functions"sv, count);
+		REX::INFO("Registered {} array functions"sv, count);
 	}
 }

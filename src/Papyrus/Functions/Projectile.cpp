@@ -128,6 +128,6 @@ namespace Papyrus::Projectile
 		BIND(SetProjectileRange);
 		BIND(SetProjectileSpeed);
 
-		logger::info("Registered {} projectile functions"sv, count);
+		REX::INFO("Registered {} projectile functions"sv, count);
 	}
 }

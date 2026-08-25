@@ -54,6 +54,6 @@ namespace Papyrus::Faction
 
 		BIND(GetVendorFactionContainer, true);
 		BIND(GetAllActorsInFaction);
-		logger::info("Registered {} faction functions"sv, count);
+		REX::INFO("Registered {} faction functions"sv, count);
 	}
 }

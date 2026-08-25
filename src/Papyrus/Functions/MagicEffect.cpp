@@ -128,6 +128,6 @@ namespace Papyrus::MagicEffect
 		BIND(SetAssociatedForm);
 		BIND(SetMagicEffectSound);
 
-		logger::info("Registered {} magiceffect functions"sv, count);
+		REX::INFO("Registered {} magiceffect functions"sv, count);
 	}
 }

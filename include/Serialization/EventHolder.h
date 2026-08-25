@@ -2,7 +2,7 @@
 
 namespace Event
 {
-	class ScriptEventHolder : public REX::Singleton<ScriptEventHolder>
+	class ScriptEventHolder : public REX::TSingleton<ScriptEventHolder>
 	{
 	public:
 		enum : std::uint32_t
@@ -43,7 +43,7 @@ namespace Event
 		SKSE::RegistrationSetUnique<const RE::TESObjectREFR*> furnitureExit{ "OnExitFurniture"sv };
 	};
 
-	class StoryEventHolder : public REX::Singleton<StoryEventHolder>
+	class StoryEventHolder : public REX::TSingleton<StoryEventHolder>
 	{
 	public:
 		enum : std::uint32_t
@@ -261,7 +261,7 @@ namespace Event
 		};
 	}
 
-	class GameEventHolder : public REX::Singleton<GameEventHolder>
+	class GameEventHolder : public REX::TSingleton<GameEventHolder>
 	{
 	public:
 		enum : std::uint32_t

@@ -281,6 +281,6 @@ namespace Papyrus::Hazard
 		BIND(SetHazardSpell);
 		BIND(SetHazardTargetInterval);
 
-		logger::info("Registered {} hazard functions"sv, count);
+		REX::INFO("Registered {} hazard functions"sv, count);
 	}
 }

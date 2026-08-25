@@ -754,11 +754,11 @@ namespace CONDITION
 	{
 		const auto lookup_form = [&](const std::string& b_str) {
 			if (b_str.contains("~"sv)) {
-				auto splitID = string::split(b_str, " ~ ");
-				auto [formID, modName] = std::make_pair(string::to_num<RE::FormID>(splitID[0], true), splitID[1]);
+				auto splitID = REX::STR::SPLIT(b_str, " ~ ");
+				auto [formID, modName] = std::make_pair(REX::STR::TO_NUM<RE::FormID>(splitID[0], true), splitID[1]);
 				return RE::TESDataHandler::GetSingleton()->LookupForm(formID, modName);
-			} else if (string::is_only_hex(b_str)) {
-				const auto formID = string::to_num<RE::FormID>(b_str, true);
+			} else if (REX::STR::IS_ONLY_HEX(b_str)) {
+				const auto formID = REX::STR::TO_NUM<RE::FormID>(b_str, true);
 				return RE::TESForm::LookupByID(formID);
 			} else {
 				return RE::TESForm::LookupByEditorID(b_str);
@@ -769,7 +769,7 @@ namespace CONDITION
 			return;
 		}
 
-		if (a_param.empty() || (string::iequals(a_param, "NONE"sv) && !stl::is_in(*type, PARAM_TYPE::kWardState, PARAM_TYPE::kCritStage))) {
+		if (a_param.empty() || (REX::STR::IEQUALS(a_param, "NONE"sv) && !stl::is_in(*type, PARAM_TYPE::kWardState, PARAM_TYPE::kCritStage))) {
 			type = std::nullopt;
 			state = STATE::kNull;
 			return;
@@ -779,17 +779,17 @@ namespace CONDITION
 		case PARAM_TYPE::kInt:
 		case PARAM_TYPE::kStage:
 		case PARAM_TYPE::kRelationshipRank:
-			data.i = string::to_num<std::int32_t>(a_param);
+			data.i = REX::STR::TO_NUM<std::int32_t>(a_param);
 			break;
 		case PARAM_TYPE::kFloat:
-			data.f = string::to_num<float>(a_param);
+			data.f = REX::STR::TO_NUM<float>(a_param);
 			break;
 		case PARAM_TYPE::kActorValue:
 			data.i = static_cast<std::int32_t>(RE::ActorValueList::GetSingleton()->LookupActorValueByName(a_param.c_str()));
 			break;
 		case RE::SCRIPT_PARAM_TYPE::kAxis:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "X"_h:
 					data.i = 88;
 					break;
@@ -807,7 +807,7 @@ namespace CONDITION
 			break;
 		case RE::SCRIPT_PARAM_TYPE::kSex:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Male"_h:
 					data.i = RE::SEX::kMale;
 					break;
@@ -825,7 +825,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kCastingSource:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Instant"_h:
 					data.i = static_cast<std::int32_t>(RE::MagicSystem::CastingSource::kInstant);
 					break;
@@ -846,7 +846,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kWardState:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Absorb"_h:
 					data.i = static_cast<std::int32_t>(RE::MagicSystem::WardState::kAbsorb);
 					break;
@@ -865,7 +865,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kCritStage:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "NONE"_h:
 				case "None"_h:
 					data.i = static_cast<std::int32_t>(RE::ACTOR_CRITICAL_STAGE::kNone);
@@ -890,7 +890,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kCrimeType:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Steal"_h:
 					data.i = static_cast<std::int32_t>(RE::PackageNS::CRIME_TYPE::kSteal);
 					break;
@@ -920,7 +920,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kSkillAction:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Normal Usage"_h:
 					data.i = 0;
 					break;
@@ -944,7 +944,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kAlignment:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Good"_h:
 					data.i = 0;
 					break;
@@ -968,7 +968,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kFurnitureAnimType:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Sit"_h:
 					data.i = 1;
 					break;
@@ -986,7 +986,7 @@ namespace CONDITION
 			break;
 		case PARAM_TYPE::kFurnitureEntryType:
 			{
-				switch (string::const_hash(a_param)) {
+				switch (REX::STR::CONST_HASH(a_param)) {
 				case "Front"_h:
 					data.i = 1 << 16;
 					break;
@@ -1012,7 +1012,7 @@ namespace CONDITION
 		case PARAM_TYPE::kActor:
 		case PARAM_TYPE::kContainerRef:
 			{
-				if (string::iequals(a_param, "PlayerRef")) {
+				if (REX::STR::IEQUALS(a_param, "PlayerRef")) {
 					data.ptr = RE::PlayerCharacter::GetSingleton();
 				} else {
 					data.ptr = lookup_form(a_param);
@@ -1365,13 +1365,13 @@ namespace CONDITION
 				continue;
 			}
 
-			auto split_condition = string::split(condition, " | ");
+			auto split_condition = REX::STR::SPLIT(condition, " | ");
 			if (split_condition.size() != kTotal) {
 				continue;
 			}
 
 			for (auto& conditionData : split_condition) {
-				string::trim(conditionData);
+				REX::STR::TRIM(conditionData);
 			}
 
 			RE::CONDITION_ITEM_DATA condData;
@@ -1427,10 +1427,10 @@ namespace CONDITION
 			}
 
 			//float
-			condData.comparisonValue.f = string::to_num<float>(split_condition[kFloat]);
+			condData.comparisonValue.f = REX::STR::TO_NUM<float>(split_condition[kFloat]);
 
 			//operator
-			condData.flags.isOR = string::iequals(split_condition[kANDOR], "OR"sv);
+			condData.flags.isOR = REX::STR::IEQUALS(split_condition[kANDOR], "OR"sv);
 
 			dataVec.emplace_back(condData);
 		}

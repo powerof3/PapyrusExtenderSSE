@@ -29,6 +29,6 @@ namespace Papyrus::Location
 		BIND(GetParentLocation);
 		BIND(SetParentLocation);
 
-		logger::info("Registered {} location functions"sv, count);
+		REX::INFO("Registered {} location functions"sv, count);
 	}
 }

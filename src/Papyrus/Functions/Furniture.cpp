@@ -34,6 +34,6 @@ namespace Papyrus::Furniture
 
 		BIND(GetFurnitureType, true);
 
-		logger::info("Registered {} furniture functions"sv, count);
+		REX::INFO("Registered {} furniture functions"sv, count);
 	}
 }

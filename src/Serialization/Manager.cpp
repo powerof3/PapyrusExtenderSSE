@@ -46,10 +46,10 @@ namespace Serialization
 	bool MGEFData::equals(RE::Effect* a_effect) const
 	{
 		return mgef == a_effect->baseEffect &&
-		       numeric::essentially_equal(mag, a_effect->effectItem.magnitude) &&
+		       REX::FLT::ESSENTIALLY_EQUAL(mag, a_effect->effectItem.magnitude) &&
 		       area == a_effect->effectItem.area &&
 		       dur == a_effect->effectItem.duration &&
-		       numeric::essentially_equal(cost, a_effect->cost);
+		       REX::FLT::ESSENTIALLY_EQUAL(cost, a_effect->cost);
 	}
 
 	RE::Effect* MGEFData::get_matching_effect(RE::MagicItem* a_item) const
@@ -111,28 +111,28 @@ namespace Serialization
 	bool MGEFData::save(SKSE::SerializationInterface* a_intfc) const
 	{
 		if (!a_intfc->WriteRecordData(mgefFormID)) {
-			logger::error("Failed to save effect formID ({:X})", mgefFormID);
+			REX::ERROR("Failed to save effect formID ({:X})", mgefFormID);
 			return false;
 		}
 		if (!a_intfc->WriteRecordData(mag)) {
-			logger::error("Failed to save effect magnitude ({})", mag);
+			REX::ERROR("Failed to save effect magnitude ({})", mag);
 			return false;
 		}
 		if (!a_intfc->WriteRecordData(area)) {
-			logger::error("Failed to save effect area ({})", area);
+			REX::ERROR("Failed to save effect area ({})", area);
 			return false;
 		}
 		if (!a_intfc->WriteRecordData(dur)) {
-			logger::error("Failed to save effect duration ({})", dur);
+			REX::ERROR("Failed to save effect duration ({})", dur);
 			return false;
 		}
 		if (!a_intfc->WriteRecordData(cost)) {
-			logger::error("Failed to save effect cost ({})", cost);
+			REX::ERROR("Failed to save effect cost ({})", cost);
 			return false;
 		}
 		const std::size_t numConditions = conditionList.size();
 		if (!a_intfc->WriteRecordData(numConditions)) {
-			logger::error("Failed to save number of conditions ({})", numConditions);
+			REX::ERROR("Failed to save number of conditions ({})", numConditions);
 			return false;
 		}
 		for (auto& condition : conditionList) {
@@ -145,23 +145,23 @@ namespace Serialization
 	{
 		bool success = true;
 		if (!stl::read_formID(a_intfc, mgefFormID)) {
-			logger::warn("{} : Failed to resolve effect formID {:X}"sv, index, mgefFormID);
+			REX::INFO("{} : Failed to resolve effect formID {:X}"sv, index, mgefFormID);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(mag)) {
-			logger::warn("Failed to resolve magnitude ({})", mag);
+			REX::INFO("Failed to resolve magnitude ({})", mag);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(area)) {
-			logger::warn("Failed to read area ({})", area);
+			REX::INFO("Failed to read area ({})", area);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(dur)) {
-			logger::error("Failed to read duration ({})", dur);
+			REX::ERROR("Failed to read duration ({})", dur);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(cost)) {
-			logger::warn("Failed to resolve cost ({})", cost);
+			REX::INFO("Failed to resolve cost ({})", cost);
 			success = false;
 		}
 		std::size_t numConditions;
@@ -180,10 +180,10 @@ namespace Serialization
 	bool EffectData::equals(const RE::Effect* a_effect, const RE::Effect* a_copyEffect) const
 	{
 		return a_effect->baseEffect == a_copyEffect->baseEffect &&
-		       numeric::essentially_equal(a_effect->effectItem.magnitude, a_copyEffect->effectItem.magnitude) &&
+		       REX::FLT::ESSENTIALLY_EQUAL(a_effect->effectItem.magnitude, a_copyEffect->effectItem.magnitude) &&
 		       a_effect->effectItem.area == a_copyEffect->effectItem.area &&
 		       a_effect->effectItem.duration == a_copyEffect->effectItem.duration &&
-		       numeric::essentially_equal(a_effect->cost, a_copyEffect->cost);
+		       REX::FLT::ESSENTIALLY_EQUAL(a_effect->cost, a_copyEffect->cost);
 	}
 
 	bool EffectData::add_effect_item(RE::MagicItem* a_item) const
@@ -252,15 +252,15 @@ namespace Serialization
 	bool EffectData::save(SKSE::SerializationInterface* a_intfc) const
 	{
 		if (!a_intfc->WriteRecordData(magicItemFormID)) {
-			logger::error("Failed to save effect formID ({:X})", magicItemFormID);
+			REX::ERROR("Failed to save effect formID ({:X})", magicItemFormID);
 			return false;
 		}
 		if (!a_intfc->WriteRecordData(index)) {
-			logger::error("Failed to save index ({})", index);
+			REX::ERROR("Failed to save index ({})", index);
 			return false;
 		}
 		if (!a_intfc->WriteRecordData(cost)) {
-			logger::error("Failed to save cost ({})", cost);
+			REX::ERROR("Failed to save cost ({})", cost);
 			return false;
 		}
 		return true;
@@ -270,15 +270,15 @@ namespace Serialization
 	{
 		bool success = true;
 		if (!stl::read_formID(a_intfc, magicItemFormID)) {
-			logger::warn("{} : Failed to resolve effect formID {:X}"sv, a_index, magicItemFormID);
+			REX::INFO("{} : Failed to resolve effect formID {:X}"sv, a_index, magicItemFormID);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(index)) {
-			logger::warn("Failed to resolve index ({})", index);
+			REX::INFO("Failed to resolve index ({})", index);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(cost)) {
-			logger::warn("Failed to read cost ({})", cost);
+			REX::INFO("Failed to read cost ({})", cost);
 			success = false;
 		}
 		return success;
@@ -306,18 +306,18 @@ namespace Serialization
 
 		const std::size_t numRegs = formMap.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
-			logger::error("Failed to save reg count ({})", numRegs);
+			REX::ERROR("Failed to save reg count ({})", numRegs);
 			return false;
 		}
 
 		for (const auto& [formID, dataSet] : formMap) {
 			if (!a_intfc->WriteRecordData(formID)) {
-				logger::error("Failed to save formID ({:X})", formID);
+				REX::ERROR("Failed to save formID ({:X})", formID);
 				return false;
 			}
 			const std::size_t numData = dataSet.size();
 			if (!a_intfc->WriteRecordData(numData)) {
-				logger::error("Failed to save data set count ({})", numData);
+				REX::ERROR("Failed to save data set count ({})", numData);
 				return false;
 			}
 			for (auto& data : dataSet) {
@@ -358,18 +358,18 @@ namespace Serialization
 		auto&             formMap = GetData(a_index);
 		const std::size_t numRegs = formMap.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
-			logger::error("Failed to save reg count ({})", numRegs);
+			REX::ERROR("Failed to save reg count ({})", numRegs);
 			return false;
 		}
 
 		for (const auto& [formID, dataSet] : formMap) {
 			if (!a_intfc->WriteRecordData(formID)) {
-				logger::error("Failed to save formID ({:X})", formID);
+				REX::ERROR("Failed to save formID ({:X})", formID);
 				return false;
 			}
 			const std::size_t numData = dataSet.size();
 			if (!a_intfc->WriteRecordData(numData)) {
-				logger::error("Failed to save data reg count ({})", numData);
+				REX::ERROR("Failed to save data reg count ({})", numData);
 				return false;
 			}
 			for (auto& data : dataSet) {
@@ -406,7 +406,7 @@ namespace Serialization
 	void Manager::Register()
 	{
 		RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink(GetSingleton());
-		logger::info("Registered form deletion event handler"sv);
+		REX::INFO("Registered form deletion event handler"sv);
 	}
 
 	void Manager::Save(SKSE::SerializationInterface* a_intfc)
@@ -422,7 +422,7 @@ namespace Serialization
 		save(mgefs, a_intfc);
 		save(effectItems, a_intfc);
 
-		logger::info("Finished saving data"sv);
+		REX::INFO("Finished saving data"sv);
 	}
 
 	void Manager::Load(SKSE::SerializationInterface* a_intfc)
@@ -432,7 +432,7 @@ namespace Serialization
 		std::uint32_t length;
 		while (a_intfc->GetNextRecordInfo(type, version, length)) {
 			if (version != kSerializationVersion) {
-				logger::critical("Loaded data is out of date! Read ({}), expected ({}) for type code ({})", version, std::to_underlying(kSerializationVersion), DecodeTypeCode(type));
+				REX::CRITICAL("Loaded data is out of date! Read ({}), expected ({}) for type code ({})", version, std::to_underlying(kSerializationVersion), DecodeTypeCode(type));
 				continue;
 			}
 			switch (type) {
@@ -481,7 +481,7 @@ namespace Serialization
 				break;
 			}
 		}
-		logger::info("Finished loading data"sv);
+		REX::INFO("Finished loading data"sv);
 	}
 
 	void Manager::Revert(SKSE::SerializationInterface* a_intfc)
@@ -497,7 +497,7 @@ namespace Serialization
 		mgefs.Revert(a_intfc);
 		effectItems.Revert(a_intfc);
 
-		logger::info("Finished reverting data"sv);
+		REX::INFO("Finished reverting data"sv);
 	}
 
 	void Manager::FormDelete(RE::VMHandle a_handle)

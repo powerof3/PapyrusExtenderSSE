@@ -71,6 +71,6 @@ namespace Papyrus::LeveledList
 		BIND(GetContentFromLeveledItem);
 		BIND(GetContentFromLeveledSpell);
 
-		logger::info("Registered {} leveled item functions"sv, count);
+		REX::INFO("Registered {} leveled item functions"sv, count);
 	}
 }

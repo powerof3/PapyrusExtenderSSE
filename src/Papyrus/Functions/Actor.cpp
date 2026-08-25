@@ -517,7 +517,7 @@ namespace Papyrus::Actor
 		}
 		auto biped_slot = (a_slot - 30) >= 0 ? 1 << (a_slot - 30) : 0;
 		auto result = a_actor->GetWornArmor(static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(biped_slot));
-		logger::debug("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
+		REX::DEBUG("GetEquippedArmor running on {} with slot {} returning biped_slot {} with {}", a_actor->GetDisplayFullName(), a_slot, biped_slot, result ? result->GetFullName() : "None");
 		return result;
 	}
 
@@ -1337,7 +1337,7 @@ namespace Papyrus::Actor
 		BIND(GetEquippedAmmoEnchantment);
 #ifdef SKYRIMVR
 		a_vm.RegisterFunction("GetEquippedArmorInSlot"sv, "Actor", GetEquippedArmorInSlot);
-		logger::info("Patching missing Actor.GetEquippedArmorInSlot in VR");
+		REX::INFO("Patching missing Actor.GetEquippedArmorInSlot in VR");
 #endif
 		BIND(GetEquippedWeaponIsPoisoned);
 		BIND(GetEquippedWeaponPoison);
@@ -1377,6 +1377,6 @@ namespace Papyrus::Actor
 		BIND(SetSoulTrapped);
 		BIND(UnequipAllOfType);
 
-		logger::info("Registered {} actor functions"sv, count);
+		REX::INFO("Registered {} actor functions"sv, count);
 	}
 }

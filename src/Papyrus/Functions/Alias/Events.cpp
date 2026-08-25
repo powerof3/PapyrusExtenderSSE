@@ -970,6 +970,6 @@ namespace Papyrus::Alias::Events
 		BIND_EVENT(UnregisterForWeatherChange, true);
 		BIND_EVENT(UnregisterForWeaponHit, true);
 
-		logger::info("Registered {} alias event functions"sv, count);
+		REX::INFO("Registered {} alias event functions"sv, count);
 	}
 }

@@ -75,6 +75,6 @@ namespace Papyrus::Enchantment
 		BIND(RemoveEffectItemFromEnchantment);
 		BIND(SetEnchantmentMagicEffect);
 
-		logger::info("Registered {} enchantment functions"sv, count);
+		REX::INFO("Registered {} enchantment functions"sv, count);
 	}
 }

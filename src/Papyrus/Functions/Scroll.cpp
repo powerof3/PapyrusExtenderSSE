@@ -64,6 +64,6 @@ namespace Papyrus::Scroll
 		BIND(RemoveEffectItemFromScroll);
 		BIND(SetScrollMagicEffect);
 
-		logger::info("Registered {} scroll functions"sv, count);
+		REX::INFO("Registered {} scroll functions"sv, count);
 	}
 }

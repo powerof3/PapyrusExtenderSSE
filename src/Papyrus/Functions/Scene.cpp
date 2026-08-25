@@ -59,6 +59,6 @@ namespace Papyrus::Scene
 		BIND(GetActorsInScene);
 		BIND(IsActorInScene);
 
-		logger::info("Registered {} scene functions"sv, count);
+		REX::INFO("Registered {} scene functions"sv, count);
 	}
 }

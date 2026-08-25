@@ -49,11 +49,11 @@ namespace Papyrus
 	bool Bind(VM* a_vm)
 	{
 		if (!a_vm) {
-			logger::critical("couldn't get VM State"sv);
+			REX::CRITICAL("couldn't get VM State"sv);
 			return false;
 		}
 
-		logger::info("{:*^30}", "FUNCTIONS"sv);
+		REX::INFO("{:*^30}", "FUNCTIONS"sv);
 
 		ObjectTypes::Bind(*a_vm);
 
@@ -104,8 +104,8 @@ namespace Papyrus
 		VisualEffect::Bind(*a_vm);
 		Weather::Bind(*a_vm);
 
-		logger::info("Total number of functions : {}"sv, numFunctionsRegistered);
-		logger::info("Total number of event functions : {}"sv, numEventFunctionsRegistered);
+		REX::INFO("Total number of functions : {}"sv, numFunctionsRegistered);
+		REX::INFO("Total number of event functions : {}"sv, numEventFunctionsRegistered);
 
 		return true;
 	}

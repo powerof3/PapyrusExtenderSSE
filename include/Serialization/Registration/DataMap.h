@@ -192,7 +192,7 @@ public:
 	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) const
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
-			logger::error("Failed to open serialization record!"sv);
+			REX::ERROR("Failed to open serialization record!"sv);
 			return false;
 		}
 		return Save(a_intfc, a_index);
@@ -207,23 +207,23 @@ public:
 
 		const std::size_t numRegs = formMap.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
-			logger::error("Failed to save reg count ({})", numRegs);
+			REX::ERROR("Failed to save reg count ({})", numRegs);
 			return false;
 		}
 
 		for (const auto& [formID, data] : formMap) {
 			if (!a_intfc->WriteRecordData(formID)) {
-				logger::error("Failed to save formID ({:X})", formID);
+				REX::ERROR("Failed to save formID ({:X})", formID);
 				return false;
 			}
 			const std::size_t numData = data.size();
 			if (!a_intfc->WriteRecordData(numData)) {
-				logger::error("Failed to save data reg count ({})", numData);
+				REX::ERROR("Failed to save data reg count ({})", numData);
 				return false;
 			}
 			for (const auto& dataID : data) {
 				if (!a_intfc->WriteRecordData(dataID)) {
-					logger::error("Failed to save dataID ({:X})", dataID);
+					REX::ERROR("Failed to save dataID ({:X})", dataID);
 					return false;
 				}
 			}
@@ -251,13 +251,13 @@ public:
 		for (std::size_t i = 0; i < numRegs; i++) {
 			bool validFormID = stl::read_formID(a_intfc, formID);
 			if (!validFormID) {
-				logger::warn("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
+				REX::INFO("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {
 				bool validDataID = stl::read_formID(a_intfc, dataID);
 				if (!validDataID) {
-					logger::warn("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
+					REX::INFO("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
 				}
 				if (validFormID && validDataID) {
 					formMap[formID].push_back(dataID);
@@ -278,7 +278,7 @@ protected:
 		if (const auto form = RE::TESForm::LookupByID<F>(a_key); form) {
 			for (auto& dID : a_data) {
 				if (const auto data = RE::TESForm::LookupByID<D>(dID); data) {
-					logger::info("processing {} : {}", editorID::get_editorID(data), a_index);
+					REX::INFO("processing {} : {}", editorID::get_editorID(data), a_index);
 					Process(form, data, a_index);
 				}
 			}
@@ -324,7 +324,7 @@ public:
 	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) const
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
-			logger::error("Failed to open serialization record!"sv);
+			REX::ERROR("Failed to open serialization record!"sv);
 			return false;
 		}
 		return SaveImpl(a_intfc, a_index);
@@ -347,7 +347,7 @@ public:
 		for (std::size_t i = 0; i < numRegs; i++) {
 			bool validFormID = stl::read_formID(a_intfc, formID);
 			if (!validFormID) {
-				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
+				REX::INFO("{} : Failed to resolve formID {:X}"sv, i, formID);
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {

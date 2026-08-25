@@ -163,7 +163,7 @@ public:
 	bool Save(SKSE::SerializationInterface* a_intfc, std::uint32_t a_type, std::uint32_t a_version, std::uint32_t a_index) const
 	{
 		if (!a_intfc->OpenRecord(a_type, a_version)) {
-			logger::error("Failed to open serialization record!"sv);
+			REX::ERROR("Failed to open serialization record!"sv);
 			return false;
 		}
 
@@ -179,13 +179,13 @@ public:
 
 		const std::size_t numRegs = formSet.size();
 		if (!a_intfc->WriteRecordData(numRegs)) {
-			logger::error("Failed to save number of regs ({})", numRegs);
+			REX::ERROR("Failed to save number of regs ({})", numRegs);
 			return false;
 		}
 
 		for (const auto& formID : formSet) {
 			if (!a_intfc->WriteRecordData(formID)) {
-				logger::error("Failed to save reg ({:X})", formID);
+				REX::ERROR("Failed to save reg ({:X})", formID);
 				return false;
 			}
 		}
@@ -208,7 +208,7 @@ public:
 		RE::FormID formID;
 		for (std::size_t i = 0; i < numRegs; i++) {
 			if (!stl::read_formID(a_intfc, formID)) {
-				logger::warn("{} : Failed to resolve formID {:X}"sv, i, formID);
+				REX::INFO("{} : Failed to resolve formID {:X}"sv, i, formID);
 			} else {
 				formSet.insert(formID);
 			}

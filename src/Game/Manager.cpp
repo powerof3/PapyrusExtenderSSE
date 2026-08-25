@@ -42,6 +42,6 @@ namespace DETECTION
 		REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(41659, 42742), OFFSET(0x526, 0x67B) };
 		stl::write_thunk_call<CalculateDetection>(target.address());
 
-		logger::info("Installing detection hook");
+		REX::INFO("Installing detection hook");
 	}
 }

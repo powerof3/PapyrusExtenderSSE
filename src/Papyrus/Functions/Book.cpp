@@ -57,6 +57,6 @@ namespace Papyrus::Book
 		BIND(SetBookCantBeTakenFlag);
 		BIND(SetReadFlag);
 
-		logger::info("Registered {} book functions"sv, count);
+		REX::INFO("Registered {} book functions"sv, count);
 	}
 }

@@ -185,7 +185,7 @@ namespace Serialization
 	};
 
 	class Manager :
-		public REX::Singleton<Manager>,
+		public REX::TSingleton<Manager>,
 		public RE::BSTEventSink<RE::TESFormDeleteEvent>
 	{
 	public:
@@ -214,12 +214,12 @@ namespace Serialization
 		{
 			if (!a_regs.GetData(1).empty()) {
 				if (!a_regs.Save(a_intfc, a_regs.addUUID, kSerializationVersion, 1)) {
-					logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 1);
+					REX::CRITICAL("{} {} : Failed to save regs!"sv, typeid(T).name(), 1);
 				}
 			}
 			if (!a_regs.GetData(0).empty()) {
 				if (!a_regs.Save(a_intfc, a_regs.removeUUID, kSerializationVersion, 0)) {
-					logger::critical("{} {} : Failed to save regs!"sv, typeid(T).name(), 0);
+					REX::CRITICAL("{} {} : Failed to save regs!"sv, typeid(T).name(), 0);
 				}
 			}
 		}
@@ -228,7 +228,7 @@ namespace Serialization
 		void load(T& a_regs, SKSE::SerializationInterface* a_intfc, std::uint32_t a_index)
 		{
 			if (!a_regs.Load(a_intfc, a_index)) {
-				logger::critical("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
+				REX::CRITICAL("Failed to load {} reg at {} index!"sv, typeid(T).name(), a_index);
 			}
 		}
 	};

@@ -139,6 +139,6 @@ namespace Papyrus::Detection
 		BIND(ResetActorDetection);
 		BIND(ResetActorDetecting);
 
-		logger::info("Registered {} detection functions"sv, count);
+		REX::INFO("Registered {} detection functions"sv, count);
 	}
 }

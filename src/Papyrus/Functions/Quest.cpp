@@ -67,6 +67,6 @@ namespace Papyrus::Quest
 		BIND(GetAllQuestStages);
 		BIND(SetObjectiveText);
 
-		logger::info("Registered {} quest functions"sv, count);
+		REX::INFO("Registered {} quest functions"sv, count);
 	}
 }

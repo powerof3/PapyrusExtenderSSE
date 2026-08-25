@@ -22,6 +22,6 @@ namespace Papyrus::Sound
 
 		BIND(SetSoundDescriptor);
 
-		logger::info("Registered {} sound functions"sv, count);
+		REX::INFO("Registered {} sound functions"sv, count);
 	}
 }

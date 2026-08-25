@@ -77,6 +77,6 @@ namespace Papyrus::Package
 		BIND(GetPackageType);
 		BIND(RemovePackageIdle);
 
-		logger::info("Registered {} package functions"sv, count);
+		REX::INFO("Registered {} package functions"sv, count);
 	}
 }

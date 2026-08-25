@@ -7,9 +7,9 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kPostPostLoad:
 		{
-			logger::info("{:*^30}", "POSTLOAD API"sv);
+			REX::INFO("{:*^30}", "POSTLOAD API"sv);
 			DescriptionFrameworkAPI::GetDescriptionFrameworkInterface001();
-			logger::info("Description Framework installed: {}", g_DescriptionFrameworkInterface != nullptr);
+			REX::INFO("Description Framework installed: {}", g_DescriptionFrameworkInterface != nullptr);
 		}
 		break;
 	case SKSE::MessagingInterface::kDataLoaded:
@@ -21,11 +21,11 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kPostLoadGame:
 	case SKSE::MessagingInterface::kNewGame:
 		{
-			logger::info("{:*^30}", "POSTLOAD API"sv);
+			REX::INFO("{:*^30}", "POSTLOAD API"sv);
 			DismemberingFrameworkAPI::LoadAPI();
-			logger::info("Dismembering Framework installed: {} (version {})", DismemberingFrameworkAPI::g_API != nullptr, DismemberingFrameworkAPI::g_API ? DismemberingFrameworkAPI::g_API->GetVersion() : -1);
+			REX::INFO("Dismembering Framework installed: {} (version {})", DismemberingFrameworkAPI::g_API != nullptr, DismemberingFrameworkAPI::g_API ? DismemberingFrameworkAPI::g_API->GetVersion() : -1);
 			NGDecapitationsAPI::LoadAPI();
-			logger::info("Next Gen Decapitations installed: {} (version {})", NGDecapitationsAPI::g_API != nullptr, NGDecapitationsAPI::g_API ? NGDecapitationsAPI::g_API->GetVersion() : -1);
+			REX::INFO("Next Gen Decapitations installed: {} (version {})", NGDecapitationsAPI::g_API != nullptr, NGDecapitationsAPI::g_API ? NGDecapitationsAPI::g_API->GetVersion() : -1);
 		}
 		break;
 	default:
@@ -33,27 +33,35 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 	}
 }
 
-#ifdef SKYRIM_AE
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+#ifdef SKYRIM_SUPPORT_AE
+constexpr REL::Version MIN_ADDRESS_LIBRARY_V5_RUNTIME(1, 7, 99, 0);
+
+SKSE_PLUGIN_VERSION = []() {
 	SKSE::PluginVersionData v;
-	v.PluginVersion(Version::MAJOR);
+	v.PluginVersion(REL::Version{ Version::MAJOR, Version::MINOR, Version::PATCH });
 	v.PluginName("powerofthree's Papyrus Extender");
 	v.AuthorName("powerofthree");
 	v.UsesAddressLibrary();
 	v.UsesUpdatedStructs();
 	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST });
 
+	if constexpr (SKSE::RUNTIME_SSE_LATEST < MIN_ADDRESS_LIBRARY_V5_RUNTIME) {
+		v.MinimumRequiredXSEVersion(REL::Version{ 2, 2, 5 });
+	} else {
+		v.MinimumRequiredXSEVersion(REL::Version{ 2, 3, 0 });
+	}
+
 	return v;
 }();
 #else
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+SKSE_PLUGIN_QUERY(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = "powerofthree's Papyrus Extender";
 	a_info->version = Version::MAJOR;
 
 	if (a_skse->IsEditor()) {
-		logger::critical("Loaded in editor, marking as incompatible"sv);
+		REX::CRITICAL("Loaded in editor, marking as incompatible");
 		return false;
 	}
 
@@ -65,7 +73,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 		> SKSE::RUNTIME_VR_1_4_15_1
 #	endif
 	) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
+		REX::CRITICAL("Unsupported runtime version {}", ver.string());
 		return false;
 	}
 
@@ -73,36 +81,29 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 }
 #endif
 
-void InitializeLog()
+SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* a_skse)
 {
-	auto path = logger::log_directory();
-	if (!path) {
-		stl::report_and_fail("Failed to find standard logging directory"sv);
+	SKSE::Init(a_skse, { .log = true,
+						   .logName = Version::PROJECT.data(),
+						   .trampoline = true,
+						   .trampolineSize = 264 });
+
+	auto runtimeVersion = a_skse->RuntimeVersion();
+
+	REX::INFO("Game version : {}", runtimeVersion);
+
+#ifdef SKYRIM_SUPPORT_AE
+	if constexpr (SKSE::RUNTIME_SSE_LATEST < MIN_ADDRESS_LIBRARY_V5_RUNTIME) {
+		if (runtimeVersion >= MIN_ADDRESS_LIBRARY_V5_RUNTIME) {
+			REX::FAIL(
+				"You are using a newer version of Skyrim than this version of {0} supports.\n"
+				"Install the correct version of {0} for your game version.\n"
+				"Runtime: {1}\n"
+				"Supported: 1.6.1170 (Steam) / 1.6.1179 (GOG)",
+				Version::PROJECT, runtimeVersion);
+		}
 	}
-
-	*path /= "po3_papyrusextender64.log"sv;
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
-
-	log->set_level(spdlog::level::info);
-	log->flush_on(spdlog::level::info);
-
-	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("[%H:%M:%S] [%l] %v"s);
-
-	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
-}
-
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
-{
-	InitializeLog();
-
-	logger::info("Game version : {}", a_skse->RuntimeVersion().string());
-
-	SKSE::Init(a_skse, false);
-
-	SKSE::AllocTrampoline(264);
+#endif
 
 	const auto papyrus = SKSE::GetPapyrusInterface();
 	papyrus->Register(Papyrus::Bind);

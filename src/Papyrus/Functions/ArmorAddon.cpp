@@ -29,6 +29,6 @@ namespace Papyrus::ArmorAddon
 		BIND(GetFootstepSet);
 		BIND(SetFootstepSet);
 
-		logger::info("Registered {} armor addon functions"sv, count);
+		REX::INFO("Registered {} armor addon functions"sv, count);
 	}
 }

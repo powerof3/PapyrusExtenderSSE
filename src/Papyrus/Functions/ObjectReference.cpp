@@ -573,7 +573,7 @@ namespace Papyrus::ObjectReference
 			}
 
 			const auto it = std::ranges::find_if(map, [shortestDistance](const auto& mo) {
-				return numeric::approximately_equal(mo.second, shortestDistance);
+				return REX::FLT::APPROXIMATELY_EQUAL(mo.second, shortestDistance);
 			});
 			if (it != map.end()) {
 				return it->first;
@@ -857,7 +857,7 @@ namespace Papyrus::ObjectReference
 			}
 
 			if (!result.empty()) {
-				return result[clib_util::RNG().generate<std::size_t>(0, result.size() - 1)];
+				return result[REX::TRandom<std::size_t>().Generate(0, result.size() - 1)];
 			}
 		}
 
@@ -1547,6 +1547,6 @@ namespace Papyrus::ObjectReference
 		BIND(StopAllShaders);
 		BIND(StopArtObject);
 
-		logger::info("Registered {} object reference functions"sv, count);
+		REX::INFO("Registered {} object reference functions"sv, count);
 	}
 }

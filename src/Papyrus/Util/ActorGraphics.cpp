@@ -6,16 +6,16 @@ namespace GRAPHICS
 	{
 		void sanitize_path(std::string& a_path)
 		{
-			static const srell::regex slashPattern("/+|\\\\+");
-			static const srell::regex leadingSlashPattern("^\\\\+");
-			static const srell::regex texturesPattern(R"(.*?[^\s]textures\\|^textures\\)", srell::regex::icase);
+			static const boost::regex slashPattern("/+|\\\\+");
+			static const boost::regex leadingSlashPattern("^\\\\+");
+			static const boost::regex texturesPattern(R"(.*?[^\s]textures\\|^textures\\)", boost::regex::icase);
 
 			std::ranges::transform(a_path, a_path.begin(),
 				[](char c) { return static_cast<char>(std::tolower(c)); });
 
-			a_path = srell::regex_replace(a_path, slashPattern, "\\");
-			a_path = srell::regex_replace(a_path, leadingSlashPattern, "");
-			a_path = srell::regex_replace(a_path, texturesPattern, "");
+			a_path = boost::regex_replace(a_path, slashPattern, "\\");
+			a_path = boost::regex_replace(a_path, leadingSlashPattern, "");
+			a_path = boost::regex_replace(a_path, texturesPattern, "");
 		}
 
 		RE::BSShaderTextureSet* create_textureset(char** a_value)
@@ -23,7 +23,7 @@ namespace GRAPHICS
 			const auto textureset = RE::BSShaderTextureSet::Create();
 			if (textureset) {
 				for (const auto type : stl::enum_range(Texture::kDiffuse, Texture::kTotal)) {
-					if (!string::is_empty(a_value[type])) {
+					if (!REX::STR::IS_EMPTY(a_value[type])) {
 						textureset->SetTexturePath(type, a_value[type]);
 					}
 				}
@@ -159,10 +159,10 @@ namespace GRAPHICS
 		if (a_data && a_data->value && a_data->size == kShaderTotal) {
 			if (const auto new_txst = TEXTURE::create_textureset(a_data->value); new_txst) {
 				textureSet = new_txst;
-				feature = string::to_num<Feature>(a_data->value[kFeature]);
-				flags = string::to_num<std::uint64_t>(a_data->value[kFlag]);
-				emissiveColor = RE::NiColor(string::to_num<std::uint32_t>(a_data->value[kColor]));
-				emissiveMult = string::to_num<float>(a_data->value[kColorMult]);
+				feature = REX::STR::TO_NUM<Feature>(a_data->value[kFeature]);
+				flags = REX::STR::TO_NUM<std::uint64_t>(a_data->value[kFlag]);
+				emissiveColor = RE::NiColor(REX::STR::TO_NUM<std::uint32_t>(a_data->value[kColor]));
+				emissiveMult = REX::STR::TO_NUM<float>(a_data->value[kColorMult]);
 				hasData = true;
 			}
 		}
@@ -443,51 +443,51 @@ namespace GRAPHICS
 				continue;
 			}
 			if (const auto name = extraData->GetName(); !name.empty()) {
-				switch (string::const_hash(name)) {
-				case string::const_hash(EXTRA::TOGGLE):
+				switch (REX::STR::CONST_HASH(name)) {
+				case REX::STR::CONST_HASH(EXTRA::TOGGLE):
 					{
 						toggle = static_cast<RE::NiStringsExtraData*>(extraData);
 						hasData = true;
 					}
 					break;
-				case string::const_hash(EXTRA::SKIN_TINT):
+				case REX::STR::CONST_HASH(EXTRA::SKIN_TINT):
 					{
 						tintSkin = static_cast<RE::NiIntegerExtraData*>(extraData);
 						hasData = true;
 					}
 					break;
-				case string::const_hash(EXTRA::HAIR_TINT):
+				case REX::STR::CONST_HASH(EXTRA::HAIR_TINT):
 					{
 						tintHair = static_cast<RE::NiIntegerExtraData*>(extraData);
 						hasData = true;
 					}
 					break;
-				case string::const_hash(EXTRA::SKIN_ALPHA):
+				case REX::STR::CONST_HASH(EXTRA::SKIN_ALPHA):
 					{
 						alphaSkin = static_cast<RE::NiBooleanExtraData*>(extraData);
 						hasData = true;
 					}
 					break;
-				case string::const_hash(EXTRA::FACE_TXST):
+				case REX::STR::CONST_HASH(EXTRA::FACE_TXST):
 					{
 						txstFace = static_cast<RE::NiStringsExtraData*>(extraData);
 						hasData = true;
 					}
 					break;
 				default:
-					if (string::icontains(name, EXTRA::HEADPART)) {
+					if (REX::STR::ICONTAINS(name, EXTRA::HEADPART)) {
 						alphaHDPT.emplace_back(static_cast<RE::NiIntegerExtraData*>(extraData));
 						hasData = true;
 
-					} else if (string::icontains(name, EXTRA::TXST)) {
+					} else if (REX::STR::ICONTAINS(name, EXTRA::TXST)) {
 						txst.emplace_back(static_cast<RE::NiStringsExtraData*>(extraData));
 						hasData = true;
 
-					} else if (string::icontains(name, EXTRA::SKIN_TXST)) {
+					} else if (REX::STR::ICONTAINS(name, EXTRA::SKIN_TXST)) {
 						txstSkin.emplace_back(static_cast<RE::NiStringsExtraData*>(extraData));
 						hasData = true;
 
-					} else if (string::icontains(name, EXTRA::SHADER)) {
+					} else if (REX::STR::ICONTAINS(name, EXTRA::SHADER)) {
 						shaders.emplace_back(static_cast<RE::NiStringsExtraData*>(extraData));
 						hasData = true;
 					}
@@ -533,7 +533,7 @@ namespace GRAPHICS
 		if (toggle && toggle->value && toggle->size > 0) {
 			std::span<char*> span(toggle->value, toggle->size);
 			for (const auto& string : span) {
-				if (!string::is_empty(string)) {
+				if (!REX::STR::IS_EMPTY(string)) {
 					if (const auto object = root->GetObjectByName(string); object) {
 						object->CullNode(false);
 					}
@@ -631,7 +631,7 @@ namespace GRAPHICS
 				RE::FormID formID = 0;
 				if (std::string armorID{ data->value[data->size - 1] }; !armorID.empty()) {
 					try {
-						formID = string::to_num<RE::FormID>(armorID, true);
+						formID = REX::STR::TO_NUM<RE::FormID>(armorID, true);
 					} catch (...) {
 						continue;
 					}
@@ -666,7 +666,7 @@ namespace GRAPHICS
 				auto slot = Slot::kNone;
 				if (std::string slotMaskstr{ data->value[data->size - 1] }; !slotMaskstr.empty()) {
 					try {
-						slot = string::to_num<Slot>(slotMaskstr);
+						slot = REX::STR::TO_NUM<Slot>(slotMaskstr);
 					} catch (...) {
 						continue;
 					}
@@ -780,7 +780,7 @@ namespace GRAPHICS
 				if (const auto material = static_cast<MaterialBase*>(lightingShader->material)) {
 					auto shaderData = ShaderData::Output(originalData);
 					if (!shaderData.Reset(a_geometry, lightingShader, material)) {
-						logger::warn("unable to get original shader values for {}", a_geometry->name.c_str());
+						REX::INFO("unable to get original shader values for {}", a_geometry->name.c_str());
 					}
 					lightingShader->RemoveExtraData(originalData->GetName());
 					a_geometry->RemoveExtraData(originalData->GetName());

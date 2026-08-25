@@ -454,6 +454,6 @@ namespace Papyrus::Game
 		BIND(SetLocalGravity);
 		BIND(UpdateCrosshairs);
 
-		logger::info("Registered {} game functions"sv, count);
+		REX::INFO("Registered {} game functions"sv, count);
 	}
 }

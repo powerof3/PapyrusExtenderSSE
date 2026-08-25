@@ -69,6 +69,6 @@ namespace Papyrus::Cell
 		BIND(GetCellNorthRotation);
 		BIND(SetCellNorthRotation);
 
-		logger::info("Registered {} cell functions"sv, count);
+		REX::INFO("Registered {} cell functions"sv, count);
 	}
 }

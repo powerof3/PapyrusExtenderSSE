@@ -133,6 +133,6 @@ namespace Papyrus::Spell
 		BIND(SetSpellType);
 		BIND(SetSpellMagicEffect);
 
-		logger::info("Registered {} spell functions"sv, count);
+		REX::INFO("Registered {} spell functions"sv, count);
 	}
 }

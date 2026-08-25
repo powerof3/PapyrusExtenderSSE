@@ -16,7 +16,7 @@ namespace Papyrus::Strings
 		if (!a_string.empty()) {
 			try {
 				const std::string string = a_string.c_str();
-				value = string::to_num<std::uint32_t>(string, string::is_only_hex(string, true));
+				value = REX::STR::TO_NUM<std::uint32_t>(string, REX::STR::IS_ONLY_HEX(string, true));
 			} catch (...) {
 				a_vm->TraceStack("String is out of range - cannot be converted to an integer", a_stackID);
 			}
@@ -31,6 +31,6 @@ namespace Papyrus::Strings
 		BIND(IntToString);
 		BIND(StringToInt);
 
-		logger::info("Registered {} string functions"sv, count);
+		REX::INFO("Registered {} string functions"sv, count);
 	}
 }

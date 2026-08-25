@@ -42,6 +42,6 @@ namespace Papyrus::ActiveMagicEffect::Functions
 		BIND(GetScriptsAttachedToActiveEffect);
 		BIND(IsScriptAttachedToActiveEffect);
 
-		logger::info("Registered {} activemagiceffect functions"sv, count);
+		REX::INFO("Registered {} activemagiceffect functions"sv, count);
 	}
 }

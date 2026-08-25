@@ -48,6 +48,8 @@
 #include "REX/REX.h"
 #include "SKSE/SKSE.h"
 
+#include "Version.h"
+
 #include <boost/regex.hpp>
 #include <boost/unordered/unordered_flat_map.hpp>
 #include <boost/unordered/unordered_flat_set.hpp>
@@ -229,4 +231,3 @@ namespace Runtime
 
 #include "API/API.h"
 #include "Common.h"
-#include "Version.h"

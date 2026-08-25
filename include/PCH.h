@@ -179,15 +179,52 @@ namespace stl
 	};
 }
 
+namespace Runtime
+{
+	inline constexpr REL::Version SSE_1_7_99(1, 7, 99, 0);
+	inline constexpr REL::Version MIN_ADDRESS_LIBRARY_V5 = SSE_1_7_99;
+
+	inline REL::Version version{};
+
+	[[nodiscard]] inline bool IsAtLeast1_7_99() noexcept
+	{
+		return version >= Runtime::SSE_1_7_99;
+	}
+
+	inline void Init(const REL::Version& a_runtimeVersion)
+	{
+		version = a_runtimeVersion;
+
+		REX::INFO("Game version : {}", version);
+
+#ifdef SKYRIM_SUPPORT_AE
+		if constexpr (SKSE::RUNTIME_SSE_LATEST < MIN_ADDRESS_LIBRARY_V5) {
+			if (version >= MIN_ADDRESS_LIBRARY_V5) {
+				REX::FAIL(
+					"You are using a newer version of Skyrim than this version of {0} supports.\n"
+					"Install the correct version of {0} for your game version.\n"
+					"Runtime: {1}\n"
+					"Supported: 1.6.1170 (Steam) / 1.6.1179 (GOG)",
+					Version::PROJECT, version);
+			}
+		}
+#endif
+	}
+}
+
 #ifdef SKYRIM_AE
 #	define OFFSET(se, ae) ae
 #	define OFFSET_3(se, ae, vr) ae
+#	define OFFSET_VERSIONED(se, ae, ae1799, vr) \
+		(Runtime::IsAtLeast1_7_99() ? ae1799 : ae)
 #elif SKYRIMVR
 #	define OFFSET(se, ae) se
 #	define OFFSET_3(se, ae, vr) vr
+#	define OFFSET_VERSIONED(se, ae, ae1799, vr) vr
 #else
 #	define OFFSET(se, ae) se
 #	define OFFSET_3(se, ae, vr) se
+#	define OFFSET_VERSIONED(se, ae, ae1799, vr) se
 #endif
 
 #include "API/API.h"

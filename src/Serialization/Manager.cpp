@@ -270,15 +270,15 @@ namespace Serialization
 	{
 		bool success = true;
 		if (!stl::read_formID(a_intfc, magicItemFormID)) {
-			REX::INFO("{} : Failed to resolve effect formID {:X}"sv, a_index, magicItemFormID);
+			REX::WARN("{} : Failed to resolve effect formID {:X}"sv, a_index, magicItemFormID);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(index)) {
-			REX::INFO("Failed to resolve index ({})", index);
+			REX::WARN("Failed to resolve index ({})", index);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(cost)) {
-			REX::INFO("Failed to read cost ({})", cost);
+			REX::WARN("Failed to read cost ({})", cost);
 			success = false;
 		}
 		return success;

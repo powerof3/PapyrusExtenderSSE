@@ -43,6 +43,7 @@ namespace Papyrus::Game
 	std::vector<RE::TESObjectREFR*>   FindAllReferencesOfFormType(RE::StaticFunctionTag*, RE::TESObjectREFR* a_origin, std::uint32_t a_formType, float a_radius);
 	std::vector<RE::TESObjectREFR*>   FindAllReferencesOfType(STATIC_ARGS, [[maybe_unused]] RE::TESObjectREFR* a_ref, const RE::TESForm* a_formOrList, float a_radius);
 	std::vector<RE::TESObjectREFR*>   FindAllReferencesWithKeyword(STATIC_ARGS, RE::TESObjectREFR* a_ref, RE::TESForm* a_formOrList, float a_radius, bool a_matchAll);
+	std::vector<std::string>          GetActivePlugins(RE::StaticFunctionTag*);
 	std::vector<RE::Actor*>           GetActorsByProcessingLevel(RE::StaticFunctionTag*, std::int32_t a_level);
 	std::vector<RE::EnchantmentItem*> GetAllEnchantments(RE::StaticFunctionTag*, std::vector<RE::BGSKeyword*> a_keywords);
 	std::vector<RE::TESForm*>         GetAllForms(RE::StaticFunctionTag*, std::int32_t a_formType, std::vector<RE::BGSKeyword*> a_keywords);

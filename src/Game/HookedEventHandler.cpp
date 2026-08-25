@@ -20,7 +20,7 @@ namespace Event
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> bookMenu{ RELOCATION_ID(50122, 51053), OFFSET_3(0x22D, 0x231, 0x295) };
+			REL::Relocation<std::uintptr_t> bookMenu{ RELOCATION_ID(50122, 51053), OFFSET_VERSIONED(0x22D, 0x231, 0x268, 0x295) };
 			stl::write_thunk_call<Read>(bookMenu.address());
 
 			REX::INFO("Hooked Book Read"sv);

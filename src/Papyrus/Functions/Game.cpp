@@ -94,6 +94,22 @@ namespace Papyrus::Game
 		return result;
 	}
 
+	std::vector<std::string> GetActivePlugins(RE::StaticFunctionTag*)
+	{
+		std::vector<std::string> result;
+
+		if (auto dataHandler = RE::TESDataHandler::GetSingleton()) {
+			result.reserve(dataHandler->files.size());
+			for (const auto& file : dataHandler->files) {
+				if (file && file->compileIndex != 0xFF) {
+					result.emplace_back(file->GetFilename());
+				}
+			}
+		}
+
+		return result;
+	}
+
 	std::vector<RE::Actor*> GetActorsByProcessingLevel(RE::StaticFunctionTag*, std::int32_t a_level)
 	{
 		std::vector<RE::Actor*> result;
@@ -430,6 +446,7 @@ namespace Papyrus::Game
 		BIND(FindAllReferencesOfFormType);
 		BIND(FindAllReferencesOfType);
 		BIND(FindAllReferencesWithKeyword);
+		BIND(GetActivePlugins);
 		BIND(GetActorsByProcessingLevel);
 		BIND(GetAllEnchantments);
 		BIND(GetAllForms);

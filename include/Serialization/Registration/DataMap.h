@@ -251,13 +251,13 @@ public:
 		for (std::size_t i = 0; i < numRegs; i++) {
 			bool validFormID = stl::read_formID(a_intfc, formID);
 			if (!validFormID) {
-				REX::INFO("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
+				REX::WARN("{} : {} : Failed to resolve formID {:X}"sv, a_index, i, formID);
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {
 				bool validDataID = stl::read_formID(a_intfc, dataID);
 				if (!validDataID) {
-					REX::INFO("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
+					REX::WARN("{} : {} : Failed to resolve dataID {:X}"sv, a_index, j, dataID);
 				}
 				if (validFormID && validDataID) {
 					formMap[formID].push_back(dataID);
@@ -347,7 +347,7 @@ public:
 		for (std::size_t i = 0; i < numRegs; i++) {
 			bool validFormID = stl::read_formID(a_intfc, formID);
 			if (!validFormID) {
-				REX::INFO("{} : Failed to resolve formID {:X}"sv, i, formID);
+				REX::WARN("{} : Failed to resolve formID {:X}"sv, i, formID);
 			}
 			a_intfc->ReadRecordData(numData);
 			for (std::size_t j = 0; j < numData; j++) {

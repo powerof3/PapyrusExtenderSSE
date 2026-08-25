@@ -194,7 +194,7 @@ namespace GRAPHICS
 			a_shaderProp->FinishSetupGeometry(a_geometry);
 
 			newMaterial->~BSLightingShaderMaterialBase();
-			RE::free(newMaterial);
+			RE::MemoryManager::GetSingleton()->GetThreadScrapHeap()->Deallocate(newMaterial);
 		}
 
 		return true;
@@ -405,7 +405,7 @@ namespace GRAPHICS
 						lightingShader->FinishSetupGeometry(geometry);
 
 						facegenTint->~BSLightingShaderMaterialFacegenTint();
-						RE::free(facegenTint);
+						RE::MemoryManager::GetSingleton()->GetThreadScrapHeap()->Deallocate(facegenTint);
 					}
 				}
 			}
@@ -780,7 +780,7 @@ namespace GRAPHICS
 				if (const auto material = static_cast<MaterialBase*>(lightingShader->material)) {
 					auto shaderData = ShaderData::Output(originalData);
 					if (!shaderData.Reset(a_geometry, lightingShader, material)) {
-						REX::INFO("unable to get original shader values for {}", a_geometry->name.c_str());
+						REX::WARN("unable to get original shader values for {}", a_geometry->name.c_str());
 					}
 					lightingShader->RemoveExtraData(originalData->GetName());
 					a_geometry->RemoveExtraData(originalData->GetName());

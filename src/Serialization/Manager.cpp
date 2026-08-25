@@ -145,23 +145,23 @@ namespace Serialization
 	{
 		bool success = true;
 		if (!stl::read_formID(a_intfc, mgefFormID)) {
-			REX::INFO("{} : Failed to resolve effect formID {:X}"sv, index, mgefFormID);
+			REX::WARN("{} : Failed to resolve effect formID {:X}"sv, index, mgefFormID);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(mag)) {
-			REX::INFO("Failed to resolve magnitude ({})", mag);
+			REX::WARN("Failed to resolve magnitude ({})", mag);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(area)) {
-			REX::INFO("Failed to read area ({})", area);
+			REX::WARN("Failed to read area ({})", area);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(dur)) {
-			REX::ERROR("Failed to read duration ({})", dur);
+			REX::WARN("Failed to read duration ({})", dur);
 			success = false;
 		}
 		if (!a_intfc->ReadRecordData(cost)) {
-			REX::INFO("Failed to resolve cost ({})", cost);
+			REX::WARN("Failed to resolve cost ({})", cost);
 			success = false;
 		}
 		std::size_t numConditions;

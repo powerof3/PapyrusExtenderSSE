@@ -189,7 +189,7 @@ namespace Runtime
 
 	[[nodiscard]] inline bool IsAtLeast1_7_99() noexcept
 	{
-		static bool result = REX::FModule().GetExecutingModule().GetFileVersion() >= Runtime::SSE_1_7_99;
+		static bool result = REX::FModule::GetExecutingModule().GetFileVersion() >= Runtime::SSE_1_7_99;
 		return result;
 	}
 }

@@ -88,7 +88,7 @@ SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* a_skse)
 
 	Runtime::version = a_skse->RuntimeVersion();
 
-	REX::INFO("Game version : {}", Runtime::version);
+	REX::INFO("Game version : {} (built for {})", Runtime::version, SKSE::RUNTIME_SSE_LATEST);
 
 #ifdef SKYRIM_SUPPORT_AE
 	if constexpr (SKSE::RUNTIME_SSE_LATEST < Runtime::MIN_ADDRESS_LIBRARY_V5) {

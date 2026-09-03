@@ -2,9 +2,8 @@ name: Main
 
 on:
   push:
-    tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+'
-    - 'v[0-9]+.[0-9]+.[0-9]+.rc[0-9]+'
+    branches: '**'
+    tags: '*'
 
 concurrency:
   group: ${{ github.ref }}
@@ -30,8 +29,8 @@ jobs:
       FOMOD_AE353_NAME:  'SSE/AE v1.6.1170 ("Anniversary/Special Edition")'
       FOMOD_AE353_DESCR: 'Select this if you are using Skyrim Anniversary Edition/Special Edition v1.6.1170 (Steam) or v1.6.1179 (GOG).'
       FOMOD_AE353_MIN_GAME_VERSION: '1.6.1170'
-      FOMOD_AE_NAME: 'SSE/AE v1.7.99+ ("Anniversary/Special Edition")'
-      FOMOD_AE_DESCR: 'Select this if you are using Skyrim Anniversary Edition/Special Edition v1.7.99 or higher (latest update).'
+      FOMOD_AE_NAME: 'SSE/AE v1.7.104+ ("Anniversary/Special Edition")'
+      FOMOD_AE_DESCR: 'Select this if you are using Skyrim Anniversary Edition/Special Edition v1.7.104 or higher (latest update).'
       FOMOD_AE_MIN_GAME_VERSION: '1.7'
       FOMOD_REQUIRED_INSTALLATION_DIR: "Papyrus"
       PUBLISH_ARCHIVE_TYPE: '7z'

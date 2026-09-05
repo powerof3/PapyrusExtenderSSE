@@ -1,6 +1,6 @@
 #include "Papyrus/Util/Graphics/ActorGraphics.h"
 
-#include "Papyrus/Util/Graphics/MeshNormals.h"
+/*#include "Papyrus/Util/Graphics/MeshNormals.h"*/
 
 namespace GRAPHICS
 {

@@ -1,4 +1,4 @@
-#include "Papyrus/Util/Graphics.h"
+#include "Papyrus/Util/Graphics/Graphics.h"
 
 namespace GRAPHICS::MATERIAL
 {

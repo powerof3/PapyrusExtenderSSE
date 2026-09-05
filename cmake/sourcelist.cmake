@@ -46,9 +46,9 @@ set(sources ${sources}
 	src/Papyrus/Functions/Weather.cpp
 	src/Papyrus/Manager.cpp
 	src/Papyrus/ObjectTypes.cpp
-	src/Papyrus/Util/ActorGraphics.cpp
 	src/Papyrus/Util/ConditionParser.cpp
-	src/Papyrus/Util/Graphics.cpp
+	src/Papyrus/Util/Graphics/ActorGraphics.cpp
+	src/Papyrus/Util/Graphics/Graphics.cpp
 	src/Papyrus/Util/Inventory.cpp
 	src/Papyrus/Util/Magic.cpp
 	src/Papyrus/Util/Script.cpp

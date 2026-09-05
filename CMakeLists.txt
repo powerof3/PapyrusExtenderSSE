@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "po3_PapyrusExtender" CACHE STRING "")
-set(VERSION 6.5.1 CACHE STRING "")
+set(VERSION 6.5.2 CACHE STRING "")
 set(VR_VERSION 1)
 set(AE_VERSION 1)
 
@@ -153,6 +153,7 @@ else ()
 endif()
 
 find_path(CLIB_UTIL_INCLUDE_DIRS "ClibUtil/utils.hpp")
+find_path(HALF_INCLUDE_DIRS "half.hpp")
 
 find_package(frozen CONFIG REQUIRED)
 find_package(boost_unordered CONFIG REQUIRED)
@@ -209,6 +210,7 @@ target_include_directories(
 		${CMAKE_CURRENT_BINARY_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${CLIB_UTIL_INCLUDE_DIRS}
+		${HALF_INCLUDE_DIRS}
 )
 
 target_link_libraries(

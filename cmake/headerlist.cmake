@@ -51,9 +51,9 @@ set(headers ${headers}
 	include/Papyrus/Functions/Weather.h
 	include/Papyrus/Manager.h
 	include/Papyrus/ObjectTypes.h
-	include/Papyrus/Util/ActorGraphics.h
 	include/Papyrus/Util/ConditionParser.h
-	include/Papyrus/Util/Graphics.h
+	include/Papyrus/Util/Graphics/ActorGraphics.h
+	include/Papyrus/Util/Graphics/Graphics.h
 	include/Papyrus/Util/Inventory.h
 	include/Papyrus/Util/Magic.h
 	include/Papyrus/Util/Script.h

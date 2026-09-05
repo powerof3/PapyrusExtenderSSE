@@ -1,4 +1,6 @@
-#include "Papyrus/Util/ActorGraphics.h"
+#include "Papyrus/Util/Graphics/ActorGraphics.h"
+
+#include "Papyrus/Util/Graphics/MeshNormals.h"
 
 namespace GRAPHICS
 {
@@ -114,6 +116,12 @@ namespace GRAPHICS
 									results.push_back(a_geometry->name);
 								}
 							}
+
+							/*if (a_geometry->vertexDesc.HasFlag(VertexFlags::VF_SKINNED) && !a_geometry->vertexDesc.HasFlag(VertexFlags::VF_NORMAL)) {
+								if (newFeature == Feature::kMultilayerParallax && !NORMALS::RegenerateSkinnedNormals(a_geometry)) {
+									REX::WARN("SetShaderType - unable to regenerate normals for {}", a_geometry->name.c_str());
+								}
+							}*/
 
 							if (const auto newMaterial = static_cast<MaterialBase*>(tempMaterial->Create()); newMaterial) {
 								newMaterial->CopyMembers(tempMaterial);

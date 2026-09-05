@@ -53,6 +53,7 @@
 #include <boost/unordered/unordered_flat_set.hpp>
 #include <frozen/bits/elsa_std.h>
 #include <frozen/unordered_map.h>
+#include <half.hpp>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <xbyak/xbyak.h>
 

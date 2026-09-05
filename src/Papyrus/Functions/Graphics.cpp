@@ -1,7 +1,7 @@
 #include "Papyrus/Functions/Graphics.h"
 
-#include "Papyrus/Util/ActorGraphics.h"
-#include "Papyrus/Util/Graphics.h"
+#include "Papyrus/Util/Graphics/ActorGraphics.h"
+#include "Papyrus/Util/Graphics/Graphics.h"
 
 namespace Papyrus::Graphics
 {

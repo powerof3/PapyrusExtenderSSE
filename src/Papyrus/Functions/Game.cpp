@@ -1,6 +1,6 @@
 #include "Papyrus/Functions/Game.h"
 
-#include "Papyrus/Util/Graphics.h"
+#include "Papyrus/Util/Graphics/Graphics.h"
 
 namespace Papyrus::Game
 {

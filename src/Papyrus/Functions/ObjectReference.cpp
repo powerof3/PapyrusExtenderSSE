@@ -1,6 +1,6 @@
 #include "Papyrus/Functions/ObjectReference.h"
 
-#include "Papyrus/Util/Graphics.h"
+#include "Papyrus/Util/Graphics/Graphics.h"
 #include "Papyrus/Util/Inventory.h"
 #include "Serialization/Manager.h"
 
